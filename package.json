@@ -1,9 +1,9 @@
 {
-  "name": "ezmesure-spaces",
+  "name": "ezmesure-admin",
   "version": "1.0.0",
-  "description": "Manage kibana spaces from command line in ezMESURE",
+  "description": "Command line utilities to manage ezMESURE",
   "bin": {
-    "ezmesure-spaces": "./index.js"
+    "ezmesure-admin": "./index.js"
   },
   "main": "index.js",
   "scripts": {
