@@ -18,12 +18,12 @@ async function curlCommand(method, url, body) {
 
   console.log(fullCommand);
 
-  const { stdout, stderr } = await exec(fullCommand);
-  if (stderr) {
-    console.error(`error: ${stderr}`);
+  try {
+    const { stdout } = await exec(fullCommand);
+    return stdout;
+  } catch (error) {
+    console.error(`error0: ${error}`);
   }
-  return stdout;
-
 }
 
 async function getSpaces(space) {
@@ -31,12 +31,23 @@ async function getSpaces(space) {
   let spaces;
 
   if (space) {
-    spaces = await curlCommand('GET', config.elkConfig.kibanaUrl + '/api/spaces/space/' + space, '');
+    try {
+      spaces = await curlCommand('GET', config.elkConfig.kibanaUrl + '/api/spaces/space/' + space, '');
+    } catch (error) {
+      console.error(`error: ${error}`);
+    }  
   } else {
-    spaces = await curlCommand('GET', config.elkConfig.kibanaUrl + '/api/spaces/space', '');
+    try {
+      spaces = await curlCommand('GET', config.elkConfig.kibanaUrl + '/api/spaces/space', '');
+    } catch (error) {
+      console.error(`error: ${error}`);
+    }  
   }
-  const object = JSON.parse(spaces);
-  console.dir(object, {depth: null, colors: true});
+
+  if (spaces) {
+    const object = JSON.parse(spaces);
+    console.dir(object, {depth: null, colors: true});
+  }
 }
 
 async function addSpaces(space) {
@@ -65,7 +76,48 @@ async function delSpaces(space) {
   spaces = await curlCommand('DELETE', config.elkConfig.kibanaUrl + '/api/spaces/space/' + space, '');
 
   // const object = JSON.parse(spaces);
-  // console.dir(object, {depth: null, colors: true});
+  console.dir(spaces);
+}
+
+async function findObjects(type) {
+  // curl -X GET "http://localhost:5601/api/saved_objects/_find" -H 'kbn-xsrf: true'
+  let objects;
+
+  if (type) {
+    try {
+      objects = await curlCommand('GET', config.elkConfig.kibanaUrl + '/api/saved_objects/_find?type=' + type, '');
+    } catch (error) {
+      console.error(`error: ${error}`);
+    }
+  } else {
+    console.error('error: type required');
+  }
+
+  if (objects) {
+    const object = JSON.parse(objects);
+    console.dir(object, {depth: null, colors: true});
+  }
+}
+
+async function exportDashboard(dashboardId) {
+  // curl -X GET "http://localhost:5601/api/kibana/dashboards/export?dashboard=" -H 'kbn-xsrf: true'
+  let objects;
+
+  if (dashboardId) {
+    try {
+      objects = await curlCommand('GET', config.elkConfig.kibanaUrl + '/api/kibana/dashboards/export?dashboard=' + dashboardId, '');
+    } catch (error) {
+      console.error(`error: ${error}`);
+    }
+  } else {
+    console.error('error: dashboardId required');
+  }
+
+  if (objects) {
+    const object = JSON.parse(objects);
+    console.dir('toto');
+    console.dir(object, {depth: null, colors: true});
+  }
 }
 
 program
@@ -88,6 +140,20 @@ program
   .description('Delete a KIBANA space')
   .action(function (space) {
     delSpaces(space);
+  });
+
+program
+  .command('objects-find <type>')
+  .description('Find KIBANA objects')
+  .action(function (type) {
+    findObjects(type);
+  });
+
+program
+  .command('dashboard-export <dasboardId>')
+  .description('Export dashboard by Id')
+  .action(function (dasboardId) {
+    exportDashboard(dasboardId);
   });
 
 program.parse(process.argv);
