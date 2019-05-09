@@ -120,6 +120,34 @@ async function exportDashboard(dashboardId) {
   }
 }
 
+async function importDashboardInSpace(dashboardId, space) {
+  // curl -X GET "http://localhost:5601/api/kibana/dashboards/export?dashboard=" -H 'kbn-xsrf: true'
+  // http://localhost:5601/s/sales/api/kibana/dashboards/import --data-binary @export.json  
+  let exportedDashboard;
+  let objects;
+  let newSpace;
+
+  if (dashboardId) {
+    try {
+      exportedDashboard = await exportDashboard(dashboardId);
+      newSpace = await addSpaces(space);
+      objects = await curlCommand('POST', config.elkConfig.kibanaUrl + '/s/' + space +
+      '/api/kibana/dashboards/import', exportedDashboard);
+    } catch (error) {
+      console.error(`error: ${error}`);
+    }
+  } else {
+    console.error('error: dashboardId required');
+  }
+
+  if (objects) {
+    const object = JSON.parse(objects);
+    console.dir(object, {depth: null, colors: true});
+  }
+}
+
+
+
 program
   .version('0.0.1')
   .command('spaces [space]')
@@ -155,6 +183,15 @@ program
   .action(function (dasboardId) {
     exportDashboard(dasboardId);
   });
+
+program
+  .command('dashboard-move-in-space <dasboardId> <space>')
+  .description('Move dashboard by Id in another space')
+  .action(function (dasboardId, space) {
+    importDashboardInSpace(dasboardId, space);
+  });
+
+
 
 program.parse(process.argv);
 console.log(program.args);
