@@ -12,6 +12,7 @@
   "author": "ezTEAM",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.18.0",
     "commander": "^2.20.0",
     "eslint": "^5.16.0"
   }
