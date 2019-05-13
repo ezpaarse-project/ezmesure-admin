@@ -6,9 +6,7 @@
 'use strict';
 
 const program = require('commander');
-const util = require('util');
 const axios = require('axios');
-
 
 const config = require('./lib/elk_config');
 
@@ -27,7 +25,7 @@ async function getSpaces(space) {
 
   try {
     const response = await instance.get(url);
-    console.log(response.data);
+    console.dir(response.data, { depth: null });
   } catch (error) {
     console.error(error);
   }
@@ -48,7 +46,9 @@ async function addSpaces(space) {
 
   try {
     const response = await instance.post(config.elkConfig.kibanaUrl + '/api/spaces/space', defaultSpace);
-    console.log(response.data);
+    if (response.status === 200) { console.log('Espace %s créé', space); }
+    else console.log(response.statusText, response.status);
+    return response.data;
   } catch (error) {
     console.error(error);
   }
@@ -59,7 +59,7 @@ async function delSpaces(space) {
 
   try {
     const response = await instance.delete(config.elkConfig.kibanaUrl + '/api/spaces/space/'+ space);
-    console.log(response.data);
+
     if (response.status === 204) { console.log('Espace %s supprimé', space); }
     else console.log(response.statusText, response.status);
   } catch (error) {
@@ -84,23 +84,21 @@ async function findObjects(type) {
 
 async function exportDashboard(dashboardId) {
   // curl -X GET "http://localhost:5601/api/kibana/dashboards/export?dashboard=" -H 'kbn-xsrf: true'
-  let objects;
 
   if (dashboardId) {
     try {
       const response = await instance.get(config.elkConfig.kibanaUrl + '/api/kibana/dashboards/export', {'params': { 'dashboard' : dashboardId}});
-      console.dir(response.data, { depth: null });
+      if (response.status === 200) {
+        console.log('Dashboard %s exporté', dashboardId);
+      } else {
+        console.log('Problème à l\'export de %s', dashboardId);
+      }
+      return response.data;
     } catch (error) {
       console.error(error);
     }
   } else {
     console.error('error: dashboardId required');
-  }
-
-  if (objects) {
-    const object = JSON.parse(objects);
-    console.dir('toto');
-    console.dir(object, {depth: null, colors: true});
   }
 }
 
@@ -109,25 +107,23 @@ async function importDashboardInSpace(dashboardId, space) {
   // http://localhost:5601/s/sales/api/kibana/dashboards/import --data-binary @export.json
   let exportedDashboard;
   let objects;
-  let newSpace;
 
   if (dashboardId) {
     try {
       exportedDashboard = await exportDashboard(dashboardId);
-      newSpace = await addSpaces(space);
+      await addSpaces(space);
       objects = await instance.post(config.elkConfig.kibanaUrl + '/s/' + space +
       '/api/kibana/dashboards/import', exportedDashboard);
-      console.log(newSpace);
+      if (objects.status === 200) {
+        console.log('Dashboard %s importé', dashboardId);
+      } else {
+        console.log('Problème à l\'export de %s', dashboardId);
+      }
     } catch (error) {
       console.error(`error: ${error}`);
     }
   } else {
     console.error('error: dashboardId required');
-  }
-
-  if (objects) {
-    const object = JSON.parse(objects);
-    console.dir(object, {depth: null, colors: true});
   }
 }
 
@@ -170,13 +166,11 @@ program
   });
 
 program
-  .command('dashboard-move-in-space <dasboardId> <space>')
+  .command('dashboard-move-in-space <dashboardId> <space>')
   .description('Move dashboard by Id in another space')
-  .action(function (dasboardId, space) {
-    importDashboardInSpace(dasboardId, space);
+  .action(function (dashboardId, space) {
+    importDashboardInSpace(dashboardId, space);
   });
-
-
 
 program.parse(process.argv);
 // console.log(program.args);
