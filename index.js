@@ -3,54 +3,92 @@
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 
-'use strict';
 
 const program = require('commander');
 const axios = require('axios');
+const config = require('config');
+const winston = require('winston');
 
-const config = require('./lib/elk_config');
+winston.addColors({
+  verbose: 'green',
+  info: 'green',
+  warn: 'yellow',
+  error: 'red',
+});
+const { format } = winston;
+const logger = winston.createLogger({
+  level: 'info',
+  format: format.combine(
+    format.colorize(),
+    format.timestamp(),
+    format.printf((info) => {
+      if (typeof info.message === 'object') {
+        // eslint-disable-next-line no-param-reassign
+        info.message = JSON.stringify(info.message);
+      }
+      // return `${info.timestamp} ${info.level}: ${info.message}`;
+      return `${info.level}: ${info.message}`;
+    }),
+  ),
+  exitOnError: true,
+  transports: [
+    new (winston.transports.Console)(),
+    new winston.transports.File({ filename: 'log/error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'log/combined.log', level: 'info' }),
+  ],
+});
 
-let instance = axios.create({
-  'auth': {
-    'username': config.elkConfig.elasticsearchUser,
-    'password': config.elkConfig.elasticsearchPassword
+const instance = axios.create({
+  auth: {
+    username: config.elasticsearchUser,
+    password: config.elasticsearchPassword,
   },
-  'timeout': 5000,
-  'headers': {'kbn-xsrf': 'true'},
-  'proxy':  false
+  timeout: config.timeout || 5000,
+  headers: { 'kbn-xsrf': 'true' },
+  proxy: false,
 });
 
 async function getSpaces(space) {
-  const url = space ? (config.elkConfig.kibanaUrl + '/api/spaces/space/'+ space) : config.elkConfig.kibanaUrl + '/api/spaces/space';
+  const url = space ? (`${config.kibanaUrl}/api/spaces/space/${space}`) : `${config.kibanaUrl}/api/spaces/space`;
 
   try {
     const response = await instance.get(url);
-    console.dir(response.data, { depth: null });
+    const { data } = response;
+    if (Array.isArray(data)) {
+      data.forEach(el => logger.info(JSON.stringify(el)));
+    }
+    if (!Array.isArray(data)) {
+      logger.info(JSON.stringify(data));
+    }
   } catch (error) {
-    console.error(error);
+    logger.error(error);
+    process.exit(1);
   }
 }
-
 
 async function addSpaces(space) {
   // curl -X PUT "http://localhost:5601/api/spaces/space" -H 'kbn-xsrf: true'
 
-  let defaultSpace =
-  {
-    'id': space,
-    'name': space,
-    'description' : 'This is the Test Space',
-    'color': '#aabbcc',
-    'initials': 'MK'
+  const defaultSpace = {
+    id: space,
+    name: space,
+    description: 'This is the Test Space',
+    color: '#aabbcc',
+    initials: 'MK',
   };
 
   try {
-    const response = await instance.post(config.elkConfig.kibanaUrl + '/api/spaces/space', defaultSpace);
-    if (response.status === 200) { console.log('Espace %s créé', space); }
-    else console.log(response.statusText, response.status);
+    const response = await instance.post(`${config.kibanaUrl}/api/spaces/space`, defaultSpace);
+    if (response.status === 200) {
+      logger.info(`Espace ${space} crée`);
+    } else {
+      logger.warn({ statusText: response.statusText, status: response.status });
+    }
     return response.data;
   } catch (error) {
-    console.error(error);
+    logger.error(error);
+    process.exit(1);
+    return false;
   }
 }
 
@@ -58,12 +96,16 @@ async function delSpaces(space) {
   // curl -X DELETE "http://localhost:5601/api/spaces/space" -H 'kbn-xsrf: true'
 
   try {
-    const response = await instance.delete(config.elkConfig.kibanaUrl + '/api/spaces/space/'+ space);
+    const response = await instance.delete(`${config.kibanaUrl}/api/spaces/space/${space}`);
 
-    if (response.status === 204) { console.log('Espace %s supprimé', space); }
-    else console.log(response.statusText, response.status);
+    if (response.status === 204) {
+      logger.info(`Espace ${space} supprimé`);
+    } else {
+      logger.warn({ statusText: response.statusText, status: response.status });
+    }
   } catch (error) {
-    console.error(error);
+    logger.error(error);
+    process.exit(1);
   }
 }
 
@@ -72,13 +114,14 @@ async function findObjects(type) {
 
   if (type) {
     try {
-      const response = await instance.get(config.elkConfig.kibanaUrl + '/api/saved_objects/_find', {'params': { 'type' : type}});
+      const response = await instance.get(`${config.kibanaUrl}/api/saved_objects/_find`, { params: { type } });
       console.dir(response.data, { depth: null });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
+      process.exit(1);
     }
   } else {
-    console.error('error: type required');
+    logger.error('Type required');
   }
 }
 
@@ -87,18 +130,21 @@ async function exportDashboard(dashboardId) {
 
   if (dashboardId) {
     try {
-      const response = await instance.get(config.elkConfig.kibanaUrl + '/api/kibana/dashboards/export', {'params': { 'dashboard' : dashboardId}});
+      const response = await instance.get(`${config.kibanaUrl}/api/kibana/dashboards/export`, { params: { dashboard: dashboardId } });
       if (response.status === 200) {
-        console.log('Dashboard %s exporté', dashboardId);
+        logger.info(`Dashboard ${dashboardId} exporté`);
       } else {
-        console.log('Problème à l\'export de %s', dashboardId);
+        logger.warn(`Problème à l'export de ${dashboardId}`);
       }
       return response.data;
     } catch (error) {
-      console.error(error);
+      logger.error(error);
+      process.exit(1);
+      return false;
     }
   } else {
-    console.error('error: dashboardId required');
+    logger.error('dashboardId required');
+    return false;
   }
 }
 
@@ -112,71 +158,68 @@ async function importDashboardInSpace(dashboardId, space) {
     try {
       exportedDashboard = await exportDashboard(dashboardId);
       await addSpaces(space);
-      objects = await instance.post(config.elkConfig.kibanaUrl + '/s/' + space +
-      '/api/kibana/dashboards/import', exportedDashboard);
+      objects = await instance.post(`${config.kibanaUrl}/s/${space
+      }/api/kibana/dashboards/import`, exportedDashboard);
       if (objects.status === 200) {
-        console.log('Dashboard %s importé', dashboardId);
+        logger.info(`Dashboard ${dashboardId} importé`);
       } else {
-        console.log('Problème à l\'export de %s', dashboardId);
+        logger.warn(`Problème à l'export de ${dashboardId}`);
       }
     } catch (error) {
-      console.error(`error: ${error}`);
+      logger.error(error);
     }
   } else {
-    console.error('error: dashboardId required');
+    logger.error('dashboardId required');
   }
 }
 
-
+program.on('command:*', () => {
+  logger.error(`Invalid command: ${program.args.join(' ')}\nSee --help for a list of available commands.`);
+  process.exit(1);
+});
 
 program
   .version('0.0.1')
   .command('spaces [space]')
   .description('List all KIBANA spaces or [space] space attributes')
-  .action(function (space) {
+  .action((space) => {
     getSpaces(space);
   });
 
 program
   .command('space-add <space>')
   .description('Add a KIBANA space with default attributes')
-  .action(function (space) {
+  .action((space) => {
     addSpaces(space);
   });
 
 program
   .command('space-del <space>')
   .description('Delete a KIBANA space')
-  .action(function (space) {
+  .action((space) => {
     delSpaces(space);
   });
 
 program
   .command('objects-find <type>')
   .description('Find KIBANA objects')
-  .action(function (type) {
+  .action((type) => {
     findObjects(type);
   });
 
 program
   .command('dashboard-export <dasboardId>')
   .description('Export dashboard by Id')
-  .action(function (dasboardId) {
+  .action((dasboardId) => {
     exportDashboard(dasboardId);
   });
 
 program
   .command('dashboard-move-in-space <dashboardId> <space>')
   .description('Move dashboard by Id in another space')
-  .action(function (dashboardId, space) {
+  .action((dashboardId, space) => {
     importDashboardInSpace(dashboardId, space);
   });
 
 program.parse(process.argv);
 // console.log(program.args);
-
-
-
-
-
-
