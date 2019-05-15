@@ -17,7 +17,7 @@ You can get help for any command by typing ezmesure-admin <command> --help.
 | [space-add \<space>](#space-add) | Add a KIBANA space with default attributes |
 | [space-del \<space>](#space-del) | Delete a KIBANA space |
 | [objects-find \<space>](#objects-find) | Find KIBANA objects |
-| [dasboard-export \<dasboardId>](#dasboard-export) | Find KIBANA objects |
+| [dasboard-export \<dasboardId>](#dasboard-export) | Export dashboard by Id |
 | [dashboard-move-in-space \<dasboardId> \<space>](#dashboard-move-in-space) | Move dashboard by Id in another space |
 
 # Commands details
