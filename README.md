@@ -7,6 +7,7 @@
 | --- | --- | --- |
 | -v, --version | Boolean | Print the version number |
 | -h, --help | Boolean | Show some help |
+
 You can get help for any command by typing ezmesure-admin <command> --help.
 
 # Commands
