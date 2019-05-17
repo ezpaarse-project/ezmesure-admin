@@ -3,17 +3,26 @@
   "version": "1.0.0",
   "description": "Command line utilities to manage ezMESURE",
   "bin": {
-    "ezmesure-admin": "./index.js"
+    "ezmesure-admin": "./bin/ezmesure-admin"
   },
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint --ext .js .",
+    "precommit": "npm run lint"
   },
   "author": "ezTEAM",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.18.0",
     "commander": "^2.20.0",
-    "eslint": "^5.16.0"
+    "config": "^3.1.0",
+    "table": "^5.3.3",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.17.2",
+    "husky": "^2.2.0"
   }
 }

@@ -1,0 +1,8 @@
+{
+  "elasticsearchUrl": "ELASTICSEARCH_URL",
+  "elasticsearchUser": "ELASTICSEARCH_USERNAME",
+  "elasticsearchPassword": "ELASTICSEARCH_PASSWORD",
+  "kibanaUrl": "KIBANA_URL",
+  "timeout": "TIMEOUT",
+  "logFile": "LOG_FILE"
+}
