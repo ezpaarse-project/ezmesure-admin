@@ -47,6 +47,7 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 
 | Name | Type | Description |
 | --- | --- | --- |
+| -t, --title | String | Search objects by name |
 | -j, --json | Boolean | Print object informations in JSON format |
 | -s, --space | String | Name of target space |
 
