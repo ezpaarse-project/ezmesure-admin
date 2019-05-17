@@ -5,8 +5,9 @@
 # Global options
 | Name | Type | Description |
 | --- | --- | --- |
-| -v, --version | Boolean | Print the version number |
+| -V, --version | Boolean | Print the version number |
 | -h, --help | Boolean | Show some help |
+
 You can get help for any command by typing ezmesure-admin <command> --help.
 
 # Commands
@@ -23,14 +24,15 @@ You can get help for any command by typing ezmesure-admin <command> --help.
 #### spaces
 | Name | Type | Description |
 | --- | --- | --- |
-| -i, --id | Boolean | Print id of space(s) |
-| -n, --name | Boolean | Print name of space(s) |
+| -a, --all | Boolean | Print spaces informations in totally |
+| -j, --json | Boolean | Print spaces informations in JSON format |
 
 #### space-add
 | Name | Type | Description |
 | --- | --- | --- |
-| -i, --id | String | Name of space |
+| -c, --color | String | Color of space |
 | -d, --desc | String | Description of space |
+| -i, --initials | String | Initials of space |
 
 #### space-del
 > No options for this command
@@ -38,11 +40,23 @@ You can get help for any command by typing ezmesure-admin <command> --help.
 #### objects-find
 | Name | Type | Description |
 | --- | --- | --- |
-| -i, --id | Boolean | Print id of object(s) |
-| -n, --name | Boolean | Print name of object(s) |
+| -j, --json | Boolean | Print object informations in JSON format |
+| -s, --space | String | Name of target space |
+
+Available objects:
+- visualization
+- dashboard
+- search
+- index-pattern
+- config
+- timelion-sheet
 
 #### dashboard-export
-> No options for this command
+| Name | Type | Description |
+| --- | --- | --- |
+| -s, --space | String | Name of target space |
 
 #### dashboard-move-in-space
-> No options for this command
+| Name | Type | Description |
+| --- | --- | --- |
+| -s, --space | String | Name of target space |
