@@ -1,20 +1,17 @@
-const config = require('config');
 const { table } = require('table');
-const logger = require('../logger');
-const instance = require('../api');
+const logger = require('../../lib/app/logger');
+const spacesLib = require('../../lib/spaces');
 
 module.exports = {
   getSpaces: async (space, opts) => {
-    const url = space ? (`${config.kibanaUrl}/api/spaces/space/${space}`) : `${config.kibanaUrl}/api/spaces/space`;
-
     let data;
     try {
-      const response = await instance.get(url);
+      const response = await spacesLib.getSpaces(space);
       // eslint-disable-next-line prefer-destructuring
       data = response.data;
     } catch (error) {
-      console.error(error);
       logger.error(error);
+      console.error(error);
       process.exit(1);
     }
 
@@ -24,7 +21,7 @@ module.exports = {
     }
 
     if (opts && opts.json) {
-      console.log(JSON.stringify(data, null, 2));
+      return console.log(JSON.stringify(data, null, 2));
     }
 
     if (opts && !opts.json) {
@@ -48,43 +45,18 @@ module.exports = {
   },
 
   addSpaces: async (space, opts) => {
-    const defaultSpace = {
-      id: space,
-      name: space,
-      description: `This is the space : ${space}`,
-    };
-
-    if (opts && opts.desc) {
-      defaultSpace.description = opts.desc;
-    }
-    if (opts && opts.color) {
-      if (!/^(#{1}[a-f0-9]{6})$/i.test(opts.color)) {
-        logger.error('Invalid color, ex: #aabbcc');
-        return null;
-      }
-      defaultSpace.color = opts.color;
-    }
-    if (opts && opts.initials) {
-      if (!/^([a-z0-9]{0,2})$/i.test(opts.initials)) {
-        logger.error('Initials must be have two characters');
-        return null;
-      }
-      defaultSpace.initials = opts.initials;
-    }
-
-    let response;
     try {
-      response = await instance.post(`${config.kibanaUrl}/api/spaces/space`, defaultSpace);
+      const defaultSpace = spacesLib.buildSpace(space, opts);
+
+      const response = await spacesLib.addSpaces(defaultSpace);
+      if (response.status === 200) {
+        logger.info(`Space ${space} created`);
+      }
     } catch (error) {
       logger.error(error);
-      process.exit(1);
+      console.log(error);
+      return process.exit(1);
     }
-
-    if (response.status === 200) {
-      logger.info(`Space ${space} created`);
-      return response.data;
-    }
-    logger.error({ statusText: response.statusText, status: response.status });
     return null;
   },
 
@@ -93,7 +65,7 @@ module.exports = {
 
     try {
       for (let i = 0; i < spaces.length; i += 1) {
-        const response = await instance.delete(`${config.kibanaUrl}/api/spaces/space/${spaces[i]}`);
+        const response = await spacesLib.delSpaces(spaces[i]);
 
         if (response.status === 204) {
           logger.info(`Space ${spaces[i]} removed`);

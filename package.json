@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Command line utilities to manage ezMESURE",
   "bin": {
-    "ezmesure-admin": "./index.js"
+    "ezmesure-admin": "./bin/ezmesure-admin"
   },
   "main": "index.js",
   "scripts": {

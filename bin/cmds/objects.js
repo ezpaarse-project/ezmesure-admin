@@ -1,23 +1,16 @@
-const config = require('config');
 const { table } = require('table');
-const logger = require('../logger');
-const instance = require('../api');
+const logger = require('../../lib/app/logger');
+const objectsLib = require('../../lib/objects');
 
 module.exports = {
   findObjects: async (type, opts) => {
     // curl -X GET 'http://localhost:5601/api/saved_objects/_find' -H 'kbn-xsrf: true'
 
     let response;
-    const url = (opts && opts.space) ? `${config.kibanaUrl}/s/${opts.space}/api/saved_objects/_find` : `${config.kibanaUrl}/api/saved_objects/_find`;
     try {
-      response = await instance.get(url, {
-        params: {
-          type,
-          search_fields: (opts && opts.title) ? 'title' : null,
-          search: opts.title || null,
-        },
-      });
+      response = await objectsLib.findObjects(type, opts);
     } catch (error) {
+      console.error(error);
       logger.error(error);
       process.exit(1);
     }

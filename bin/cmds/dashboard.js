@@ -1,24 +1,12 @@
-const config = require('config');
-const logger = require('../logger');
-const instance = require('../api');
-const libSpaces = require('./spaces');
+const logger = require('../../lib/app/logger');
+const spacesLib = require('../../lib/spaces');
+const dashboardLib = require('../../lib/dashboard');
 
 const dashboard = {};
 
-dashboard.export = (dashboardId, opts) => {
-  // curl -X GET "http://localhost:5601/api/kibana/dashboards/export?dashboard=" -H 'kbn-xsrf: true'
-
-  const url = (opts && opts.space) ? `${config.kibanaUrl}s/${opts.space}/api/kibana/dashboards/export` : `${config.kibanaUrl}/api/kibana/dashboards/export`;
-  return instance.get(url, {
-    params: {
-      dashboard: dashboardId,
-    },
-  });
-};
-
 dashboard.exportDashboard = async (dashboardId, opts) => {
   try {
-    const res = await dashboard.export(dashboardId, opts);
+    const res = await dashboardLib.export(dashboardId, opts);
     if (res.status === 200) {
       console.log(JSON.stringify(res, null, 2));
     }
@@ -33,7 +21,10 @@ dashboard.importDashboardInSpace = async (dashboardId, space, opts) => {
   // http://localhost:5601/s/sales/api/kibana/dashboards/import --data-binary @export.json
 
   try {
-    const { data: exportedDashboard } = await dashboard.export(dashboardId);
+    const { data: exportedDashboard } = await dashboardLib.export(dashboardId);
+    if (exportedDashboard) {
+      logger.info(`Dashboard ${dashboardId} exported`);
+    }
 
     if (exportedDashboard.objects[0].error) {
       logger.error(`Problem with the export of ${dashboardId} : ${JSON.stringify(exportedDashboard.objects[0].error)}`);
@@ -41,10 +32,14 @@ dashboard.importDashboardInSpace = async (dashboardId, space, opts) => {
     }
 
     if (opts && opts.new) {
-      await libSpaces.addSpaces(space);
+      const defaultSpace = spacesLib.buildSpace(space, opts);
+      const response = await spacesLib.addSpaces(defaultSpace);
+      if (response.status === 200) {
+        logger.info(`Space ${space} created`);
+      }
     }
 
-    const objects = await instance.post(`${config.kibanaUrl}/s/${space}/api/kibana/dashboards/import`, exportedDashboard);
+    const objects = await dashboardLib.import(space, exportedDashboard);
 
     if (objects.status === 200) {
       logger.info(`Dashboard ${dashboardId} imported`);
