@@ -2,15 +2,17 @@
 
 > Tools for ezMESURE administration
 
-# Global options
+## Global options
+
 | Name | Type | Description |
 | --- | --- | --- |
 | -V, --version | Boolean | Print the version number |
 | -h, --help | Boolean | Show some help |
 
-You can get help for any command by typing ezmesure-admin <command> --help.
+You can get help for any command by typing `ezmesure-admin <command> --help`.
 
-# Commands
+## Commands
+
 | Name | Description |
 | --- | --- |
 | [spaces [space]\(optional)](#spaces) | List all KIBANA spaces or [space] space attributes |
@@ -20,30 +22,36 @@ You can get help for any command by typing ezmesure-admin <command> --help.
 | [dasboard-export \<dasboardId>](#dasboard-export) | Export dashboard by Id |
 | [dashboard-move-in-space \<dasboardId> \<space>](#dashboard-move-in-space) | Move dashboard by Id in another space |
 
-# Commands details
-#### spaces
+## Commands details
+
+### spaces
+
 | Name | Type | Description |
 | --- | --- | --- |
 | -a, --all | Boolean | Print spaces informations in totally |
 | -j, --json | Boolean | Print spaces informations in JSON format |
 
-#### space-add
+### space-add
+
 | Name | Type | Description |
 | --- | --- | --- |
 | -c, --color | String | Color of space |
 | -d, --desc | String | Description of space |
 | -i, --initials | String | Initials of space |
 
-#### space-del
+### space-del
+
 > No options for this command
 
-#### objects-find
+### objects-find
+
 | Name | Type | Description |
 | --- | --- | --- |
 | -j, --json | Boolean | Print object informations in JSON format |
 | -s, --space | String | Name of target space |
 
 Available objects:
+
 - visualization
 - dashboard
 - search
@@ -51,13 +59,14 @@ Available objects:
 - config
 - timelion-sheet
 
-#### dashboard-export
+### dashboard-export
+
 | Name | Type | Description |
 | --- | --- | --- |
 | -s, --space | String | Name of target space |
 
-#### dashboard-move-in-space
+### dashboard-move-in-space
+
 | Name | Type | Description |
 | --- | --- | --- |
-| -n, --new | String | create new space |
-
+| -n, --new | Boolean | create new space |

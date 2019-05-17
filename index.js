@@ -45,7 +45,7 @@ program
 program
   .command('objects-find <type>')
   .description('Find KIBANA objects (objects: visualization, dashboard, search, index-pattern, config, timelion-sheet)')
-  .option('-f, --filter <filter>', 'filter (ex: univ-lorraine)')
+  .option('-t, --title <title>', 'title (ex: univ-lorraine)')
   .option('-j, --json', 'display data in JSON format')
   .option('-s, --space <space>', 'name of target space')
   .action((type, opts) => {
