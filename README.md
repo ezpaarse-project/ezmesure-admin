@@ -19,8 +19,8 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [space-add \<space>](#space-add) | Add a KIBANA space with default attributes |
 | [space-del \<space>](#space-del) | Delete a KIBANA space |
 | [objects-find \<space>](#objects-find) | Find KIBANA objects |
-| [dasboard-export \<dasboardId>](#dasboard-export) | Export dashboard by Id |
-| [dashboard-move-in-space \<dasboardId> \<space>](#dashboard-move-in-space) | Move dashboard by Id in another space |
+| [dashboard-export \<dashboardId>](#dashboard-export) | Export dashboard by Id |
+| [dashboard-move-in-space \<dashboardId> \<space>](#dashboard-move-in-space) | Move dashboard by Id in another space |
 
 ## Commands details
 
@@ -33,11 +33,12 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 
 ### space-add
 
-| Name | Type | Description |
-| --- | --- | --- |
-| -c, --color | String | Color of space |
+| Name | Type | Description | Details |
+| --- | --- | --- | --- |
+| -c, --color | String | Color of space | Color must be composed of **#** and six hexadecimal characters (ex: #80bf85)  |
 | -d, --desc | String | Description of space |
-| -i, --initials | String | Initials of space |
+| -i, --initials | String | Initials of space (| Must contain 1 or 2 characters ex: AB) |
+> `ezmesure-admin space-add my-space -c "#80bf85" -d "This is my space" -i "MS"`
 
 ### space-del
 
@@ -70,4 +71,4 @@ Available objects:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| -n, --new | Boolean | create new space |
+| -n, --new | Boolean | Create new space |
