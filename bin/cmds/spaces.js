@@ -1,4 +1,5 @@
 const { table } = require('table');
+const chalk = require('chalk');
 const logger = require('../../lib/app/logger');
 const spacesLib = require('../../lib/spaces');
 
@@ -35,7 +36,8 @@ module.exports = {
       const lines = data.map((el) => {
         let arr = [el.id, el.name, el.description];
         if (opts.all) {
-          arr = arr.concat([el.initials, el.color]);
+          const color = el.color ? chalk.bgHex(el.color).bold(` ${el.color} `) : '';
+          arr = arr.concat([el.initials, color]);
         }
         return arr;
       });
