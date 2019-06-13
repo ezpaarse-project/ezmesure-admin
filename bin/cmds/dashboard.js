@@ -8,7 +8,9 @@ dashboard.exportDashboard = async (dashboardId, opts) => {
   try {
     const res = await dashboardLib.export(dashboardId, opts);
     if (res.status === 200) {
-      console.log(JSON.stringify(res, null, 2));
+      if (res.data) {
+        console.log(JSON.stringify(res.data, null, 2));
+      }
     }
   } catch (error) {
     logger.error(error);

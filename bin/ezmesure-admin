@@ -9,6 +9,7 @@ const pkg = require('../package.json');
 const libSpaces = require('./cmds/spaces');
 const objects = require('./cmds/objects');
 const dashboard = require('./cmds/dashboard');
+const users = require('./cmds/users');
 
 program.on('command:*', () => {
   console.error(`Invalid command: ${program.args.join(' ')}\nSee --help for a list of available commands.`);
@@ -66,6 +67,13 @@ program
   .option('-n, --new', 'create new space')
   .action((dashboardId, space, opts) => {
     dashboard.importDashboardInSpace(dashboardId, space, opts);
+  });
+
+program
+  .command('users [user]')
+  .description('Get all users list or a specific user')
+  .action((user) => {
+    users.getUsers(user);
   });
 
 program.parse(process.argv);

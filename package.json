@@ -1,9 +1,10 @@
 {
-  "name": "ezmesure-admin",
+  "name": "ezspace",
   "version": "1.0.0",
   "description": "Command line utilities to manage ezMESURE",
   "bin": {
-    "ezmesure-admin": "./bin/ezmesure-admin"
+    "ezmesure-admin": "./bin/ezmesure-admin",
+    "ezadmin": "./bin/ezmesure-admin"
   },
   "main": "index.js",
   "scripts": {
@@ -13,7 +14,7 @@
   "author": "ezTEAM",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "chalk": "^2.4.2",
     "commander": "^2.20.0",
     "config": "^3.1.0",
