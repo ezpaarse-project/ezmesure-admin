@@ -10,6 +10,7 @@ const libSpaces = require('./cmds/spaces');
 const objects = require('./cmds/objects');
 const dashboard = require('./cmds/dashboard');
 const users = require('./cmds/users');
+const roles = require('./cmds/roles');
 
 program.on('command:*', () => {
   console.error(`Invalid command: ${program.args.join(' ')}\nSee --help for a list of available commands.`);
@@ -62,18 +63,41 @@ program
   });
 
 program
-  .command('dashboard-move-in-space <dashboardId> <space>')
-  .description('Move dashboard by Id in another space')
+  .command('dashboard-move-in-space <space> <dashboardIds...>')
+  .description('Move dashboard by Id(s) in another space')
   .option('-n, --new', 'create new space')
-  .action((dashboardId, space, opts) => {
-    dashboard.importDashboardInSpace(dashboardId, space, opts);
+  .action((space, dashboardIds, opts) => {
+    dashboard.importDashboardInSpace(space, dashboardIds, opts);
   });
 
 program
   .command('users [user]')
   .description('Get all users list or a specific user')
-  .action((user) => {
-    users.getUsers(user);
+  .option('-j, --json', 'display data in JSON format')
+  .action((user, opts) => {
+    users.getUsers(user, opts);
+  });
+
+program
+  .command('roles [role]')
+  .description('Get all roles list or a specific role')
+  .option('-j, --json', 'display data in JSON format')
+  .action((role, opts) => {
+    roles.getRoles(role, opts);
+  });
+
+program
+  .command('add-role <role> <usernames...>')
+  .description('Add role to user(s)')
+  .action((role, usernames) => {
+    roles.addRole(role, usernames);
+  });
+
+program
+  .command('del-role <role> <usernames...>')
+  .description('Delete role to user(s)')
+  .action((role, usernames) => {
+    roles.delRole(role, usernames);
   });
 
 program.parse(process.argv);
