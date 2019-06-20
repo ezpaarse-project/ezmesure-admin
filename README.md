@@ -18,9 +18,9 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [spaces [space]\(optional)](#spaces) | List all KIBANA spaces or [space] space attributes |
 | [space-add \<space>](#space-add) | Add a KIBANA space with default attributes |
 | [space-del \<spaces...>](#space-del) | Delete a KIBANA space(s) |
-| [objects-find \<space>](#objects-find) | Find KIBANA objects |
+| [objects-find \<type> [space] [title]](#objects-find) | Find KIBANA objects, title is a key word (ex: univ-lorraine) |
 | [dashboard-export \<dashboardId>](#dashboard-export) | Export dashboard by Id |
-| [dashboard-move-in-space \<space> \<dashboardIds...>](#dashboard-move-in-space) | Move dashboard by Id in another space |
+| [dashboard-move-in-space \<space> \<dashboards...>](#dashboard-move-in-space) | Move dashboard by Id or key word in another space |
 | [users [user]\(optional)](#users) | List all users or [user] user |
 | [roles [role]\(optional)](#roles) | List all roles or [role] roles |
 | [add-role [role] <usernames...>](#add-role) | Add role to user(s) |
@@ -78,9 +78,7 @@ $ ezmesure-admin spaces -j
 
 | Name | Type | Description |
 | --- | --- | --- |
-| -t, --title | String | Search objects by name |
 | -j, --json | Boolean | Print object informations in JSON format |
-| -s, --space | String | Name of target space |
 
 Available objects:
 

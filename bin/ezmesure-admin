@@ -45,13 +45,11 @@ program
   });
 
 program
-  .command('objects-find <type>')
+  .command('objects-find <type> [space] [title]')
   .description('Find KIBANA objects (objects: visualization, dashboard, search, index-pattern, config, timelion-sheet)')
-  .option('-t, --title <title>', 'title (ex: univ-lorraine)')
   .option('-j, --json', 'display data in JSON format')
-  .option('-s, --space <space>', 'name of target space')
-  .action((type, opts) => {
-    objects.findObjects(type, opts);
+  .action((type, space, title) => {
+    objects.findObjects(type, space, title);
   });
 
 program
@@ -63,11 +61,11 @@ program
   });
 
 program
-  .command('dashboard-move-in-space <space> <dashboardIds...>')
+  .command('dashboard-move-in-space <space> <dashboards...>')
   .description('Move dashboard by Id(s) in another space')
   .option('-n, --new', 'create new space')
-  .action((space, dashboardIds, opts) => {
-    dashboard.importDashboardInSpace(space, dashboardIds, opts);
+  .action((space, dashboards, opts) => {
+    dashboard.importDashboardInSpace(space, dashboards, opts);
   });
 
 program
