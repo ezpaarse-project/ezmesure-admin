@@ -3,11 +3,11 @@ const logger = require('../../lib/app/logger');
 const objectsLib = require('../../lib/objects');
 
 module.exports = {
-  findObjects: async (type, space, title, opts) => {
+  findObjects: async (type, opts) => {
     // curl -X GET 'http://localhost:5601/api/saved_objects/_find' -H 'kbn-xsrf: true'
 
     try {
-      const { data: response } = await objectsLib.findObjects(type, space, title, opts);
+      const { data: response } = await objectsLib.findObjects(type, opts);
 
       if (response) {
         if (opts && opts.json) {
@@ -18,7 +18,7 @@ module.exports = {
           ['ID', 'Title', 'Description'],
         ];
         response.saved_objects.forEach((object) => {
-          result.push([object.id, object.attributes.title, object.attributes.description]);
+          result.push([object.id, object.attributes.title, object.attributes.description || '-']);
         });
 
         return console.log(table(result));
