@@ -9,8 +9,8 @@ const pkg = require('../package.json');
 const libSpaces = require('./cmds/spaces');
 const objects = require('./cmds/objects');
 const dashboard = require('./cmds/dashboard');
-const users = require('./cmds/users');
-const roles = require('./cmds/roles');
+const usersCmd = require('./cmds/users');
+const rolesCmd = require('./cmds/roles');
 
 
 program.on('command:*', () => {
@@ -72,33 +72,33 @@ program
   });
 
 program
-  .command('users [user]')
+  .command('users [users...]')
   .description('Get all users list or a specific user')
   .option('-j, --json', 'display data in JSON format')
   .action((user, opts) => {
-    users.getUsers(user, opts);
+    usersCmd.getUsers(user, opts);
   });
 
 program
-  .command('roles [role]')
+  .command('roles [roles...]')
   .description('Get all roles list or a specific role')
   .option('-j, --json', 'display data in JSON format')
   .action((role, opts) => {
-    roles.getRoles(role, opts);
+    rolesCmd.getRoles(role, opts);
   });
 
 program
   .command('add-role <role> <usernames...>')
   .description('Add role to user(s)')
   .action((role, usernames) => {
-    roles.addRole(role, usernames);
+    rolesCmd.addRole(role, usernames);
   });
 
 program
   .command('del-role <role> <usernames...>')
   .description('Delete role to user(s)')
   .action((role, usernames) => {
-    roles.delRole(role, usernames);
+    rolesCmd.delRole(role, usernames);
   });
 
 program.parse(process.argv);

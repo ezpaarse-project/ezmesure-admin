@@ -21,8 +21,8 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [objects-find \<type>](#objects-find) | Find KIBANA objects |
 | [dashboard-export \<dashboardId>](#dashboard-export) | Export dashboard by Id |
 | [dashboard-move-in-space \<space> \<dashboards...>](#dashboard-move-in-space) | Move dashboard by Id or key word in another space |
-| [users [user](#users) | List all users or [user] user |
-| [roles [role](#roles) | List all roles or [role] roles |
+| [users [user...]](#users) | List all users or \[user\] user |
+| [roles [role...]](#roles) | List all roles or \[role\] roles |
 | [add-role <role> <usernames...>](#add-role) | Add role to user(s) |
 | [del-role <role> <usernames...>](#del-role) | Delete role to user(s) |
 
