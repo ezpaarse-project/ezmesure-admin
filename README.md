@@ -20,7 +20,7 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [space-del \<spaces...>](#space-del) | Delete a KIBANA space(s) |
 | [objects-find \<type>](#objects-find) | Find KIBANA objects |
 | [dashboard-export \<dashboardId>](#dashboard-export) | Export dashboard by Id |
-| [dashboard-move-in-space \<space> \<dashboards...>](#dashboard-move-in-space) | Move dashboard by Id or key word in another space |
+| [dashboard-move-in-space \<space> [dashboards...]](#dashboard-move-in-space) | Move dashboard(s) in another space |
 | [users [user...]](#users) | List all users or \[user\] user |
 | [roles [role...]](#roles) | List all roles or \[role\] roles |
 | [add-role <role> <usernames...>](#add-role) | Add role to user(s) |
@@ -143,7 +143,17 @@ $ ezmesure-admin objects-find dashboard -j
 
 | Name | Type | Description |
 | --- | --- | --- |
+| -t, --title | String | list dashboard(s) by title contains key word (ex: univ-lorraine) |
 | -n, --new | Boolean | Create new space |
+
+Example of result :
+```bash
+$ ezmesure-admin dashboard-move-in-space univ-lorraine -t univ-lorraine
+
+? univ-lorraine dashboards (Press <space> to select, <a> to toggle all, <i> to invert selection)
+> () univ-lorraine:default
+  () univ-lorraine:metrics
+```
 
 ### users
 

@@ -1,3 +1,4 @@
+const inquirer = require('inquirer');
 const logger = require('../../lib/app/logger');
 const spacesLib = require('../../lib/spaces');
 const dashboardLib = require('../../lib/dashboard');
@@ -97,27 +98,34 @@ const importDashboards = async (space, dashboards, opts) => {
   }
 };
 
-const importDashboardByTitle = async (space, title, opts) => {
-  try {
-    const { data: objects } = await objectsLib.findObjects('dashboard', { title: title[0] });
-    const dashboards = objects.saved_objects.map(object => object.id);
-
-    return importDashboards(space, dashboards, opts);
-  } catch (e) {
-    console.error(e);
-    return process.exit(e);
-  }
-};
-
 dashboard.importDashboardInSpace = async (space, dashboards, opts) => {
   // curl -X GET "http://localhost:5601/api/kibana/dashboards/export?dashboard=" -H 'kbn-xsrf: true'
   // http://localhost:5601/s/sales/api/kibana/dashboards/import --data-binary @export.json
 
-  if (/^([a-f0-9]{8})-([a-f0-9]{4})-([a-f0-9]{4})-([a-f0-9]{4})-([a-f0-9]{12})$/i.test(dashboards[0])) {
-    return importDashboards(space, dashboards, opts);
+  let dashboardsToUse = dashboards;
+
+  if (opts && opts.title) {
+    const { data: savedObjects } = await objectsLib.findObjects('dashboard', { title: opts.title });
+
+    const choices = [];
+    savedObjects.saved_objects.forEach((object) => {
+      if (object.attributes.title.includes(opts.title)) {
+        choices.push({ name: object.attributes.title, value: object.id });
+      }
+    });
+
+    await inquirer.prompt([{
+      type: 'checkbox',
+      name: 'dashboardsId',
+      message: `${space} dashboards`,
+      choices,
+      highlight: true,
+    }]).then((answers) => {
+      dashboardsToUse = answers.dashboardsId;
+    });
   }
 
-  return importDashboardByTitle(space, dashboards, opts);
+  return importDashboards(space, dashboardsToUse, opts);
 };
 
 module.exports = dashboard;

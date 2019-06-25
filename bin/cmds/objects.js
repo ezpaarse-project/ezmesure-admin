@@ -18,7 +18,9 @@ module.exports = {
           ['ID', 'Title', 'Description'],
         ];
         response.saved_objects.forEach((object) => {
-          result.push([object.id, object.attributes.title, object.attributes.description || '-']);
+          if (object.attributes.title.includes(opts.title)) {
+            result.push([object.id, object.attributes.title, object.attributes.description || '-']);
+          }
         });
 
         return console.log(table(result));

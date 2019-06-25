@@ -64,9 +64,10 @@ program
   });
 
 program
-  .command('dashboard-move-in-space <space> <dashboards...>')
+  .command('dashboard-move-in-space <space> [dashboards...]')
   .description('Move dashboard by Id(s) in another space')
   .option('-n, --new', 'create new space')
+  .option('-t, --title <title>', 'list dashboard(s) by title contains key word (ex: univ-lorraine)')
   .action((space, dashboards, opts) => {
     dashboard.importDashboardInSpace(space, dashboards, opts);
   });
