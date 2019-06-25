@@ -61,7 +61,7 @@ const parseDashboardObjects = (objects, space) => objects.map((object) => {
   return tmpObject;
 });
 
-const importDashboards = async (space, dashboards, opts) => {
+const importDashboards = async (space, dashboards) => {
   for (let i = 0; i < dashboards.length; i += 1) {
     try {
       const { data: exportedDashboard } = await dashboardLib.export(dashboards[i]);
@@ -72,21 +72,6 @@ const importDashboards = async (space, dashboards, opts) => {
 
       if (exportedDashboard.objects[0].error) {
         logger.error(`Problem with the export of ${dashboards[i]} : ${JSON.stringify(exportedDashboard.objects[0].error)}`);
-      }
-
-      if (opts && opts.new) {
-        try {
-          const spaceExists = await spacesLib.getSpaces(space);
-          if (spaceExists) {
-            const defaultSpace = await spacesLib.buildSpace(space, opts);
-            const response = await spacesLib.addSpaces(defaultSpace);
-            if (response.status === 200) {
-              logger.info(`Space ${space} created`);
-            }
-          }
-        } catch (error) {
-          logger.warn(`${space} exists`);
-        }
       }
 
       const objects = await dashboardLib.import(space, exportedDashboard);
@@ -131,12 +116,23 @@ dashboard.importDashboardInSpace = async (space, dashboards, opts) => {
     });
   }
 
-  await spacesLib.getSpaces(space)
-    .then(() => importDashboards(space, dashboardsToUse, opts))
-    .catch(() => {
-      logger.error(`${space} doesn't exists`);
-      return process.exit();
-    });
+  try {
+    const spaceExists = await spacesLib.getSpaces(space);
+
+    if (opts && opts.new) {
+      if (spaceExists) {
+        const defaultSpace = await spacesLib.buildSpace(space, opts);
+        const response = await spacesLib.addSpaces(defaultSpace);
+        if (response.status === 200) {
+          logger.info(`Space ${space} created`);
+        }
+      }
+    }
+
+    return importDashboards(space, dashboardsToUse);
+  } catch (error) {
+    return logger.warn(`${space} doesn't exists`);
+  }
 };
 
 module.exports = dashboard;
