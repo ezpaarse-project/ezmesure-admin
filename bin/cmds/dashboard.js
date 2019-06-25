@@ -72,14 +72,20 @@ const importDashboards = async (space, dashboards, opts) => {
 
       if (exportedDashboard.objects[0].error) {
         logger.error(`Problem with the export of ${dashboards[i]} : ${JSON.stringify(exportedDashboard.objects[0].error)}`);
-        return;
       }
 
       if (opts && opts.new) {
-        const defaultSpace = spacesLib.buildSpace(space, opts);
-        const response = await spacesLib.addSpaces(defaultSpace);
-        if (response.status === 200) {
-          logger.info(`Space ${space} created`);
+        try {
+          const spaceExists = await spacesLib.getSpaces(space);
+          if (spaceExists) {
+            const defaultSpace = await spacesLib.buildSpace(space, opts);
+            const response = await spacesLib.addSpaces(defaultSpace);
+            if (response.status === 200) {
+              logger.info(`Space ${space} created`);
+            }
+          }
+        } catch (error) {
+          logger.warn(`${space} exists`);
         }
       }
 
@@ -125,7 +131,12 @@ dashboard.importDashboardInSpace = async (space, dashboards, opts) => {
     });
   }
 
-  return importDashboards(space, dashboardsToUse, opts);
+  await spacesLib.getSpaces(space)
+    .then(() => importDashboards(space, dashboardsToUse, opts))
+    .catch(() => {
+      logger.error(`${space} doesn't exists`);
+      return process.exit();
+    });
 };
 
 module.exports = dashboard;
