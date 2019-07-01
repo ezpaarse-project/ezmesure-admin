@@ -1,7 +1,108 @@
+const inquirer = require('inquirer');
+const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 const { table } = require('table');
 const logger = require('../../lib/app/logger');
 const usersLib = require('../../lib/users');
+const rolesLib = require('../../lib/roles');
 
+const updateRoles = async (user) => {
+  await usersLib.update(user)
+    .then(() => logger.info(`user ${user.username} updated`))
+    .catch(error => logger.error(error));
+};
+
+const displayRoles = async (user, roles) => {
+  const { roles: results } = await inquirer.prompt([{
+    type: 'checkbox-plus',
+    pageSize: 50,
+    name: 'roles',
+    message: 'Roles',
+    searchable: true,
+    highlight: true,
+    default: user.roles.slice(),
+    source: (answersSoFar, input) => new Promise((resolve) => {
+      const result = roles
+        .filter(role => role.toLowerCase().includes(input.toLowerCase()));
+
+      resolve(result);
+    }),
+  }]);
+
+  if (results.length === 0) {
+    return logger.error('No role(s) selected !');
+  }
+
+  user.roles = results;
+  return updateRoles(user);
+};
+
+const manageRole = async (usernames) => {
+  let roles;
+  try {
+    roles = await rolesLib.getRoles();
+    roles = Object.keys(roles.data);
+  } catch (error) {
+    return logger.error('No role(s) found');
+  }
+
+  for (let i = 0; i < usernames.length; i += 1) {
+    try {
+      const { data: userData } = await usersLib.getUsers(usernames[i]);
+      if (!userData) {
+        return logger.error('No user(s) found');
+      }
+
+      const user = Object.values(userData)[0];
+
+      if (!user) {
+        return logger.warn(`User ${user.username} not found`);
+      }
+
+      displayRoles(user, roles);
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+  return null;
+};
+
+const listUsers = async (callback) => {
+  try {
+    const { data: users } = await usersLib.getUsers();
+    const choices = Object.values(users)
+      .filter(user => !user.metadata._reserved)
+      .map(user => user.username);
+
+    if (!users) {
+      return logger.error('No users founds');
+    }
+
+    inquirer.registerPrompt('checkbox-plus', checkboxPlus);
+
+    await inquirer.prompt([{
+      type: 'checkbox-plus',
+      pageSize: 50,
+      name: 'users',
+      message: 'Users',
+      searchable: true,
+      highlight: true,
+      source: (answersSoFar, input) => new Promise((resolve) => {
+        const result = choices
+          .filter(choice => choice.toLowerCase().includes(input.toLowerCase()));
+
+        resolve(result);
+      }),
+    }]).then((answers) => {
+      if (answers.users.length === 0) {
+        return logger.error('No user(s) selected !');
+      }
+      return callback(answers);
+    });
+  } catch (error) {
+    return logger.error(error);
+  }
+  return null;
+};
 
 module.exports = {
   getUsers: async (users, opts) => {
@@ -34,10 +135,11 @@ module.exports = {
         }
       }
     } catch (error) {
-      console.error(error);
       logger.error(error);
       return process.exit(1);
     }
     return null;
   },
+
+  userRoles: () => listUsers(answers => manageRole(answers.users)),
 };

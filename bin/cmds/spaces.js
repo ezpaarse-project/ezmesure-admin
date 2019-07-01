@@ -55,8 +55,7 @@ module.exports = {
         logger.info(`Space ${space} created`);
       }
     } catch (error) {
-      logger.error(error);
-      console.log(error);
+      logger.error(error.response.data.message);
       return process.exit(1);
     }
     return null;
@@ -77,7 +76,8 @@ module.exports = {
       }
     } catch (error) {
       logger.error(error);
-      process.exit(1);
+      return process.exit(1);
     }
+    return null;
   },
 };

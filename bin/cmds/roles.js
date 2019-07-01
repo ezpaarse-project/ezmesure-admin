@@ -1,32 +1,69 @@
+const inquirer = require('inquirer');
+const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 const { table } = require('table');
 const logger = require('../../lib/app/logger');
-const rolesLib = require('../../lib/roles');
 const usersLib = require('../../lib/users');
+const rolesLib = require('../../lib/roles');
 
-const roleAndUserExists = async (role, user) => {
-  try {
-    const { data: roleData } = await rolesLib.getRoles(role);
-    if (!roleData) {
-      logger.error('No role(s) found');
-      return null;
-    }
+const updateRoles = async (user) => {
+  await usersLib.update(user)
+    .then(() => logger.info(`user ${user.username} updated`))
+    .catch(error => logger.error(error));
+};
 
-    if (roleData) {
-      const { data: userData } = await usersLib.getUsers(user);
-      if (!userData) {
-        logger.error('No user(s) found');
-        return null;
-      }
+const createRoleMenu = async () => {
+  inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 
-      if (userData) { return userData; }
-    }
-  } catch (error) {
-    console.error(error);
-    logger.error(error);
-    process.exit(1);
-    return null;
-  }
-  return null;
+  const indicePrivileges = [
+    'all',
+    'create',
+    'create_index',
+    'index',
+    'manage',
+    'manage_follow_index',
+    'manage_ilm',
+    'manage_leader_index',
+    'monitor',
+    'read',
+    'read_cross_cluster',
+    'view_index_metadata',
+    'write',
+  ];
+
+  return inquirer.prompt([
+    {
+      type: 'input',
+      name: 'indice',
+      message: '[Elastic] Indice :',
+    },
+    {
+      type: 'checkbox-plus',
+      name: 'indicePrivileges',
+      message: '[Elastic] Indice privileges :',
+      pageSize: indicePrivileges.length,
+      searchable: true,
+      highlight: true,
+      source: (answersSoFar, input) => new Promise((resolve) => {
+        const result = indicePrivileges
+          .filter(privilege => privilege.toLowerCase().includes(input.toLowerCase()));
+
+        resolve(result);
+      }),
+    },
+    {
+      type: 'list',
+      name: 'minimumRolePrivileges',
+      message: '[Kibana] Minimum privileges for all spaces (default: none) :',
+      choices: ['none', 'read'],
+      default: ['none'],
+    },
+    {
+      type: 'list',
+      name: 'rolePrivileges',
+      message: '[Kibana] Role privileges :',
+      choices: ['read', 'all'],
+    },
+  ]);
 };
 
 module.exports = {
@@ -59,7 +96,6 @@ module.exports = {
             const [application, appPrivileges, appResources] = applications.map(appli => [
               appli.application, appli.privileges, appli.resources,
             ]);
-            // console.log(roleName, application, appPrivileges, appResources)
 
             return [
               roleName,
@@ -72,60 +108,81 @@ module.exports = {
         }
       }
     } catch (error) {
-      console.error(error);
-      logger.error(error);
-      return process.exit(1);
+      return logger.error(error);
     }
     return null;
   },
 
-  addRole: async (role, usernames) => {
+  manageRole: async (role, usernames, addition) => {
     // curl -X GET 'http://localhost:9200/_security/user' -H 'kbn-xsrf: true'
 
-    try {
-      for (let i = 0; i < usernames.length; i += 1) {
-        const userData = await roleAndUserExists(role, usernames[i]);
-        if (userData) {
-          userData[usernames[i]].roles.push(role);
-          const response = await usersLib.update(usernames[i], {
-            roles: userData[usernames[i]].roles,
-          });
-          if (response.status === 200) {
-            logger.info(`Role ${role} added to ${usernames[i]}`);
-          } else {
-            logger.error(`An error occurred when adding the role ${role}`);
-          }
+    for (let i = 0; i < usernames.length; i += 1) {
+      try {
+        const { data: userData } = await usersLib.getUsers(usernames[i]);
+
+        if (!userData) {
+          logger.error('No user(s) found');
         }
+
+        if (userData) {
+          const user = Object.values(userData)[0];
+
+          if (addition) {
+            user.roles.push(role);
+          }
+
+          if (!addition) {
+            user.roles = user.roles.find(userRole => userRole !== role);
+          }
+
+          await updateRoles(user);
+        }
+      } catch (error) {
+        logger.error(`An error occurred when update role ${role} for ${usernames[i]}`);
+      }
+    }
+    return null;
+  },
+
+  createRole: async (role) => {
+    const result = await createRoleMenu(role);
+
+    if (!result) {
+      return logger.warn('An error occured to create role');
+    }
+
+    const data = {
+      cluster: [],
+      indices: [
+        {
+          names: result.indice,
+          privileges: result.indicePrivileges,
+        },
+      ],
+      applications: [
+        {
+          application: 'kibana-.kibana',
+          privileges: [`space_${result.rolePrivileges}`],
+          resources: [`space:${role}`],
+        },
+      ],
+    };
+
+    try {
+      const { data: response } = await rolesLib.createRole(role, data);
+      if (response && response.role) {
+        if (response.role.created) {
+          return logger.info('Role created succefully');
+        }
+
+        return logger.error('An error occured during role creation');
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
       logger.error(error);
       return process.exit(1);
     }
     return null;
   },
 
-  delRole: async (role, usernames) => {
-    // curl -X GET 'http://localhost:9200/_security/user' -H 'kbn-xsrf: true'
-
-    try {
-      for (let i = 0; i < usernames.length; i += 1) {
-        const userData = await roleAndUserExists(role, usernames[i]);
-        if (userData) {
-          const roles = userData[usernames[i]].roles.find(r => r !== role);
-          const response = await usersLib.update(usernames[i], { roles });
-          if (response.status === 200) {
-            logger.info(`Role ${role} deleted to ${usernames[i]}`);
-          } else {
-            logger.error(`An error occurred when deleting the role ${role}`);
-          }
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      logger.error(error);
-      return process.exit(1);
-    }
-    return null;
-  },
 };

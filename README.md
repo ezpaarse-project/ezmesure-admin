@@ -23,6 +23,7 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [dashboard-move-in-space \<space> [dashboards...]](#dashboard-move-in-space) | Move dashboard(s) in another space |
 | [users [user...]](#users) | List all users or \[user\] user |
 | [roles [role...]](#roles) | List all roles or \[role\] roles |
+| [user-roles](#user-roles) | Add or remove one or more roles to one or more users |
 | [add-role <role> <usernames...>](#add-role) | Add role to user(s) |
 | [del-role <role> <usernames...>](#del-role) | Delete role to user(s) |
 
@@ -201,3 +202,8 @@ $ ezmesure-admin users -j
 
 ### del-role
 > No options for this command
+
+### user-roles
+<p>Select one or more users to add or remove one or more roles.
+<br />
+To add a role you have to select it from the list and to delete it you just have to deselect it.</p>

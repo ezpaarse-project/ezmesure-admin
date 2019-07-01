@@ -12,7 +12,6 @@ const dashboard = require('./cmds/dashboard');
 const usersCmd = require('./cmds/users');
 const rolesCmd = require('./cmds/roles');
 
-
 program.on('command:*', () => {
   console.error(`Invalid command: ${program.args.join(' ')}\nSee --help for a list of available commands.`);
   process.exit(1);
@@ -24,9 +23,7 @@ program
   .option('-a, --all', 'display all data')
   .option('-j, --json', 'display data in JSON format')
   .description('List all KIBANA spaces or [space] space attributes')
-  .action((space, opts) => {
-    libSpaces.getSpaces(space, opts);
-  });
+  .action((space, opts) => libSpaces.getSpaces(space, opts));
 
 program
   .command('space-add <space>')
@@ -34,16 +31,12 @@ program
   .option('-d, --desc <description>', 'description of space')
   .option('-i, --initials <initials>', 'initials of space')
   .description('Add a KIBANA space with default attributes')
-  .action((space, opts) => {
-    libSpaces.addSpaces(space, opts);
-  });
+  .action((space, opts) => libSpaces.addSpaces(space, opts));
 
 program
   .command('space-del <spaces...>')
   .description('Delete a KIBANA space')
-  .action((spaces) => {
-    libSpaces.delSpaces(spaces);
-  });
+  .action(spaces => libSpaces.delSpaces(spaces));
 
 program
   .command('objects-find <type>')
@@ -51,55 +44,51 @@ program
   .option('-s, --space <space>', 'target space')
   .option('-t, --title <title>', 'title of object, is a key word (ex: univ-lorraine)')
   .option('-j, --json', 'display data in JSON format')
-  .action((type, opts) => {
-    objects.findObjects(type, opts);
-  });
+  .action((type, opts) => objects.findObjects(type, opts));
 
 program
   .command('dashboard-export <dashboardId>')
   .description('Export dashboard by Id')
   .option('-s, --space <space>', 'name of target space')
-  .action((dashboardId) => {
-    dashboard.exportDashboard(dashboardId);
-  });
+  .action(dashboardId => dashboard.exportDashboard(dashboardId));
 
 program
   .command('dashboard-move-in-space <space> [dashboards...]')
   .description('Move dashboard by Id(s) in another space')
   .option('-n, --new', 'create new space')
   .option('-t, --title <title>', 'list dashboard(s) by title contains key word (ex: univ-lorraine)')
-  .action((space, dashboards, opts) => {
-    dashboard.importDashboardInSpace(space, dashboards, opts);
-  });
+  .action((space, dashboards, opts) => dashboard.importDashboardInSpace(space, dashboards, opts));
 
 program
   .command('users [users...]')
   .description('Get all users list or a specific user')
   .option('-j, --json', 'display data in JSON format')
-  .action((user, opts) => {
-    usersCmd.getUsers(user, opts);
-  });
+  .action((user, opts) => usersCmd.getUsers(user, opts));
+
+program
+  .command('user-roles')
+  .description('Manage role(s) to user(s)')
+  .action(() => usersCmd.userRoles());
 
 program
   .command('roles [roles...]')
   .description('Get all roles list or a specific role')
   .option('-j, --json', 'display data in JSON format')
-  .action((role, opts) => {
-    rolesCmd.getRoles(role, opts);
-  });
+  .action((role, opts) => rolesCmd.getRoles(role, opts));
 
 program
-  .command('add-role <role> <usernames...>')
+  .command('add-role <role> [usernames...]')
   .description('Add role to user(s)')
-  .action((role, usernames) => {
-    rolesCmd.addRole(role, usernames);
-  });
+  .action((role, usernames) => rolesCmd.manageRole(role, usernames, true));
 
 program
-  .command('del-role <role> <usernames...>')
+  .command('del-role <role> [usernames...]')
   .description('Delete role to user(s)')
-  .action((role, usernames) => {
-    rolesCmd.delRole(role, usernames);
-  });
+  .action((role, usernames) => rolesCmd.manageRole(role, usernames, false));
+
+program
+  .command('create-role <role>')
+  .description('Create role')
+  .action(role => rolesCmd.createRole(role));
 
 program.parse(process.argv);

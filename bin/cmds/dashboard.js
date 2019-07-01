@@ -64,22 +64,24 @@ const parseDashboardObjects = (objects, space) => objects.map((object) => {
 const importDashboards = async (space, dashboards) => {
   for (let i = 0; i < dashboards.length; i += 1) {
     try {
+      let dashboardData;
       const { data: exportedDashboard } = await dashboardLib.export(dashboards[i]);
       if (exportedDashboard && exportedDashboard.objects) {
+        dashboardData = exportedDashboard.objects.pop();
         exportedDashboard.objects = parseDashboardObjects(exportedDashboard.objects, space);
-        logger.info(`Dashboard ${dashboards[i]} exported`);
+        logger.info(`Dashboard ${dashboardData.attributes.title} exported`);
       }
 
       if (exportedDashboard.objects[0].error) {
-        logger.error(`Problem with the export of ${dashboards[i]} : ${JSON.stringify(exportedDashboard.objects[0].error)}`);
+        logger.error(`Problem with the export of ${dashboardData.attributes.title} : ${JSON.stringify(exportedDashboard.objects[0].error)}`);
       }
 
       const objects = await dashboardLib.import(space, exportedDashboard);
 
       if (objects.status === 200) {
-        logger.info(`Dashboard ${dashboards[i]} imported`);
+        logger.info(`Dashboard ${dashboardData.attributes.title} imported`);
       } else {
-        logger.error(`Problem with the import of ${dashboards[i]} in ${space}`);
+        logger.error(`Problem with the import of ${dashboardData.attributes.title} in ${space}`);
       }
     } catch (error) {
       console.trace(error);
@@ -105,15 +107,22 @@ dashboard.importDashboardInSpace = async (space, dashboards, opts) => {
       }
     });
 
-    await inquirer.prompt([{
-      type: 'checkbox',
-      name: 'dashboardsId',
-      message: `${space} dashboards`,
-      choices,
-      highlight: true,
-    }]).then((answers) => {
-      dashboardsToUse = answers.dashboardsId;
-    });
+    if (choices.length > 0) {
+      await inquirer.prompt([{
+        type: 'checkbox',
+        pageSize: 20,
+        name: 'dashboardsId',
+        message: `${space} dashboards`,
+        choices,
+        highlight: true,
+      }]).then((answers) => {
+        dashboardsToUse = answers.dashboardsId;
+      });
+    }
+
+    if (choices.length === 0) {
+      return logger.info(`No dashboards founds for ${opts.title}`);
+    }
   }
 
   try {
