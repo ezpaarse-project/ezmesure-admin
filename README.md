@@ -26,6 +26,7 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [user-roles](#user-roles) | Add or remove one or more roles to one or more users |
 | [add-role <role> <usernames...>](#add-role) | Add role to user(s) |
 | [del-role <role> <usernames...>](#del-role) | Delete role to user(s) |
+| [create-role <role>](#create-role) | Create a role |
 
 ## Commands details
 
