@@ -1,9 +1,11 @@
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
+const autocomplete = require('inquirer-autocomplete-prompt');
 const { table } = require('table');
 const logger = require('../../lib/app/logger');
 const usersLib = require('../../lib/users');
 const rolesLib = require('../../lib/roles');
+const indiciesLib = require('../../lib/indicies');
 
 const updateRoles = async (user) => {
   await usersLib.update(user)
@@ -12,7 +14,18 @@ const updateRoles = async (user) => {
 };
 
 const createRoleMenu = async () => {
+  let indices;
+  try {
+    const { data: indicesData } = await indiciesLib.getIndicies();
+    if (indicesData) {
+      indices = indicesData.split('\n').filter(indice => (indice.charAt(0) !== '.'));
+    }
+  } catch (error) {
+    return logger.error('An error occured to get indicies');
+  }
+
   inquirer.registerPrompt('checkbox-plus', checkboxPlus);
+  inquirer.registerPrompt('autocomplete', autocomplete);
 
   const indicePrivileges = [
     'all',
@@ -32,9 +45,16 @@ const createRoleMenu = async () => {
 
   return inquirer.prompt([
     {
-      type: 'input',
+      type: 'autocomplete',
       name: 'indice',
+      pageSize: 20,
       message: '[Elastic] Indice :',
+      source: (answersSoFar, input) => new Promise((resolve) => {
+        const result = indices
+          .filter(indice => indice.includes(input));
+
+        resolve(result);
+      }),
     },
     {
       type: 'checkbox-plus',
@@ -145,7 +165,12 @@ module.exports = {
   },
 
   createRole: async (role) => {
-    const result = await createRoleMenu(role);
+    let result;
+    try {
+      result = await createRoleMenu(role);
+    } catch (error) {
+      return logger.error('Error to display interface');
+    }
 
     if (!result) {
       return logger.warn('An error occured to create role');
@@ -178,7 +203,6 @@ module.exports = {
         return logger.error('An error occured during role creation');
       }
     } catch (error) {
-      console.log(error);
       logger.error(error);
       return process.exit(1);
     }

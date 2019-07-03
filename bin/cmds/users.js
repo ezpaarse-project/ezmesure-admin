@@ -71,7 +71,7 @@ const listUsers = async (callback) => {
     const { data: users } = await usersLib.getUsers();
     const choices = Object.values(users)
       .filter(user => !user.metadata._reserved)
-      .map(user => user.username);
+      .map(user => ({ name: `${user.full_name || user.username} <${user.email || ''}>`, value: user.username }));
 
     if (!users) {
       return logger.error('No users founds');
@@ -88,7 +88,7 @@ const listUsers = async (callback) => {
       highlight: true,
       source: (answersSoFar, input) => new Promise((resolve) => {
         const result = choices
-          .filter(choice => choice.toLowerCase().includes(input.toLowerCase()));
+          .filter(choice => choice.name.toLowerCase().includes(input.toLowerCase()));
 
         resolve(result);
       }),
