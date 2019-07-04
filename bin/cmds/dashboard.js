@@ -129,7 +129,7 @@ dashboard.importDashboardInSpace = async (space, dashboards, opts) => {
     const spaceExists = await spacesLib.getSpaces(space);
 
     if (opts && opts.new) {
-      if (spaceExists) {
+      if (!spaceExists) {
         const defaultSpace = await spacesLib.buildSpace(space, opts);
         const response = await spacesLib.addSpaces(defaultSpace);
         if (response.status === 200) {
