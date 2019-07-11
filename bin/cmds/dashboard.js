@@ -67,7 +67,7 @@ const importDashboards = async (space, dashboards) => {
       let dashboardData;
       const { data: exportedDashboard } = await dashboardLib.export(dashboards[i]);
       if (exportedDashboard && exportedDashboard.objects) {
-        dashboardData = exportedDashboard.objects.pop();
+        dashboardData = exportedDashboard.objects[exportedDashboard.objects.length - 1];
         exportedDashboard.objects = parseDashboardObjects(exportedDashboard.objects, space);
         logger.info(`Dashboard ${dashboardData.attributes.title} exported`);
       }
@@ -84,9 +84,8 @@ const importDashboards = async (space, dashboards) => {
         logger.error(`Problem with the import of ${dashboardData.attributes.title} in ${space}`);
       }
     } catch (error) {
-      console.trace(error);
       logger.error(error);
-      process.exit(1);
+      return process.exit(1);
     }
   }
 };
