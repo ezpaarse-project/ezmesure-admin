@@ -134,7 +134,8 @@ dashboard.importDashboardInSpace = async (space, dashboards, opts) => {
       const defaultSpace = await spacesLib.buildSpace(space, opts);
       const response = await spacesLib.addSpaces(defaultSpace);
       if (response.status === 200) {
-        return logger.info(`Space ${space} created`);
+        logger.info(`Space ${space} created`);
+        return importDashboards(space, dashboardsToUse);
       }
     }
   }
