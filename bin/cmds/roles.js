@@ -5,7 +5,7 @@ const { table } = require('table');
 const logger = require('../../lib/app/logger');
 const usersLib = require('../../lib/users');
 const rolesLib = require('../../lib/roles');
-const indiciesLib = require('../../lib/indicies');
+const objectsLib = require('../../lib/objects');
 
 const updateRoles = async (user) => {
   await usersLib.update(user)
@@ -14,11 +14,15 @@ const updateRoles = async (user) => {
 };
 
 const createRoleMenu = async () => {
-  let indices;
+  const indices = [];
   try {
-    const { data: indicesData } = await indiciesLib.getIndicies();
+    const { data: indicesData } = await objectsLib.findObjects('index-pattern');
     if (indicesData) {
-      indices = indicesData.split('\n').filter(indice => (indice.charAt(0) !== '.'));
+      indicesData.saved_objects.forEach((object) => {
+        if (object) {
+          indices.push(object.attributes.title);
+        }
+      });
     }
   } catch (error) {
     return logger.error('An error occured to get indicies');
@@ -27,7 +31,7 @@ const createRoleMenu = async () => {
   inquirer.registerPrompt('checkbox-plus', checkboxPlus);
   inquirer.registerPrompt('autocomplete', autocomplete);
 
-  const indicePrivileges = [
+  const indicesPrivileges = [
     'all',
     'create',
     'create_index',
@@ -45,9 +49,11 @@ const createRoleMenu = async () => {
 
   return inquirer.prompt([
     {
-      type: 'autocomplete',
-      name: 'indice',
-      pageSize: 20,
+      type: 'checkbox-plus',
+      name: 'indices',
+      pageSize: Math.ceil(indices.length / 2),
+      searchable: true,
+      highlight: true,
       message: '[Elastic] Indice :',
       source: (answersSoFar, input) => new Promise((resolve) => {
         const result = indices
@@ -58,13 +64,13 @@ const createRoleMenu = async () => {
     },
     {
       type: 'checkbox-plus',
-      name: 'indicePrivileges',
-      message: '[Elastic] Indice privileges :',
-      pageSize: indicePrivileges.length,
+      name: 'indicesPrivileges',
+      message: '[Elastic] Indices privileges :',
+      pageSize: indicesPrivileges.length,
       searchable: true,
       highlight: true,
       source: (answersSoFar, input) => new Promise((resolve) => {
-        const result = indicePrivileges
+        const result = indicesPrivileges
           .filter(privilege => privilege.toLowerCase().includes(input.toLowerCase()));
 
         resolve(result);
@@ -176,12 +182,24 @@ module.exports = {
       return logger.warn('An error occured to create role');
     }
 
+    let errors = false;
+    Object.keys(result).forEach((key) => {
+      if (Array.isArray(result[key]) && result[key].length <= 0) {
+        logger.error(`${key} must be defined`);
+        errors = true;
+      }
+    });
+
+    if (errors) {
+      return process.exit(1);
+    }
+
     const data = {
       cluster: [],
       indices: [
         {
-          names: result.indice,
-          privileges: result.indicePrivileges,
+          names: result.indices,
+          privileges: result.indicesPrivileges,
         },
       ],
       applications: [
@@ -189,6 +207,11 @@ module.exports = {
           application: 'kibana-.kibana',
           privileges: [`space_${result.rolePrivileges}`],
           resources: [`space:${role}`],
+        },
+        {
+          application: 'kibana-.kibana',
+          privileges: ['space_read'],
+          resources: ['space:default'],
         },
       ],
     };

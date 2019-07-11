@@ -72,6 +72,10 @@ const importDashboards = async (space, dashboards) => {
         logger.info(`Dashboard ${dashboardData.attributes.title} exported`);
       }
 
+      if (!dashboardData) {
+        logger.warn('Dashboard data not found');
+      }
+
       if (exportedDashboard.objects[0].error) {
         logger.error(`Problem with the export of ${dashboardData.attributes.title} : ${JSON.stringify(exportedDashboard.objects[0].error)}`);
       }
@@ -88,6 +92,7 @@ const importDashboards = async (space, dashboards) => {
       return process.exit(1);
     }
   }
+  return true;
 };
 
 dashboard.importDashboardInSpace = async (space, dashboards, opts) => {
@@ -138,6 +143,7 @@ dashboard.importDashboardInSpace = async (space, dashboards, opts) => {
       }
     }
   }
+  return true;
 };
 
 module.exports = dashboard;
