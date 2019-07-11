@@ -126,21 +126,17 @@ dashboard.importDashboardInSpace = async (space, dashboards, opts) => {
   }
 
   try {
-    const spaceExists = await spacesLib.getSpaces(space);
-
-    if (opts && opts.new) {
-      if (spaceExists) {
-        const defaultSpace = await spacesLib.buildSpace(space, opts);
-        const response = await spacesLib.addSpaces(defaultSpace);
-        if (response.status === 200) {
-          logger.info(`Space ${space} created`);
-        }
-      }
-    }
+    await spacesLib.getSpaces(space);
 
     return importDashboards(space, dashboardsToUse);
   } catch (error) {
-    return logger.warn(`${space} doesn't exists`);
+    if (opts && opts.new) {
+      const defaultSpace = await spacesLib.buildSpace(space, opts);
+      const response = await spacesLib.addSpaces(defaultSpace);
+      if (response.status === 200) {
+        return logger.info(`Space ${space} created`);
+      }
+    }
   }
 };
 
