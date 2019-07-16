@@ -1,7 +1,5 @@
 const { table } = require('table');
 const chalk = require('chalk');
-const fs = require('fs');
-const path = require('path');
 const config = require('config');
 const logger = require('../../lib/app/logger');
 const spacesLib = require('../../lib/spaces');
@@ -52,7 +50,7 @@ module.exports = {
 
   addSpaces: async (space, opts) => {
     try {
-      let template = config.defaultTemplate || 'default-template';
+      let template = config.defaultTemplate || 'homepage';
 
       if (opts && opts.template) {
         // eslint-disable-next-line prefer-destructuring
@@ -66,29 +64,18 @@ module.exports = {
         logger.info(`Space ${space} created`);
       }
 
-      const templateFilePath = path.resolve(`./templates/${template}.json`);
+      const { data: exportedDashboard } = await dashboardLib.export(template,
+        config.templateSpace ? { space: config.templateSpace } : null);
 
-      fs.stat(templateFilePath, async (err) => {
-        if (err && err.code === 'ENOENT') {
-          return logger.error(`Template file not found (${template})`);
+      if (exportedDashboard && exportedDashboard.objects) {
+        exportedDashboard.objects[exportedDashboard.objects.length - 2].attributes.title = space;
+
+        const objects = await dashboardLib.import(space, exportedDashboard);
+        if (objects.status !== 200) {
+          return logger.error(`Problem with import in ${space}`);
         }
-
-        let fileContent = await fs.readFileSync(templateFilePath, 'utf-8');
-
-        if (fileContent) {
-          fileContent = JSON.parse(fileContent);
-          fileContent[fileContent.length - 2].attributes.title = space;
-
-          const objects = await dashboardLib.import(space, {
-            objects: JSON.stringify(fileContent),
-          });
-          if (objects.status !== 200) {
-            return logger.error(`Problem with import in ${space}`);
-          }
-          return logger.info('Dashboard imported');
-        }
-        return null;
-      });
+        return logger.info('Dashboard imported');
+      }
     } catch (error) {
       logger.error(error.response.data.message);
       return process.exit(1);

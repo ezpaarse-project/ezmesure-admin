@@ -51,7 +51,7 @@ program
   .command('dashboard-export <dashboardId>')
   .description('Export dashboard by Id')
   .option('-s, --space <space>', 'name of target space')
-  .action(dashboardId => dashboard.exportDashboard(dashboardId));
+  .action((dashboardId, opts) => dashboard.exportDashboard(dashboardId, opts));
 
 program
   .command('dashboard-move-in-space <space> [dashboards...]')

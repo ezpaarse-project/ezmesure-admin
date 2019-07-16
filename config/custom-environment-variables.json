@@ -5,5 +5,6 @@
   "kibanaUrl": "KIBANA_URL",
   "timeout": "TIMEOUT",
   "logFile": "LOG_FILE",
-  "defaultTemplate": "DEFAULT_TEMPLATE"
+  "defaultTemplate": "DEFAULT_TEMPLATE",
+  "templateSpace": "TEMPLATE_SPACE"
 }
