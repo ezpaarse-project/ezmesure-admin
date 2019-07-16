@@ -1,7 +1,11 @@
 const { table } = require('table');
 const chalk = require('chalk');
+const fs = require('fs');
+const path = require('path');
+const config = require('config');
 const logger = require('../../lib/app/logger');
 const spacesLib = require('../../lib/spaces');
+const dashboardLib = require('../../lib/dashboard');
 
 module.exports = {
   getSpaces: async (space, opts) => {
@@ -48,12 +52,43 @@ module.exports = {
 
   addSpaces: async (space, opts) => {
     try {
+      let template = config.defaultTemplate || 'default-template';
+
+      if (opts && opts.template) {
+        // eslint-disable-next-line prefer-destructuring
+        template = opts.template;
+      }
+
       const defaultSpace = spacesLib.buildSpace(space, opts);
 
       const response = await spacesLib.addSpaces(defaultSpace);
       if (response.status === 200) {
         logger.info(`Space ${space} created`);
       }
+
+      const templateFilePath = path.resolve(`./templates/${template}.json`);
+
+      fs.stat(templateFilePath, async (err) => {
+        if (err && err.code === 'ENOENT') {
+          return logger.error(`Template file not found (${template})`);
+        }
+
+        let fileContent = await fs.readFileSync(templateFilePath, 'utf-8');
+
+        if (fileContent) {
+          fileContent = JSON.parse(fileContent);
+          fileContent[fileContent.length - 2].attributes.title = space;
+
+          const objects = await dashboardLib.import(space, {
+            objects: JSON.stringify(fileContent),
+          });
+          if (objects.status !== 200) {
+            return logger.error(`Problem with import in ${space}`);
+          }
+          return logger.info('Dashboard imported');
+        }
+        return null;
+      });
     } catch (error) {
       logger.error(error.response.data.message);
       return process.exit(1);

@@ -20,47 +20,6 @@ dashboard.exportDashboard = async (dashboardId, opts) => {
   }
 };
 
-const parseDashboardObjects = (objects, space) => objects.map((object) => {
-  const tmpObject = object;
-
-  if (tmpObject.attributes) {
-    const { attributes } = tmpObject;
-
-    if (tmpObject.id && tmpObject.id === 'univ-*') {
-      tmpObject.id = tmpObject.id.replace(/univ-\*/i, space);
-    }
-
-    if (attributes.title) {
-      attributes.title = attributes.title.replace(/univ-\*/i, space);
-    }
-
-    if (attributes.visState) {
-      const visState = JSON.parse(attributes.visState);
-      if (visState.title) {
-        visState.title = attributes.title;
-      }
-
-      if (visState.params && visState.params.controls) {
-        visState.params.controls = visState.params.controls.map((controls) => {
-          const tmpControls = controls;
-          tmpControls.indexPattern = tmpControls.indexPattern.replace(/univ-\*/i, space);
-          return tmpControls;
-        });
-      }
-      attributes.visState = JSON.stringify(visState);
-    }
-
-    if (attributes.kibanaSavedObjectMeta) {
-      const searchSourceJSON = JSON.parse(attributes.kibanaSavedObjectMeta.searchSourceJSON);
-      if (searchSourceJSON.index) {
-        searchSourceJSON.index = searchSourceJSON.index.replace(/univ-\*/i, space);
-        attributes.kibanaSavedObjectMeta.searchSourceJSON = JSON.stringify(searchSourceJSON);
-      }
-    }
-  }
-  return tmpObject;
-});
-
 const importDashboards = async (space, dashboards) => {
   for (let i = 0; i < dashboards.length; i += 1) {
     try {
@@ -68,7 +27,6 @@ const importDashboards = async (space, dashboards) => {
       const { data: exportedDashboard } = await dashboardLib.export(dashboards[i]);
       if (exportedDashboard && exportedDashboard.objects) {
         dashboardData = exportedDashboard.objects[exportedDashboard.objects.length - 1];
-        exportedDashboard.objects = parseDashboardObjects(exportedDashboard.objects, space);
         logger.info(`Dashboard ${dashboardData.attributes.title} exported`);
       }
 

@@ -4,5 +4,6 @@
   "elasticsearchPassword": "ELASTICSEARCH_PASSWORD",
   "kibanaUrl": "KIBANA_URL",
   "timeout": "TIMEOUT",
-  "logFile": "LOG_FILE"
+  "logFile": "LOG_FILE",
+  "defaultTemplate": "DEFAULT_TEMPLATE"
 }

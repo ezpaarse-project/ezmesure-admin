@@ -30,6 +30,7 @@ program
   .option('-c, --color <color>', 'color of space')
   .option('-d, --desc <description>', 'description of space')
   .option('-i, --initials <initials>', 'initials of space')
+  .option('-t, --template <template>', 'default template to use')
   .description('Add a KIBANA space with default attributes')
   .action((space, opts) => libSpaces.addSpaces(space, opts));
 
