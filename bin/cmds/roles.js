@@ -7,7 +7,7 @@ const usersLib = require('../../lib/users');
 const rolesLib = require('../../lib/roles');
 const objectsLib = require('../../lib/objects');
 
-const updateRoles = async (user) => {
+const updateUserRoles = async (user) => {
   await usersLib.update(user)
     .then(() => logger.info(`user ${user.username} updated`))
     .catch(error => logger.error(error));
@@ -161,7 +161,7 @@ module.exports = {
             user.roles = user.roles.find(userRole => userRole !== role);
           }
 
-          await updateRoles(user);
+          await updateUserRoles(user);
         }
       } catch (error) {
         logger.error(`An error occurred when update role ${role} for ${usernames[i]}`);

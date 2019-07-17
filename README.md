@@ -11,6 +11,17 @@
 
 You can get help for any command by typing `ezmesure-admin <command> --help`.
 
+## Configuration
+| Env. var | Description |
+| --- | --- |
+| ELASTICSEARCH_URL | Elasticsearh url |
+| ELASTICSEARCH_USERNAME | Elasticsearh admin username |
+| ELASTICSEARCH_PASSWORD | Elasticsearh admin password |
+| KIBANA_URL | Kibana url |
+| TIMEOUT | Timeout for queries |
+| DEFAULT_TEMPLATE | Name of default template |
+| TEMPLATE_SPACE | Name of template space |
+
 ## Commands
 
 | Name | Description |
@@ -69,8 +80,9 @@ $ ezmesure-admin spaces -j
 | --- | --- | --- | --- |
 | -c, --color | String | Color of space | Color must be composed of **#** and six hexadecimal characters (ex: #80bf85)  |
 | -d, --desc | String | Description of space |
-| -i, --initials | String | Initials of space (| Must contain 1 or 2 characters ex: AB) |
-> `ezmesure-admin space-add my-space -c "#80bf85" -d "This is my space" -i "MS"`
+| -i, --initials | String | Initials of space | Must contain 1 or 2 characters ex: AB) |
+| -t, --template | String | default template to use |
+> `ezmesure-admin space-add my-space -c "#80bf85" -d "This is my space" -i "MS" -t homepage`
 
 ### space-del
 

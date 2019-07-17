@@ -4,6 +4,7 @@ const config = require('config');
 const logger = require('../../lib/app/logger');
 const spacesLib = require('../../lib/spaces');
 const dashboardLib = require('../../lib/dashboard');
+const rolesLib = require('../../lib/roles');
 
 module.exports = {
   getSpaces: async (space, opts) => {
@@ -50,18 +51,21 @@ module.exports = {
 
   addSpaces: async (space, opts) => {
     try {
-      let template = config.defaultTemplate || 'homepage';
-
-      if (opts && opts.template) {
-        // eslint-disable-next-line prefer-destructuring
-        template = opts.template;
-      }
-
       const defaultSpace = spacesLib.buildSpace(space, opts);
 
       const response = await spacesLib.addSpaces(defaultSpace);
       if (response.status === 200) {
         logger.info(`Space ${space} created`);
+      }
+    } catch (error) {
+      logger.error(error.response.data.message);
+    }
+
+    try {
+      let template = config.defaultTemplate || 'homepage';
+      if (opts && opts.template) {
+        // eslint-disable-next-line prefer-destructuring
+        template = opts.template;
       }
 
       const { data: exportedDashboard } = await dashboardLib.export(template,
@@ -72,13 +76,37 @@ module.exports = {
 
         const objects = await dashboardLib.import(space, exportedDashboard);
         if (objects.status !== 200) {
-          return logger.error(`Problem with import in ${space}`);
+          return logger.error(`Problem with import ${template} in ${space}`);
         }
-        return logger.info('Dashboard imported');
+        return logger.info(`${template} imported`);
       }
     } catch (error) {
       logger.error(error.response.data.message);
-      return process.exit(1);
+    }
+
+    try {
+      const { data: rolesData } = await rolesLib.getRoles(space);
+      if (rolesData) {
+        rolesData[space].applications = [
+          {
+            application: 'kibana-.kibana',
+            privileges: ['space_all'],
+            resources: [`space:${space}`],
+          },
+          {
+            application: 'kibana-.kibana',
+            privileges: ['space_read'],
+            resources: ['space:default'],
+          },
+        ];
+
+        const { data: updateResponse } = await rolesLib.updateRole(space, rolesData[space]);
+        if (updateResponse && updateResponse.role) {
+          return logger.info('Role updated succefully');
+        }
+      }
+    } catch (error) {
+      logger.info(`Role ${space} doesn't exists, please create it with create-role command`);
     }
     return null;
   },
