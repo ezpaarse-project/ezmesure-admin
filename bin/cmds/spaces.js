@@ -76,9 +76,9 @@ module.exports = {
 
         const objects = await dashboardLib.import(space, exportedDashboard);
         if (objects.status !== 200) {
-          return logger.error(`Problem with import ${template} in ${space}`);
+          logger.error(`Problem with import ${template} in ${space}`);
         }
-        return logger.info(`${template} imported`);
+        logger.info(`${template} imported`);
       }
     } catch (error) {
       logger.error(error.response.data.message);
@@ -101,12 +101,13 @@ module.exports = {
         ];
 
         const { data: updateResponse } = await rolesLib.updateRole(space, rolesData[space]);
+
         if (updateResponse && updateResponse.role) {
           return logger.info('Role updated succefully');
         }
       }
     } catch (error) {
-      logger.info(`Role ${space} doesn't exists, please create it with create-role command`);
+      return logger.info(`Role ${space} doesn't exists, please create it with create-role command`);
     }
     return null;
   },
