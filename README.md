@@ -38,6 +38,7 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [add-role <role> <usernames...>](#add-role) | Add role to user(s) |
 | [del-role <role> <usernames...>](#del-role) | Delete role to user(s) |
 | [create-role <role>](#create-role) | Create a role |
+| [reporting <emails...>](#reporting) | Send reporting to target emails |
 
 ## Commands details
 
@@ -220,3 +221,14 @@ $ ezmesure-admin users -j
 <p>Select one or more users to add or remove one or more roles.
 <br />
 To add a role you have to select it from the list and to delete it you just have to deselect it.</p>
+
+### reporting
+| Name | Type | Description |
+| --- | --- | --- |
+| -s, --space | String | Name of space |
+
+Example:
+
+```bash
+$ ezmesure-admin reporting john.doe@email.com jane.doe@email.com -s my-space
+```

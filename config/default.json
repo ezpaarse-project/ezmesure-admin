@@ -2,5 +2,15 @@
   "elasticsearchUrl": "http://localhost:9200",
   "kibanaUrl": "http://localhost:5601",
   "defaultTemplate": "homepage",
-  "templateSpace": "org-template"
+  "templateSpace": "org-template",
+  "smtp": {
+    "sender": "reporting@email.com",
+    "carbonCopy": "email@email.com",
+    "host": "localhost",
+    "port": 1025,
+    "secure": false,
+    "tls": {
+      "rejectUnauthorized": false
+    }
+  }
 }

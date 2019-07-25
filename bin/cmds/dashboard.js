@@ -26,6 +26,7 @@ const importDashboards = async (space, dashboards) => {
       let dashboardData;
       const { data: exportedDashboard } = await dashboardLib.export(dashboards[i]);
       if (exportedDashboard && exportedDashboard.objects) {
+        // 7.X [dashboardData] = exportedDashboard.objects;
         dashboardData = exportedDashboard.objects[exportedDashboard.objects.length - 1];
         logger.info(`Dashboard ${dashboardData.attributes.title} exported`);
       }

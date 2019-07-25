@@ -6,5 +6,15 @@
   "timeout": "TIMEOUT",
   "logFile": "LOG_FILE",
   "defaultTemplate": "DEFAULT_TEMPLATE",
-  "templateSpace": "TEMPLATE_SPACE"
+  "templateSpace": "TEMPLATE_SPACE",
+  "smtp": {
+    "sender": "SMTP_SENDER",
+    "carbonCopy": "SMTP_CARBON_COPY",
+    "host": "SMTP_HOST",
+    "port": "SMTP_PORT",
+    "secure": "SMTP_SECURE",
+    "tls": {
+      "rejectUnauthorized": "SMTP_REJECT_UNAUTHORIZED"
+    }
+  }
 }
