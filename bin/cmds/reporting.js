@@ -95,29 +95,29 @@ module.exports = {
       timeout: '120000',
     });
 
-    let reportingJob;
+    let reportJob;
     try {
       logger.info('Launching reporting generation');
-      reportingJob = await reportingLib.genereateReporting(jobParams, opts.space);
-      reportingJob = reportingJob.data;
+      reportJob = await reportingLib.genereateReporting(jobParams, opts.space);
+      reportJob = reportJob.data;
     } catch (error) {
       logger.error('Reporting generation failed');
       return process.exit();
     }
 
-    if (!reportingJob) {
+    if (!reportJob) {
       logger.error('Reporting generation failed');
       return process.exit();
     }
 
-    if (reportingJob && reportingJob.path) {
+    if (reportJob && reportJob.path) {
       logger.info('Reporting generation started');
 
       let status = 'started';
       while (status === 'started' || status === 'pending' || status === 'processing') {
         logger.info(`Status: ${status}`);
         try {
-          const { data: jobInfos } = await reportingLib.getJobInfos(reportingJob.job.id, opts.space);
+          const { data: jobInfos } = await reportingLib.getJobInfos(reportJob.job.id, opts.space);
           // eslint-disable-next-line prefer-destructuring
           status = jobInfos.status;
           await new Promise(resolve => setTimeout(resolve, 2000));
@@ -141,7 +141,7 @@ module.exports = {
 
         const reportName = slugify(`report_${currentDate}_${dashboard.attributes.title}.pdf`, '_');
         try {
-          await reportingLib.downloadReporting(reportingJob.job.id, opts.space).then(report => report.data.pipe(fs.createWriteStream(`./reports/${reportName}`)));
+          await reportingLib.downloadReporting(reportJob.job.id, opts.space).then(report => report.data.pipe(fs.createWriteStream(`./reports/${reportName}`)));
         } catch (error) {
           logger.error('An error occured during report downloading');
           return process.exit();
