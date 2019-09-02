@@ -12,6 +12,8 @@ const dashboard = require('./cmds/dashboard');
 const usersCmd = require('./cmds/users');
 const rolesCmd = require('./cmds/roles');
 const reportingCmd = require('./cmds/reporting');
+const counterCmd = require('./cmds/counter');
+
 
 program.on('command:*', () => {
   console.error(`Invalid command: ${program.args.join(' ')}\nSee --help for a list of available commands.`);
@@ -98,5 +100,11 @@ program
   .description('Send reporting to target emails')
   .option('-s, --space <space>', 'Name of space')
   .action((emails, opts) => reportingCmd.report(emails, opts));
+
+program
+  .command('counter <JR1file>')
+  .description('Output JSON from JR1 file')
+  .option('-n, --ndjson ', 'Newline delimited JSON file')
+  .action((JR1file, opts) => counterCmd.json(JR1file, opts));
 
 program.parse(process.argv);
