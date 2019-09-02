@@ -3,10 +3,11 @@ const fs = require('fs');
 const moment = require('moment');
 const slugify = require('slugify');
 const { smtp } = require('config');
+const inquirer = require('inquirer');
 const logger = require('../../lib/app/logger');
 const reportingLib = require('../../lib/reporting');
 const objectsLib = require('../../lib/objects');
-const { sendMail } = require('../../lib/app/mailer');
+const { sendMail, templates } = require('../../lib/app/mailer');
 
 const generateRelativeUrl = (dashboard) => {
   try {
@@ -16,9 +17,11 @@ const generateRelativeUrl = (dashboard) => {
 
     const filters = sourceJSON.filter;
 
-    const index = referencesData.find(ref => ref.name === filters[0].meta.indexRefName);
-    filters[0].meta.index = index.id;
-    delete filters[0].meta.indexRefName;
+    if (filters && filters.length > 0  && filters[0].meta) {
+      const index = referencesData.find(ref => ref.name === filters[0].meta.indexRefName);
+      filters[0].meta.index = index.id;
+      delete filters[0].meta.indexRefName;
+    }
 
     panelsJSON.forEach((panel) => {
       const reference = referencesData.find(ref => ref.name === panel.panelRefName);
@@ -57,6 +60,36 @@ const generateRelativeUrl = (dashboard) => {
   }
 };
 
+const loadDashboards = async (opts) => {
+  try {
+    const { data: dashboards } = await objectsLib.findObjects('dashboard', opts);
+
+    if (dashboards) {
+      const choices = dashboards.saved_objects.map(dashboard => dashboard.attributes.title);
+      let dashboardsToUse;
+
+      if (choices) {
+        await inquirer.prompt([{
+          type: 'list',
+          pageSize: 20,
+          name: 'dashboardName',
+          message: 'Dashboards',
+          choices,
+          highlight: true,
+        }]).then((answers) => {
+          dashboardsToUse = answers.dashboardName;
+        });
+
+        return dashboardsToUse;
+      }
+    }
+  } catch (error) {
+    logger.error('An error occured during dashboards recovery');
+    return process.exit(1);
+  }
+  return null;
+};
+
 module.exports = {
   report: async (emails, opts) => {
     if (!Array.isArray(emails) || !emails) {
@@ -64,9 +97,16 @@ module.exports = {
       return process.exit(1);
     }
 
+    const dashboardName = await loadDashboards(opts);
+
+    if (!dashboardName) {
+      logger.error('No dashboard name selected');
+      return process.exit(1);
+    }
+
     let dashboard;
     try {
-      dashboard = await objectsLib.findObjects('dashboard', { space: opts.space, title: 'API - Metrics' });
+      dashboard = await objectsLib.findObjects('dashboard', { space: opts.space, title: dashboardName });
       if (dashboard && dashboard.data) {
         dashboard = dashboard.data.saved_objects.shift();
       }
@@ -158,15 +198,21 @@ module.exports = {
 
         logger.info('Sending mail');
         try {
+          const url = (opts.space ? `/s/${opts.space}` : '');
+
           await sendMail({
             from: smtp.sender,
             to: emails,
             cc: smtp.carbonCopy,
             subject: `Rapport PDF du ${currentDate}`,
-            html: `<p>Bonjour,</p><p>Voici en pièce jointe le rapport du tableau de bord API - Metrics du ${currentDate}</p><p>Ceci est un mail envoyé automatiquement par l'application ezMESURE.</p><p>Accès direct au dashboard : <a href="https://ezmesure.couperin.org/kibana${(opts.space ? `/s/${opts.space}` : '')}/goto/${shortUrl}" target="_blank">https://ezmesure.couperin.org/kibana${(opts.space ? `/s/${opts.space}` : '')}/goto/${shortUrl}</a></p>`,
-            text: `Bonjour,\nVoici en pièce jointe le rapport du tableau de bord API - Metrics du ${currentDate}\nCeci est un mail envoyé automatiquement par l'application ezMESURE.\n\nAccès direct au dashboard : https://ezmesure.couperin.org/kibana${(opts.space ? `/s/${opts.space}` : '')}/goto/${shortUrl}`,
+            ...templates('report', {
+              currentDate,
+              shortUrl,
+              url,
+            }),
           }, `${reportName}`);
         } catch (error) {
+          console.log(error)
           logger.error('An error occured during mail sending');
           return process.exit();
         }

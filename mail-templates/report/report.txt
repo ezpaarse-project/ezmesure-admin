@@ -1,0 +1,5 @@
+Bonjour,
+
+Voici en pièce jointe le rapport du tableau de bord API - Metrics du {{ currentDate }}
+Ceci est un mail envoyé automatiquement par l'application ezMESURE.
+Accès direct au dashboard : https://ezmesure.couperin.org/kibana{{ url }}/goto/{{ shortUrl }}
