@@ -102,9 +102,10 @@ program
   .action((emails, opts) => reportingCmd.report(emails, opts));
 
 program
-  .command('counter <JR1file>')
+  .command('counter <JR1package> <JR1file>')
   .description('Output JSON from JR1 file')
   .option('-n, --ndjson ', 'Newline delimited JSON file')
-  .action((JR1file, opts) => counterCmd.json(JR1file, opts));
+  .option('-i, --index ', 'index JR1 data')
+  .action((JR1package, JR1file, opts) => counterCmd.json(JR1package, JR1file, opts));
 
 program.parse(process.argv);
