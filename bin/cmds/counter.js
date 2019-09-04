@@ -1,9 +1,9 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable prefer-destructuring */
 const fs = require('fs');
-const counterLib = require('../../lib/counter');
 const moment = require('moment');
 const md5 = require('md5');
+const counterLib = require('../../lib/counter');
 
 const counterJR1 = {};
 const flatJR1 = [];
