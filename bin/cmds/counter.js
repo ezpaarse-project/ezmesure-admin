@@ -39,7 +39,7 @@ module.exports = {
       row = data[i].split(/\t/);
       if (i === 0) {
         counterJR1.info = {};
-        counterJR1.info.type = trimQuotes(row[0]);
+        counterJR1.info.type = trimQuotes(row[0].trim());
         counterJR1.info.title = trimQuotes(row[1]);
         counterJR1.dataRows = [];
       } else if (i === 1) {
@@ -90,7 +90,7 @@ module.exports = {
         flatJR1.push(journalMonthRow);
       }
     }
-    console.dir(counterJR1.info);
+    // console.dir(counterJR1.info);
     if (opts.ndjson) {
       const ndjsonFile = `${JR1file}.ndjson`;
       fs.writeFileSync(ndjsonFile, '');
@@ -114,6 +114,11 @@ module.exports = {
           // eslint-disable-next-line consistent-return
           return process.exit(1);
         }
+      }
+    } else if (opts.bulk) {
+      const response = await counterLib.bulkInsertIndex('publisher', flatJR1);
+      if (response) {
+        console.log(response, ' insertion/mises à jour');
       }
     } else {
       const jsonFile = `${JR1file}.json`;

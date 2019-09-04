@@ -106,6 +106,7 @@ program
   .description('Output JSON from JR1 file')
   .option('-n, --ndjson ', 'Newline delimited JSON file')
   .option('-i, --index ', 'index JR1 data')
+  .option('-b, --bulk ', 'bulk index JR1 data')
   .action((JR1package, JR1file, opts) => counterCmd.json(JR1package, JR1file, opts));
 
 program.parse(process.argv);
