@@ -58,6 +58,8 @@ dashboard.importDashboardInSpace = async (space, dashboards, opts) => {
   // curl -X GET "http://localhost:5601/api/kibana/dashboards/export?dashboard=" -H 'kbn-xsrf: true'
   // http://localhost:5601/s/sales/api/kibana/dashboards/import --data-binary @export.json
 
+  space = space.toLowerCase();
+
   let dashboardsToUse = dashboards;
 
   if (opts && opts.title) {
