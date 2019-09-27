@@ -1,6 +1,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable prefer-destructuring */
 const fs = require('fs');
+const path = require('path');
 const moment = require('moment');
 const md5 = require('md5');
 const counterLib = require('../../lib/counter');
@@ -26,8 +27,9 @@ function checkJR1(info) {
 }
 
 module.exports = {
-  json: async (JR1package, JR1file, opts) => {
-    let data;
+  json: async (JR1file, opts) => {
+    let data; let match;
+
     try {
       data = fs.readFileSync(JR1file).toString().split(/(?:\r\n|\r|\n)/g);
     } catch (err) {
@@ -35,8 +37,17 @@ module.exports = {
       return;
     }
 
+    if (opts.package) {
+      JR1package = opts.package;
+    } else if (((match = /_([a-zA-Z0-9]+)_/i.exec(path.basename(JR1file))) !== null)) {
+      JR1package = match[1];
+    } else {
+      console.error('impossible to guess JR1 package with ', JR1file, ' file');
+      return;
+    }
+
     for (let i = 0; i < data.length; i++) {
-      row = data[i].split(/\t/);
+      row = data[i].split(/\t|;/);
       if (i === 0) {
         counterJR1.info = {};
         counterJR1.info.type = trimQuotes(row[0].trim());
@@ -67,7 +78,7 @@ module.exports = {
     }
 
     month = counterJR1.headerRows.length - 10;
-    console.log('Fichier ', JR1file, 'contient ', month, 'mois exportés');
+    console.log('Fichier ', JR1file, 'contient ', month, 'mois exportés [', JR1package, ' package]');
 
     // for (let i = 0; i < 3; i++) {
     for (let i = 0; i < counterJR1.dataRows.length; i++) {
@@ -83,7 +94,7 @@ module.exports = {
         journalMonthRow.FTADate = moment.utc(counterJR1.headerRows[10 + j], 'MMM-YYYY');
         journalMonthRow.FTACount = parseInt(counterJR1.dataRows[i][10 + j], 10);
         // eslint-disable-next-line max-len
-        const idString = JR1file + journalMonthRow.JR1package + journalMonthRow.Journal
+        const idString = path.basename(JR1file) + journalMonthRow.JR1package + journalMonthRow.Journal
         + journalMonthRow.FTADate + journalMonthRow.FTACount;
         journalMonthRow._id = md5(idString);
 

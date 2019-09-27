@@ -39,7 +39,7 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [del-role <role> <usernames...>](#del-role) | Delete role to user(s) |
 | [create-role <role>](#create-role) | Create a role |
 | [reporting <emails...>](#reporting) | Send reporting to target emails |
-
+| [counter4 \<JR1File>](#counter4) | Load JR1 Counter 4 file into KIBANA |
 ## Commands details
 
 ### spaces
@@ -231,4 +231,22 @@ Example:
 
 ```bash
 $ ezmesure-admin reporting john.doe@email.com jane.doe@email.com -s my-space
+```
+
+### counter4
+
+Load a counter 4 JR1 file into KIBANA or only output a JSON file
+
+| Name | Type | Description |
+| --- | --- | --- |
+| no-option | boolean | only output JSON file |
+| -i, --index | boolean | bulk index JR1 data (try to guess JR1 package form filename _\_JR1package\__ or take -p option ) |
+| -p, --package | string | \<JR1package> JR1 package (do not try to guess from file name) |
+| -n, --ndjson | boolean | only output newline delimited JSON file |
+| -h, --help | output usage information |
+
+Example:
+
+```bash
+$ ezmesure-admin counter4 ../data/JR1_Nature_INSHS_TT2018.csv -i
 ```
