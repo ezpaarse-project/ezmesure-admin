@@ -28,7 +28,7 @@ function checkJR1(info) {
 
 module.exports = {
   json: async (JR1file, opts) => {
-    let data; let match;
+    let data; let match; let JR1package;
 
     try {
       data = fs.readFileSync(JR1file).toString().split(/(?:\r\n|\r|\n)/g);
@@ -39,7 +39,8 @@ module.exports = {
 
     if (opts.package) {
       JR1package = opts.package;
-    } else if (((match = /_([a-zA-Z0-9]+)_/i.exec(path.basename(JR1file))) !== null)) {
+      match = /_([a-zA-Z0-9]+)_/i.exec(path.basename(JR1file));
+    } else if (match !== null) {
       JR1package = match[1];
     } else {
       console.error('impossible to guess JR1 package with ', JR1file, ' file');
