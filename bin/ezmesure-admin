@@ -104,9 +104,10 @@ program
 program
   .command('counter4 <JR1file>')
   .description('Load a JR1 file into KIBANA or only output a JSON file')
-  .option('-i, --index ', 'bulk index JR1 data')
+  .option('-b, --bulk ', 'bulk index JR1 data')
   .option('-p, --package <JR1package>', 'JR1 package (do not try to guess from file name)')
   .option('-n, --ndjson ', 'only output newline delimited JSON file')
   .action((JR1file, opts) => counterCmd.json(JR1file, opts));
 
 program.parse(process.argv);
+
