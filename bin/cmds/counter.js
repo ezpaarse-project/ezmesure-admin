@@ -29,6 +29,14 @@ function checkJR1(info) {
 
 async function process(results, opts, JR1file) {
   let JR1package; let match;
+  if (opts.package) {
+    JR1package = opts.package;
+    match = /_([a-zA-Z0-9]+)_/i.exec(path.basename(JR1file));
+  } else if (Array.isArray(match)) {
+    JR1package = match[1];
+  } else {
+    console.error('impossible to guess JR1 package with ', JR1file, ' file');
+  }
 
   for (let i = 0; i < results.data.length; i++) {
     row = results.data[i];
@@ -120,14 +128,6 @@ async function process(results, opts, JR1file) {
     const jsonFile = `${JR1file}.json`;
     fs.writeFileSync(jsonFile, JSON.stringify(flatJR1));
     console.log('Ecriture de ', jsonFile, ' avec ', flatJR1.length, ' objets');
-  }
-  if (opts.package) {
-    JR1package = opts.package;
-    match = /_([a-zA-Z0-9]+)_/i.exec(path.basename(JR1file));
-  } else if (Array.isArray(match)) {
-    JR1package = match[1];
-  } else {
-    console.error('impossible to guess JR1 package with ', JR1file, ' file');
   }
 }
 
