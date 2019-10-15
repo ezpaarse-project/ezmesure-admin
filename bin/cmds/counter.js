@@ -20,7 +20,8 @@ function trimQuotes(string) {
 function checkJR1(info) {
   let check;
   if (info.type === 'Journal Report 1 (R4)'
-    && info.title === 'Number of Successful Full-Text Article Requests by Month and Journal'
+    && (info.title.toLowerCase() === 'Number of Successful Full-Text Article Requests by Month and Journal'.toLowerCase()
+    || info.title.toLowerCase() === 'Number of Successful Full-text Article Requests by Year and Article'.toLowerCase())
     && info.startDate && info.endDate) {
     check = true;
   } else { check = false; }
@@ -28,14 +29,20 @@ function checkJR1(info) {
 }
 
 async function process(results, opts, JR1file) {
-  let JR1package; let match;
-  if (opts.package) {
-    JR1package = opts.package;
+  let JR1package; let match; let publisherIndex;
+  if (opts.counterPackage) {
+    JR1package = opts.counterPackage;
     match = /_([a-zA-Z0-9]+)_/i.exec(path.basename(JR1file));
   } else if (Array.isArray(match)) {
     JR1package = match[1];
   } else {
     console.error('impossible to guess JR1 package with ', JR1file, ' file');
+  }
+
+  if (opts.depositor) {
+    publisherIndex = `${opts.depositor}-publisher`;
+  } else {
+    publisherIndex = 'publisher';
   }
 
   for (let i = 0; i < results.data.length; i++) {
@@ -108,7 +115,7 @@ async function process(results, opts, JR1file) {
       try {
         const _id = flatJR1[i]._id;
         delete flatJR1[i]._id;
-        const { data: response } = await counterLib.insertIndex('publisher', _id, JSON.stringify(flatJR1[i]));
+        const { data: response } = await counterLib.insertIndex(publisherIndex, _id, JSON.stringify(flatJR1[i]));
         if (response) {
           // eslint-disable-next-line consistent-return
           console.log(JSON.stringify(response));
@@ -120,7 +127,7 @@ async function process(results, opts, JR1file) {
       }
     }
   } else if (opts.bulk) {
-    const response = await counterLib.bulkInsertIndex('publisher', flatJR1);
+    const response = await counterLib.bulkInsertIndex(publisherIndex, flatJR1);
     if (response) {
       console.log(response, ' insertion/mises à jour');
     }
