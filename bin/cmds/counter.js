@@ -19,9 +19,12 @@ function trimQuotes(string) {
 
 function checkJR1(info) {
   let check;
-  if (info.type === 'Journal Report 1 (R4)'
+  if ((info.type === 'Journal Report 1 (R4)'
+    || info.type === 'Journal Report 1'
+    || info.type === 'Rapport Journalier 1 (R4)')
     && (info.title.toLowerCase() === 'Number of Successful Full-Text Article Requests by Month and Journal'.toLowerCase()
-    || info.title.toLowerCase() === 'Number of Successful Full-text Article Requests by Year and Article'.toLowerCase())
+    || info.title.toLowerCase() === 'Number of Successful Full-text Article Requests by Year and Article'.toLowerCase()
+    || info.title.toLowerCase() === 'Nombre de documents consommés par mois et source'.toLowerCase())
     && info.startDate && info.endDate) {
     check = true;
   } else { check = false; }
@@ -115,6 +118,7 @@ async function process(results, opts, JR1file) {
       try {
         const _id = flatJR1[i]._id;
         delete flatJR1[i]._id;
+        // eslint-disable-next-line max-len
         const { data: response } = await counterLib.insertIndex(publisherIndex, _id, JSON.stringify(flatJR1[i]));
         if (response) {
           // eslint-disable-next-line consistent-return
