@@ -18,6 +18,11 @@ function trimQuotes(string) {
   return string.replace(/^"/, '').replace(/"$/, '');
 }
 
+function makeID(MRfile, journalMonthRow) {
+  const idString = path.basename(MRfile) + JSON.stringify(journalMonthRow);
+  journalMonthRow._id = md5(idString);
+}
+
 function checkJR1(info) {
   let check;
   if ((info.type === 'Journal Report 1 (R4)'
@@ -98,8 +103,10 @@ async function process4(results, opts, JR1file) {
       journalMonthRow.FTADate = moment.utc(counterJR1.headerRows[10 + j], 'MMM-YYYY');
       journalMonthRow.FTACount = parseInt(counterJR1.dataRows[i][10 + j], 10);
       // eslint-disable-next-line max-len
-      const idString = path.basename(JR1file) + journalMonthRow.JR1package + journalMonthRow.Journal
-      + journalMonthRow.FTADate + journalMonthRow.FTACount;
+      // const idString = path.basename(JR1file) + journalMonthRow.JR1package + journalMonthRow.Journal
+      // + journalMonthRow.FTADate + journalMonthRow.FTACount;
+      const idString = path.basename(JR1file) + JSON.stringify(journalMonthRow);
+
       journalMonthRow._id = md5(idString);
 
       flatJR1.push(journalMonthRow);
@@ -175,12 +182,12 @@ async function process5(results, opts, MRfile) {
   counterMR.dataRows = [];
   for (let i = 0; i < results.data.length; i++) {
     row = results.data[i];
-    //console.log(row);
-    if (i >= 0  && i <= 10) {
+    // console.log(row);
+    if (i >= 0 && i <= 10) {
       counterMR.info[trimQuotes(row[0].trim())] = trimQuotes(row[1].trim());
-      //counterMR.info.title = trimQuotes(row[1]);
+      // counterMR.info.title = trimQuotes(row[1]);
     } else if (i === 13) {
-      counterMR.headerRows = row.map(trimQuotes);      
+      counterMR.headerRows = row.map(trimQuotes);
     } else if (i === 14) {
       if (counterMR.info.Reporting_Period) {
         const d = counterMR.info.Reporting_Period.split('; ');
@@ -219,9 +226,9 @@ async function process5(results, opts, MRfile) {
       journalMonthRow.FTADate = moment.utc(counterMR.headerRows[12 + j], 'MMM-YYYY');
       journalMonthRow.FTACount = parseInt(counterMR.dataRows[i][12 + j], 10);
       // eslint-disable-next-line max-len
-      const idString = path.basename(MRfile) + journalMonthRow.MRpackage + journalMonthRow.Journal
-      + journalMonthRow.FTADate + journalMonthRow.FTACount;
-      journalMonthRow._id = md5(idString);
+      // const idString = path.basename(MRfile) + journalMonthRow.MRpackage + journalMonthRow.Journal
+      // + journalMonthRow.FTADate + journalMonthRow.FTACount;
+      makeID(MRfile, journalMonthRow);
 
       flatJR1.push(journalMonthRow);
     }

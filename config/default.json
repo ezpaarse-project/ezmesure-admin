@@ -12,5 +12,8 @@
     "tls": {
       "rejectUnauthorized": false
     }
-  }
+  },
+  "proxy": {
+    "host": "proxyout.inist.fr",
+    "port": "8080" } 
 }

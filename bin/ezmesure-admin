@@ -13,6 +13,7 @@ const usersCmd = require('./cmds/users');
 const rolesCmd = require('./cmds/roles');
 const reportingCmd = require('./cmds/reporting');
 const counterCmd = require('./cmds/counter');
+const sushiCmd = require('./cmds/sushi');
 
 
 program.on('command:*', () => {
@@ -118,5 +119,12 @@ program
   .option('-d, --depositor <depositor>', 'index prefix name for publisher index', 'local')
   .option('-n, --ndjson ', 'only output newline delimited JSON file')
   .action((MRfile, opts) => counterCmd.counter5(MRfile, opts));
+
+program
+  .command('sushi5 <sushiFile>')
+  .description('Test COUNTER 5 Master Report request')
+  .option('-c, --counter-package <package>', ' account package (ex : BibCNRS)', 'default')
+  .action((sushiFile, opts) => sushiCmd.sushi5(sushiFile, opts));
+
 
 program.parse(process.argv);
