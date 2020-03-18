@@ -25,7 +25,7 @@ function transformItem(resItems, item, opts) {
   if (item.YOP) { resItem.YOP = item.YOP; }
   if (item.Publisher_ID) {
     for (let i = 0; i < item.Publisher_ID.length; i++) {
-      if (item.Publisher_ID[i].Value) { 
+      if (item.Publisher_ID[i].Value) {
         resItem.Publisher_ID = `${item.Publisher_ID[i].Type}:${item.Publisher_ID[i].Value}`;
       }
     }
@@ -98,7 +98,7 @@ module.exports = {
               }
               if (res.data.Report_Header) {
                 reportHeader = res.data.Report_Header;
-                // console.dir(reportHeader);
+                console.dir(reportHeader);
               } else {
                 console.error('No header in report');
               }
