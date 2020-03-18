@@ -10,15 +10,24 @@ function transformItem(resItems, item, opts) {
 
   if (item.Item_ID) {
     for (let i = 0; i < item.Item_ID.length; i++) {
-      resItem[item.Item_ID[i].Type] = item.Item_ID[i].Value;
+      if (item.Item_ID[i].Value) {
+        resItem[item.Item_ID[i].Type] = item.Item_ID[i].Value;
+      }
     }
   }
-  resItem.Platform = item.Platform;
-  resItem.Title = item.Title;
-  resItem.Publisher = item.Publisher;
+  // console.dir(item, { depth: 5 });
+  if (item.Platform) { resItem.Platform = item.Platform; }
+  if (item.Title) { resItem.Title = item.Title; }
+  if (item.Publisher) { resItem.Publisher = item.Publisher; }
+  if (item.Section_Type) { resItem.Section_Type = item.Section_Type; }
+  if (item.Access_Method) { resItem.Access_Method = item.Access_Method; }
+  if (item.Access_Type) { resItem.Access_Type = item.Access_Type; }
+  if (item.YOP) { resItem.YOP = item.YOP; }
   if (item.Publisher_ID) {
     for (let i = 0; i < item.Publisher_ID.length; i++) {
-      resItem.Publisher_ID = `${item.Publisher_ID[i].Type}:${item.Publisher_ID[i].Value}`;
+      if (item.Publisher_ID[i].Value) { 
+        resItem.Publisher_ID = `${item.Publisher_ID[i].Type}:${item.Publisher_ID[i].Value}`;
+      }
     }
   }
   if (item.Performance) {
@@ -80,11 +89,12 @@ module.exports = {
           const res = await sushiLib.getReport(sushiActions[action].sushiURL, opts);
           if (res.status === 200) {
             if (res.data) {
-              if (res.data.Report_Items.length) {
+              if (res.data.Report_Items && res.data.Report_Items.length) {
                 reportItems = res.data.Report_Items;
                 console.log('Rapport sushi : ', reportItems.length, 'elements reçus');
               } else {
                 console.error('No items in report');
+                console.dir(res.data, { depth: 5 });
               }
               if (res.data.Report_Header) {
                 reportHeader = res.data.Report_Header;
