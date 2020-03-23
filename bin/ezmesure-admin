@@ -123,7 +123,8 @@ program
 program
   .command('sushi5 <sushiFile>')
   .description('Test COUNTER 5 Master Report request')
-  .option('-c, --counter-package <package>', ' account package (ex : BibCNRS)', 'default')
+  .option('-s, --report-file <reportFilePrefix>', 'Save sushi report with file prefix (ex : sushi)', 'sushi')
+  .option('-b, --bulk', 'bulk index COUNTER 5 data')
   .action((sushiFile, opts) => sushiCmd.sushi5(sushiFile, opts));
 
 

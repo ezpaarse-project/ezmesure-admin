@@ -50,13 +50,21 @@ function transformItem(resItems, item, opts) {
   return resItems;
 }
 
+function writeReport(reportFile, jsonData) {
+  try {
+    fs.writeFileSync(reportFile, JSON.stringify(jsonData));
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 function readSushiFile(sushiFile) {
   let data;
   let sushiActions;
   try {
     data = fs.readFileSync(sushiFile);
     sushiActions = JSON.parse(data);
-    console.log(sushiActions);
+    // console.log(sushiActions);
   } catch (err) {
     if (err.code === 'ENOENT') { console.error('no ', sushiFile, ' file'); } else { console.error(err); }
   }
@@ -69,49 +77,74 @@ module.exports = {
 
   sushi5: async (sushiFile, opts) => {
     const sushiActions = readSushiFile(sushiFile);
+    const sushiIndexPrefix = 'bibcnrs-sushi-5';
 
     let reportItems = [];
-    let reportHeader = {};
-    let resItems = [];
-    console.log(sushiActions.length);
+    // let reportHeader = {};
+    const reportFile = opts.reportFile;
+    if (!sushiActions) {
+      console.error('Ficher sushi JSON non conforme : ', sushiFile);
+      process.exit(1);
+    }
     for (let action = 0; action < sushiActions.length; action++) {
+      console.log('Recuperation sushi : ', sushiActions[action].accounts.length, 'operation(s) a effectuer');
       opts.report = sushiActions[action].report;
       opts.beginDate = sushiActions[action].beginDate;
       opts.endDate = sushiActions[action].endDate;
       opts.package = sushiActions[action].package;
+      opts.vendor = sushiActions[action].vendor;
       for (let account = 0; account < sushiActions[action].accounts.length; account++) {
         opts.requestorId = sushiActions[action].accounts[account].requestorId;
         opts.customerId = sushiActions[action].accounts[account].customerId;
         if (sushiActions[action].accounts[account].package) {
           opts.package = sushiActions[action].accounts[account].package;
         }
+        if (sushiActions[action].accounts[account].vendor) {
+          opts.package = sushiActions[action].accounts[account].vendor;
+        }
+        console.log('Rapport : ', opts.report, '- debut : ', opts.beginDate, '- fin :', opts.endDate);
+        console.log('Package : ', opts.package, '- vendor : ', opts.vendor);
+        if (opts.reportFile) {
+          // set filename for downloaded report
+          opts.reportFile = `${reportFile}-${opts.report}-${opts.package}-${opts.vendor}`;
+          opts.reportFile = `${opts.reportFile}-${opts.beginDate}-${opts.endDate}.json`;
+        }
         try {
           const res = await sushiLib.getReport(sushiActions[action].sushiURL, opts);
+          let resItems = [];
           if (res.status === 200) {
             if (res.data) {
               if (res.data.Report_Items && res.data.Report_Items.length) {
                 reportItems = res.data.Report_Items;
                 console.log('Rapport sushi : ', reportItems.length, 'elements reçus');
+                if (!opts.bulk && opts.reportFile) {
+                  // write sushi report file
+                  writeReport(opts.reportFile, res.data);
+                  console.log('Sauvegarde du rapport ', opts.reportFile);
+                }
               } else {
                 console.error('No items in report');
                 console.dir(res.data, { depth: 5 });
               }
-              if (res.data.Report_Header) {
-                reportHeader = res.data.Report_Header;
-                console.dir(reportHeader);
-              } else {
-                console.error('No header in report');
-              }
-              for (let i = 0; i < reportItems.length; i++) {
-                // console.dir(reportItems[i], { depth: 5 });
-                resItems = transformItem(resItems, reportItems[i], opts);
-              }
-              // console.dir(resItems);
-              const response = await counterLib.bulkInsertIndex('bibcnrs-sushi5', resItems);
-              if (response) {
-                console.log(response, ' insertion/mises à jour');
-              } else {
-                console.log('Aucune insertion/mise à jour');
+              // if (res.data.Report_Header) {
+              //   reportHeader = res.data.Report_Header;
+              //   console.dir(reportHeader);
+              // } else {
+              //   console.error('No header in report');
+              // }
+              if (opts.bulk) {
+                for (let i = 0; i < reportItems.length; i++) {
+                  // console.dir(reportItems[i], { depth: 5 });
+                  resItems = transformItem(resItems, reportItems[i], opts);
+                }
+                // console.dir(resItems);
+                let response = {};
+                response = await counterLib.bulkInsertIndex(sushiIndexPrefix, resItems);
+                if (response) {
+                  console.log(response, ' insertion/mises à jour');
+                } else {
+                  console.log('Aucune insertion/mise à jour');
+                }
               }
             }
           }
