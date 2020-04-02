@@ -77,7 +77,7 @@ module.exports = {
 
   sushi5: async (sushiFile, opts) => {
     const sushiActions = readSushiFile(sushiFile);
-    const sushiIndexPrefix = 'bibcnrs-sushi-5';
+    let sushiIndexPrefix;
 
     let reportItems = [];
     // let reportHeader = {};
@@ -86,24 +86,28 @@ module.exports = {
       console.error('Ficher sushi JSON non conforme : ', sushiFile);
       process.exit(1);
     }
+
+    sushiIndexPrefix = `${opts.depositor}-sushi-5`;
+
     for (let action = 0; action < sushiActions.length; action++) {
       console.log('Recuperation sushi : ', sushiActions[action].accounts.length, 'operation(s) a effectuer');
-      opts.report = sushiActions[action].report;
-      opts.beginDate = sushiActions[action].beginDate;
-      opts.endDate = sushiActions[action].endDate;
-      opts.package = sushiActions[action].package;
-      opts.vendor = sushiActions[action].vendor;
+      if (sushiActions[action].depositor) {
+        sushiIndexPrefix = `${sushiActions[action].depositor}-sushi-5`;
+      }
+
+      // eslint-disable-next-line no-restricted-syntax
+      for (const i of Object.keys(sushiActions[action])) {
+        opts[i] = sushiActions[action][i];
+      }
       for (let account = 0; account < sushiActions[action].accounts.length; account++) {
-        opts.requestorId = sushiActions[action].accounts[account].requestorId;
-        opts.customerId = sushiActions[action].accounts[account].customerId;
-        if (sushiActions[action].accounts[account].package) {
-          opts.package = sushiActions[action].accounts[account].package;
+        // eslint-disable-next-line no-restricted-syntax
+        for (const i of Object.keys(sushiActions[action].accounts[account])) {
+          opts[i] = sushiActions[action].accounts[account][i];
         }
-        if (sushiActions[action].accounts[account].vendor) {
-          opts.package = sushiActions[action].accounts[account].vendor;
-        }
+
         console.log('Rapport : ', opts.report, '- debut : ', opts.beginDate, '- fin :', opts.endDate);
         console.log('Package : ', opts.package, '- vendor : ', opts.vendor);
+        console.log('requestorId : ', opts.requestorId, '- customerId : ', opts.customerId);
         if (opts.reportFile) {
           // set filename for downloaded report
           opts.reportFile = `${reportFile}-${opts.report}-${opts.package}-${opts.vendor}`;

@@ -8,18 +8,21 @@ const papa = require('papaparse');
 const counterLib = require('../../lib/counter');
 
 const counterJR1 = {};
-const counterMR = {};
-const flatJR1 = [];
+const counterR = {};
+const flatReport = [];
+
 let row = [];
 let month;
+let MonthIndice;
+
 // let counterJR1.dataRow = [];
 
 function trimQuotes(string) {
   return string.replace(/^"/, '').replace(/"$/, '');
 }
 
-function makeID(MRfile, journalMonthRow) {
-  const idString = path.basename(MRfile) + JSON.stringify(journalMonthRow);
+function makeID(rFile, journalMonthRow) {
+  const idString = path.basename(rFile) + JSON.stringify(journalMonthRow);
   journalMonthRow._id = md5(idString);
 }
 
@@ -109,25 +112,25 @@ async function process4(results, opts, JR1file) {
 
       journalMonthRow._id = md5(idString);
 
-      flatJR1.push(journalMonthRow);
+      flatReport.push(journalMonthRow);
     }
   }
   // console.dir(counterJR1.info);
   if (opts.ndjson) {
     const ndjsonFile = `${JR1file}.ndjson`;
     fs.writeFileSync(ndjsonFile, '');
-    for (let i = 0; i < flatJR1.length; i++) {
-      fs.appendFileSync(ndjsonFile, JSON.stringify(flatJR1[i]));
+    for (let i = 0; i < flatReport.length; i++) {
+      fs.appendFileSync(ndjsonFile, JSON.stringify(flatReport[i]));
       fs.appendFileSync(ndjsonFile, '\r\n');
     }
-    console.log('Ecriture de ', ndjsonFile, ' avec ', flatJR1.length, ' lignes');
+    console.log('Ecriture de ', ndjsonFile, ' avec ', flatReport.length, ' lignes');
   } else if (opts.index) {
-    for (let i = 0; i < flatJR1.length; i++) {
+    for (let i = 0; i < flatReport.length; i++) {
       try {
-        const _id = flatJR1[i]._id;
-        delete flatJR1[i]._id;
+        const _id = flatReport[i]._id;
+        delete flatReport[i]._id;
         // eslint-disable-next-line max-len
-        const { data: response } = await counterLib.insertIndex(publisherIndex, _id, JSON.stringify(flatJR1[i]));
+        const { data: response } = await counterLib.insertIndex(publisherIndex, _id, JSON.stringify(flatReport[i]));
         if (response) {
           // eslint-disable-next-line consistent-return
           console.log(JSON.stringify(response));
@@ -139,7 +142,7 @@ async function process4(results, opts, JR1file) {
       }
     }
   } else if (opts.bulk) {
-    const response = await counterLib.bulkInsertIndex(publisherIndex, flatJR1);
+    const response = await counterLib.bulkInsertIndex(publisherIndex, flatReport);
     if (response) {
       console.log(response, ' insertion/mises à jour');
     } else {
@@ -147,29 +150,34 @@ async function process4(results, opts, JR1file) {
     }
   } else {
     const jsonFile = `${JR1file}.json`;
-    fs.writeFileSync(jsonFile, JSON.stringify(flatJR1));
-    console.log('Ecriture de ', jsonFile, ' avec ', flatJR1.length, ' objets');
+    fs.writeFileSync(jsonFile, JSON.stringify(flatReport));
+    console.log('Ecriture de ', jsonFile, ' avec ', flatReport.length, ' objets');
   }
 }
 
-function checkMR(info) {
+function checkReport(info) {
   let check;
-  if (info.Report_Name === 'Title Master Report'
+  if ((info.Report_Name === 'Title Master Report'
+  || info.Report_Name === 'Journal Requests (Excluding OA_Gold)'
+  || info.Report_Name === 'Journal Access Denied'
+  || info.Report_Name === 'Journal Usage by Access Type'
+  || info.Report_Name === 'Journal Requests by YOP (Excluding OA_Gold)'
+  || info.Report_Name === 'Journal Requests by YOP (Excluding OA_Gold)')
     && info.Begin_Date && info.End_Date) {
     check = true;
   } else { check = false; }
   return check;
 }
 
-async function process5(results, opts, MRfile) {
-  let MRpackage; let match; let publisherIndex;
+async function process5(results, opts, rFile) {
+  let cPackage; let match; let publisherIndex;
   if (opts.counterPackage) {
-    MRpackage = opts.counterPackage;
-    match = /_([a-zA-Z0-9]+)_/i.exec(path.basename(MRfile));
+    cPackage = opts.counterPackage;
+    match = /_([a-zA-Z0-9]+)_/i.exec(path.basename(rFile));
   } else if (Array.isArray(match)) {
-    MRpackage = match[1];
+    cPackage = match[1];
   } else {
-    console.error('impossible to guess MR package with ', MRfile, ' file');
+    console.error('impossible to guess report package with ', rFile, ' file');
   }
 
   if (opts.depositor) {
@@ -178,77 +186,84 @@ async function process5(results, opts, MRfile) {
     publisherIndex = 'publisher-5';
   }
 
-  counterMR.info = {};
-  counterMR.dataRows = [];
+  counterR.info = {};
+  counterR.dataRows = [];
   for (let i = 0; i < results.data.length; i++) {
     row = results.data[i];
     // console.log(row);
     if (i >= 0 && i <= 10) {
-      counterMR.info[trimQuotes(row[0].trim())] = trimQuotes(row[1].trim());
-      // counterMR.info.title = trimQuotes(row[1]);
+      counterR.info[trimQuotes(row[0].trim())] = trimQuotes(row[1].trim());
+      // counterR.info.title = trimQuotes(row[1]);
     } else if (i === 13) {
-      counterMR.headerRows = row.map(trimQuotes);
+      counterR.headerRows = row.map(trimQuotes);
     } else if (i === 14) {
-      if (counterMR.info.Reporting_Period) {
-        const d = counterMR.info.Reporting_Period.split('; ');
+      if (counterR.info.Reporting_Period) {
+        const d = counterR.info.Reporting_Period.split('; ');
         const d1 = d[0].split('=');
         const d2 = d[1].split('=');
-        counterMR.info[d1[0]] = d1[1];
-        counterMR.info[d2[0]] = d2[1];
+        counterR.info[d1[0]] = d1[1];
+        counterR.info[d2[0]] = d2[1];
       }
-      if (!checkMR(counterMR.info)) {
-        console.log('Fichier ', MRfile, ' non conforme COUNTER 5 MR');
-        console.dir(counterMR.info);
+      // console.dir(counterR.info);
+      if (!checkReport(counterR.info)) {
+        console.log('Fichier ', rFile, ' non conforme COUNTER 5');
+        console.dir(counterR.info);
         return;
       }
     } else if (i >= 14 && row) {
       // console.dir(row);
-      counterMR.dataRows.push(row.map(trimQuotes));
+      counterR.dataRows.push(row.map(trimQuotes));
     }
   }
 
-  month = counterMR.headerRows.length - 12;
-  // console.dir(counterMR.info);
-  // console.dir(counterMR.dataRows[0]);
-  console.log('Fichier ', MRfile, 'contient ', month, 'mois exportés [', MRpackage, ' package]');
+
+  if (Array.isArray(counterR.headerRows) && counterR.headerRows.lastIndexOf('Reporting_Period_Total')) {
+    MonthIndice = counterR.headerRows.lastIndexOf('Reporting_Period_Total') + 1;
+    month = counterR.headerRows.length - MonthIndice;
+  }
+  console.log('Fichier ', rFile, 'contient ', month, 'mois exportés [', cPackage, ' package]');
+  console.log('Rapport : ', counterR.info.Report_ID, counterR.info.Report_Name);
+  console.log('Période : debut = ', counterR.info.Begin_Date, '- fin =', counterR.info.End_Date);
+  console.log('Package : ', opts.counterPackage, '- vendor : ', counterR.info.Institution_ID);
+  console.log('Institution : ', counterR.info.Institution_Name);
 
   // for (let i = 0; i < 3; i++) {
-  for (let i = 0; i < counterMR.dataRows.length; i++) {
-    month = counterMR.headerRows.length - 12;
+  for (let i = 0; i < counterR.dataRows.length; i++) {
     for (let j = 0; j < month; j++) {
       const journalMonthRow = {};
-      journalMonthRow.MRpackage = MRpackage;
-      journalMonthRow.customer = counterMR.info.customer;
-      journalMonthRow.identifier = counterMR.info.identifier;
-      for (let k = 0; k < 11; k++) {
-        journalMonthRow[counterMR.headerRows[k]] = counterMR.dataRows[i][k];
+      journalMonthRow.package = cPackage;
+      journalMonthRow.customer = counterR.info.customer;
+      journalMonthRow.identifier = counterR.info.identifier;
+      journalMonthRow.report_id = counterR.info.report_id;
+      for (let k = 0; k < MonthIndice - 1; k++) {
+        journalMonthRow[counterR.headerRows[k]] = counterR.dataRows[i][k];
       }
-      journalMonthRow.FTADate = moment.utc(counterMR.headerRows[12 + j], 'MMM-YYYY');
-      journalMonthRow.FTACount = parseInt(counterMR.dataRows[i][12 + j], 10);
+      journalMonthRow.A_Date = moment.utc(counterR.headerRows[MonthIndice + j], 'MMM-YYYY');
+      journalMonthRow.A_Count = parseInt(counterR.dataRows[i][MonthIndice + j], 10);
       // eslint-disable-next-line max-len
-      // const idString = path.basename(MRfile) + journalMonthRow.MRpackage + journalMonthRow.Journal
+      // const idString = path.basename(rFile) + journalMonthRow.cPackage + journalMonthRow.Journal
       // + journalMonthRow.FTADate + journalMonthRow.FTACount;
-      makeID(MRfile, journalMonthRow);
+      makeID(rFile, journalMonthRow);
 
-      flatJR1.push(journalMonthRow);
+      flatReport.push(journalMonthRow);
     }
   }
-  // console.dir(counterMR.info);
+  // console.dir(counterR.info);
   if (opts.ndjson) {
-    const ndjsonFile = `${MRfile}.ndjson`;
+    const ndjsonFile = `${rFile}.ndjson`;
     fs.writeFileSync(ndjsonFile, '');
-    for (let i = 0; i < flatJR1.length; i++) {
-      fs.appendFileSync(ndjsonFile, JSON.stringify(flatJR1[i]));
+    for (let i = 0; i < flatReport.length; i++) {
+      fs.appendFileSync(ndjsonFile, JSON.stringify(flatReport[i]));
       fs.appendFileSync(ndjsonFile, '\r\n');
     }
-    console.log('Ecriture de ', ndjsonFile, ' avec ', flatJR1.length, ' lignes');
+    console.log('Ecriture de ', ndjsonFile, ' avec ', flatReport.length, ' lignes');
   } else if (opts.index) {
-    for (let i = 0; i < flatJR1.length; i++) {
+    for (let i = 0; i < flatReport.length; i++) {
       try {
-        const _id = flatJR1[i]._id;
-        delete flatJR1[i]._id;
+        const _id = flatReport[i]._id;
+        delete flatReport[i]._id;
         // eslint-disable-next-line max-len
-        const { data: response } = await counterLib.insertIndex(publisherIndex, _id, JSON.stringify(flatJR1[i]));
+        const { data: response } = await counterLib.insertIndex(publisherIndex, _id, JSON.stringify(flatReport[i]));
         if (response) {
           // eslint-disable-next-line consistent-return
           console.log(JSON.stringify(response));
@@ -260,16 +275,16 @@ async function process5(results, opts, MRfile) {
       }
     }
   } else if (opts.bulk) {
-    const response = await counterLib.bulkInsertIndex(publisherIndex, flatJR1);
+    const response = await counterLib.bulkInsertIndex(publisherIndex, flatReport);
     if (response) {
       console.log(response, ' insertion/mises à jour');
     } else {
       console.log('Aucune insertion/mise à jour');
     }
   } else {
-    const jsonFile = `${MRfile}.json`;
-    fs.writeFileSync(jsonFile, JSON.stringify(flatJR1));
-    console.log('Ecriture de ', jsonFile, ' avec ', flatJR1.length, ' objets');
+    const jsonFile = `${rFile}.json`;
+    fs.writeFileSync(jsonFile, JSON.stringify(flatReport));
+    console.log('Ecriture de ', jsonFile, ' avec ', flatReport.length, ' objets');
   }
 }
 
@@ -288,18 +303,18 @@ module.exports = {
       if (err.code === 'ENOENT') { console.error('no ', JR1file, ' file'); } else { console.error(err); }
     }
   },
-  counter5: async (MRfile, opts) => {
+  counter5: async (rFile, opts) => {
     let data;
 
     try {
-      data = fs.createReadStream(MRfile);
+      data = fs.createReadStream(rFile);
       papa.parse(data, {
         complete(results) {
-          process5(results, opts, MRfile);
+          process5(results, opts, rFile);
         },
       });
     } catch (err) {
-      if (err.code === 'ENOENT') { console.error('no ', MRfile, ' file'); } else { console.error(err); }
+      if (err.code === 'ENOENT') { console.error('no ', rFile, ' file'); } else { console.error(err); }
     }
   },
 };

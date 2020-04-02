@@ -112,19 +112,20 @@ program
   .action((JR1file, opts) => counterCmd.counter4(JR1file, opts));
 
 program
-  .command('counter5 <MRfile>')
-  .description('Load a COUNTER 5 Master Report file into KIBANA or only output a JSON file')
+  .command('counter5 <counter5file>')
+  .description('Load a COUNTER 5 Report file into KIBANA or only output a JSON file')
   .option('-b, --bulk ', 'bulk index MR C5 data')
-  .option('-c, --counter-package <MRpackage>', 'MR package (do not try to guess from file name)')
+  .option('-c, --counter-package <package>', 'package (do not try to guess from file name)')
   .option('-d, --depositor <depositor>', 'index prefix name for publisher index', 'local')
   .option('-n, --ndjson ', 'only output newline delimited JSON file')
-  .action((MRfile, opts) => counterCmd.counter5(MRfile, opts));
+  .action((counter5file, opts) => counterCmd.counter5(counter5file, opts));
 
 program
   .command('sushi5 <sushiFile>')
   .description('Test COUNTER 5 Master Report request')
-  .option('-s, --report-file <reportFilePrefix>', 'Save sushi report with file prefix (ex : sushi)', 'sushi')
+  .option('-s, --report-file <reportFilePrefix>', 'Save sushi report with file prefix (default : sushi)', 'sushi')
   .option('-b, --bulk', 'bulk index COUNTER 5 data')
+  .option('-d, --depositor <depositor>', 'index prefix name for publisher index', 'local')
   .action((sushiFile, opts) => sushiCmd.sushi5(sushiFile, opts));
 
 
