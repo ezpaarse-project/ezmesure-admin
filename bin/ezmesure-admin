@@ -11,7 +11,6 @@ const objects = require('./cmds/objects');
 const dashboard = require('./cmds/dashboard');
 const usersCmd = require('./cmds/users');
 const rolesCmd = require('./cmds/roles');
-const reportingCmd = require('./cmds/reporting');
 const counterCmd = require('./cmds/counter');
 const sushiCmd = require('./cmds/sushi');
 
