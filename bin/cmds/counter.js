@@ -13,7 +13,7 @@ const flatReport = [];
 
 let row = [];
 let month;
-let MonthIndice;
+let monthIndice;
 
 // let counterJR1.dataRow = [];
 
@@ -218,8 +218,8 @@ async function process5(results, opts, rFile) {
 
 
   if (Array.isArray(counterR.headerRows) && counterR.headerRows.lastIndexOf('Reporting_Period_Total')) {
-    MonthIndice = counterR.headerRows.lastIndexOf('Reporting_Period_Total') + 1;
-    month = counterR.headerRows.length - MonthIndice;
+    monthIndice = counterR.headerRows.lastIndexOf('Reporting_Period_Total') + 1;
+    month = counterR.headerRows.length - monthIndice;
   }
   console.log('Fichier ', rFile, 'contient ', month, 'mois exportés [', cPackage, ' package]');
   console.log('Rapport : ', counterR.info.Report_ID, counterR.info.Report_Name);
@@ -234,12 +234,12 @@ async function process5(results, opts, rFile) {
       journalMonthRow.package = cPackage;
       journalMonthRow.customer = counterR.info.customer;
       journalMonthRow.identifier = counterR.info.identifier;
-      journalMonthRow.report_id = counterR.info.report_id;
-      for (let k = 0; k < MonthIndice - 1; k++) {
+      journalMonthRow.report_id = counterR.info.Report_id;
+      for (let k = 0; k < monthIndice - 1; k++) {
         journalMonthRow[counterR.headerRows[k]] = counterR.dataRows[i][k];
       }
-      journalMonthRow.A_Date = moment.utc(counterR.headerRows[MonthIndice + j], 'MMM-YYYY');
-      journalMonthRow.A_Count = parseInt(counterR.dataRows[i][MonthIndice + j], 10);
+      journalMonthRow.A_Date = moment.utc(counterR.headerRows[monthIndice + j], 'MMM-YYYY');
+      journalMonthRow.A_Count = parseInt(counterR.dataRows[i][monthIndice + j], 10);
       // eslint-disable-next-line max-len
       // const idString = path.basename(rFile) + journalMonthRow.cPackage + journalMonthRow.Journal
       // + journalMonthRow.FTADate + journalMonthRow.FTACount;
@@ -277,7 +277,7 @@ async function process5(results, opts, rFile) {
   } else if (opts.bulk) {
     const response = await counterLib.bulkInsertIndex(publisherIndex, flatReport);
     if (response) {
-      console.log(response, ' insertion/mises à jour');
+      console.log(response);
     } else {
       console.log('Aucune insertion/mise à jour');
     }
