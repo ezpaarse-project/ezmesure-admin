@@ -94,8 +94,8 @@ module.exports = {
     let reportItems = [];
     let reportHeader = {};
     let response = {};
-    let results = {};
-    let sushiRequest = [];
+    const results = {};
+    const sushiRequest = [];
 
     const reportFile = opts.reportFile;
     if (!sushiActions) {

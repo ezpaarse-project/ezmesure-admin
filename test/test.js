@@ -1,7 +1,8 @@
+// eslint-disable-next-line no-unused-vars
 /* global describe, it, before */
-const path       = require('path');
+const path = require('path');
 const { expect } = require('chai');
-const sushiCmd   = require('../bin/cmds/sushi.js');
+const sushiCmd = require('../bin/cmds/sushi.js');
 
 const sushiNatureTestFile = path.join(__dirname, '/sushi-nature-test.json');
 
