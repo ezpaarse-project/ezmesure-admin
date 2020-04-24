@@ -225,17 +225,6 @@ $ ezmesure-admin users -j
 <br />
 To add a role you have to select it from the list and to delete it you just have to deselect it.</p>
 
-### reporting
-| Name | Type | Description |
-| --- | --- | --- |
-| -s, --space | String | Name of space |
-
-Example:
-
-```bash
-$ ezmesure-admin reporting john.doe@email.com jane.doe@email.com -s my-space
-```
-
 ### counter4
 
 Sub command usage: counter4 [options] \<JR1file\>

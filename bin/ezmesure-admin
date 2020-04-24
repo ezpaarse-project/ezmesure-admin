@@ -11,7 +11,6 @@ const objects = require('./cmds/objects');
 const dashboard = require('./cmds/dashboard');
 const usersCmd = require('./cmds/users');
 const rolesCmd = require('./cmds/roles');
-const reportingCmd = require('./cmds/reporting');
 const counterCmd = require('./cmds/counter');
 const sushiCmd = require('./cmds/sushi');
 
@@ -94,12 +93,6 @@ program
   .command('create-role <role>')
   .description('Create role')
   .action(role => rolesCmd.createRole(role));
-
-program
-  .command('reporting <emails...>')
-  .description('Send reporting to target emails')
-  .option('-s, --space <space>', 'Name of space')
-  .action((emails, opts) => reportingCmd.report(emails, opts));
 
 program
   .command('counter4 <JR1file>')
