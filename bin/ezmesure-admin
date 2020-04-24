@@ -11,6 +11,9 @@ const objects = require('./cmds/objects');
 const dashboard = require('./cmds/dashboard');
 const usersCmd = require('./cmds/users');
 const rolesCmd = require('./cmds/roles');
+const reportingCmd = require('./cmds/reporting');
+const counterCmd = require('./cmds/counter');
+const sushiCmd = require('./cmds/sushi');
 
 program.on('command:*', () => {
   console.error(`Invalid command: ${program.args.join(' ')}\nSee --help for a list of available commands.`);
@@ -91,5 +94,37 @@ program
   .command('create-role <role>')
   .description('Create role')
   .action(role => rolesCmd.createRole(role));
+
+program
+  .command('reporting <emails...>')
+  .description('Send reporting to target emails')
+  .option('-s, --space <space>', 'Name of space')
+  .action((emails, opts) => reportingCmd.report(emails, opts));
+
+program
+  .command('counter4 <JR1file>')
+  .description('output an expanded JSON file or load a COUNTER 4 JR1 file into ezMESURE / KIBANA (bluk)')
+  .option('-b, --bulk ', 'bulk index JR1 data')
+  .option('-c, --counter-package <JR1package>', 'JR1 package (do not try to guess from file name)')
+  .option('-d, --depositor <depositor>', 'index prefix name for publisher index', 'local')
+  .option('-n, --ndjson ', 'only output newline delimited JSON file')
+  .action((JR1file, opts) => counterCmd.counter4(JR1file, opts));
+
+program
+  .command('counter5 <counter5file>')
+  .description('output an expanded JSON file or load a COUNTER 5 Report file into ezMESURE / KIBANA (bulk)')
+  .option('-b, --bulk ', 'bulk index COUNTER 5 data')
+  .option('-c, --counter-package <package>', 'package (do not try to guess from file name)')
+  .option('-d, --depositor <depositor>', 'index prefix name for publisher index', 'local')
+  .option('-n, --ndjson ', 'only output newline delimited JSON file')
+  .action((counter5file, opts) => counterCmd.counter5(counter5file, opts));
+
+program
+  .command('sushi5 <sushiFile>')
+  .description('download the JSON COUNTER 5 Report from sushi endpoint or load index data into ezMESURE / KIBANA (bulk)')
+  .option('-s, --report-file <reportFilePrefix>', 'Save sushi report with file prefix', 'sushi')
+  .option('-b, --bulk', 'bulk index COUNTER 5 data')
+  .option('-d, --depositor <depositor>', 'index prefix name for publisher index', 'local')
+  .action((sushiFile, opts) => sushiCmd.sushi5(sushiFile, opts));
 
 program.parse(process.argv);

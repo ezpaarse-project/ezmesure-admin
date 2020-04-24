@@ -38,6 +38,10 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [add-role <role> <usernames...>](#add-role) | Add role to user(s) |
 | [del-role <role> <usernames...>](#del-role) | Delete role to user(s) |
 | [create-role <role>](#create-role) | Create a role |
+| [reporting <emails...>](#reporting) | Send reporting to target emails |
+| [counter4 \<JR1File>](#counter4) | Load JR1 Counter 4 file into KIBANA |
+| [counter5 \<counter5file>](#counter5) | Load a COUNTER 5 Report file into KIBANA or only output a JSON file |
+| [sushi5 \<sushiFile>](#sushi5) | Download a COUNTER 5 Report from sushi endpoint into KIBANA or only download the report JSON file |
 
 ## Commands details
 
@@ -220,3 +224,75 @@ $ ezmesure-admin users -j
 <p>Select one or more users to add or remove one or more roles.
 <br />
 To add a role you have to select it from the list and to delete it you just have to deselect it.</p>
+
+### reporting
+| Name | Type | Description |
+| --- | --- | --- |
+| -s, --space | String | Name of space |
+
+Example:
+
+```bash
+$ ezmesure-admin reporting john.doe@email.com jane.doe@email.com -s my-space
+```
+
+### counter4
+
+Sub command usage: counter4 [options] \<JR1file\>
+
+output an expanded JSON file or load a COUNTER 4 JR1 file into ezMESURE / KIBANA (bluk)
+
+| Name | Type | Description |
+| --- | --- | --- |
+| no-option | boolean | only output JSON file |
+| -b, --bulk | boolean | bulk index JR1 data (try to guess JR1 package form filename _\_JR1package\__ or take -p option ) |
+| -p, --package | string | \<JR1package\> JR1 package (do not try to guess from file name) |
+| -n, --ndjson | boolean | only output newline delimited JSON file |
+| -h, --help | output usage information |
+
+Example:
+
+```bash
+$ ezmesure-admin counter4 ../data/JR1_Nature_INSHS_TT2018.csv -i
+```
+
+### counter5
+
+Sub command usage: counter5 [options] \<counter5file\>
+
+output an expanded JSON file or load a COUNTER 5 Report file into ezMESURE / KIBANA (bulk)
+
+| Name | Type | Description |
+| --- | --- | --- |
+|  -b, --bulk| boolean | bulk index COUNTER 5 data |
+|  -c, --counter-package| string | package (if you have more than one subscription for one publisher)
+|  -d, --depositor | string | <depositor> index prefix name for ezmesure publisher index (default: "local")
+|  -n, --ndjson | boolean | only output newline delimited JSON file (default)
+|  -h, --help | output usage information
+
+Example:
+
+```bash
+$ ezmesure-admin counter5 -d couperin ../data/couperin/Couperin-Wiley-2019_usages-Counter-5-TR_J4.csv -c Consortium -b
+```
+
+### sushi5
+
+Sub command usage: sushi5 [options] \<sushiFile\>
+
+download the JSON COUNTER 5 Report from sushi endpoint or load index data into ezMESURE / KIBANA (bulk)
+
+| Name | Type | Description |
+| --- | --- | --- |
+|  -b, --bulk| boolean | bulk index COUNTER 5 data|
+|  -c, --counter-package| string | package (if you have more than one subscription for one publisher)
+|  -d, --depositor | string | <depositor> index prefix name for ezmesure publisher index (default: "local")
+|  -n, --ndjson | boolean | only output newline delimited JSON file
+|  -h, --help | output usage information
+
+Example:
+
+```bash
+$ ezmesure-admin counter5 -d couperin ../data/couperin/Couperin-Wiley-2019_usages-Counter-5-TR_J4.csv -c Consortium -b
+```
+
