@@ -58,7 +58,11 @@ module.exports = {
         logger.info(`Space ${space} created`);
       }
     } catch (error) {
-      logger.error(error.response.data.message);
+      if (error && error.response) {
+        return logger.error(error.response.data.message);
+      }
+
+      return logger.error(error);
     }
 
     try {
@@ -72,7 +76,13 @@ module.exports = {
         config.templateSpace ? { space: config.templateSpace } : null);
 
       if (exportedDashboard && exportedDashboard.objects) {
-        exportedDashboard.objects[exportedDashboard.objects.length - 2].attributes.title = space;
+        const indexPattern = Object.values(exportedDashboard.objects)
+          .find(object => object.type === 'index-pattern');
+
+        if (!indexPattern) {
+          return logger.error('No index-pattern found');
+        }
+        indexPattern.attributes.title = space;
 
         const objects = await dashboardLib.import(space, exportedDashboard);
         if (objects.status !== 200) {

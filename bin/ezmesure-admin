@@ -15,7 +15,6 @@ const reportingCmd = require('./cmds/reporting');
 const counterCmd = require('./cmds/counter');
 const sushiCmd = require('./cmds/sushi');
 
-
 program.on('command:*', () => {
   console.error(`Invalid command: ${program.args.join(' ')}\nSee --help for a list of available commands.`);
   process.exit(1);
@@ -127,6 +126,5 @@ program
   .option('-b, --bulk', 'bulk index COUNTER 5 data')
   .option('-d, --depositor <depositor>', 'index prefix name for publisher index', 'local')
   .action((sushiFile, opts) => sushiCmd.sushi5(sushiFile, opts));
-
 
 program.parse(process.argv);
