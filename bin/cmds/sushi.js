@@ -75,20 +75,22 @@ function writeReport(reportFile, jsonData) {
 
 function readSushiFile(sushiFile) {
   let data;
-  let sushiActions;
+  let sushi;
   try {
     data = fs.readFileSync(sushiFile);
-    sushiActions = JSON.parse(data);
+    sushi = JSON.parse(data);
     // console.log(sushiActions);
   } catch (err) {
     if (err.code === 'ENOENT') { console.error('no ', sushiFile, ' file'); } else { console.error(err); }
   }
-  return sushiActions;
+  return sushi;
 }
 
 module.exports = {
   sushi5: async (sushiFile, opts) => {
-    const sushiActions = readSushiFile(sushiFile);
+    const sushi = readSushiFile(sushiFile);
+    // console.dir(sushi);
+    let sushiActions = [];
     let sushiIndexPrefix;
 
     let reportItems = [];
@@ -98,7 +100,19 @@ module.exports = {
     const sushiRequest = [];
 
     const reportFile = opts.reportFile;
-    if (!sushiActions) {
+    if (Array.isArray(sushi)) {
+      // console.log('tableau de', sushi.length);
+      sushiActions = sushi;
+    } else if (sushi.sushi && Array.isArray(sushi.sushi.actions)) {
+      // console.log('objet avec tableau ', sushi.sushi.actions.length);
+      // eslint-disable-next-line no-restricted-syntax
+      for (const i of Object.keys(sushi.sushi)) {
+        opts[i] = sushi.sushi[i];
+      }
+      // console.dir(opts);
+      sushiActions = sushi.sushi.actions;
+    } else {
+      // console.log(Array.isArray(sushi.actions), Object.keys(sushi));
       console.error('Ficher sushi JSON non conforme : ', sushiFile);
       process.exit(1);
     }
@@ -106,7 +120,7 @@ module.exports = {
     sushiIndexPrefix = `${opts.depositor}-${sushiIndexSufix}`;
 
     for (let action = 0; action < sushiActions.length; action++) {
-      console.log('Recuperation sushi : ', sushiActions[action].accounts.length, 'operation(s) a effectuer');
+      if (opts.verbose) { console.log('Recuperation sushi : ', sushiActions.length, 'operation(s) a effectuer'); }
       if (sushiActions[action].depositor) {
         sushiIndexPrefix = `${sushiActions[action].depositor}-${sushiIndexSufix}`;
       }
@@ -132,8 +146,8 @@ module.exports = {
         if (opts.verbose) {
           console.log('Rapport : ', opts.report);
           console.log('Période : debut = ', opts.beginDate, '- fin =', opts.endDate);
-          console.log('Package : ', opts.package, '- vendor : ', opts.vendor);
           console.log('requestorId : ', opts.requestorId, '- customerId : ', opts.customerId);
+          console.log('Package : ', opts.package, '- vendor : ', opts.vendor);
         }
 
         if (opts.reportFile) {
@@ -143,19 +157,22 @@ module.exports = {
           sushiRequest[action].reportFile = opts.reportFile;
         }
         try {
+          const nowExec = moment();
           const res = await sushiLib.getReport(sushiActions[action].sushiURL, opts);
+          sushiRequest[action].took = moment() - nowExec;
           let resItems = [];
+          sushiRequest[action].status = res.status;
           if (res.status === 200) {
             if (res.data) {
               if (res.data.Report_Items) {
                 sushiRequest[action].reportItems = res.data.Report_Items.length;
                 if (res.data.Report_Items && res.data.Report_Items.length) {
                   reportItems = res.data.Report_Items;
-                  console.log('Rapport sushi : ', reportItems.length, 'elements reçus');
+                  if (opts.verbose) { console.log('Rapport sushi : ', reportItems.length, 'elements reçus'); }
                   if (!opts.bulk && opts.reportFile) {
                     // write sushi report file
                     writeReport(opts.reportFile, res.data);
-                    console.log('Sauvegarde du rapport ', opts.reportFile);
+                    if (opts.verbose) { console.log('Sauvegarde du rapport ', opts.reportFile); }
                   }
                 } else {
                   console.error('No items in report');
@@ -167,6 +184,12 @@ module.exports = {
                 sushiRequest[action].reportHeader = reportHeader;
               } else {
                 console.error('No header in report');
+                if (opts.verbose) { console.dir(res.data); }
+              }
+              if (res.data.Exception) {
+                console.error('Exception');
+                sushiRequest[action].sushiException = res.data.Exception;
+                if (opts.verbose) { console.dir(res.data.Exception); }
               }
               if (opts.bulk) {
                 for (let i = 0; i < reportItems.length; i++) {
@@ -180,21 +203,36 @@ module.exports = {
                 response = await counterLib.bulkInsertIndex(sushiIndexPrefix, resItems);
                 if (response) {
                   sushiRequest[action].ezmesure = response;
-                  console.log(response);
+                  // console.log(response);
                 } else {
-                  console.log('Aucune insertion/mise à jour');
+                  console.error('Aucune insertion/mise à jour');
                 }
               }
+            } else {
+              console.error('No data');
+              if (opts.verbose) { console.dir(res.data); }
             }
+          } else {
+            console.error('No 200');
+            if (opts.verbose) { console.dir(res.data); }
           }
         } catch (error) {
           console.error(error);
-          process.exit(1);
+          sushiRequest[action].sushiError = error;
+          // process.exit(1);
         }
       }
+
       results.sushiRequests = sushiRequest;
     }
     results.took = moment() - now;
+    if (opts.execLogPath) {
+      // write exec report file
+      const execReportTime = moment().format('YYYY-MM-DD-hh-mm-ss');
+      const exectReportFile = `${opts.execLogPath}/ezmesure-admin-${execReportTime}-log.json`;
+      writeReport(exectReportFile, results);
+      console.log('Sauvegarde du rapport ', exectReportFile);
+    }
     return (results);
   },
 };

@@ -117,7 +117,9 @@ program
   .description('download the JSON COUNTER 5 Report from sushi endpoint or load index data into ezMESURE / KIBANA (bulk)')
   .option('-s, --report-file <reportFilePrefix>', 'Save sushi report with file prefix', 'sushi')
   .option('-b, --bulk', 'bulk index COUNTER 5 data')
+  .option('-v, --verbose', 'traces')
   .option('-d, --depositor <depositor>', 'index prefix name for publisher index', 'local')
+  .option('-l, --exec-log-path <logPath>', 'Save json exec log file in logPath')
   .action((sushiFile, opts) => sushiCmd.sushi5(sushiFile, opts));
 
 program.parse(process.argv);
