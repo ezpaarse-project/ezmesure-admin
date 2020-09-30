@@ -29,9 +29,15 @@ module.exports = {
 
     if (institutionName) {
       // eslint-disable-next-line max-len
-      const { _source: source } = data.find(({ _source: src }) => src.institution.name.toLowerCase() === institutionName.toLowerCase());
+      const institution = data.find(({ _source: src }) => src.institution.name.toLowerCase() === institutionName.toLowerCase());
 
-      if (source) {
+      if (!institution) {
+        logger.info(`Institution ${institutionName} non trouvée`);
+        return process.exit(0);
+      }
+
+      if (institution) {
+        const { _source: source } = institution;
         console.log(`${chalk.bold('Name')}:      ${source.institution.name}`);
         console.log(`${chalk.bold('Acronym')}:    ${source.institution.acronym}`);
         console.log(`${chalk.bold('Site')}:     ${source.institution.website}`);
