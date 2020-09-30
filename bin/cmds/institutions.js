@@ -28,26 +28,27 @@ module.exports = {
     }
 
     if (institutionName) {
+      // eslint-disable-next-line max-len
       const { _source: source } = data.find(({ _source: src }) => src.institution.name.toLowerCase() === institutionName.toLowerCase());
 
       if (source) {
-        console.log(`${chalk.bold('Nom')}:      ${source.institution.name}`);
-        console.log(`${chalk.bold('Sigle')}:    ${source.institution.acronym}`);
+        console.log(`${chalk.bold('Name')}:      ${source.institution.name}`);
+        console.log(`${chalk.bold('Acronym')}:    ${source.institution.acronym}`);
         console.log(`${chalk.bold('Site')}:     ${source.institution.website}`);
-        console.log(`${chalk.bold('Ville')}:    ${source.institution.city}`);
+        console.log(`${chalk.bold('City')}:    ${source.institution.city}`);
         console.log(`${chalk.bold('Type')}:     ${source.institution.type}`);
         console.log(`${chalk.bold('Auto')}:`);
         console.log(`  - ${chalk.bold('ezPAARSE')}: ${source.institution.auto.ezpaarse ? 'OK' : '-'}`);
         console.log(`  - ${chalk.bold('ezMESURE')}: ${source.institution.auto.ezmesure ? 'OK' : '-'}`);
         console.log(`  - ${chalk.bold('Reporting')}: ${source.institution.auto.report ? 'OK' : '-'}`);
-        console.log(`${chalk.bold('Domaines')}: ${source.institution.domains.join(', ')}`);
-        const members = source.institution.members.map(({ username, type }) => `\n  - ${chalk.bold('Utilisateur')}: ${username}\n  - ${chalk.bold('Type')}: ${type.join(', ') || '-'}`);
-        console.log(`${chalk.bold('Membres')}:  ${members}`);
+        console.log(`${chalk.bold('Domains')}: ${source.institution.domains.join(', ')}`);
+        const members = source.institution.members.map(({ username, type }) => `\n  - ${chalk.bold('User')}: ${username}\n  - ${chalk.bold('Type')}: ${type.join(', ') || '-'}`);
+        console.log(`${chalk.bold('Members')}:  ${members}`);
       }
       return process.exit(0);
     }
 
-    const header = ['Nom', 'Sigle', 'Site', 'Ville', 'Type', 'Automatisation', 'Domaines', 'Membres'];
+    const header = ['Name', 'Acronym', 'Site', 'City', 'Type', 'Automatisation', 'Domains', 'Members'];
 
     data = Array.isArray(data) ? data : [data];
 
@@ -132,27 +133,27 @@ module.exports = {
         {
           type: 'input',
           name: 'name',
-          message: 'Nom d\'établissement',
+          message: 'Institution name',
         },
         {
           type: 'input',
           name: 'acronym',
-          message: 'Sigle',
+          message: 'Acronym',
         },
         {
           type: 'input',
           name: 'website',
-          message: 'Page d\'accueil établissement',
+          message: 'Website',
         },
         {
           type: 'input',
           name: 'city',
-          message: 'Ville',
+          message: 'City',
         },
         {
           type: 'input',
           name: 'type',
-          message: 'Type d\'établissement',
+          message: 'Type',
         },
         {
           type: 'input',
@@ -162,7 +163,7 @@ module.exports = {
         {
           type: 'input',
           name: 'domains',
-          message: 'Domaines (ex: inst.fr,cnrs.fr)',
+          message: 'Domains (e.g.: inst.fr,cnrs.fr)',
         },
         {
           type: 'input',
