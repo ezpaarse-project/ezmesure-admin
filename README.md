@@ -338,16 +338,16 @@ $ ezmesure-admin institutions-add
 Example of result :
 
 <pre>
-<span style="color: green;">?</span> <b>Institution name</b> My institution
-<span style="color: green;">?</span> <b>Acronym</b> Institution 
-<span style="color: green;">?</span> <b>Website</b> https://my-institution.org/
-<span style="color: green;">?</span> <b>City</b> Paris
-<span style="color: green;">?</span> <b>Type</b> University
-<span style="color: green;">?</span> <b>UAI</b> 
-<span style="color: green;">?</span> <b>Domains (e.g.: my-institution.org,institution.org)</b>
-<span style="color: green;">?</span> <b>Index</b> my-institution
-<span style="color: green;">?</span> <b>Automatisation</b> 
-❯<span style="color: green;">◉</span> ezPAARSE
+? <b>Institution name</b> My institution
+? <b>Acronym</b> Institution 
+? <b>Website</b> https://my-institution.org/
+? <b>City</b> Paris
+? <b>Type</b> University
+? <b>UAI</b> 
+? <b>Domains (e.g.: my-institution.org,institution.org)</b>
+? <b>Index</b> my-institution
+? <b>Automatisation</b> 
+❯◉ ezPAARSE
  ◯ ezMESURE
  ◯ Reporting
 </pre>
@@ -364,9 +364,9 @@ $ ezmesure-admin institutions-del
 Example of result :
 
 <pre>
-<span style="color: green;">?</span> <b>Institutions</b>
- <span style="color: green;">◉</span> My institution
-❯<span style="color: green;">◉</span> My organisation
+? <b>Institutions</b>
+ ◉ My institution
+❯◉ My organisation
  ◯ An other institution
  ...
 </pre>
