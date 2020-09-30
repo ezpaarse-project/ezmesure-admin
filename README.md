@@ -344,7 +344,7 @@ Example of result :
 ? <b>City</b> Paris
 ? <b>Type</b> University
 ? <b>UAI</b> 
-? <b>Domains (e.g.: my-institution.org,institution.org)</b>
+? <b>Domains (e.g.: my-institution.org,institution.org)</b> my-institution.org
 ? <b>Index</b> my-institution
 ? <b>Automatisation</b> 
 ❯◉ ezPAARSE
