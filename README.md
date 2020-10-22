@@ -370,3 +370,36 @@ Example of result :
  ◯ An other institution
  ...
 </pre>
+
+### cluster-settings
+
+Show cluster settings.
+
+> No options for this command
+
+Example:
+
+```bash
+$ ezmesure-admin cluster-settings
+```
+
+
+### cluster-flush
+
+Flush all indices in the cluster.
+
+> No options for this command
+
+Examples:
+
+```bash
+$ ezmesure-admin cluster-flush
+```
+
+### cluster-shard-allocation <enabledShards>
+
+Set shard allocation policy, where `enabledShards` can be either of : `all`, `primaries`, `new_primaries`, `none` or `null`.
+
+```bash
+$ ezmesure-admin cluster-shard-allocation primaries
+```
