@@ -42,6 +42,9 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [counter4 \<JR1File>](#counter4) | Load JR1 Counter 4 file into KIBANA |
 | [counter5 \<counter5file>](#counter5) | Load a COUNTER 5 Report file into KIBANA or only output a JSON file |
 | [sushi5 \<sushiFile>](#sushi5) | Download a COUNTER 5 Report from sushi endpoint into KIBANA or only download the report JSON file |
+| [institutions [institution]](#institutions) | List all institutions or [institution] |
+| [institutions-add](#institutions-add) | Add an institution |
+| [institutions-del](#institutions-del) | Remove one or more institution(s) |
 
 ## Commands details
 
@@ -285,3 +288,85 @@ Example:
 $ ezmesure-admin counter5 -d couperin ../data/couperin/Couperin-Wiley-2019_usages-Counter-5-TR_J4.csv -c Consortium -b
 ```
 
+### institutions
+
+> No options for this command
+
+Examples:
+
+```bash
+$ ezmesure-admin institutions
+```
+Example of result :
+
+| Name | Acronym | Site | City | Type | Automatisation | Domains | Members |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| My institution | Institution | https://my-institution.org/ | Paris | University | ezPAARSE: OK<br>ezMESURE: OK<br>Reporting: - | my-institution.org | firstname.lastname (user) |
+
+Example of result :
+
+```bash
+$ ezmesure-admin institutions My institution
+```
+
+<pre>
+<b>Name</b>: My institution
+<b>Acronym</b>: institution
+<b>Site</b>: https://my-institution.org/
+<b>City</b>: Paris
+<b>Type</b>: University 
+<b>Automatisation</b>:
+  - <b>ezPAARSE</b>: OK
+  - <b>ezMESURE</b>: OK
+  - <b>Reporting</b>: -
+<b>Domains</b>:
+  - my-institution.org
+<b>Members</b>:
+  - <b>User</b>: firstname.lastname
+  - <b>Type</b>: user
+</pre>
+
+### institutions-add
+
+> No options for this command
+
+Examples:
+
+```bash
+$ ezmesure-admin institutions-add
+```
+Example of result :
+
+<pre>
+? <b>Institution name</b> My institution
+? <b>Acronym</b> Institution 
+? <b>Website</b> https://my-institution.org/
+? <b>City</b> Paris
+? <b>Type</b> University
+? <b>UAI</b> 
+? <b>Domains (e.g.: my-institution.org,institution.org)</b> my-institution.org
+? <b>Index</b> my-institution
+? <b>Automatisation</b> 
+❯◉ ezPAARSE
+ ◯ ezMESURE
+ ◯ Reporting
+</pre>
+
+### institutions-del
+
+> No options for this command
+
+Examples:
+
+```bash
+$ ezmesure-admin institutions-del
+```
+Example of result :
+
+<pre>
+? <b>Institutions</b>
+ ◉ My institution
+❯◉ My organisation
+ ◯ An other institution
+ ...
+</pre>
