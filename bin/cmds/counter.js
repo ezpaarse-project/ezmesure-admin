@@ -18,7 +18,7 @@ let monthIndice;
 // let counterJR1.dataRow = [];
 
 function trimQuotes(string) {
-  return string.replace(/^"/, '').replace(/"$/, '');
+  return string.replace(/^"/, '').replace(/"$/, '').replace(/\n/g, ' ');
 }
 
 function makeID(rFile, journalMonthRow) {
@@ -27,17 +27,24 @@ function makeID(rFile, journalMonthRow) {
 }
 
 function checkJR1(info) {
-  let check;
-  if ((info.type === 'Journal Report 1 (R4)'
-    || info.type === 'Journal Report 1'
-    || info.type === 'Rapport Journalier 1 (R4)')
-    && (info.title.toLowerCase() === 'Number of Successful Full-Text Article Requests by Month and Journal'.toLowerCase()
+  if (!(info.type.toLowerCase() === 'Journal Report 1 (R4)'.toLowerCase()
+    || info.type.toLowerCase() === 'Journal Report 1'.toLowerCase()
+    || info.type.toLowerCase() === 'Rapport Journalier 1 (R4)'.toLowerCase())) {
+    console.error('JR1 type incorrect : ', info.type);
+    return false;
+    }
+  if (!(info.title.toLowerCase() === 'Number of Successful Full-Text Article Requests by Month and Journal'.toLowerCase()
     || info.title.toLowerCase() === 'Number of Successful Full-text Article Requests by Year and Article'.toLowerCase()
-    || info.title.toLowerCase() === 'Nombre de documents consommés par mois et source'.toLowerCase())
-    && info.startDate && info.endDate) {
-    check = true;
-  } else { check = false; }
-  return check;
+    || info.title.toLowerCase() === 'Number of Successfull Full-Text Article Requests by Month and Journal'.toLowerCase()
+    || info.title.toLowerCase() === 'Nombre de documents consommés par mois et source'.toLowerCase())) {
+    console.error('JR1 title incorrect : ', info.title);
+    return false;
+    }
+  if (!(info.startDate && info.endDate)) {
+    console.error('JR1 date incorrect : ', info.startDate);
+    return false;
+  } 
+  return true;
 }
 
 async function process4(results, opts, JR1file) {
@@ -103,7 +110,13 @@ async function process4(results, opts, JR1file) {
       for (let k = 0; k < 7; k++) {
         journalMonthRow[counterJR1.headerRows[k]] = counterJR1.dataRows[i][k];
       }
-      journalMonthRow.FTADate = moment.utc(counterJR1.headerRows[10 + j], 'MMM-YYYY');
+      if (counterJR1.headerRows[10 + j].length < 5) {
+        // year missing from header lines
+        let JR1year = moment.utc(counterJR1.info.startDate, 'YYYY-MM-dd').format('YYYY');
+        journalMonthRow.FTADate = moment.utc(counterJR1.headerRows[10 + j], 'MMM-YYYY').year(JR1year);
+      } else {
+        journalMonthRow.FTADate = moment.utc(counterJR1.headerRows[10 + j], 'MMM-YYYY');
+      }
       journalMonthRow.FTACount = parseInt(counterJR1.dataRows[i][10 + j], 10);
       // eslint-disable-next-line max-len
       // const idString = path.basename(JR1file) + journalMonthRow.JR1package + journalMonthRow.Journal
@@ -196,7 +209,6 @@ async function process5(results, opts, rFile) {
       // counterR.info.title = trimQuotes(row[1]);
     } else if (i === 13) {
       counterR.headerRows = row.map(trimQuotes);
-    } else if (i === 14) {
       if (counterR.info.Reporting_Period) {
         const d = counterR.info.Reporting_Period.split('; ');
         const d1 = d[0].split('=');
@@ -215,7 +227,6 @@ async function process5(results, opts, rFile) {
       counterR.dataRows.push(row.map(trimQuotes));
     }
   }
-
 
   if (Array.isArray(counterR.headerRows) && counterR.headerRows.lastIndexOf('Reporting_Period_Total')) {
     monthIndice = counterR.headerRows.lastIndexOf('Reporting_Period_Total') + 1;
@@ -238,7 +249,11 @@ async function process5(results, opts, rFile) {
       for (let k = 0; k < monthIndice - 1; k++) {
         journalMonthRow[counterR.headerRows[k]] = counterR.dataRows[i][k];
       }
-      journalMonthRow.A_Date = moment.utc(counterR.headerRows[monthIndice + j], 'MMM-YYYY');
+      if (counterR.headerRows[monthIndice + j].match(/[0-9]{4}\/[0-9]{2}\/[0-9]{2}/)) {
+        journalMonthRow.A_Date = moment.utc(counterR.headerRows[monthIndice + j], 'YYYY/MM/DD');
+      } else {
+        journalMonthRow.A_Date = moment.utc(counterR.headerRows[monthIndice + j], 'MMM-YYYY');
+      }
       journalMonthRow.A_Count = parseInt(counterR.dataRows[i][monthIndice + j], 10);
       // eslint-disable-next-line max-len
       // const idString = path.basename(rFile) + journalMonthRow.cPackage + journalMonthRow.Journal
