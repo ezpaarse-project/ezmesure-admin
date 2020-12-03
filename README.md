@@ -390,7 +390,6 @@ Example:
 $ ezmesure-admin cluster-settings
 ```
 
-
 ### cluster-flush
 
 Flush all indices in the cluster.

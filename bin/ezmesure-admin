@@ -86,9 +86,14 @@ program
   .action((role, usernames) => rolesCmd.manageRole(role, usernames, true));
 
 program
-  .command('del-role <role> [usernames...]')
+  .command('user-del-role <role> [usernames...]')
   .description('Delete role to user(s)')
   .action((role, usernames) => rolesCmd.manageRole(role, usernames, false));
+
+program
+  .command('delete-role <role>')
+  .description('Delete role')
+  .action(role => rolesCmd.deleteRole(role));
 
 program
   .command('create-role <role>')
