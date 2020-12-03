@@ -32,18 +32,18 @@ function checkJR1(info) {
     || info.type.toLowerCase() === 'Rapport Journalier 1 (R4)'.toLowerCase())) {
     console.error('JR1 type incorrect : ', info.type);
     return false;
-    }
+  }
   if (!(info.title.toLowerCase() === 'Number of Successful Full-Text Article Requests by Month and Journal'.toLowerCase()
     || info.title.toLowerCase() === 'Number of Successful Full-text Article Requests by Year and Article'.toLowerCase()
     || info.title.toLowerCase() === 'Number of Successfull Full-Text Article Requests by Month and Journal'.toLowerCase()
     || info.title.toLowerCase() === 'Nombre de documents consommés par mois et source'.toLowerCase())) {
     console.error('JR1 title incorrect : ', info.title);
     return false;
-    }
+  }
   if (!(info.startDate && info.endDate)) {
     console.error('JR1 date incorrect : ', info.startDate);
     return false;
-  } 
+  }
   return true;
 }
 
@@ -112,7 +112,7 @@ async function process4(results, opts, JR1file) {
       }
       if (counterJR1.headerRows[10 + j].length < 5) {
         // year missing from header lines
-        let JR1year = moment.utc(counterJR1.info.startDate, 'YYYY-MM-dd').format('YYYY');
+        const JR1year = moment.utc(counterJR1.info.startDate, 'YYYY-MM-dd').format('YYYY');
         journalMonthRow.FTADate = moment.utc(counterJR1.headerRows[10 + j], 'MMM-YYYY').year(JR1year);
       } else {
         journalMonthRow.FTADate = moment.utc(counterJR1.headerRows[10 + j], 'MMM-YYYY');
