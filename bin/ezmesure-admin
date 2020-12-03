@@ -13,6 +13,8 @@ const usersCmd = require('./cmds/users');
 const rolesCmd = require('./cmds/roles');
 const counterCmd = require('./cmds/counter');
 const sushiCmd = require('./cmds/sushi');
+const institutionsCmd = require('./cmds/institutions');
+const clusterCmd = require('./cmds/cluster');
 
 program.on('command:*', () => {
   console.error(`Invalid command: ${program.args.join(' ')}\nSee --help for a list of available commands.`);
@@ -121,5 +123,35 @@ program
   .option('-d, --depositor <depositor>', 'index prefix name for publisher index', 'local')
   .option('-l, --exec-log-path <logPath>', 'Save json exec log file in logPath')
   .action((sushiFile, opts) => sushiCmd.sushi5(sushiFile, opts));
+
+program
+  .command('institutions [institution]')
+  .description('List all institutions or [institution]')
+  .action((institution, opts) => institutionsCmd.list(institution, opts));
+
+program
+  .command('institutions-add')
+  .description('Create institution')
+  .action(institution => institutionsCmd.add(institution));
+
+program
+  .command('institutions-del')
+  .description('Delete institutions')
+  .action((institutions, opts) => institutionsCmd.del(institutions, opts));
+
+program
+  .command('cluster-shard-allocation <enabledShards>')
+  .description('enable or disable allocation for specific kinds of elasticsearch shards. Can be : all, primaries, new_primaries, none, null')
+  .action(enabledShards => clusterCmd.setShardAllocation(enabledShards));
+
+program
+  .command('cluster-settings')
+  .description('show cluster settings')
+  .action(() => clusterCmd.getSettings());
+
+program
+  .command('cluster-flush')
+  .description('flush all data streams and indices in the cluster')
+  .action(() => clusterCmd.flush());
 
 program.parse(process.argv);
