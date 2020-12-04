@@ -36,8 +36,9 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [roles [role...]](#roles) | List all roles or \[role\] roles |
 | [user-roles](#user-roles) | Add or remove one or more roles to one or more users |
 | [add-role <role> <usernames...>](#add-role) | Add role to user(s) |
-| [del-role <role> <usernames...>](#del-role) | Delete role to user(s) |
+| [user-del-role <role> <usernames...>](#del-role) | Delete role to user(s) |
 | [create-role <role>](#create-role) | Create a role |
+| [delete-role <role>](#delete-role) | Delete a role |
 | [reporting <emails...>](#reporting) | Send reporting to target emails |
 | [counter4 \<JR1File>](#counter4) | Load JR1 Counter 4 file into KIBANA |
 | [counter5 \<counter5file>](#counter5) | Load a COUNTER 5 Report file into KIBANA or only output a JSON file |
@@ -220,7 +221,13 @@ $ ezmesure-admin users -j
 ### add-role
 > No options for this command
 
-### del-role
+### user-del-role
+> No options for this command
+
+### create-role
+> No options for this command
+
+### delete-role
 > No options for this command
 
 ### user-roles
