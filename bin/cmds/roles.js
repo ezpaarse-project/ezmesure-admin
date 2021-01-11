@@ -25,7 +25,7 @@ const createRoleMenu = async () => {
       });
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return logger.error('An error occured to get indicies');
   }
 

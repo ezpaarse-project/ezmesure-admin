@@ -1,11 +1,19 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable prefer-destructuring */
-const fs = require('fs');
+const fs = require('fs-extra');
+const path = require('path');
 const md5 = require('md5');
 const moment = require('moment');
 
+const inquirer = require('inquirer');
+const checkboxPlus = require('inquirer-checkbox-plus-prompt');
+
 const sushiLib = require('../../lib/sushi');
 const counterLib = require('../../lib/counter');
+const institutionsLib = require('../../lib/institutions');
+const logger = require('../../lib/app/logger');
+
+inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 
 const sushiIndexSufix = 'sushi-5';
 
@@ -234,5 +242,88 @@ module.exports = {
       console.log('Sauvegarde du rapport ', exectReportFile);
     }
     return (results);
+  },
+
+  add: async (credentialFiles) => {
+    let credentials = [];
+    for (let i = 0; i < credentialFiles.length; i += 1) {
+      let content;
+      try {
+        content = await fs.readFile(path.resolve(credentialFiles[i]), 'utf8');
+      } catch (err) {
+        console.error(err);
+        logger.error(`Cannot read file : ${credentialFiles[i]}`, err);
+      }
+
+      if (content) {
+        try {
+          content = JSON.parse(content);
+        } catch (e) {
+          logger.error(`Cannot parse : ${credentialFiles[i]}`, e);
+        }
+
+        content.map((item) => {
+          if (!Array.isArray(item.accounts)) {
+            return item;
+          }
+          return item.accounts.map(account => ({
+            ...item,
+            ...account,
+          }));
+        // eslint-disable-next-line no-loop-func
+        }).forEach(credential => credentials.push(credential));
+      }
+    }
+
+    if (!credentials.length) {
+      return process.exit(0);
+    }
+
+    credentials = credentials.flatMap(credential => credential);
+
+    logger.info(`${credentials.length} credentials found.`);
+
+    let data;
+    try {
+      const { body } = await institutionsLib.getInstitutions();
+      // eslint-disable-next-line prefer-destructuring
+      data = body.hits.hits;
+    } catch (error) {
+      logger.info('Institutions non trouvées');
+      return process.exit(1);
+    }
+
+    data = Array.isArray(data) ? data : [data];
+
+    const institutions = data.map(({ _source: source }) => source.institution.name);
+
+    const { selection } = await inquirer.prompt([{
+      type: 'checkbox-plus',
+      pageSize: 20,
+      name: 'selection',
+      message: 'Institutions (space to select item)',
+      searchable: true,
+      highlight: true,
+      source: (answersSoFar, input) => new Promise((resolve) => {
+        input = input || '';
+
+        resolve(institutions.filter(indice => indice.includes(input)));
+      }),
+    }]);
+
+    if (selection) {
+      const selected = data.filter(({ _source }) => selection.includes(_source.institution.name));
+      for (let i = 0; i < selected.length; i += 1) {
+        const institutionId = selected[i]._source.institution.id;
+
+        for (let j = 0; j < credentials.length; j += 1) {
+          sushiLib.addSushi(institutionId, credentials[j])
+            .then(res => logger.info(res))
+            .catch(error => logger.info(error));
+        }
+      }
+    }
+
+    return process.exit(0);
   },
 };

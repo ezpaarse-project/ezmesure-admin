@@ -129,6 +129,11 @@ program
   .action((sushiFile, opts) => sushiCmd.sushi5(sushiFile, opts));
 
 program
+  .command('sushi-add <credentialsFile...>')
+  .description('Add sushi crendentials for one or more institutions')
+  .action((credentialsFile, opts) => sushiCmd.add(credentialsFile, opts));
+
+program
   .command('institutions [institution]')
   .description('List all institutions or [institution]')
   .action((institution, opts) => institutionsCmd.list(institution, opts));
