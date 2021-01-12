@@ -46,6 +46,8 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [institutions [institution]](#institutions) | List all institutions or [institution] |
 | [institutions-add](#institutions-add) | Add an institution |
 | [institutions-del](#institutions-del) | Remove one or more institution(s) |
+| [sushi-add <credentialsFile...>](#sushi-add) | Add sushi crendentials for one or more institution(s) |
+| [sushi-del](#sushi-del) | Delete sushi crendentials for one institution |
 
 ## Commands details
 
@@ -375,6 +377,44 @@ Example of result :
  ◉ My institution
 ❯◉ My organisation
  ◯ An other institution
+ ...
+</pre>
+
+### sushi-add
+
+> No options for this command
+
+Examples:
+
+```bash
+$ ezmesure-admin sushi-add ~/Documents/sushi/my-insitution/*.json
+```
+Example of result :
+
+<pre>
+? <b>Institutions</b>
+❯◉ My institution
+ ◯ My organisation
+ ◯ An other institution
+ ...
+</pre>
+
+### sushi-dell
+
+> No options for this command
+
+Examples:
+
+```bash
+$ ezmesure-admin sushi-del
+```
+Example of result :
+
+<pre>
+? <b>Select an institution</b> (Use arrow keys or type to search)
+❯ My institution
+  My organisation
+  An other institution
  ...
 </pre>
 
