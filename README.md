@@ -392,11 +392,18 @@ $ ezmesure-admin sushi-add ~/Documents/sushi/my-insitution/*.json
 Example of result :
 
 <pre>
+info: 3 credentials found.
+
 ? <b>Institutions</b>
 ❯◉ My institution
  ◯ My organisation
  ◯ An other institution
  ...
+
+info: Sushi Item 1 imported.
+info: Sushi Item 2 imported.
+
+info: Insertion successfully completed.
 </pre>
 
 ### sushi-del
@@ -416,6 +423,14 @@ Example of result :
   My organisation
   An other institution
  ...
+
+? <b>Sushi vendor (space to select item)</b>
+◉ Sushi Item 1
+ ◯ Sushi Item 2
+❯◉ Sushi Item 3
+ ...
+
+info: Data removed successfully.
 </pre>
 
 Show cluster settings.
