@@ -27,7 +27,7 @@
     "inquirer-checkbox-plus-prompt": "^1.0.1",
     "md5": "^2.2.1",
     "moment": "^2.24.0",
-    "papaparse": "^5.1.0",
+    "papaparse": "^5.2.0",
     "table": "^5.3.3",
     "uuid": "^8.3.0",
     "winston": "^3.2.1"
