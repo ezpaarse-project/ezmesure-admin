@@ -87,9 +87,14 @@ program
   .action((role, usernames) => rolesCmd.manageRole(role, usernames, true));
 
 program
-  .command('del-role <role> [usernames...]')
+  .command('user-del-role <role> [usernames...]')
   .description('Delete role to user(s)')
   .action((role, usernames) => rolesCmd.manageRole(role, usernames, false));
+
+program
+  .command('delete-role <role>')
+  .description('Delete role')
+  .action(role => rolesCmd.deleteRole(role));
 
 program
   .command('create-role <role>')
@@ -123,6 +128,16 @@ program
   .option('-d, --depositor <depositor>', 'index prefix name for publisher index', 'local')
   .option('-l, --exec-log-path <logPath>', 'Save json exec log file in logPath')
   .action((sushiFile, opts) => sushiCmd.sushi5(sushiFile, opts));
+
+program
+  .command('sushi-add <credentialsFile...>')
+  .description('Add sushi crendentials for one or more institutions')
+  .action((credentialsFile, opts) => sushiCmd.add(credentialsFile, opts));
+
+program
+  .command('sushi-del')
+  .description('Delete sushi crendentials for one institution')
+  .action((credentialsFile, opts) => sushiCmd.delete(credentialsFile, opts));
 
 program
   .command('institutions [institution]')

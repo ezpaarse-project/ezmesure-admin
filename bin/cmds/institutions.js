@@ -92,7 +92,6 @@ module.exports = {
 
     const institutions = data.map(({ _source: source }) => source.institution.name);
 
-    institutions[1] = 'Inist';
     const { institutionsName } = await inquirer.prompt([{
       type: 'checkbox-plus',
       pageSize: 20,

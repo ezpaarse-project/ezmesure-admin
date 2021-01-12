@@ -36,8 +36,9 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [roles [role...]](#roles) | List all roles or \[role\] roles |
 | [user-roles](#user-roles) | Add or remove one or more roles to one or more users |
 | [add-role <role> <usernames...>](#add-role) | Add role to user(s) |
-| [del-role <role> <usernames...>](#del-role) | Delete role to user(s) |
+| [user-del-role <role> <usernames...>](#del-role) | Delete role to user(s) |
 | [create-role <role>](#create-role) | Create a role |
+| [delete-role <role>](#delete-role) | Delete a role |
 | [reporting <emails...>](#reporting) | Send reporting to target emails |
 | [counter4 \<JR1File>](#counter4) | Load JR1 Counter 4 file into KIBANA |
 | [counter5 \<counter5file>](#counter5) | Load a COUNTER 5 Report file into KIBANA or only output a JSON file |
@@ -45,6 +46,8 @@ You can get help for any command by typing `ezmesure-admin <command> --help`.
 | [institutions [institution]](#institutions) | List all institutions or [institution] |
 | [institutions-add](#institutions-add) | Add an institution |
 | [institutions-del](#institutions-del) | Remove one or more institution(s) |
+| [sushi-add <credentialsFile...>](#sushi-add) | Add sushi crendentials for one or more institution(s) |
+| [sushi-del](#sushi-del) | Delete sushi crendentials for one institution |
 
 ## Commands details
 
@@ -220,7 +223,13 @@ $ ezmesure-admin users -j
 ### add-role
 > No options for this command
 
-### del-role
+### user-del-role
+> No options for this command
+
+### create-role
+> No options for this command
+
+### delete-role
 > No options for this command
 
 ### user-roles
@@ -371,7 +380,43 @@ Example of result :
  ...
 </pre>
 
-### cluster-settings
+### sushi-add
+
+> No options for this command
+
+Examples:
+
+```bash
+$ ezmesure-admin sushi-add ~/Documents/sushi/my-insitution/*.json
+```
+Example of result :
+
+<pre>
+? <b>Institutions</b>
+❯◉ My institution
+ ◯ My organisation
+ ◯ An other institution
+ ...
+</pre>
+
+### sushi-del
+
+> No options for this command
+
+Examples:
+
+```bash
+$ ezmesure-admin sushi-del
+```
+Example of result :
+
+<pre>
+? <b>Select an institution</b> (Use arrow keys or type to search)
+❯ My institution
+  My organisation
+  An other institution
+ ...
+</pre>
 
 Show cluster settings.
 
@@ -382,7 +427,6 @@ Example:
 ```bash
 $ ezmesure-admin cluster-settings
 ```
-
 
 ### cluster-flush
 

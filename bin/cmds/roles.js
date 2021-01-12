@@ -25,6 +25,7 @@ const createRoleMenu = async () => {
       });
     }
   } catch (error) {
+    console.log(error);
     return logger.error('An error occured to get indicies');
   }
 
@@ -97,7 +98,7 @@ module.exports = {
     // curl -X GET 'http://localhost:9200/_security/roles' -H 'kbn-xsrf: true'
 
     try {
-      const { data: rolesData } = await rolesLib.getRoles(role);
+      const { body: rolesData } = await rolesLib.getRoles(role);
 
       if (!rolesData) {
         logger.error('No role(s) found');
@@ -119,14 +120,11 @@ module.exports = {
               indice.names, indice.privileges,
             ]);
 
-            const [application, appPrivileges, appResources] = applications.map(appli => [
-              appli.application, appli.privileges, appli.resources,
-            ]);
-
+            const application = applications.map(appli => appli.application);
             return [
               roleName,
               `Names: ${indicesNames || '-'}\nPrivileges: ${indicesPrivileges || '-'}`,
-              `Application: ${application || '-'}\nPrivileges: ${appPrivileges || '-'}\nResources: ${appResources || '-'}`,
+              `Application: ${application || '-'}`,
             ];
           });
 
@@ -168,6 +166,54 @@ module.exports = {
       }
     }
     return null;
+  },
+
+  deleteRole: async (role) => {
+    try {
+      const roleData = {
+        cluster: ['all'],
+        indices: [
+          {
+            names: ['index1', 'index2'],
+            privileges: ['all'],
+            field_security: {
+              grant: ['title', 'body'],
+            },
+          },
+        ],
+        applications: [
+          {
+            application: 'myapp',
+            privileges: ['admin', 'read'],
+            resources: ['*'],
+          },
+        ],
+        run_as: ['other_user'],
+        metadata: {
+          version: 1,
+        },
+      };
+      console.log(roleData);
+
+      const { body: res } = await rolesLib.updateRole(role, roleData);
+      console.log(res);
+    } catch (e) {
+      console.log(e.meta.body);
+    }
+
+    process.exit(0);
+
+    try {
+      const { body: response } = await rolesLib.deleteRole(role);
+
+      if (response && response.found) {
+        return logger.info('Role deleted succefully');
+      }
+      return logger.error('An error occured during role deletion');
+    } catch (error) {
+      logger.error(error);
+      return process.exit(1);
+    }
   },
 
   createRole: async (role) => {
@@ -217,7 +263,8 @@ module.exports = {
     };
 
     try {
-      const { data: response } = await rolesLib.createRole(role, data);
+      const { body: response } = await rolesLib.createRole(role, data);
+
       if (response && response.role) {
         if (response.role.created) {
           return logger.info('Role created succefully');

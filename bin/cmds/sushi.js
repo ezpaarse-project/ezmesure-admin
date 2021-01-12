@@ -1,15 +1,76 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable prefer-destructuring */
-const fs = require('fs');
+const fs = require('fs-extra');
+const path = require('path');
 const md5 = require('md5');
 const moment = require('moment');
 
+const inquirer = require('inquirer');
+const checkboxPlus = require('inquirer-checkbox-plus-prompt');
+
 const sushiLib = require('../../lib/sushi');
 const counterLib = require('../../lib/counter');
+const institutionsLib = require('../../lib/institutions');
+const logger = require('../../lib/app/logger');
+
+inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 
 const sushiIndexSufix = 'sushi-5';
 
 const now = moment();
+
+async function selectInstitution() {
+  let data;
+  try {
+    const { body } = await institutionsLib.getInstitutions();
+    // eslint-disable-next-line prefer-destructuring
+    data = body.hits.hits;
+  } catch (error) {
+    return Promise.reject(new Error('Institutions not found'));
+  }
+
+  data = Array.isArray(data) ? data : [data];
+
+  const institutions = data.map(({ _source: source }) => source.institution.name);
+
+  const { selection } = await inquirer.prompt([{
+    type: 'autocomplete',
+    name: 'selection',
+    message: 'Select an institution',
+    source: (answersSoFar, input) => new Promise((resolve) => {
+      input = input || '';
+
+      resolve(institutions.filter(indice => indice.includes(input)));
+    }),
+  }]);
+
+  if (!selection) {
+    return Promise.reject(new Error('Institution not selected'));
+  }
+
+  const selected = data.filter(({ _source }) => selection === _source.institution.name);
+
+  if (!selected) {
+    return Promise.reject(new Error('No data for the selected institution.'));
+  }
+
+  const institution = selected.pop();
+
+  const institutionId = institution._source.institution.id;
+
+  let sushi;
+  try {
+    sushi = await sushiLib.getSushi(institutionId);
+  } catch (error) {
+    console.log(error);
+  }
+
+  if (!sushi || !sushi.data) {
+    return Promise.reject(new Error('Sushi data not found.'));
+  }
+
+  return Promise.resolve(sushi.data);
+}
 
 function transformItem(resItems, item, opts) {
   const resItem = {};
@@ -234,5 +295,138 @@ module.exports = {
       console.log('Sauvegarde du rapport ', exectReportFile);
     }
     return (results);
+  },
+
+  delete: async () => {
+    let result;
+    try {
+      result = await selectInstitution();
+    } catch (error) {
+      return logger.error(error);
+    }
+
+    const { selection } = await inquirer.prompt([{
+      type: 'checkbox-plus',
+      pageSize: 20,
+      name: 'selection',
+      message: 'Sushi vendor (space to select item)',
+      searchable: true,
+      highlight: true,
+      source: (answersSoFar, input) => new Promise((resolve) => {
+        input = input || '';
+
+        const res = result.filter(indice => indice.vendor.includes(input)).map(item => item.vendor);
+
+        resolve(res);
+      }),
+    }]);
+
+    if (!selection) {
+      return logger.warn('No credentials selected.');
+    }
+
+    const selected = result.filter(({ vendor }) => selection.includes(vendor));
+    if (!selected) {
+      return logger.warn('No sushi credentials found.');
+    }
+
+    const ids = selected.map(({ id }) => id);
+
+    if (!ids) {
+      return logger.warn('No ids found');
+    }
+
+    try {
+      await sushiLib.deleteSushi(ids);
+    } catch (err) {
+      return logger.error(err);
+    }
+
+    return logger.info('Data removed successfully.');
+  },
+
+  add: async (credentialFiles) => {
+    let credentials = [];
+    for (let i = 0; i < credentialFiles.length; i += 1) {
+      let content;
+      try {
+        content = await fs.readFile(path.resolve(credentialFiles[i]), 'utf8');
+      } catch (err) {
+        console.error(err);
+        logger.error(`Cannot read file : ${credentialFiles[i]}`, err);
+      }
+
+      if (content) {
+        try {
+          content = JSON.parse(content);
+        } catch (e) {
+          logger.error(`Cannot parse : ${credentialFiles[i]}`, e);
+        }
+
+        content.map((item) => {
+          if (!Array.isArray(item.accounts)) {
+            return item;
+          }
+          return item.accounts.map(account => ({
+            ...item,
+            ...account,
+          }));
+        // eslint-disable-next-line no-loop-func
+        }).forEach(credential => credentials.push(credential));
+      }
+    }
+
+    if (!credentials.length) {
+      return logger.info('No sushi credentials found.');
+    }
+
+    credentials = credentials.flatMap(credential => credential);
+
+    logger.info(`${credentials.length} credentials found.`);
+
+    let data;
+    try {
+      const { body } = await institutionsLib.getInstitutions();
+      // eslint-disable-next-line prefer-destructuring
+      data = body.hits.hits;
+    } catch (error) {
+      return logger.info('Institutions not found');
+    }
+
+    data = Array.isArray(data) ? data : [data];
+
+    const institutions = data.map(({ _source: source }) => source.institution.name);
+
+    const { selection } = await inquirer.prompt([{
+      type: 'checkbox-plus',
+      pageSize: 20,
+      name: 'selection',
+      message: 'Institutions (space to select item)',
+      searchable: true,
+      highlight: true,
+      source: (answersSoFar, input) => new Promise((resolve) => {
+        input = input || '';
+
+        resolve(institutions.filter(indice => indice.includes(input)));
+      }),
+    }]);
+
+    if (selection) {
+      const selected = data.filter(({ _source }) => selection.includes(_source.institution.name));
+      for (let i = 0; i < selected.length; i += 1) {
+        const institutionId = selected[i]._source.institution.id;
+
+        for (let j = 0; j < credentials.length; j += 1) {
+          try {
+            const res = await sushiLib.addSushi(institutionId, credentials[j]);
+            logger.info(res);
+          } catch (error) {
+            logger.info(error);
+          }
+        }
+      }
+    }
+
+    return logger.info('Insertion successfully completed.');
   },
 };

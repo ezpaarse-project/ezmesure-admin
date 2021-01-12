@@ -16,5 +16,7 @@
     "tls": {
       "rejectUnauthorized": "SMTP_REJECT_UNAUTHORIZED"
     }
-  }
+  },
+  "ezmesureUrl": "EZMESURE_URL",
+  "token": "EZMESURE_TOKEN"
 }

@@ -40,14 +40,14 @@ const manageRole = async (usernames) => {
   let roles;
   try {
     roles = await rolesLib.getRoles();
-    roles = Object.keys(roles.data);
+    roles = Object.keys(roles.body);
   } catch (error) {
     return logger.error('No role(s) found');
   }
 
   for (let i = 0; i < usernames.length; i += 1) {
     try {
-      const { data: userData } = await usersLib.getUsers(usernames[i]);
+      const { body: userData } = await usersLib.getUsers(usernames[i]);
       if (!userData) {
         return logger.error('No user(s) found');
       }
@@ -68,7 +68,7 @@ const manageRole = async (usernames) => {
 
 const listUsers = async (callback) => {
   try {
-    const { data: users } = await usersLib.getUsers();
+    const { body: users } = await usersLib.getUsers();
     const choices = Object.values(users)
       .filter(user => !user.metadata._reserved)
       .map(user => ({ name: `${user.full_name || user.username} <${user.email || ''}>`, value: user.username }));
@@ -106,10 +106,8 @@ const listUsers = async (callback) => {
 
 module.exports = {
   getUsers: async (users, opts) => {
-    // curl -X GET 'http://localhost:9200/_security/user' -H 'kbn-xsrf: true'
-
     try {
-      const { data: usersData } = await usersLib.getUsers(users);
+      const { body: usersData } = await usersLib.getUsers(users);
 
       if (!usersData) {
         logger.error('No user(s) found');
