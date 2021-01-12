@@ -399,7 +399,7 @@ Example of result :
  ...
 </pre>
 
-### sushi-dell
+### sushi-del
 
 > No options for this command
 
@@ -417,8 +417,6 @@ Example of result :
   An other institution
  ...
 </pre>
-
-### cluster-settings
 
 Show cluster settings.
 

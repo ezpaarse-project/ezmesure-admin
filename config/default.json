@@ -3,6 +3,7 @@
   "kibanaUrl": "http://localhost:5601",
   "defaultTemplate": "homepage",
   "templateSpace": "org-template",
+  "institutionsIndex": "depositors",
   "smtp": {
     "sender": "reporting@email.com",
     "carbonCopy": "email@email.com",
@@ -12,10 +13,5 @@
     "tls": {
       "rejectUnauthorized": false
     }
-  },
-  "proxy": {
-    "host": "proxyout.inist.fr",
-    "port": "8080"
-  },
-  "institutionsIndex": "depositors"
+  }
 }
