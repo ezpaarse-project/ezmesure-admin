@@ -36,6 +36,7 @@ async function selectInstitution() {
   const { selection } = await inquirer.prompt([{
     type: 'autocomplete',
     name: 'selection',
+    pageSize: 20,
     message: 'Select an institution',
     source: (answersSoFar, input) => new Promise((resolve) => {
       input = input || '';
@@ -421,7 +422,7 @@ module.exports = {
             const res = await sushiLib.addSushi(institutionId, credentials[j]);
             logger.info(res);
           } catch (error) {
-            logger.info(error);
+            logger.info(`${credentials[j].vendor} : ${error.response.data.error}`);
           }
         }
       }
