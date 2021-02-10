@@ -83,9 +83,9 @@ exports.handler = async function handler(argv) {
     }),
   }]);
 
-  const { id } = institutions.find(({ name }) => {
-    return name.toLowerCase() === institutionSelected.toLowerCase();
-  });
+  const { id } = institutions
+    .find(({ name }) => name.toLowerCase() === institutionSelected.toLowerCase());
+
   for (let j = 0; j < credentials.length; j += 1) {
     try {
       const res = await addSushi(id, credentials[j]);

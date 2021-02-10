@@ -26,7 +26,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!institutions) {
-    console.log('No institutions found');
+    console.log('Institutions not found');
     process.exit(0);
   }
 
@@ -45,9 +45,8 @@ exports.handler = async function handler(argv) {
     }),
   }]);
 
-  const { id: institutionId } = institutions.find(({ name }) => {
-    return name.toLowerCase() === institutionSelected.toLowerCase();
-  });
+  const { id: institutionId } = institutions
+    .find(({ name }) => name.toLowerCase() === institutionSelected.toLowerCase());
 
   let sushi;
   try {

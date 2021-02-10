@@ -6,12 +6,13 @@ inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 inquirer.registerPrompt('autocomplete', autocomplete);
 
 const { table } = require('table');
+const chalk = require('chalk');
 
-const { getSushi } = require('../../../lib/sushi');
+const { getSushi, sushiTest } = require('../../../lib/sushi');
 const { getAll } = require('../../../lib/institutions');
 
-exports.command = 'list';
-exports.desc = 'List SUSHI informations of institutions';
+exports.command = 'test';
+exports.desc = 'Test SUSHI informations of institutions';
 exports.builder = {};
 exports.handler = async function handler(argv) {
   const options = {};
@@ -73,20 +74,35 @@ exports.handler = async function handler(argv) {
     }),
   }]);
 
-  const header = ['package', 'vendor', 'endpoint', 'customerId', 'requestorId', 'apiKey', 'comment'];
-  const lines = vendorsSelected.map((vendorSelected) => {
-    const platform = sushi
-      .find(({ vendor }) => vendor.toLowerCase() === vendorSelected.toLowerCase());
+  const credentials = sushi.filter(({ vendor }) => vendorsSelected.includes(vendor));
 
-    return [
-      platform.package,
-      platform.vendor,
-      platform.sushiUrl,
-      platform.customerId,
-      platform.requestorId,
-      platform.apiKey,
-      platform.comment,
-    ];
-  });
+  const results = [];
+
+  for (let i = 0; i < credentials.length; i += 1) {
+    try {
+      await sushiTest(credentials[i]);
+      results.push({
+        vendor: credentials[i].vendor,
+        status: 'success',
+        url: credentials[i].sushiUrl,
+      });
+    } catch (error) {
+      results.push({
+        vendor: credentials[i].vendor,
+        status: 'error',
+        message: error.message,
+        url: credentials[i].sushiUrl,
+      });
+    }
+  }
+
+  const header = ['package', 'status', 'message', 'endpoint'];
+  const lines = results.sort((a, b) => b.status.localeCompare(a.status))
+    .map(result => [
+      result.vendor,
+      chalk.hex(result.status === 'error' ? '#e55039' : '#78e08f').bold(result.status),
+      result.message || '-',
+      result.url,
+    ]);
   console.log(table([header, ...lines]));
 };

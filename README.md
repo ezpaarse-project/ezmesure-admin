@@ -18,13 +18,15 @@ Help output:
 ezmesure-admin <command>
 
 Commands:
+  ezmesure-admin cluster <command>    Manage cluster <command>: settings, flush,
+                                      shard
   ezmesure-admin reporting <command>  Manage reporting <command>: list, report
-  ezmesure-admin roles <command>      Manage roles <command>: get, add, edit,
-                                      delete, list
+  ezmesure-admin roles <command>      Manage roles <command>: get, add, delete,
+                                      list
   ezmesure-admin spaces <command>     Manage spaces <command>: get, add, edit,
                                       delete, list
   ezmesure-admin sushi <command>      Manage roles <command>: add, delete, list,
-                                      report
+                                      report, test
   ezmesure-admin users <command>      Manage users <command>: list, roles
 
 Options:
@@ -36,14 +38,68 @@ Options:
 
 ## Available commands
 
+* [cluster](#cluster)
 * [reporting](#reporting)
 * [roles](#roles)
-* [](#)
 * [spaces](#spaces)
-* [](#)
 * [sushi](#sushi)
-* [](#)
 * [users](#users)
+
+### cluster
+
+```sh
+$ ezmesure-admin cluster --help
+```
+
+Help output:
+
+```
+ezmesure-admin cluster <command>
+
+Manage cluster <command>: settings, flush, shard
+
+Commands:
+  ezmesure-admin cluster flush            Flush all data streams and indices in
+                                          the cluster
+  ezmesure-admin cluster settings         Show cluster settings
+  ezmesure-admin cluster shard <command>  Manage shards <command>: allocation
+
+Options:
+      --version  Show version number                                   [boolean]
+  -t, --token    Auth token
+  -m, --timeout  Request timeout in milliseconds                        [number]
+      --help     Show help                                             [boolean]
+```
+
+### 
+
+```sh
+$ ezmesure-admin  --help
+```
+
+Help output:
+
+```
+ezmesure-admin <command>
+
+Commands:
+  ezmesure-admin cluster <command>    Manage cluster <command>: settings, flush,
+                                      shard
+  ezmesure-admin reporting <command>  Manage reporting <command>: list, report
+  ezmesure-admin roles <command>      Manage roles <command>: get, add, delete,
+                                      list
+  ezmesure-admin spaces <command>     Manage spaces <command>: get, add, edit,
+                                      delete, list
+  ezmesure-admin sushi <command>      Manage roles <command>: add, delete, list,
+                                      report, test
+  ezmesure-admin users <command>      Manage users <command>: list, roles
+
+Options:
+      --version  Show version number                                   [boolean]
+  -t, --token    Auth token
+  -m, --timeout  Request timeout in milliseconds                        [number]
+      --help     Show help                                             [boolean]
+```
 
 ### reporting
 
@@ -80,14 +136,13 @@ Help output:
 ```
 ezmesure-admin roles <command>
 
-Manage roles <command>: get, add, edit, delete, list
+Manage roles <command>: get, add, delete, list
 
 Commands:
-  ezmesure-admin roles add <role>     Create new role
-  ezmesure-admin roles delete <role>  Delete a role
-  ezmesure-admin roles edit <role>    Edit role
-  ezmesure-admin roles get <role>     Get and display role informations
-  ezmesure-admin roles list           List all roles
+  ezmesure-admin roles add <role>         Create new role
+  ezmesure-admin roles delete [roles...]  Delete role(s)
+  ezmesure-admin roles get <role>         Get and display role informations
+  ezmesure-admin roles list               List all roles
 
 Options:
       --version  Show version number                                   [boolean]
@@ -108,13 +163,15 @@ Help output:
 ezmesure-admin <command>
 
 Commands:
+  ezmesure-admin cluster <command>    Manage cluster <command>: settings, flush,
+                                      shard
   ezmesure-admin reporting <command>  Manage reporting <command>: list, report
-  ezmesure-admin roles <command>      Manage roles <command>: get, add, edit,
-                                      delete, list
+  ezmesure-admin roles <command>      Manage roles <command>: get, add, delete,
+                                      list
   ezmesure-admin spaces <command>     Manage spaces <command>: get, add, edit,
                                       delete, list
   ezmesure-admin sushi <command>      Manage roles <command>: add, delete, list,
-                                      report
+                                      report, test
   ezmesure-admin users <command>      Manage users <command>: list, roles
 
 Options:
@@ -163,13 +220,15 @@ Help output:
 ezmesure-admin <command>
 
 Commands:
+  ezmesure-admin cluster <command>    Manage cluster <command>: settings, flush,
+                                      shard
   ezmesure-admin reporting <command>  Manage reporting <command>: list, report
-  ezmesure-admin roles <command>      Manage roles <command>: get, add, edit,
-                                      delete, list
+  ezmesure-admin roles <command>      Manage roles <command>: get, add, delete,
+                                      list
   ezmesure-admin spaces <command>     Manage spaces <command>: get, add, edit,
                                       delete, list
   ezmesure-admin sushi <command>      Manage roles <command>: add, delete, list,
-                                      report
+                                      report, test
   ezmesure-admin users <command>      Manage users <command>: list, roles
 
 Options:
@@ -190,13 +249,14 @@ Help output:
 ```
 ezmesure-admin sushi <command>
 
-Manage roles <command>: add, delete, list, report
+Manage roles <command>: add, delete, list, report, test
 
 Commands:
   ezmesure-admin sushi add     Create new sushi
   ezmesure-admin sushi delete  Delete a sushi
   ezmesure-admin sushi list    List SUSHI informations of institutions
   ezmesure-admin sushi report  Create report
+  ezmesure-admin sushi test    Test SUSHI informations of institutions
 
 Options:
       --version  Show version number                                   [boolean]
@@ -217,13 +277,15 @@ Help output:
 ezmesure-admin <command>
 
 Commands:
+  ezmesure-admin cluster <command>    Manage cluster <command>: settings, flush,
+                                      shard
   ezmesure-admin reporting <command>  Manage reporting <command>: list, report
-  ezmesure-admin roles <command>      Manage roles <command>: get, add, edit,
-                                      delete, list
+  ezmesure-admin roles <command>      Manage roles <command>: get, add, delete,
+                                      list
   ezmesure-admin spaces <command>     Manage spaces <command>: get, add, edit,
                                       delete, list
   ezmesure-admin sushi <command>      Manage roles <command>: add, delete, list,
-                                      report
+                                      report, test
   ezmesure-admin users <command>      Manage users <command>: list, roles
 
 Options:
