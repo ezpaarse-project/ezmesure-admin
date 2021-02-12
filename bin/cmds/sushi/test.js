@@ -8,8 +8,10 @@ inquirer.registerPrompt('autocomplete', autocomplete);
 const { table } = require('table');
 const chalk = require('chalk');
 
+const get = require('lodash.get');
+
 const { getSushi, sushiTest } = require('../../../lib/sushi');
-const { getAll } = require('../../../lib/institutions');
+const { getAll, getInstitution } = require('../../../lib/institutions');
 
 exports.command = 'test [institution]';
 exports.desc = 'Test SUSHI informations of institutions';
@@ -34,7 +36,20 @@ exports.handler = async function handler(argv) {
   let institutionId;
 
   if (argv.institution) {
+    let institution;
+    try {
+      const { body } = await getInstitution(argv.institution);
+      if (body) { institution = get(body, 'hits.hits[0]'); }
+    } catch (error) {
+      console.error(error);
+    }
 
+    if (!institution) {
+      console.log(`Institution [${argv.institution}] not found`);
+      process.exit(0);
+    }
+
+    institutionId = get(institution, '_source.institution.id');
   }
 
   if (!argv.institution) {
@@ -56,7 +71,7 @@ exports.handler = async function handler(argv) {
       type: 'autocomplete',
       pageSize: 20,
       name: 'institutionSelected',
-      message: 'Institutions (enter: select institution)',
+      message: 'Institutions (Press <enter> to select institution)',
       searchable: true,
       highlight: true,
       source: (answersSoFar, input) => new Promise((resolve) => {
@@ -85,7 +100,7 @@ exports.handler = async function handler(argv) {
     type: 'checkbox-plus',
     pageSize: 20,
     name: 'vendorsSelected',
-    message: 'Sushi vendor (space to select item)',
+    message: 'Sushi vendor (Press <space> to select item)',
     searchable: true,
     highlight: true,
     source: (answersSoFar, input) => new Promise((resolve) => {
