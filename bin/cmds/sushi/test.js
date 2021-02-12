@@ -111,7 +111,7 @@ exports.handler = async function handler(argv) {
       results.push({
         vendor: credentials[i].vendor,
         status: 'error',
-        message: error.join(', '),
+        message: Array.isArray(error) ? error.join(', ') : error,
         url: credentials[i].sushiUrl,
       });
     }
