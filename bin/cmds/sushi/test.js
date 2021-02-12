@@ -11,45 +11,66 @@ const chalk = require('chalk');
 const { getSushi, sushiTest } = require('../../../lib/sushi');
 const { getAll } = require('../../../lib/institutions');
 
-exports.command = 'test';
+exports.command = 'test [institution]';
 exports.desc = 'Test SUSHI informations of institutions';
-exports.builder = {};
+exports.builder = function builder(yargs) {
+  return yargs.positional('institution', {
+    describe: 'Institution name, case sensitive',
+    type: 'string',
+  }).option('a', {
+    alias: 'all',
+    describe: 'Test all platforms for once institution',
+  }).option('v', {
+    alias: 'verbose',
+    describe: 'Print result(s) in verbose',
+  });
+};
 exports.handler = async function handler(argv) {
   const options = {};
 
   if (argv.timeout) { options.timeout = argv.timeout; }
   if (argv.token) { options.token = argv.token; }
 
-  let institutions;
-  try {
-    const { data } = await getAll(options);
-    if (data) { institutions = data; }
-  } catch (error) {
-    console.error(error);
+  let institutionId;
+
+  if (argv.institution) {
+
   }
 
-  if (!institutions) {
-    console.log('No institutions found');
-    process.exit(0);
+  if (!argv.institution) {
+    let institutions;
+    try {
+      const { data } = await getAll(options);
+      if (data) { institutions = data; }
+    } catch (error) {
+      console.error(error);
+    }
+
+    if (!institutions) {
+      console.log('No institutions found');
+      process.exit(0);
+    }
+
+    const institutionsName = institutions.map(({ name }) => name);
+    const { institutionSelected } = await inquirer.prompt([{
+      type: 'autocomplete',
+      pageSize: 20,
+      name: 'institutionSelected',
+      message: 'Institutions (enter: select institution)',
+      searchable: true,
+      highlight: true,
+      source: (answersSoFar, input) => new Promise((resolve) => {
+        input = input ? input.toLowerCase() : '';
+
+        resolve(institutionsName.filter(indice => indice.toLowerCase().includes(input)));
+      }),
+    }]);
+
+    const { id } = institutions
+      .find(({ name }) => name.toLowerCase() === institutionSelected.toLowerCase());
+    
+    institutionId = id;
   }
-
-  const institutionsName = institutions.map(({ name }) => name);
-  const { institutionSelected } = await inquirer.prompt([{
-    type: 'autocomplete',
-    pageSize: 20,
-    name: 'institutionSelected',
-    message: 'Institutions (enter: select institution)',
-    searchable: true,
-    highlight: true,
-    source: (answersSoFar, input) => new Promise((resolve) => {
-      input = input ? input.toLowerCase() : '';
-
-      resolve(institutionsName.filter(indice => indice.toLowerCase().includes(input)));
-    }),
-  }]);
-
-  const { id: institutionId } = institutions
-    .find(({ name }) => name.toLowerCase() === institutionSelected.toLowerCase());
 
   let sushi;
   try {
@@ -90,7 +111,7 @@ exports.handler = async function handler(argv) {
       results.push({
         vendor: credentials[i].vendor,
         status: 'error',
-        message: error.message,
+        message: error.join(', '),
         url: credentials[i].sushiUrl,
       });
     }
