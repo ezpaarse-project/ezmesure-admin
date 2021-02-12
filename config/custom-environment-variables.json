@@ -17,6 +17,6 @@
       "rejectUnauthorized": "SMTP_REJECT_UNAUTHORIZED"
     }
   },
-  "ezmesureUrl": "EZMESURE_URL",
+  "ezmesureApiUrl": "EZMESURE_API_URL",
   "token": "EZMESURE_TOKEN"
 }
