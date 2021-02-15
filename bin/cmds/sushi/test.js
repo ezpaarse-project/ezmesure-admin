@@ -12,6 +12,7 @@ const get = require('lodash.get');
 
 const { getSushi, sushiTest } = require('../../../lib/sushi');
 const { getAll, getInstitution } = require('../../../lib/institutions');
+const { stringify } = require('uuid');
 
 exports.command = 'test [institution]';
 exports.desc = 'Test SUSHI informations of institutions';
@@ -22,9 +23,9 @@ exports.builder = function builder(yargs) {
   }).option('a', {
     alias: 'all',
     describe: 'Test all platforms for once institution',
-  }).option('v', {
-    alias: 'verbose',
-    describe: 'Print result(s) in verbose',
+  }).option('j', {
+    alias: 'json',
+    describe: 'Print result(s) in json',
   });
 };
 exports.handler = async function handler(argv) {
@@ -33,7 +34,7 @@ exports.handler = async function handler(argv) {
   if (argv.timeout) { options.timeout = argv.timeout; }
   if (argv.token) { options.token = argv.token; }
 
-  let institutionId;
+  let institutionsId = [];
 
   if (argv.institution) {
     let institution;
@@ -49,7 +50,7 @@ exports.handler = async function handler(argv) {
       process.exit(0);
     }
 
-    institutionId = get(institution, '_source.institution.id');
+    institutionsId.push(get(institution, '_source.institution.id'));
   }
 
   if (!argv.institution) {
@@ -66,51 +67,63 @@ exports.handler = async function handler(argv) {
       process.exit(0);
     }
 
-    const institutionsName = institutions.map(({ name }) => name);
-    const { institutionSelected } = await inquirer.prompt([{
-      type: 'autocomplete',
-      pageSize: 20,
-      name: 'institutionSelected',
-      message: 'Institutions (Press <enter> to select institution)',
-      searchable: true,
-      highlight: true,
-      source: (answersSoFar, input) => new Promise((resolve) => {
-        input = input ? input.toLowerCase() : '';
+    if (!argv.all) {
+      const institutionsName = institutions.map(({ name }) => name);
+      const { institutionSelected } = await inquirer.prompt([{
+        type: 'autocomplete',
+        pageSize: 20,
+        name: 'institutionSelected',
+        message: 'Institutions (Press <enter> to select institution)',
+        searchable: true,
+        highlight: true,
+        source: (answersSoFar, input) => new Promise((resolve) => {
+          input = input ? input.toLowerCase() : '';
 
-        resolve(institutionsName.filter(indice => indice.toLowerCase().includes(input)));
-      }),
-    }]);
+          resolve(institutionsName.filter(indice => indice.toLowerCase().includes(input)));
+        }),
+      }]);
 
-    const { id } = institutions
-      .find(({ name }) => name.toLowerCase() === institutionSelected.toLowerCase());
-    
-    institutionId = id;
+      const { id } = institutions
+        .find(({ name }) => name.toLowerCase() === institutionSelected.toLowerCase());
+      
+      institutionsId.push(id);
+    }
+
+    if (argv.all) {
+      institutionsId = institutions.map(({ id }) => id);
+    }
   }
 
+  let credentials
   let sushi;
   try {
-    const { data } = await getSushi(institutionId);
-    if (data) { sushi = data; }
+    const { data } = await getSushi(institutionsId);
+    if (data) {
+      sushi = data;
+      credentials = sushi;
+    }
   } catch (err) {
     console.error(err);
   }
 
-  const vendors = sushi.map(({ vendor }) => vendor);
-  const { vendorsSelected } = await inquirer.prompt([{
-    type: 'checkbox-plus',
-    pageSize: 20,
-    name: 'vendorsSelected',
-    message: 'Sushi vendor (Press <space> to select item)',
-    searchable: true,
-    highlight: true,
-    source: (answersSoFar, input) => new Promise((resolve) => {
-      input = input || '';
+  if (!argv.all) {
+    const vendors = sushi.map(({ vendor }) => vendor);
+    const { vendorsSelected } = await inquirer.prompt([{
+      type: 'checkbox-plus',
+      pageSize: 20,
+      name: 'vendorsSelected',
+      message: 'Sushi vendor (Press <space> to select item)',
+      searchable: true,
+      highlight: true,
+      source: (answersSoFar, input) => new Promise((resolve) => {
+        input = input || '';
 
-      resolve(vendors.filter(indice => indice.toLowerCase().includes(input)));
-    }),
-  }]);
+        resolve(vendors.filter(indice => indice.toLowerCase().includes(input)));
+      }),
+    }]);
 
-  const credentials = sushi.filter(({ vendor }) => vendorsSelected.includes(vendor));
+    credentials = sushi.filter(({ vendor }) => vendorsSelected.includes(vendor));
+  }
 
   const results = [];
 
@@ -132,13 +145,17 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  const header = ['package', 'status', 'message', 'endpoint'];
-  const lines = results.sort((a, b) => b.status.localeCompare(a.status))
-    .map(result => [
-      result.vendor,
-      chalk.hex(result.status === 'error' ? '#e55039' : '#78e08f').bold(result.status),
-      result.message || '-',
-      result.url,
-    ]);
-  console.log(table([header, ...lines]));
+  if (!argv.json) {
+    const header = ['package', 'status', 'message', 'endpoint'];
+    const lines = results.sort((a, b) => b.status.localeCompare(a.status))
+      .map(result => [
+        result.vendor,
+        chalk.hex(result.status === 'error' ? '#e55039' : '#78e08f').bold(result.status),
+        result.message || '-',
+        result.url,
+      ]);
+    return console.log(table([header, ...lines]));
+  }
+
+  return console.log(JSON.stringify(results, null, 2));
 };
