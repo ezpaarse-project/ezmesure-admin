@@ -1,12 +1,11 @@
 {
-  "timeout": "3000",
-  "kbnBaseUrl: "https://localhost:5601",
-  "esBaseUrl: "https://localhost:9200",
-  "esUser: "elastic",
-  "esPassword: "changeme",
-  "templateSpace": "org-template"
+  "kbnBaseUrl": "https://localhost:5601",
+  "esBaseUrl": "https://localhost:9200",
+  "esUser": "elastic",
+  "esPassword": "changeme",
+  "templateSpace": "org-template",
   "defaultTemplate": "homepage",
-  "institutionsIndex": 'depositors',
+  "institutionsIndex": "depositors",
   "baseUrl": "https://localhost/api",
   "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0NjY1MTEwMDN9.DGDp0pb1DlydJDubf4HCbYzntFsl-zOeXdTD3mlhPzM"
 }
