@@ -10,9 +10,9 @@ const chalk = require('chalk');
 
 const get = require('lodash.get');
 
+const { stringify } = require('uuid');
 const { getSushi, sushiTest } = require('../../../lib/sushi');
 const { getAll, getInstitution } = require('../../../lib/institutions');
-const { stringify } = require('uuid');
 
 exports.command = 'test [institution]';
 exports.desc = 'Test SUSHI informations of institutions';
@@ -79,13 +79,13 @@ exports.handler = async function handler(argv) {
         source: (answersSoFar, input) => new Promise((resolve) => {
           input = input ? input.toLowerCase() : '';
 
-          resolve(institutionsName.filter(indice => indice.toLowerCase().includes(input)));
+          resolve(institutionsName.filter((indice) => indice.toLowerCase().includes(input)));
         }),
       }]);
 
       const { id } = institutions
         .find(({ name }) => name.toLowerCase() === institutionSelected.toLowerCase());
-      
+
       institutionsId.push(id);
     }
 
@@ -94,7 +94,7 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  let credentials
+  let credentials;
   let sushi;
   try {
     const { data } = await getSushi(institutionsId);
@@ -118,11 +118,16 @@ exports.handler = async function handler(argv) {
       source: (answersSoFar, input) => new Promise((resolve) => {
         input = input || '';
 
-        resolve(vendors.filter(indice => indice.toLowerCase().includes(input)));
+        resolve(vendors.filter((indice) => indice.toLowerCase().includes(input)));
       }),
     }]);
 
     credentials = sushi.filter(({ vendor }) => vendorsSelected.includes(vendor));
+  }
+
+  if (!credentials.length) {
+    console.log(`No credentials found for ${argv.institution}`);
+    process.exit(0);
   }
 
   const results = [];
@@ -148,7 +153,7 @@ exports.handler = async function handler(argv) {
   if (!argv.json) {
     const header = ['package', 'status', 'message', 'endpoint'];
     const lines = results.sort((a, b) => b.status.localeCompare(a.status))
-      .map(result => [
+      .map((result) => [
         result.vendor,
         chalk.hex(result.status === 'error' ? '#e55039' : '#78e08f').bold(result.status),
         result.message || '-',

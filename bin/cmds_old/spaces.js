@@ -1,10 +1,10 @@
 const { table } = require('table');
 const chalk = require('chalk');
-const config = require('config');
 const logger = require('../../lib/app/logger');
 const spacesLib = require('../../lib/spaces');
 const dashboardLib = require('../../lib/dashboard');
 const rolesLib = require('../../lib/roles');
+const scopes = require('../../lib/app/config').getScopes();
 
 module.exports = {
   getSpaces: async (space, opts) => {
@@ -66,18 +66,18 @@ module.exports = {
     }
 
     try {
-      let template = config.defaultTemplate || 'homepage';
+      let template = scopes.config.defaultTemplate || 'homepage';
       if (opts && opts.template) {
         // eslint-disable-next-line prefer-destructuring
         template = opts.template;
       }
 
       const { data: exportedDashboard } = await dashboardLib.export(template,
-        config.templateSpace ? { space: config.templateSpace } : null);
+        scopes.config.templateSpace ? { space: scopes.config.templateSpace } : null);
 
       if (exportedDashboard && exportedDashboard.objects) {
         const indexPattern = Object.values(exportedDashboard.objects)
-          .find(object => object.type === 'index-pattern');
+          .find((object) => object.type === 'index-pattern');
 
         if (!indexPattern) {
           return logger.error('No index-pattern found');
