@@ -136,6 +136,7 @@ exports.handler = async function handler(argv) {
       const { status, took } = await sushiTest(credentials[i]);
       results.push({
         vendor: credentials[i].vendor,
+        package: credentials[i].package,
         status,
         took,
         url: credentials[i].sushiUrl,
@@ -144,6 +145,7 @@ exports.handler = async function handler(argv) {
       const { status, took, error } = JSON.parse(err.message);
       results.push({
         vendor: credentials[i].vendor,
+        package: credentials[i].package,
         status,
         took,
         message: Array.isArray(error) ? error.join(', ') : error,
@@ -153,10 +155,11 @@ exports.handler = async function handler(argv) {
   }
 
   if (!argv.json) {
-    const header = ['package', 'status', 'duration (ms)', 'message', 'endpoint'];
+    const header = ['vendor', 'package', 'status', 'duration (ms)', 'message', 'endpoint'];
     const lines = results.sort((a, b) => b.status.localeCompare(a.status))
       .map((result) => [
         result.vendor,
+        result.package,
         chalk.hex(result.status === 'error' ? '#e55039' : '#78e08f').bold(result.status),
         result.took || '-',
         result.message || '-',

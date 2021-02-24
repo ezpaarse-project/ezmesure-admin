@@ -1,6 +1,7 @@
 const get = require('lodash.get');
 const path = require('path');
 const fs = require('fs-extra');
+const Papa = require('papaparse');
 const { getAll, getInstitution } = require('../../../lib/institutions');
 const { getSushi, sushiTest } = require('../../../lib/sushi');
 
@@ -79,11 +80,13 @@ exports.handler = async function handler(argv) {
           success.push({
             ...res,
             vendor: data[j].vendor,
+            package: data[j].package,
           });
         } catch (error) {
           failed.push({
             ...JSON.parse(error.message),
             vendor: data[j].vendor,
+            package: data[j].package,
           });
         }
       }
@@ -103,6 +106,10 @@ exports.handler = async function handler(argv) {
   const fileName = `sushi_infos_${new Date().toISOString()}`;
 
   if (argv.export.toLowerCase() === 'json') {
+    if (!argv.output) {
+      console.log(JSON.stringify(report, null, 2));
+    }
+
     if (argv.output) {
       try {
         await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), report, { spaces: 2 });
@@ -114,6 +121,31 @@ exports.handler = async function handler(argv) {
   }
 
   if (argv.export.toLowerCase() === 'csv') {
-    console.log(JSON.stringify(report, null, 2));
+    const fields = ['Institution', 'Package', 'Vendor', 'Status', 'Message', 'Took (ms)'];
+    const data = [];
+    report.forEach(({
+      name, success, failed,
+    }) => {
+      success.forEach(({ vendor, package: packageName, status, took }) => {
+        data.push([name, packageName, vendor, status, '-', took]);
+      });
+      failed.forEach(({ vendor, package: packageName, status, error, took }) => {
+        data.push([name, packageName, vendor, status, error, took]);
+      });
+    });
+    const csv = Papa.unparse({ fields, data });
+
+    if (!argv.output) {
+      console.log(csv);
+    }
+
+    if (argv.output) {
+      try {
+        await fs.writeFile(path.resolve(argv.output, `${fileName}.csv`), csv);
+      } catch (error) {
+        console.log(error);
+        process.exit(1);
+      }
+    }
   }
 };
