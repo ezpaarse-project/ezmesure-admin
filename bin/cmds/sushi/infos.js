@@ -1,0 +1,119 @@
+const get = require('lodash.get');
+const path = require('path');
+const fs = require('fs-extra');
+const { getAll, getInstitution } = require('../../../lib/institutions');
+const { getSushi, sushiTest } = require('../../../lib/sushi');
+
+exports.command = 'infos [institution]';
+exports.desc = 'Get SUSHI informations';
+exports.builder = function builder(yargs) {
+  return yargs.positional('institution', {
+    describe: 'Institution name, case sensitive',
+    type: 'string',
+  }).option('e', {
+    alias: 'export',
+    describe: 'Export format (json, csv)',
+  }).option('o', {
+    alias: 'output',
+    describe: 'Output path',
+  });
+};
+exports.handler = async function handler(argv) {
+  const options = {};
+
+  if (argv.timeout) { options.timeout = argv.timeout; }
+  if (argv.token) { options.token = argv.token; }
+
+  let institutions;
+
+  if (argv.institution) {
+    let institution;
+    try {
+      const { body } = await getInstitution(argv.institution);
+      if (body) { institution = get(body, 'hits.hits[0]'); }
+    } catch (error) {
+      console.error(error);
+    }
+
+    if (!institution) {
+      console.log(`Institution [${argv.institution}] not found`);
+      process.exit(0);
+    }
+
+    institutions = [{
+      id: get(institution, '_source.institution.id'),
+      name: argv.institution,
+    }];
+  }
+
+  if (!argv.institution) {
+    let institutionsData;
+    try {
+      const { data } = await getAll(options);
+      if (data) { institutionsData = data; }
+    } catch (error) {
+      console.error(error);
+    }
+
+    if (!institutionsData) {
+      console.log('No institutions found');
+      process.exit(0);
+    }
+
+    institutions = institutionsData.map(({ id, name }) => ({ id, name }));
+  }
+
+  const report = [];
+
+  for (let i = 0; i < institutions.length; i += 1) {
+    try {
+      const { id, name } = institutions[i];
+      const { data } = await getSushi(id);
+
+      const success = [];
+      const failed = [];
+
+      for (let j = 0; j < data.length; j += 1) {
+        try {
+          const res = await sushiTest(data[j]);
+          success.push({
+            ...res,
+            vendor: data[j].vendor,
+          });
+        } catch (error) {
+          failed.push({
+            ...JSON.parse(error.message),
+            vendor: data[j].vendor,
+          });
+        }
+      }
+
+      report.push({
+        id,
+        name,
+        credentials: data.length,
+        success,
+        failed,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const fileName = `sushi_infos_${new Date().toISOString()}`;
+
+  if (argv.export.toLowerCase() === 'json') {
+    if (argv.output) {
+      try {
+        await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), report, { spaces: 2 });
+      } catch (error) {
+        console.log(error);
+        process.exit(1);
+      }
+    }
+  }
+
+  if (argv.export.toLowerCase() === 'csv') {
+    console.log(JSON.stringify(report, null, 2));
+  }
+};

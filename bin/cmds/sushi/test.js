@@ -10,7 +10,6 @@ const chalk = require('chalk');
 
 const get = require('lodash.get');
 
-const { stringify } = require('uuid');
 const { getSushi, sushiTest } = require('../../../lib/sushi');
 const { getAll, getInstitution } = require('../../../lib/institutions');
 
@@ -134,16 +133,19 @@ exports.handler = async function handler(argv) {
 
   for (let i = 0; i < credentials.length; i += 1) {
     try {
-      await sushiTest(credentials[i]);
+      const { status, took } = await sushiTest(credentials[i]);
       results.push({
         vendor: credentials[i].vendor,
-        status: 'success',
+        status,
+        took,
         url: credentials[i].sushiUrl,
       });
-    } catch (error) {
+    } catch (err) {
+      const { status, took, error } = JSON.parse(err.message);
       results.push({
         vendor: credentials[i].vendor,
-        status: 'error',
+        status,
+        took,
         message: Array.isArray(error) ? error.join(', ') : error,
         url: credentials[i].sushiUrl,
       });
@@ -151,11 +153,12 @@ exports.handler = async function handler(argv) {
   }
 
   if (!argv.json) {
-    const header = ['package', 'status', 'message', 'endpoint'];
+    const header = ['package', 'status', 'duration (ms)', 'message', 'endpoint'];
     const lines = results.sort((a, b) => b.status.localeCompare(a.status))
       .map((result) => [
         result.vendor,
         chalk.hex(result.status === 'error' ? '#e55039' : '#78e08f').bold(result.status),
+        result.took || '-',
         result.message || '-',
         result.url,
       ]);

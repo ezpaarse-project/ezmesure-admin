@@ -41,12 +41,12 @@ exports.handler = async function handler(argv) {
         if (!Array.isArray(item.accounts)) {
           return item;
         }
-        return item.accounts.map(account => ({
+        return item.accounts.map((account) => ({
           ...item,
           ...account,
         }));
       // eslint-disable-next-line no-loop-func
-      }).forEach(credential => credentials.push(credential));
+      }).forEach((credential) => credentials.push(credential));
     }
   }
 
@@ -55,7 +55,7 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  credentials = credentials.flatMap(credential => credential);
+  credentials = credentials.flatMap((credential) => credential);
 
   console.log(`${credentials.length} credentials found.`);
 
@@ -79,7 +79,7 @@ exports.handler = async function handler(argv) {
     source: (answersSoFar, input) => new Promise((resolve) => {
       input = input ? input.toLowerCase() : '';
 
-      resolve(institutionsName.filter(indice => indice.toLowerCase().includes(input)));
+      resolve(institutionsName.filter((indice) => indice.toLowerCase().includes(input)));
     }),
   }]);
 

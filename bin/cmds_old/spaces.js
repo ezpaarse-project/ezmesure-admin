@@ -4,7 +4,7 @@ const logger = require('../../lib/app/logger');
 const spacesLib = require('../../lib/spaces');
 const dashboardLib = require('../../lib/dashboard');
 const rolesLib = require('../../lib/roles');
-const scopes = require('../../lib/app/config').getScopes();
+const { config } = require('../../lib/app/config').getScopes();
 
 module.exports = {
   getSpaces: async (space, opts) => {
@@ -66,14 +66,14 @@ module.exports = {
     }
 
     try {
-      let template = scopes.config.defaultTemplate || 'homepage';
+      let template = config.defaultTemplate || 'homepage';
       if (opts && opts.template) {
         // eslint-disable-next-line prefer-destructuring
         template = opts.template;
       }
 
       const { data: exportedDashboard } = await dashboardLib.export(template,
-        scopes.config.templateSpace ? { space: scopes.config.templateSpace } : null);
+        config.templateSpace ? { space: config.templateSpace } : null);
 
       if (exportedDashboard && exportedDashboard.objects) {
         const indexPattern = Object.values(exportedDashboard.objects)
