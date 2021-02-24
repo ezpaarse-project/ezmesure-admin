@@ -64,7 +64,7 @@ const createRoleMenu = async () => {
       message: '[Elastic] Indice :',
       source: (answersSoFar, input) => new Promise((resolve) => {
         const result = indices
-          .filter(indice => indice.includes(input));
+          .filter((indice) => indice.includes(input));
 
         resolve(result);
       }),
@@ -78,7 +78,7 @@ const createRoleMenu = async () => {
       highlight: true,
       source: (answersSoFar, input) => new Promise((resolve) => {
         const result = indicesPrivileges
-          .filter(privilege => privilege.toLowerCase().includes(input.toLowerCase()));
+          .filter((privilege) => privilege.toLowerCase().includes(input.toLowerCase()));
 
         resolve(result);
       }),
@@ -92,7 +92,7 @@ const createRoleMenu = async () => {
       message: '[Kibana] Spaces :',
       source: (answersSoFar, input) => new Promise((resolve) => {
         const result = spaces
-          .filter(space => space.includes(input));
+          .filter((space) => space.includes(input));
 
         resolve(result);
       }),

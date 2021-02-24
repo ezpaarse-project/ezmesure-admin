@@ -15,7 +15,7 @@ exports.handler = async function handler(argv) {
     let roles;
     try {
       const { body } = await rolesLib.getRoles();
-    if (body) { roles = body; }
+      if (body) { roles = body; }
     } catch (error) {
       console.error(error);
       process.exit(1);
@@ -32,8 +32,8 @@ exports.handler = async function handler(argv) {
       highlight: true,
       source: (answersSoFar, input) => new Promise((resolve) => {
         input = input || '';
-  
-        resolve(filteredRoles.filter(indice => indice.toLowerCase().includes(input)));
+
+        resolve(filteredRoles.filter((indice) => indice.toLowerCase().includes(input)));
       }),
     }]);
 
@@ -53,12 +53,12 @@ exports.handler = async function handler(argv) {
       if (body) { response = body; }
     } catch (error) {
       if (error?.meta?.body?.error?.reason) {
-        console.error(error.meta.body.error.reason)
+        console.error(error.meta.body.error.reason);
       }
-  
-      if (error?.meta?.body?.hasOwnProperty('found')) {
+
+      if (Object.prototype.hasOwnProperty.call(error?.meta?.body, 'found')) {
         if (!error.meta.body.found) {
-          console.error(`role [${role}] was not found`)
+          console.error(`role [${role}] was not found`);
         }
       }
     }

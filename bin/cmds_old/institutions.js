@@ -102,7 +102,7 @@ module.exports = {
       source: (answersSoFar, input) => new Promise((resolve) => {
         input = input || '';
 
-        resolve(institutions.filter(indice => indice.includes(input)));
+        resolve(institutions.filter((indice) => indice.includes(input)));
       }),
     }]);
 
@@ -184,7 +184,7 @@ module.exports = {
           source: (answersSoFar, input) => new Promise((resolve) => {
             input = input || '';
 
-            resolve(['ezPAARSE', 'ezMESURE', 'Reporting'].filter(service => service.includes(input)));
+            resolve(['ezPAARSE', 'ezMESURE', 'Reporting'].filter((service) => service.includes(input)));
           }),
         },
       ]);

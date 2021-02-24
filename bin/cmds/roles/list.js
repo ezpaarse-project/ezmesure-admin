@@ -35,11 +35,11 @@ exports.handler = async function handler(argv) {
   const rows = Object.keys(roles).map((roleName) => {
     const { indices, applications } = roles[roleName];
 
-    const [indicesNames, indicesPrivileges] = indices.map(indice => [
+    const [indicesNames, indicesPrivileges] = indices.map((indice) => [
       indice.names, indice.privileges,
     ]);
 
-    const application = applications.map(appli => appli.application);
+    const application = applications.map((appli) => appli.application);
     return [
       roleName,
       `Names: ${indicesNames || '-'}\nPrivileges: ${indicesPrivileges || '-'}`,

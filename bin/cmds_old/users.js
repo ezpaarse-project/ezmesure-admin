@@ -8,7 +8,7 @@ const rolesLib = require('../../lib/roles');
 const updateRoles = async (user) => {
   await usersLib.update(user)
     .then(() => logger.info(`user ${user.username} updated`))
-    .catch(error => logger.error(error));
+    .catch((error) => logger.error(error));
 };
 
 const displayRoles = async (user, roles) => {
@@ -22,7 +22,7 @@ const displayRoles = async (user, roles) => {
     default: user.roles.slice(),
     source: (answersSoFar, input) => new Promise((resolve) => {
       const result = roles
-        .filter(role => role.toLowerCase().includes(input.toLowerCase()));
+        .filter((role) => role.toLowerCase().includes(input.toLowerCase()));
 
       resolve(result);
     }),
@@ -70,8 +70,8 @@ const listUsers = async (callback) => {
   try {
     const { body: users } = await usersLib.getUsers();
     const choices = Object.values(users)
-      .filter(user => !user.metadata._reserved)
-      .map(user => ({ name: `${user.full_name || user.username} <${user.email || ''}>`, value: user.username }));
+      .filter((user) => !user.metadata._reserved)
+      .map((user) => ({ name: `${user.full_name || user.username} <${user.email || ''}>`, value: user.username }));
 
     if (!users) {
       return logger.error('No users founds');
@@ -88,7 +88,7 @@ const listUsers = async (callback) => {
       highlight: true,
       source: (answersSoFar, input) => new Promise((resolve) => {
         const result = choices
-          .filter(choice => choice.name.toLowerCase().includes(input.toLowerCase()));
+          .filter((choice) => choice.name.toLowerCase().includes(input.toLowerCase()));
 
         resolve(result);
       }),
@@ -122,7 +122,7 @@ module.exports = {
         if (opts && !opts.json) {
           const header = ['Full name', 'username', 'roles', 'email'];
 
-          const lines = Object.keys(usersData).map(user => [
+          const lines = Object.keys(usersData).map((user) => [
             usersData[user].full_name,
             usersData[user].username,
             usersData[user].roles,
@@ -139,5 +139,5 @@ module.exports = {
     return null;
   },
 
-  userRoles: () => listUsers(answers => manageRole(answers.users)),
+  userRoles: () => listUsers((answers) => manageRole(answers.users)),
 };

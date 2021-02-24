@@ -36,11 +36,11 @@ exports.handler = async function handler(argv) {
 
   const { indices, applications } = role[roleName];
 
-  const [indicesNames, indicesPrivileges] = indices.map(indice => [
+  const [indicesNames, indicesPrivileges] = indices.map((indice) => [
     indice.names, indice.privileges,
   ]);
 
-  const application = applications.map(appli => appli.application);
+  const application = applications.map((appli) => appli.application);
   const row = [
     [
       roleName,

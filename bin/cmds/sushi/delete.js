@@ -41,7 +41,7 @@ exports.handler = async function handler(argv) {
     source: (answersSoFar, input) => new Promise((resolve) => {
       input = input ? input.toLowerCase() : '';
 
-      resolve(institutionsName.filter(indice => indice.toLowerCase().includes(input)));
+      resolve(institutionsName.filter((indice) => indice.toLowerCase().includes(input)));
     }),
   }]);
 
@@ -67,7 +67,7 @@ exports.handler = async function handler(argv) {
     source: (answersSoFar, input) => new Promise((resolve) => {
       input = input || '';
 
-      resolve(vendors.filter(indice => indice.toLowerCase().includes(input)));
+      resolve(vendors.filter((indice) => indice.toLowerCase().includes(input)));
     }),
   }]);
 

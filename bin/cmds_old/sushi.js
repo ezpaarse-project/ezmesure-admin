@@ -41,7 +41,7 @@ async function selectInstitution() {
     source: (answersSoFar, input) => new Promise((resolve) => {
       input = input || '';
 
-      resolve(institutions.filter(indice => indice.includes(input)));
+      resolve(institutions.filter((indice) => indice.includes(input)));
     }),
   }]);
 
@@ -198,7 +198,6 @@ module.exports = {
           opts[i] = sushiActions[action].accounts[account][i];
         }
 
-
         sushiRequest[action].report = opts.report;
         sushiRequest[action].beginDate = opts.beginDate;
         sushiRequest[action].endDate = opts.endDate;
@@ -316,7 +315,7 @@ module.exports = {
       source: (answersSoFar, input) => new Promise((resolve) => {
         input = input || '';
 
-        const res = result.filter(indice => indice.vendor.includes(input)).map(item => item.vendor);
+        const res = result.filter((indice) => indice.vendor.includes(input)).map((item) => item.vendor);
 
         resolve(res);
       }),
@@ -368,12 +367,12 @@ module.exports = {
           if (!Array.isArray(item.accounts)) {
             return item;
           }
-          return item.accounts.map(account => ({
+          return item.accounts.map((account) => ({
             ...item,
             ...account,
           }));
         // eslint-disable-next-line no-loop-func
-        }).forEach(credential => credentials.push(credential));
+        }).forEach((credential) => credentials.push(credential));
       }
     }
 
@@ -381,7 +380,7 @@ module.exports = {
       return logger.info('No sushi credentials found.');
     }
 
-    credentials = credentials.flatMap(credential => credential);
+    credentials = credentials.flatMap((credential) => credential);
 
     logger.info(`${credentials.length} credentials found.`);
 
@@ -408,7 +407,7 @@ module.exports = {
       source: (answersSoFar, input) => new Promise((resolve) => {
         input = input || '';
 
-        resolve(institutions.filter(indice => indice.includes(input)));
+        resolve(institutions.filter((indice) => indice.includes(input)));
       }),
     }]);
 

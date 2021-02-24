@@ -126,10 +126,14 @@ exports.handler = async function handler(argv) {
     report.forEach(({
       name, success, failed,
     }) => {
-      success.forEach(({ vendor, package: packageName, status, took }) => {
+      success.forEach(({
+        vendor, package: packageName, status, took,
+      }) => {
         data.push([name, packageName, vendor, status, '-', took]);
       });
-      failed.forEach(({ vendor, package: packageName, status, error, took }) => {
+      failed.forEach(({
+        vendor, package: packageName, status, error, took,
+      }) => {
         data.push([name, packageName, vendor, status, error, took]);
       });
     });
