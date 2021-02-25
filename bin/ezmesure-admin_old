@@ -6,15 +6,15 @@
 const program = require('commander');
 const pkg = require('../package.json');
 
-const libSpaces = require('./cmds/spaces');
-const objects = require('./cmds/objects');
-const dashboard = require('./cmds/dashboard');
-const usersCmd = require('./cmds/users');
-const rolesCmd = require('./cmds/roles');
-const counterCmd = require('./cmds/counter');
-const sushiCmd = require('./cmds/sushi');
-const institutionsCmd = require('./cmds/institutions');
-const clusterCmd = require('./cmds/cluster');
+const libSpaces = require('./cmds_old/spaces');
+const objects = require('./cmds_old/objects');
+const dashboard = require('./cmds_old/dashboard');
+const usersCmd = require('./cmds_old/users');
+const rolesCmd = require('./cmds_old/roles');
+const counterCmd = require('./cmds_old/counter');
+const sushiCmd = require('./cmds_old/sushi');
+const institutionsCmd = require('./cmds_old/institutions');
+const clusterCmd = require('./cmds_old/cluster');
 
 program.on('command:*', () => {
   console.error(`Invalid command: ${program.args.join(' ')}\nSee --help for a list of available commands.`);
@@ -41,7 +41,7 @@ program
 program
   .command('space-del <spaces...>')
   .description('Delete a KIBANA space')
-  .action(spaces => libSpaces.delSpaces(spaces));
+  .action((spaces) => libSpaces.delSpaces(spaces));
 
 program
   .command('objects-find <type>')
@@ -94,12 +94,12 @@ program
 program
   .command('delete-role <role>')
   .description('Delete role')
-  .action(role => rolesCmd.deleteRole(role));
+  .action((role) => rolesCmd.deleteRole(role));
 
 program
   .command('create-role <role>')
   .description('Create role')
-  .action(role => rolesCmd.createRole(role));
+  .action((role) => rolesCmd.createRole(role));
 
 program
   .command('counter4 <JR1file>')
@@ -147,7 +147,7 @@ program
 program
   .command('institutions-add')
   .description('Create institution')
-  .action(institution => institutionsCmd.add(institution));
+  .action((institution) => institutionsCmd.add(institution));
 
 program
   .command('institutions-del')
@@ -157,7 +157,7 @@ program
 program
   .command('cluster-shard-allocation <enabledShards>')
   .description('enable or disable allocation for specific kinds of elasticsearch shards. Can be : all, primaries, new_primaries, none, null')
-  .action(enabledShards => clusterCmd.setShardAllocation(enabledShards));
+  .action((enabledShards) => clusterCmd.setShardAllocation(enabledShards));
 
 program
   .command('cluster-settings')

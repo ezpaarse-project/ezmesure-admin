@@ -5,6 +5,18 @@ const config = require('../lib/app/config');
 
 config.loadEnv();
 
+// yargs.middleware((argv) => {
+//   const checked = config.watchDogs();
+//   console.log(checked);
+//   if (!checked) {
+//     const { _ } = argv;
+//     console.log(!(_[0] === 'config' && _[1] === 'set'));
+//     if (!(_[0] === 'config' && _[1] === 'set')) {
+//       process.exit(1);
+//     }
+//   }
+// });
+
 yargs.commandDir('cmds')
   .option('t', {
     alias: 'token',

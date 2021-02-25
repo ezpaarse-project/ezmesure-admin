@@ -44,7 +44,7 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  let institutionsId;
+  let institutionsId = [];
   if (!argv.institutions.length) {
     const { ids } = await inquirer.prompt([
       {
