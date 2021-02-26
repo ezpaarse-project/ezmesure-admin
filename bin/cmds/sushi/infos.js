@@ -121,20 +121,20 @@ exports.handler = async function handler(argv) {
   }
 
   if (argv.export.toLowerCase() === 'csv') {
-    const fields = ['Institution', 'Package', 'Vendor', 'Status', 'Message', 'Took (ms)'];
+    const fields = ['Institution', 'Package', 'Vendor', 'Status', 'Message', 'Took (ms)', 'Endpoint'];
     const data = [];
     report.forEach(({
       name, success, failed,
     }) => {
       success.forEach(({
-        vendor, package: packageName, status, took,
+        vendor, package: packageName, status, took, sushiUrl,
       }) => {
-        data.push([name, packageName, vendor, status, '-', took]);
+        data.push([name, packageName, vendor, status, '-', took, sushiUrl]);
       });
       failed.forEach(({
-        vendor, package: packageName, status, error, took,
+        vendor, package: packageName, status, error, took, sushiUrl,
       }) => {
-        data.push([name, packageName, vendor, status, error, took]);
+        data.push([name, packageName, vendor, status, error, took, sushiUrl]);
       });
     });
     const csv = Papa.unparse({ fields, data });
