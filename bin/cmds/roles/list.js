@@ -42,8 +42,8 @@ exports.handler = async function handler(argv) {
     const application = applications.map((appli) => appli.application);
     return [
       roleName,
-      `Names: ${indicesNames || '-'}\nPrivileges: ${indicesPrivileges || '-'}`,
-      `Application: ${application || '-'}`,
+      `Names: ${indicesNames || ''}\nPrivileges: ${indicesPrivileges || ''}`,
+      `Application: ${application || ''}`,
     ];
   });
 

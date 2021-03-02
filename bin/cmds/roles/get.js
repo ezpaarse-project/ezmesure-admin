@@ -44,8 +44,8 @@ exports.handler = async function handler(argv) {
   const row = [
     [
       roleName,
-      `Names: ${indicesNames || '-'}\nPrivileges: ${indicesPrivileges || '-'}`,
-      `Application: ${application || '-'}`,
+      `Names: ${indicesNames || ''}\nPrivileges: ${indicesPrivileges || ''}`,
+      `Application: ${application || ''}`,
     ],
   ];
 

@@ -148,7 +148,7 @@ exports.handler = async function handler(argv) {
       package: credentials[i].package,
       status: res.status,
       took: res.took,
-      message: '-',
+      message: '',
       url: credentials[i].sushiUrl,
     };
 
@@ -166,8 +166,8 @@ exports.handler = async function handler(argv) {
         result.vendor,
         result.package,
         chalk.hex(result.status === 'error' ? '#e55039' : '#78e08f').bold(result.status),
-        result.took || '-',
-        result.message || '-',
+        result.took || '',
+        result.message || '',
         result.url,
       ]);
     return console.log(table([header, ...lines]));
