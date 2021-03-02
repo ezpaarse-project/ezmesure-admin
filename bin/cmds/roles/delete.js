@@ -21,7 +21,6 @@ exports.handler = async function handler(argv) {
       process.exit(1);
     }
 
-    // const filteredRoles = roles.filter((role) => !role.metadata._reserved)
     const filteredRoles = Object.keys(roles).filter((role) => !roles[role]?.metadata?._reserved);
     const { selectedRoles } = await inquirer.prompt([{
       type: 'checkbox-plus',

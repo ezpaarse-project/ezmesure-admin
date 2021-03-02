@@ -32,7 +32,6 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  const institutionsName = institutions.map(({ name }) => name);
   const { institutionSelected } = await inquirer.prompt([{
     type: 'autocomplete',
     pageSize: 20,
@@ -43,22 +42,22 @@ exports.handler = async function handler(argv) {
     source: (answersSoFar, input) => new Promise((resolve) => {
       input = input ? input.toLowerCase() : '';
 
-      resolve(institutionsName.filter((indice) => indice.toLowerCase().includes(input)));
+      const result = institutions
+        .map(({ name, id }) => ({ name, value: id }))
+        .filter(({ name }) => name.toLowerCase().includes(input));
+
+      resolve(result);
     }),
   }]);
 
-  const { id: institutionId } = institutions
-    .find(({ name }) => name.toLowerCase() === institutionSelected.toLowerCase());
-
   let sushi;
   try {
-    const { data } = await getSushi(institutionId);
+    const { data } = await getSushi(institutionSelected);
     if (data) { sushi = data; }
   } catch (err) {
     console.error(err);
   }
 
-  const vendors = sushi.map(({ vendor }) => vendor);
   const { vendorsSelected } = await inquirer.prompt([{
     type: 'checkbox-plus',
     pageSize: 20,
@@ -69,24 +68,26 @@ exports.handler = async function handler(argv) {
     source: (answersSoFar, input) => new Promise((resolve) => {
       input = input || '';
 
-      resolve(vendors.filter((indice) => indice.toLowerCase().includes(input)));
+      const result = sushi
+        .map(({ vendor, id }) => ({ name: vendor, value: id }))
+        .filter(({ name }) => name.toLowerCase().includes(input));
+
+      resolve(result);
     }),
   }]);
 
-  const header = ['package', 'vendor', 'endpoint', 'customerId', 'requestorId', 'apiKey', 'comment'];
-  const lines = vendorsSelected.map((vendorSelected) => {
-    const platform = sushi
-      .find(({ vendor }) => vendor.toLowerCase() === vendorSelected.toLowerCase());
+  const selectedSushi = sushi.filter(({ id }) => vendorsSelected.includes(id));
+  console.log(selectedSushi);
 
-    return [
-      platform.package,
-      platform.vendor,
-      platform.sushiUrl,
-      platform.customerId,
-      platform.requestorId,
-      platform.apiKey,
-      platform.comment,
-    ];
-  });
+  const header = ['package', 'vendor', 'endpoint', 'customerId', 'requestorId', 'apiKey', 'comment'];
+  const lines = selectedSushi.map((platform) => ([
+    platform.package,
+    platform.vendor,
+    platform.sushiUrl,
+    platform.customerId,
+    platform.requestorId,
+    platform.apiKey,
+    platform.comment,
+  ]));
   console.log(table([header, ...lines]));
 };

@@ -56,7 +56,6 @@ exports.handler = async function handler(argv) {
     console.error(err);
   }
 
-  const vendors = sushi.map(({ vendor }) => vendor);
   const { vendorsSelected } = await inquirer.prompt([{
     type: 'checkbox-plus',
     pageSize: 20,
@@ -67,19 +66,21 @@ exports.handler = async function handler(argv) {
     source: (answersSoFar, input) => new Promise((resolve) => {
       input = input || '';
 
-      resolve(vendors.filter((indice) => indice.toLowerCase().includes(input)));
+      const result = sushi
+        .map(({ vendor, id }) => ({ name: vendor, value: id}))
+        .filter(({ name }) => name.toLowerCase().includes(input));
+
+      resolve(result);
     }),
   }]);
 
-  const ids = sushi.filter(({ vendor }) => vendorsSelected.includes(vendor)).map(({ id }) => id);
-
-  if (!ids) {
+  if (!vendorsSelected) {
     console.log('No SUSHI\'s credentials found.');
     process.exit(0);
   }
 
   try {
-    await deleteSushi(ids);
+    await deleteSushi(vendorsSelected);
   } catch (err) {
     console.error(err);
     process.exit(1);

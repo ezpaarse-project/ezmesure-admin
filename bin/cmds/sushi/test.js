@@ -42,6 +42,7 @@ exports.handler = async function handler(argv) {
       if (body) { institution = get(body, 'hits.hits[0]'); }
     } catch (error) {
       console.error(error);
+      process.exit(1);
     }
 
     if (!institution) {
@@ -67,25 +68,25 @@ exports.handler = async function handler(argv) {
     }
 
     if (!argv.all) {
-      const institutionsName = institutions.map(({ name }) => name);
-      const { institutionSelected } = await inquirer.prompt([{
+      const { institutionsSelected } = await inquirer.prompt([{
         type: 'autocomplete',
         pageSize: 20,
-        name: 'institutionSelected',
+        name: 'institutionsSelected',
         message: 'Institutions (Press <enter> to select institution)',
         searchable: true,
         highlight: true,
         source: (answersSoFar, input) => new Promise((resolve) => {
           input = input ? input.toLowerCase() : '';
 
-          resolve(institutionsName.filter((indice) => indice.toLowerCase().includes(input)));
+          const result = institutions
+            .map(({ id, name }) => ({ name, value: id }))
+            .filter(({ name }) => name.toLowerCase().includes(input.toLowerCase()));
+
+          resolve(result);
         }),
       }]);
 
-      const { id } = institutions
-        .find(({ name }) => name.toLowerCase() === institutionSelected.toLowerCase());
-
-      institutionsId.push(id);
+      institutionsId = institutionsSelected;
     }
 
     if (argv.all) {
@@ -106,7 +107,6 @@ exports.handler = async function handler(argv) {
   }
 
   if (!argv.all) {
-    const vendors = sushi.map(({ vendor }) => vendor);
     const { vendorsSelected } = await inquirer.prompt([{
       type: 'checkbox-plus',
       pageSize: 20,
@@ -117,11 +117,15 @@ exports.handler = async function handler(argv) {
       source: (answersSoFar, input) => new Promise((resolve) => {
         input = input || '';
 
-        resolve(vendors.filter((indice) => indice.toLowerCase().includes(input)));
+        const result = sushi
+          .map(({ id, vendor }) => ({ name: vendor, value: id }))
+          .filter(({ name }) => name.toLowerCase().includes(input.toLowerCase()));
+
+        resolve(result);
       }),
     }]);
 
-    credentials = sushi.filter(({ vendor }) => vendorsSelected.includes(vendor));
+    credentials = sushi.filter(({ id }) => vendorsSelected.includes(id));
   }
 
   if (!credentials.length) {
@@ -132,26 +136,27 @@ exports.handler = async function handler(argv) {
   const results = [];
 
   for (let i = 0; i < credentials.length; i += 1) {
+    let res;
     try {
-      const { status, took } = await sushiTest(credentials[i]);
-      results.push({
-        vendor: credentials[i].vendor,
-        package: credentials[i].package,
-        status,
-        took,
-        url: credentials[i].sushiUrl,
-      });
+      res = await sushiTest(credentials[i], options);
     } catch (err) {
-      const { status, took, error } = JSON.parse(err.message);
-      results.push({
-        vendor: credentials[i].vendor,
-        package: credentials[i].package,
-        status,
-        took,
-        message: Array.isArray(error) ? error.join(', ') : error,
-        url: credentials[i].sushiUrl,
-      });
+      res = JSON.parse(err.message);
     }
+
+    const result = {
+      vendor: credentials[i].vendor,
+      package: credentials[i].package,
+      status: res.status,
+      took: res.took,
+      message: '-',
+      url: credentials[i].sushiUrl,
+    };
+
+    if (res.error) {
+      result.message = Array.isArray(res.error) ? res.error.join(', ') : res.error;
+    }
+
+    results.push(result);
   }
 
   if (!argv.json) {

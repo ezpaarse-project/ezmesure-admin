@@ -5,7 +5,7 @@ const Papa = require('papaparse');
 const { getAll, getInstitution } = require('../../../lib/institutions');
 const { getSushi, sushiTest } = require('../../../lib/sushi');
 
-exports.command = 'infos [institution]';
+exports.command = 'info [institution]';
 exports.desc = 'Get SUSHI informations';
 exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
@@ -76,17 +76,19 @@ exports.handler = async function handler(argv) {
 
       for (let j = 0; j < data.length; j += 1) {
         try {
-          const res = await sushiTest(data[j]);
+          const res = await sushiTest(data[j], options);
           success.push({
             ...res,
             vendor: data[j].vendor,
             package: data[j].package,
+            sushiUrl: data[j].sushiUrl,
           });
         } catch (error) {
           failed.push({
             ...JSON.parse(error.message),
             vendor: data[j].vendor,
             package: data[j].package,
+            sushiUrl: data[j].sushiUrl,
           });
         }
       }
@@ -103,7 +105,7 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  const fileName = `sushi_infos_${new Date().toISOString()}`;
+  const fileName = `sushi_info_${new Date().toISOString()}`;
 
   if (argv.export.toLowerCase() === 'json') {
     if (!argv.output) {
