@@ -11,6 +11,8 @@ exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
     describe: 'Institution name, case sensitive',
     type: 'string',
+  }).option('token', {
+    describe: 'ezMESURE token',
   }).option('e', {
     alias: 'export',
     describe: 'Export format (json, csv)',

@@ -19,6 +19,8 @@ exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
     describe: 'Institution name, case sensitive',
     type: 'string',
+  }).option('token', {
+    describe: 'ezMESURE token',
   }).option('a', {
     alias: 'all',
     describe: 'Test all platforms for once institution',

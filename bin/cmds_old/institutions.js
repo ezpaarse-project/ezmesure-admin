@@ -44,11 +44,11 @@ module.exports = {
         console.log(`${chalk.bold('City')}:    ${source.institution.city}`);
         console.log(`${chalk.bold('Type')}:     ${source.institution.type}`);
         console.log(`${chalk.bold('Auto')}:`);
-        console.log(`  - ${chalk.bold('ezPAARSE')}: ${source.institution.auto.ezpaarse ? 'OK' : '-'}`);
-        console.log(`  - ${chalk.bold('ezMESURE')}: ${source.institution.auto.ezmesure ? 'OK' : '-'}`);
-        console.log(`  - ${chalk.bold('Reporting')}: ${source.institution.auto.report ? 'OK' : '-'}`);
+        console.log(`  - ${chalk.bold('ezPAARSE')}: ${source.institution.auto.ezpaarse ? 'OK' : ''}`);
+        console.log(`  - ${chalk.bold('ezMESURE')}: ${source.institution.auto.ezmesure ? 'OK' : ''}`);
+        console.log(`  - ${chalk.bold('Reporting')}: ${source.institution.auto.report ? 'OK' : ''}`);
         console.log(`${chalk.bold('Domains')}: ${source.institution.domains.join(', ')}`);
-        const members = source.institution.members.map(({ username, type }) => `\n  - ${chalk.bold('User')}: ${username}\n  - ${chalk.bold('Type')}: ${type.join(', ') || '-'}`);
+        const members = source.institution.members.map(({ username, type }) => `\n  - ${chalk.bold('User')}: ${username}\n  - ${chalk.bold('Type')}: ${type.join(', ') || ''}`);
         console.log(`${chalk.bold('Members')}:  ${members}`);
       }
       return process.exit(0);
@@ -60,14 +60,14 @@ module.exports = {
 
     const lines = data.map(({ _source: source }) => {
       const { institution } = source;
-      const members = institution.members.map(({ username, type }) => `${username} (${type.join(', ') || '-'})`);
+      const members = institution.members.map(({ username, type }) => `${username} (${type.join(', ') || ''})`);
       return [
         institution.name,
         institution.acronym,
         institution.website,
         institution.city,
         institution.type,
-        `ezPAARSE: ${institution.auto.ezpaarse ? 'OK' : '-'}\nezMESURE: ${institution.auto.ezmesure ? 'OK' : '-'}\nReporting: ${institution.auto.report ? 'OK' : '-'}`,
+        `ezPAARSE: ${institution.auto.ezpaarse ? 'OK' : ''}\nezMESURE: ${institution.auto.ezmesure ? 'OK' : ''}\nReporting: ${institution.auto.report ? 'OK' : ''}`,
         institution.domains.join('\n'),
         members.join('\n'),
       ];

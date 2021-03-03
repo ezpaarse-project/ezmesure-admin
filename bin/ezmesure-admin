@@ -3,27 +3,10 @@
 const yargs = require('yargs');
 const config = require('../lib/app/config');
 
-config.loadEnv();
-
-// yargs.middleware((argv) => {
-//   const checked = config.watchDogs();
-//   console.log(checked);
-//   if (!checked) {
-//     const { _ } = argv;
-//     console.log(!(_[0] === 'config' && _[1] === 'set'));
-//     if (!(_[0] === 'config' && _[1] === 'set')) {
-//       process.exit(1);
-//     }
-//   }
-// });
+config.loadEnv(process.argv);
 
 yargs.commandDir('cmds')
   .option('t', {
-    alias: 'token',
-    describe: 'Auth token',
-    global: true,
-  })
-  .option('m', {
     alias: 'timeout',
     describe: 'Request timeout in milliseconds',
     number: true,

@@ -10,12 +10,19 @@ inquirer.registerPrompt('autocomplete', autocomplete);
 exports.command = 'add';
 exports.desc = 'Create new sushi';
 exports.builder = function builder(yargs) {
-  return yargs.option('f', {
+  return yargs.option('token', {
+    describe: 'ezMESURE token',
+  }).option('f', {
     alias: 'files',
     describe: 'Files path',
   }).array('files');
 };
 exports.handler = async function handler(argv) {
+  const options = {};
+
+  if (argv.timeout) { options.timeout = argv.timeout; }
+  if (argv.token) { options.token = argv.token; }
+
   let credentialFiles = [];
 
   if (argv.files) { credentialFiles = argv.files; }
@@ -61,7 +68,7 @@ exports.handler = async function handler(argv) {
 
   let institutions;
   try {
-    const { data } = await getAll();
+    const { data } = await getAll(options);
     institutions = data;
   } catch (error) {
     console.error('Institutions not found');

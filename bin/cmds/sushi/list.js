@@ -12,7 +12,11 @@ const { getAll } = require('../../../lib/institutions');
 
 exports.command = 'list';
 exports.desc = 'List SUSHI informations of institutions';
-exports.builder = {};
+exports.builder = function builder(yargs) {
+  return yargs.option('token', {
+    describe: 'ezMESURE token',
+  });
+};
 exports.handler = async function handler(argv) {
   const options = {};
 

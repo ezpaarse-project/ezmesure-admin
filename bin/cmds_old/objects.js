@@ -19,7 +19,7 @@ module.exports = {
         ];
         response.saved_objects.forEach((object) => {
           if (object.attributes.title.includes(opts.title)) {
-            result.push([object.id, object.attributes.title, object.attributes.description || '-']);
+            result.push([object.id, object.attributes.title, object.attributes.description || '']);
           }
         });
 
