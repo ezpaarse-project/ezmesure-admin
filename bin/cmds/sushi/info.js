@@ -2,6 +2,7 @@ const get = require('lodash.get');
 const path = require('path');
 const fs = require('fs-extra');
 const Papa = require('papaparse');
+const { format } = require('date-fns');
 const { getAll, getInstitution } = require('../../../lib/institutions');
 const { getSushi, sushiTest } = require('../../../lib/sushi');
 
@@ -23,6 +24,8 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const options = {};
+
+  const exportFormat = argv.export ? argv.export.toLowerCase() : 'json';
 
   if (argv.timeout) { options.timeout = argv.timeout; }
   if (argv.token) { options.token = argv.token; }
@@ -107,9 +110,10 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  const fileName = `sushi_info_${new Date().toISOString()}`;
+  const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
+  const fileName = `sushi_info_${currentDate}`;
 
-  if (argv.export.toLowerCase() === 'json') {
+  if (exportFormat === 'json') {
     if (!argv.output) {
       console.log(JSON.stringify(report, null, 2));
     }
@@ -124,7 +128,7 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  if (argv.export.toLowerCase() === 'csv') {
+  if (exportFormat === 'csv') {
     const fields = ['Institution', 'Package', 'Vendor', 'Status', 'Message', 'Took (ms)', 'Endpoint', 'Reports'];
     const data = [];
     report.forEach(({
