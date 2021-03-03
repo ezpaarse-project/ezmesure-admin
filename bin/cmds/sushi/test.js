@@ -160,7 +160,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!argv.json) {
-    const header = ['vendor', 'package', 'status', 'duration (ms)', 'message', 'endpoint'];
+    const header = ['vendor', 'package', 'status', 'duration (ms)', 'message', 'endpoint', 'reports'];
     const lines = results.sort((a, b) => b.status.localeCompare(a.status))
       .map((result) => [
         result.vendor,
@@ -169,6 +169,7 @@ exports.handler = async function handler(argv) {
         result.took || '',
         result.message || '',
         result.url,
+        result.reports.join(', '),
       ]);
     return console.log(table([header, ...lines]));
   }

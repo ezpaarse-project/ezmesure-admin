@@ -7,11 +7,11 @@ inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 inquirer.registerPrompt('autocomplete', autocomplete);
 inquirer.registerPrompt('table', tableprompt);
 
-const { createRole, getRoles } = require('../../../lib/roles');
+const { updateRole, getRoles } = require('../../../lib/roles');
 const { getSpaces } = require('../../../lib/spaces');
 const { findObjects } = require('../../../lib/objects');
 
-const createRoleMenu = async () => {
+const createRoleMenu = async (dataRole) => {
   const indices = [];
   try {
     const { data } = await findObjects('index-pattern');
@@ -170,8 +170,8 @@ const createRoleMenu = async () => {
   };
 };
 
-exports.command = 'add <role>';
-exports.desc = 'Create new role';
+exports.command = 'edit [role]';
+exports.desc = 'Edit role';
 exports.builder = function builder(yargs) {
   return yargs.positional('role', {
     describe: 'Role name, case sensitive',
@@ -181,24 +181,25 @@ exports.builder = function builder(yargs) {
 exports.handler = async function handler(argv) {
   const { role: roleName } = argv;
 
+  let dataRole;
   try {
-    await getRoles(roleName);
-    console.log(`role [${roleName}] already exists`);
-    process.exit(0);
+    const { body } = await getRoles(roleName);
+    if (body) { dataRole = body[roleName]; }
   } catch (error) {
-    console.log(`role [${roleName}] can be create`);
+    console.log(`role [${roleName}] does not exists`);
+    process.exit(0);
   }
 
   let result;
   try {
-    result = await createRoleMenu();
+    result = await createRoleMenu(dataRole);
   } catch (error) {
     console.error(error);
     process.exit(1);
   }
 
   if (!result) {
-    console.error('An error occured to create role');
+    console.error('An error occured to edit role');
     process.exit(1);
   }
 
@@ -244,7 +245,7 @@ exports.handler = async function handler(argv) {
 
   let response;
   try {
-    const { body } = await createRole(roleName, data);
+    const { body } = await updateRole(roleName, data);
     response = body;
   } catch (error) {
     console.error(error);
@@ -252,12 +253,12 @@ exports.handler = async function handler(argv) {
   }
 
   if (response && response.role) {
-    if (response.role.created) {
-      console.log(`role [${roleName}] created succefully`);
+    if (!response.role.created) {
+      console.log(`role [${roleName}] updated succefully`);
       process.exit(0);
     }
 
-    console.error(`role [${roleName}] creation failed`);
+    console.error(`role [${roleName}] update failed`);
     process.exit(1);
   }
 };
