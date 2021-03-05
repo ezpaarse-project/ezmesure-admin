@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs-extra');
+const { format } = require('date-fns');
 
 const get = require('lodash.get');
 
@@ -9,7 +10,8 @@ const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 
 const { getInstitutions } = require('../../../lib/institutions');
-const { getSushi } = require('../../../lib/sushi');
+const { findAll } = require('../../../lib/sushi');
+const { getRoles } = require('../../../lib/roles');
 
 exports.command = 'export [institutions...]';
 exports.desc = 'Export institution(s)';
@@ -42,7 +44,10 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  institutions = institutions.map(({ _source }) => _source.institution);
+  institutions = institutions.map(({ _id, _source }) => ({
+    _id,
+    ..._source.institution,
+  }));
 
   if (argv.institutions.length) {
     institutions = institutions
@@ -87,28 +92,40 @@ exports.handler = async function handler(argv) {
 
   for (let i = 0; i < institutions.length; i += 1) {
     try {
-      const { data } = await getSushi(institutions[i].id);
-      institutions[i].sushi = data;
+      const { body } = await findAll(institutions[i].id);
+      const sushiData = get(body, 'hits.hits');
+      if (sushiData) {
+        institutions[i].sushi = sushiData.map(({ _id, _source }) => ({
+          _id,
+          ..._source.sushi,
+        }));
+      }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
-  }
 
-  if (argv.output) {
-    for (let i = 0; i < institutions.length; i += 1) {
-      const fileName = `export_${institutions[i].name.toLowerCase()}_${new Date().toISOString()}`;
+    try {
+      const { body } = await getRoles(institutions[i].role);
+      institutions[i].role = {
+        name: institutions[i].role,
+        data: body[institutions[i].role],
+      };
+    } catch (error) {
+      console.error(error);
+    }
+
+    if (argv.output) {
+      const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
+      const fileName = `export_${institutions[i].name.toLowerCase()}_${currentDate}`;
       try {
         await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), institutions[i], { spaces: 2 });
       } catch (error) {
         console.log(error);
-        process.exit(1);
       }
     }
-    process.exit(0);
-  }
 
-  if (!argv.output) {
-    console.log(institutions);
-    process.exit(0);
+    if (!argv.output) {
+      console.log(institutions);
+    }
   }
 };

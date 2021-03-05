@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { importInstitution } = require('../../../lib/institutions');
+const { createRole, getRoles } = require('../../../lib/roles');
 
 exports.command = 'import';
 exports.desc = 'Import institution(s)';
@@ -57,6 +58,7 @@ exports.handler = async function handler(argv) {
 
   for (let i = 0; i < institutions.length; i += 1) {
     const {
+      _id,
       id,
       name,
       auto,
@@ -77,7 +79,7 @@ exports.handler = async function handler(argv) {
     } = institutions[i];
 
     const institutionDoc = {
-      id: `${id}`,
+      _id: `${_id}`,
       type: 'institution',
       doc: {
         id,
@@ -91,7 +93,7 @@ exports.handler = async function handler(argv) {
         creator,
         validated,
         indexCount,
-        role,
+        role: role.name,
         indexPrefix,
         docContactName,
         techContactName,
@@ -101,14 +103,25 @@ exports.handler = async function handler(argv) {
     };
 
     const sushiDocs = institutions[i].sushi.map((sushi) => ({
-      id: `${sushi.id}`,
+      _id: `${sushi._id}`,
       type: 'sushi',
       doc: sushi,
     }));
 
     try {
-      const result = await importInstitution(institutionDoc, sushiDocs);
-      console.log(result);
+      await getRoles(role.name);
+    } catch (error) {
+      try {
+        const result = await createRole(role.name, role.data);
+        console.log(result);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    try {
+      await importInstitution(institutionDoc, sushiDocs);
+      console.log('Successfully imported institution(s).');
     } catch (error) {
       console.error(error);
     }
