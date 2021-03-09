@@ -1,6 +1,6 @@
 const { table } = require('table');
 const chalk = require('chalk');
-const { getSpaces } = require('../../../lib/spaces');
+const spacesLib = require('../../../lib/spaces');
 
 exports.command = 'get <space>';
 exports.desc = 'Display information for one space';
@@ -19,7 +19,7 @@ exports.builder = function builder(yargs) {
 exports.handler = async function handler(argv) {
   let spaces;
   try {
-    const { data } = await getSpaces(argv.space);
+    const { data } = await spacesLib.findById(argv.space);
     // eslint-disable-next-line prefer-destructuring
     spaces = data;
   } catch (error) {

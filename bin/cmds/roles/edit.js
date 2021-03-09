@@ -11,7 +11,7 @@ const { updateRole, getRoles } = require('../../../lib/roles');
 const { getSpaces } = require('../../../lib/spaces');
 const { findObjects } = require('../../../lib/objects');
 
-const createRoleMenu = async (dataRole) => {
+const createRoleMenu = async () => {
   const indices = [];
   try {
     const { data } = await findObjects('index-pattern');
