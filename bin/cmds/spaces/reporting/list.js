@@ -10,6 +10,7 @@ const { table } = require('table');
 
 const spacesLib = require('../../../../lib/spaces');
 const { findBySpace } = require('../../../../lib/reporting');
+const dashboard = require('../../../../lib/dashboard');
 
 exports.command = 'list [space]';
 exports.desc = 'List reporting on space';
@@ -81,13 +82,27 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  const header = ['DashboardId', 'Frequency', 'Emails', 'Print', 'Sent at'];
-  const rows = tasks.map(({ _source }) => ([
-    _source.dashboardId,
-    _source.frequency,
-    _source.emails.join(', '),
-    _source.print,
-    _source.sentAt,
+  tasks = tasks.map(({ _id, _source }) => ({ id: _id, ..._source }));
+
+  for (let i = 0; i < tasks.length; i += 1) {
+    const task = tasks[i];
+    try {
+      const { body } = await dashboard.getById(task.space, task.dashboardId);
+      if (body) {
+        tasks[i].dashboardName = body.dashboard.title;
+      }
+    } catch (error) {
+      console.log(`dashboard [${tasks.space ? `${tasks.space}:` : ''}dashboard:${task.dashboardId}] does not found`);
+    }
+  }
+
+  const header = ['Dashboard', 'Frequency', 'Emails', 'Print', 'Sent at'];
+  const rows = tasks.map(({ dashboardName, frequency, emails, print, sentAt }) => ([
+    dashboardName,
+    frequency,
+    emails.join(', '),
+    print,
+    sentAt,
   ]));
 
   console.log(table([header, ...rows]));
