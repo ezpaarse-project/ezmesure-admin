@@ -109,6 +109,7 @@ exports.handler = async function handler(argv) {
       } catch (error) {
         console.log(error);
       }
+      console.log('Sushi exported successfully');
     }
 
     if (!argv.output) {

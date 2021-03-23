@@ -69,7 +69,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!sushi.length) {
-    console.log('No sush data found.');
+    console.log('No sushi data found.');
     process.exit(1);
   }
 

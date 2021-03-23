@@ -10,7 +10,7 @@ const { table } = require('table');
 
 const spacesLib = require('../../../../lib/spaces');
 const { findBySpace } = require('../../../../lib/reporting');
-const dashboard = require('../../../../lib/dashboard');
+const dashboard = require('../../../../lib/objects/dashboard');
 
 exports.command = 'list [space]';
 exports.desc = 'List reporting on space';
