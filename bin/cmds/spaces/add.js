@@ -1,6 +1,6 @@
 const inquirer = require('inquirer');
 
-const { getRoles } = require('../../../lib/roles');
+const rolesLib = require('../../../lib/roles');
 const spaces = require('../../../lib/spaces');
 const { import: importDashboard, export: exportDashboard } = require('../../../lib/objects/dashboard');
 const { config } = require('../../../lib/app/config');
@@ -93,7 +93,7 @@ exports.handler = async function handler(argv) {
   }
 
   try {
-    await getRoles(space.toLowerCase());
+    await rolesLib.findByName(space.toLowerCase());
   } catch (erorr) {
     console.error(`role [${space.toLowerCase()}] does not exists, create with ezmesure-admin roles add ${space.toLowerCase()}`);
   }

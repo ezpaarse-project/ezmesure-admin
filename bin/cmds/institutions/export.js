@@ -11,7 +11,7 @@ inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 
 const { getInstitutions } = require('../../../lib/institutions');
 const { findAll } = require('../../../lib/sushi');
-const { getRoles } = require('../../../lib/roles');
+const rolesLib = require('../../../lib/roles');
 
 exports.command = 'export [institutions...]';
 exports.desc = 'Export institution(s)';
@@ -105,7 +105,7 @@ exports.handler = async function handler(argv) {
     }
 
     try {
-      const { body } = await getRoles(institutions[i].role);
+      const { body } = await rolesLib.findByName(institutions[i].role);
       institutions[i].role = {
         name: institutions[i].role,
         data: body[institutions[i].role],

@@ -15,7 +15,7 @@ exports.handler = async function handler(argv) {
   let role;
 
   try {
-    const { body } = await rolesLib.getRoles(roleName);
+    const { body } = await rolesLib.findByName(roleName);
     if (body) { role = body; }
   } catch (err) {
     console.error(err);

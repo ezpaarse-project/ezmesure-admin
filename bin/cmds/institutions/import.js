@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { importInstitution } = require('../../../lib/institutions');
-const { createRole, getRoles } = require('../../../lib/roles');
+const rolesLib = require('../../../lib/roles');
 
 exports.command = 'import';
 exports.desc = 'Import institution(s)';
@@ -109,10 +109,10 @@ exports.handler = async function handler(argv) {
     }));
 
     try {
-      await getRoles(role.name);
+      await rolesLib.findByName(role.name);
     } catch (error) {
       try {
-        const result = await createRole(role.name, role.data);
+        const result = await rolesLib.create(role.name, role.data);
         console.log(result);
       } catch (err) {
         console.error(err);

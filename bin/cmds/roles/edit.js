@@ -7,7 +7,7 @@ inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 inquirer.registerPrompt('autocomplete', autocomplete);
 inquirer.registerPrompt('table', tableprompt);
 
-const { updateRole, getRoles } = require('../../../lib/roles');
+const rolesLib = require('../../../lib/roles');
 const { getSpaces } = require('../../../lib/spaces');
 const { findObjects } = require('../../../lib/objects');
 
@@ -183,7 +183,7 @@ exports.handler = async function handler(argv) {
 
   let dataRole;
   try {
-    const { body } = await getRoles(roleName);
+    const { body } = await rolesLib.findByName(roleName);
     if (body) { dataRole = body[roleName]; }
   } catch (error) {
     console.log(`role [${roleName}] does not exists`);
@@ -245,7 +245,7 @@ exports.handler = async function handler(argv) {
 
   let response;
   try {
-    const { body } = await updateRole(roleName, data);
+    const { body } = await rolesLib.update(roleName, data);
     response = body;
   } catch (error) {
     console.error(error);

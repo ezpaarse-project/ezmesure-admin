@@ -1,10 +1,8 @@
 const { table } = require('table');
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
-const autocomplete = require('inquirer-autocomplete-prompt');
 
 inquirer.registerPrompt('checkbox-plus', checkboxPlus);
-inquirer.registerPrompt('autocomplete', autocomplete);
 
 const usersLib = require('../../../lib/users');
 
@@ -27,6 +25,7 @@ exports.handler = async function handler(argv) {
       if (body) { users = body; }
     } catch (error) {
       console.log(error);
+      process.exit(1);
     }
   }
 
@@ -36,11 +35,13 @@ exports.handler = async function handler(argv) {
       if (body) { users = body; }
     } catch (error) {
       console.log(error);
+      process.exit(1);
     }
   }
 
   if (!users) {
     console.log('No users found');
+    process.exit(1);
   }
 
   users = Object.keys(users).map((username) => users[username]);

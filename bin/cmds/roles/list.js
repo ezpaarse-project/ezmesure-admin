@@ -13,7 +13,7 @@ exports.handler = async function handler(argv) {
   let roles;
 
   try {
-    const { body } = await rolesLib.getRoles();
+    const { body } = await rolesLib.findAll();
     if (body) { roles = body; }
   } catch (err) {
     console.error(err);

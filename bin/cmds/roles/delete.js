@@ -14,7 +14,7 @@ exports.handler = async function handler(argv) {
   if (!argv.roles) {
     let roles;
     try {
-      const { body } = await rolesLib.getRoles();
+      const { body } = await rolesLib.findAll();
       if (body) { roles = body; }
     } catch (error) {
       console.error(error);
@@ -48,7 +48,7 @@ exports.handler = async function handler(argv) {
     const role = rolesName[i];
     let response;
     try {
-      const { body } = await rolesLib.deleteRole(role);
+      const { body } = await rolesLib.delete(role);
       if (body) { response = body; }
     } catch (error) {
       if (error?.meta?.body?.error?.reason) {
