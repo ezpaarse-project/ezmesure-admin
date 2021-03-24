@@ -2,7 +2,7 @@ const inquirer = require('inquirer');
 
 const rolesLib = require('../../../lib/roles');
 const spaces = require('../../../lib/spaces');
-const { import: importDashboard, export: exportDashboard } = require('../../../lib/objects/dashboard');
+const { import: importDashboard, export: exportDashboard } = require('../../../lib/dashboard');
 const { config } = require('../../../lib/app/config');
 
 exports.command = 'add <space>';

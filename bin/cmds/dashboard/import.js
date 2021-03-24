@@ -11,7 +11,7 @@ inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 inquirer.registerPrompt('autocomplete', autocomplete);
 
 const spacesLib = require('../../../lib/spaces');
-const dashboardLib = require('../../../lib/objects/dashboard');
+const dashboardLib = require('../../../lib/dashboard');
 
 exports.command = 'import [space]';
 exports.desc = 'Import dashboard(s)';

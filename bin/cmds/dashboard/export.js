@@ -12,7 +12,7 @@ inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 inquirer.registerPrompt('autocomplete', autocomplete);
 
 const { findAll, findById } = require('../../../lib/spaces');
-const { findBySpace, exportOne } = require('../../../lib/objects/dashboard');
+const { findBySpace, exportOne } = require('../../../lib/dashboard');
 
 exports.command = 'export [space]';
 exports.desc = 'Export sushi data';
