@@ -7,7 +7,7 @@ const { config } = require('../../../lib/app/config');
 
 exports.command = 'add <space>';
 exports.desc = 'Create new space';
-exports.builder = function space(yargs) {
+exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
     describe: 'space name, case sensitive',
     type: 'string',

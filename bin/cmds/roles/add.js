@@ -1,3 +1,5 @@
+const get = require('lodash.get');
+
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 const autocomplete = require('inquirer-autocomplete-prompt');
@@ -8,18 +10,19 @@ inquirer.registerPrompt('autocomplete', autocomplete);
 inquirer.registerPrompt('table', tableprompt);
 
 const rolesLib = require('../../../lib/roles');
-const { getSpaces } = require('../../../lib/spaces');
-const { findObjects } = require('../../../lib/objects');
+const spacesLib = require('../../../lib/spaces');
+const indexPatternLib = require('../../../lib/indexPattern');
 
 const createRoleMenu = async () => {
-  const indices = [];
+  let indices = [];
   try {
-    const { data } = await findObjects('index-pattern');
-    data.saved_objects.forEach((object) => {
-      if (object) {
-        indices.push(object.attributes.title);
+    const { body } = await indexPatternLib.findAll();
+    if (body) {
+      const indexPatterns = get(body, 'hits.hits');
+      if (indexPatterns.length) {
+        indices = indexPatterns.map(({ _source }) => _source['index-pattern'].title);
       }
-    });
+    }
   } catch (error) {
     console.log(error);
     process.exit(1);
@@ -27,7 +30,7 @@ const createRoleMenu = async () => {
 
   let spaces;
   try {
-    const { data } = await getSpaces();
+    const { data } = await spacesLib.findAll();
     spaces = data.map(({ id }) => id);
   } catch (error) {
     console.error(error);
