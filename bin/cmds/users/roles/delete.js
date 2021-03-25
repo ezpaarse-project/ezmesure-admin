@@ -7,8 +7,6 @@ inquirer.registerPrompt('autocomplete', autocomplete);
 
 const usersLib = require('../../../../lib/users');
 const rolesLib = require('../../../../lib/roles');
-const { use } = require('chai');
-const { Logform } = require('winston');
 
 exports.command = 'delete [user]';
 exports.desc = 'Delete role';
@@ -24,7 +22,7 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   let users;
-  let user = argv.user;
+  let { user } = argv;
 
   if (argv.user) {
     try {

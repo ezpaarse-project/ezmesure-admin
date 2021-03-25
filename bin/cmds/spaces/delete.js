@@ -7,7 +7,7 @@ const spacesLib = require('../../../lib/spaces');
 
 exports.command = 'delete [spaces..]';
 exports.desc = 'Delete space (s)';
-exports.builder = function space(yargs) {
+exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
     describe: 'space name, case sensitive',
     type: 'string',
