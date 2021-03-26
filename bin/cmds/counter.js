@@ -283,18 +283,42 @@ exports.handler = async function handler(argv) {
   progressBar.stop();
 
   const header = ['File', 'Index', 'Package', 'Took (ms)', 'Inserted', 'Updated', 'Deleted', 'Errors', 'Total'];
-  const rows = processResults.map((result) => ([
-    path.basename(result.file),
-    result.publisherIndex,
-    result.packageName,
-    result.took,
-    result.inserted,
-    result.updated,
-    result.deleted,
-    result.errors,
-    result.total,
-  ]));
+  const rows = [];
+
+  const metrics = {
+    inserted: 0,
+    updated: 0,
+    deleted: 0,
+    errors: 0,
+    all: 0,
+  };
+
+  processResults.forEach((result) => {
+    metrics.inserted += result.inserted;
+    metrics.updated += result.updated;
+    metrics.deleted += result.deleted;
+    metrics.errors += result.errors;
+    metrics.all += result.total;
+
+    rows.push([
+      path.basename(result.file),
+      result.publisherIndex,
+      result.packageName,
+      result.took,
+      result.inserted,
+      result.updated,
+      result.deleted,
+      result.errors,
+      result.total,
+    ]);
+  });
 
   console.log(table([header, ...rows]));
-  console.log(`${chalk.bold(processResults.length)} / ${chalk.bold(files.length)} processed`);
+  console.log(`${chalk.bold(processResults.length)} / ${chalk.bold(files.length)} files processed`);
+  console.log('Metrics :');
+  console.log(`  - Inserted: ${metrics.inserted}`);
+  console.log(`  - Updated: ${metrics.updated}`);
+  console.log(`  - Deleted: ${metrics.deleted}`);
+  console.log(`  - Errors: ${metrics.errors}`);
+  console.log(`  - Total: ${metrics.total}`);
 };
