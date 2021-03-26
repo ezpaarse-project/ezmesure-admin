@@ -2,12 +2,13 @@ const fs = require('fs-extra');
 const path = require('path');
 const papaparse = require('papaparse');
 const chalk = require('chalk');
-const { table } = require('table');
 const { compareDesc, getYear, format } = require('date-fns');
 const { v5: uuid5 } = require('uuid');
+const { table } = require('table');
+const cliProgress = require('cli-progress');
 const counterLib = require('../../lib/counter');
 
-exports.command = 'counter4 <file>';
+exports.command = 'counter4 <files...>';
 exports.desc = 'output an expanded JSON file or load a COUNTER 4 JR1 file into ezMESURE / KIBANA (bulk)';
 exports.builder = function builder(yargs) {
   return yargs
@@ -74,35 +75,44 @@ function checkJR1({
     return Promise.reject(new Error(`Incorrect JR1 date (${startDate}, ${endDate})`));
   }
 
-  if (compareDesc(new Date(startDate), new Date(endDate)) !== 1) {
+  if (compareDesc(new Date(startDate), new Date(endDate)) === -1) {
     return Promise.reject(new Error(`Incorrect JR1 date (${startDate}, ${endDate})`));
   }
 
   return Promise.resolve();
 }
 
-const process4 = async function process4(results, argv, file) {
+async function process4(results, argv, file) {
   const packageName = argv.package;
   const publisherIndex = argv.depositor ? `${argv.depositor}-publisher` : 'publisher';
 
   if (results.errors.length) {
+    const errors = [];
     for (let i = 0; i < results.errors.length; i += 1) {
       const error = results.errors[i];
-      console.error(`[Error#${error.code}]: ${error.message} (${error.row}, ${error.index})`);
+      errors.push(`[Error#${error.code}]: ${error.message} (${error.row}, ${error.index})`);
     }
-    process.exit(1);
+    return Promise.reject(new Error(JSON.stringify(errors)));
   }
 
   const JR1Header = results.data.slice(0, 9);
   if (!JR1Header.length) {
-    console.error('Header does not found');
-    process.exit(1);
+    return Promise.reject(new Error('Header does not found'));
   }
 
   const [
     [type, title], [customer], [identifier], , [date], , [runDate], headers, total,
   ] = JR1Header;
-  const [, startDate, endDate] = /^([0-9-]+)\sto\s([0-9-]+)$/i.exec(trimQuotes(date));
+  let [, startDate, endDate] = /^([0-9-]+)\sto\s([0-9-]+)$/i.exec(trimQuotes(date));
+
+  const startDateIsInvalid = /^([0-9]{6})$/i.test(startDate);
+  if (startDateIsInvalid) {
+    startDate = `${startDate.substring(0, 4)}-${startDate.substring(4)}-01`;
+  }
+  const endDateIsInvalid = /^([0-9]{6})$/i.test(endDate);
+  if (endDateIsInvalid) {
+    endDate = `${endDate.substring(0, 4)}-${endDate.substring(4)}-01`;
+  }
 
   const counterJR1 = {
     info: {
@@ -125,21 +135,21 @@ const process4 = async function process4(results, argv, file) {
     await checkJR1(counterJR1.info);
   } catch (error) {
     console.log(error.message);
-    process.exit(1);
+    return Promise.reject(error);
   }
 
-  const months = counterJR1.rows.headers.slice(counterJR1.rows.headers.indexOf('Jan'));
-
-  console.log(table([
-    ['File', 'Exported months', 'Package'],
-    [file, chalk.bold(months.join(', ')), chalk.bold(packageName)],
-  ]));
+  let months = counterJR1.rows.headers.slice(10);
+  if (months[0].length === 0) {
+    months = counterJR1.rows.total.slice(10);
+    counterJR1.rows.headers = counterJR1.rows.total;
+    counterJR1.rows.data = results.data.slice(10).map((row) => row.map(trimQuotes));
+  }
 
   const flatReport = [];
 
   counterJR1.rows.data.forEach((data) => {
     for (let i = 0; i < months.length; i += 1) {
-      const elements = counterJR1.rows.headers.slice(0, 8)
+      const element = counterJR1.rows.headers.slice(0, 8)
         .map((header, index) => ({
           key: header,
           value: data[index],
@@ -161,7 +171,7 @@ const process4 = async function process4(results, argv, file) {
         identifier: counterJR1.info.identifier,
         FTADate,
         FTACount: Number.parseInt(counts[i], 10),
-        ...elements,
+        ...element,
       };
 
       flatReport.push({
@@ -172,8 +182,7 @@ const process4 = async function process4(results, argv, file) {
   });
 
   if (!flatReport.length) {
-    console.log('No reports available');
-    process.exit(0);
+    return Promise.reject(new Error('No reports available'));
   }
 
   const basename = path.basename(file, path.extname(file));
@@ -192,57 +201,100 @@ const process4 = async function process4(results, argv, file) {
   }
 
   if (argv.bulk) {
-    const response = await counterLib.bulkInsertIndex(publisherIndex, flatReport);
-    if (response) {
-      console.log(table([
-        ['Took', 'Inserted', 'Updated', 'Deleted', 'Errors'],
-        [
-          response.took,
-          response.inserted,
-          response.updated,
-          response.deleted,
-          response.errors,
-        ],
-      ]));
-      process.exit(1);
-    }
-    console.log('No insertions/updates');
+    return counterLib.bulkInsertIndex(publisherIndex, flatReport, packageName);
   }
-};
+
+  return Promise.resolve();
+}
 
 exports.handler = async function handler(argv) {
-  const { file } = argv;
+  const { files } = argv;
 
-  const filePath = path.resolve(file);
+  const progressBar = new cliProgress.SingleBar({
+    format: '{bar} {percentage}% | {value}/{total} Files | File : {file}',
+    barCompleteChar: '\u2588',
+    barIncompleteChar: '\u2591',
+    hideCursor: true,
+  });
+  progressBar.start(files.length, 0, { file: 'N/A' });
 
-  if (path.extname(filePath) !== '.csv') {
-    console.error('Please specify a CSV file');
-    process.exit(1);
-  }
+  const filesContent = [];
 
-  try {
-    await fs.stat(filePath);
-  } catch (error) {
-    if (error.code && error.code === 'ENOENT') {
-      console.log(`${file} does not exists`);
-      process.exit(1);
+  for (let i = 0; i < files.length; i += 1) {
+    const file = files[i];
+
+    const filePath = path.resolve(file);
+
+    let isCSV = true;
+
+    if (path.extname(filePath) !== '.csv') {
+      console.error(`${file} is not a CSV file`);
+      isCSV = false;
     }
 
-    console.log(error);
-    process.exit(1);
+    if (isCSV) {
+      let fileExists = true;
+
+      try {
+        await fs.stat(filePath);
+      } catch (error) {
+        if (error.code && error.code === 'ENOENT') {
+          console.log(`${file} does not exists`);
+          fileExists = false;
+        }
+
+        console.log(error);
+        fileExists = false;
+      }
+
+      if (fileExists) {
+        try {
+          const readStream = await fs.createReadStream(filePath);
+          const result = new Promise((resolve) => {
+            papaparse.parse(readStream, {
+              complete(results) {
+                return resolve({ file, results });
+              },
+            });
+          });
+          filesContent.push(await result);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
   }
 
-  let readStream;
-  try {
-    readStream = await fs.createReadStream(filePath);
-  } catch (error) {
-    console.log(error);
-    process.exit(1);
+  const processResults = [];
+  for (let i = 0; i < filesContent.length; i += 1) {
+    const fileContent = filesContent[i];
+    try {
+      const res = await process4(fileContent.results, argv, fileContent.file);
+      processResults.push({
+        file: fileContent.file,
+        ...res,
+      });
+      progressBar.update(i + 1, { file: path.basename(fileContent.file) });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  papaparse.parse(readStream, {
-    complete(results) {
-      process4(results, argv, file);
-    },
-  });
+  progressBar.stop();
+
+  const header = ['File', 'Index', 'Package', 'Took (ms)', 'Inserted', 'Updated', 'Deleted', 'Errors', 'Total'];
+  const rows = processResults.map((result) => ([
+    path.basename(result.file),
+    result.publisherIndex,
+    result.packageName,
+    result.took,
+    result.inserted,
+    result.updated,
+    result.deleted,
+    result.errors,
+    result.total,
+  ]));
+
+  console.log(table([header, ...rows]));
+  console.log(`${chalk.bold(processResults.length)} / ${chalk.bold(files.length)} processed`);
 };
