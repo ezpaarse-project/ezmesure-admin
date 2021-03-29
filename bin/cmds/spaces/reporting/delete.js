@@ -87,7 +87,7 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < tasks.length; i += 1) {
     const task = tasks[i];
     try {
-      const { body } = await dashboard.getById(task.space, task.dashboardId);
+      const { body } = await dashboard.findById(task.space, task.dashboardId);
       if (body) {
         tasks[i].dashboardName = body.dashboard.title;
       }

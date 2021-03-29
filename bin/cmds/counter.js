@@ -291,6 +291,7 @@ exports.handler = async function handler(argv) {
     deleted: 0,
     errors: 0,
     all: 0,
+    total: 0,
   };
 
   processResults.forEach((result) => {
@@ -298,7 +299,7 @@ exports.handler = async function handler(argv) {
     metrics.updated += result.updated;
     metrics.deleted += result.deleted;
     metrics.errors += result.errors;
-    metrics.all += result.total;
+    metrics.total += result.total;
 
     rows.push([
       path.basename(result.file),
