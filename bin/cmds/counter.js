@@ -149,7 +149,7 @@ async function process4(results, argv, file) {
 
   counterJR1.rows.data.forEach((data) => {
     for (let i = 0; i < months.length; i += 1) {
-      const element = counterJR1.rows.headers.slice(0, 8)
+      const element = counterJR1.rows.headers.slice(0, 10)
         .map((header, index) => ({
           key: header,
           value: data[index],
@@ -163,7 +163,7 @@ async function process4(results, argv, file) {
         FTADate = `${format(new Date(months[i]), 'yyyy-MM-dd')}T00:00:00.000Z`;
       }
 
-      const counts = data.slice(9);
+      const counts = data.slice(10);
 
       const doc = {
         JR1package: packageName,
