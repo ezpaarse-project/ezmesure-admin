@@ -15,7 +15,7 @@ const { findAll } = require('../../../lib/sushi');
 exports.command = 'export [institutions...]';
 exports.desc = 'Export sushi data';
 exports.builder = function builder(yargs) {
-  return yargs.positional('institution', {
+  return yargs.positional('institutions', {
     describe: 'Institution name, case sensitive',
     type: 'string',
   }).option('o', {
@@ -45,7 +45,7 @@ exports.handler = async function handler(argv) {
 
   institutions = institutions.map(({ _source }) => _source.institution);
 
-  if (argv.institutions.length) {
+  if (argv.institutions && argv.institutions.length) {
     institutions = institutions
       .filter((institution) => argv.institutions.includes(institution.name));
 
@@ -101,19 +101,25 @@ exports.handler = async function handler(argv) {
       console.error(error);
     }
 
-    if (argv.output) {
-      const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
-      const fileName = `export_sushi_${institutions[i].name.toLowerCase()}_${currentDate}`;
-      try {
-        await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), sushi, { spaces: 2 });
-      } catch (error) {
-        console.log(error);
-      }
-      console.log('Sushi exported successfully');
+    if (!sushi.length) {
+      console.log(`There are no sushi credentials for this institution (${institutions[i].name})`);
     }
 
-    if (!argv.output) {
-      console.log(institutions);
+    if (sushi.length) {
+      if (argv.output) {
+        const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
+        const fileName = `export_sushi_${institutions[i].name.toLowerCase()}_${currentDate}`;
+        try {
+          await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), sushi, { spaces: 2 });
+        } catch (error) {
+          console.log(error);
+        }
+        console.log('Sushi exported successfully');
+      }
+
+      if (!argv.output) {
+        console.log(institutions);
+      }
     }
   }
 };
