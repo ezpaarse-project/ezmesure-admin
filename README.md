@@ -38,4 +38,14 @@ $ ezmesure-admin --help
 | [users](/doc/users.md) | Manager ezMESURE/Kibana users |
 ## License
 
+## Development
+
+```bash
+$ git clone https://github.com/ezpaarse-project/ezmesure-admin.git
+$ cd ezmesure-admin
+$ npm install
+```
+
+To use the command in development mode simply use it as follows: ``./ezmesure-admin <command>``
+
 MIT.
