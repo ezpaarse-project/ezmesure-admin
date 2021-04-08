@@ -22,6 +22,10 @@ exports.builder = function builder(yargs) {
   }).option('o', {
     alias: 'output',
     describe: 'Output type : json or csv',
+  }).option('a', {
+    type: 'boolean',
+    alias: 'all',
+    describe: 'Export all sushi data for all institutions',
   }).option('d', {
     alias: 'destination',
     describe: 'Destination path',
@@ -62,7 +66,7 @@ exports.handler = async function handler(argv) {
   }
 
   let institutionsId = [];
-  if (!argv.institutions.length) {
+  if (!argv.institutions.length && !argv.all) {
     const { ids } = await inquirer.prompt([
       {
         type: 'checkbox-plus',
