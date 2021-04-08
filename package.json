@@ -3,15 +3,14 @@
   "version": "1.0.0",
   "description": "Command line utilities to manage ezMESURE",
   "bin": {
-    "ezmesure-admin": "./bin/ezmesure-admin",
-    "ezadmin": "./bin/ezmesure-admin"
+    "ezmesure-admin": "./ezmesure-admin",
+    "ezadmin": "./ezmesure-admin"
   },
   "main": "index.js",
   "scripts": {
     "test": "mocha test",
     "lint": "eslint --ext .js .",
     "precommit": "npm run lint",
-    "doc": "cli-docs-generator --cli=./bin/ezmesure-admin --pretty_cli_name=ezmesure-admin"
   },
   "author": "ezTEAM",
   "license": "ISC",
@@ -40,7 +39,6 @@
     "yargs": "^16.2.0"
   },
   "devDependencies": {
-    "cli-docs-generator": "^1.0.3",
     "eslint": "^7.19.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.22.1",

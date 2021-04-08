@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 const yargs = require('yargs');
-const config = require('../lib/app/config');
+const config = require('./lib/app/config');
 
 config.loadEnv(process.argv);
 
-yargs.commandDir('cmds')
+yargs.commandDir('bin/cmds')
   .option('t', {
     alias: 'timeout',
     describe: 'Request timeout in milliseconds',
