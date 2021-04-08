@@ -1,5 +1,11 @@
 # ezmesure-admin
 
+## Prerequisite
+
+- git >= 2.27.0
+- NodeJS >= 14.15.0
+- npm >= 6.14.8
+
 ## Install
 
 ```sh
