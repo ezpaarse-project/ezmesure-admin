@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs-extra');
+const Papa = require('papaparse');
 const { format } = require('date-fns');
 
 const get = require('lodash.get');
@@ -10,7 +11,7 @@ const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 
 const { getInstitutions } = require('../../../lib/institutions');
-const { findAll } = require('../../../lib/sushi');
+const { getSushi } = require('../../../lib/sushi');
 
 exports.command = 'export [institutions...]';
 exports.desc = 'Export sushi data';
@@ -20,7 +21,10 @@ exports.builder = function builder(yargs) {
     type: 'string',
   }).option('o', {
     alias: 'output',
-    describe: 'Output path',
+    describe: 'Output type : json or csv',
+  }).option('d', {
+    alias: 'destination',
+    describe: 'Destination path',
   });
 };
 exports.handler = async function handler(argv) {
@@ -28,6 +32,8 @@ exports.handler = async function handler(argv) {
 
   if (argv.timeout) { options.timeout = argv.timeout; }
   if (argv.token) { options.token = argv.token; }
+
+  const output = argv.output || 'json';
 
   let institutions;
   try {
@@ -90,13 +96,8 @@ exports.handler = async function handler(argv) {
     let sushi = [];
 
     try {
-      const { body } = await findAll(institutions[i].id);
-      const sushiData = get(body, 'hits.hits');
-
-      sushi = sushiData.map(({ _id, _source }) => ({
-        _id,
-        ..._source.sushi,
-      }));
+      const { data } = await getSushi(institutions[i].id);
+      sushi = data;
     } catch (error) {
       console.error(error);
     }
@@ -106,19 +107,73 @@ exports.handler = async function handler(argv) {
     }
 
     if (sushi.length) {
-      if (argv.output) {
-        const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
-        const fileName = `export_sushi_${institutions[i].name.toLowerCase()}_${currentDate}`;
-        try {
-          await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), sushi, { spaces: 2 });
-        } catch (error) {
-          console.log(error);
+      const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
+      const fileName = `export_sushi_${institutions[i].name.toLowerCase()}_${currentDate}`;
+
+      if (output && output.toLowerCase() === 'json') {
+        if (argv.destination) {
+          const filePath = path.resolve(argv.destination, `${fileName}.json`);
+          try {
+            await fs.writeJson(filePath, sushi, { spaces: 2 });
+          } catch (error) {
+            console.log(error);
+          }
+          console.log(`Sushi exported successfully, ${filePath}`);
         }
-        console.log('Sushi exported successfully');
+
+        if (!argv.destination) {
+          console.log(JSON.stringify(sushi, null, 2));
+        }
       }
 
-      if (!argv.output) {
-        console.log(institutions);
+      if (output && output.toLowerCase() === 'csv') {
+        const fields = ['id', 'vendor', 'sushiUrl', 'requestorId', 'customerId', 'apiKey', 'comment', 'params', 'package', 'insitutionId', 'updatedAt', 'createdAt'];
+        const data = [];
+        sushi.forEach(({
+          id,
+          vendor,
+          sushiUrl,
+          requestorId,
+          customerId,
+          apiKey,
+          comment,
+          params,
+          package: pkg,
+          insitutionId,
+          updatedAt,
+          createdAt,
+        }) => {
+          data.push([
+            id,
+            vendor,
+            sushiUrl,
+            requestorId,
+            customerId,
+            apiKey,
+            comment,
+            params.join(' '),
+            pkg,
+            insitutionId,
+            updatedAt,
+            createdAt,
+          ]);
+        });
+        const csv = Papa.unparse({ fields, data });
+
+        if (argv.destination) {
+          const filePath = path.resolve(argv.destination, `${fileName}.csv`);
+          try {
+            await fs.writeFile(filePath, csv);
+          } catch (error) {
+            console.log(error);
+            process.exit(1);
+          }
+          console.log(`Sushi exported successfully, ${filePath}`);
+        }
+
+        if (!argv.destination) {
+          console.log(csv);
+        }
       }
     }
   }
