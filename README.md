@@ -24,16 +24,18 @@ $ ezmesure-admin --help
 
 ## Commands
 
-- [cluster](/doc/cluster.md)
-- [config](/doc/config.md)
-- [counter](/doc/counter.md) (deprecated)
-- [dashboard](/doc/dashboard.md)
-- [institutions](/doc/institutions.md)
-- [reporting](/doc/reporting.md)
-- [roles](/doc/roles.md)
-- [spaces](/doc/spaces.md)
-- [sushi](/doc/sushi.md)
-- [users](/doc/users.md)
+| Name | Description |
+| --- | --- |
+| [cluster](/doc/cluster.md) | Manage cluster |
+| [config](/doc/config.md) | Manageezmesure-admin config |
+| [counter](/doc/counter.md) (deprecated) | Load counter4 files in Kibana | 
+| [dashboard](/doc/dashboard.md) | Manage Kibana dashboards |
+| [institutions](/doc/institutions.md) | Manage ezMESURE institutions |
+| [reporting](/doc/reporting.md) | Manage ezMESURE reporting |
+| [roles](/doc/roles.md) | Manage Kibana roles |
+| [spaces](/doc/spaces.md) | Manage Kibana spaces |
+| [sushi](/doc/sushi.md) | Manage ezMESURE sushi |
+| [users](/doc/users.md) | Manager ezMESURE/Kibana users |
 ## License
 
 MIT.
