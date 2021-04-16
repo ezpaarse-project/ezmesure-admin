@@ -12,7 +12,8 @@ exports.builder = function builder(yargs) {
     boolean: true,
   }).option('interactive', {
     alias: 'i',
-    describe: '',
+    describe: 'Intractive mode',
+    boolean: true,
   }).option('editor', {
     alias: 'e',
     describe: 'The editor command to use. Defaults to EDITOR environment variable if set, or "vi" on Posix, or "notepad" on Windows',
