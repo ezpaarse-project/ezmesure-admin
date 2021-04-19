@@ -119,6 +119,7 @@ exports.handler = async function handler(argv) {
       const fileName = `export_${institutions[i].name.toLowerCase()}_${currentDate}`;
       try {
         await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), institutions[i], { spaces: 2 });
+        console.log(`institution [${institutions[i].name.toLowerCase()}] exported successfully`);
       } catch (error) {
         console.log(error);
       }
