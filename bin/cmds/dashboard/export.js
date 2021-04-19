@@ -15,7 +15,7 @@ const { findAll, findById } = require('../../../lib/spaces');
 const { findBySpace, exportOne } = require('../../../lib/dashboard');
 
 exports.command = 'export [space]';
-exports.desc = 'Export sushi data';
+exports.desc = 'Export dashboard';
 exports.builder = function builder(yargs) {
   return yargs.positional('space', {
     describe: 'Space name, case sensitive',
@@ -96,7 +96,7 @@ exports.handler = async function handler(argv) {
         pageSize: 20,
         searchable: true,
         highlight: true,
-        message: 'Dashboard :',
+        message: 'Dashboard (space to select, enter to valid) :',
         source: (answersSoFar, input) => new Promise((resolve) => {
           const result = dashboards
             .map(({ _id, _source }) => ({ name: _source.dashboard.title, value: _id }))
@@ -116,10 +116,13 @@ exports.handler = async function handler(argv) {
   }
 
   for (let i = 0; i < dashboards.length; i += 1) {
-    const dashboardId = dashboards[i]._id.split(':')[2];
+    let [, dashboardId] = dashboards[i]._id.split(':');
+    if (spaceId !== 'default') {
+      [,, dashboardId] = dashboards[i]._id.split(':');
+    }
     let dashboardData;
     try {
-      const { data } = await exportOne(dashboardId, argv.space);
+      const { data } = await exportOne(dashboardId, spaceId === 'default' ? null : spaceId);
       if (data) { dashboardData = data; }
     } catch (error) {
       console.log(`dashboard [${dashboards[i]._id}] not found`);
