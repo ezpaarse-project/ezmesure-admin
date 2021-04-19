@@ -42,7 +42,6 @@ $ ezmesure-admin --help
 | [spaces](/doc/spaces.md) | Manage Kibana spaces |
 | [sushi](/doc/sushi.md) | Manage ezMESURE sushi |
 | [users](/doc/users.md) | Manager ezMESURE/Kibana users |
-## License
 
 ## Development
 
@@ -53,5 +52,7 @@ $ npm install
 ```
 
 To use the command in development mode simply use it as follows: ``./ezmesure-admin <command>``
+
+## License
 
 MIT.
