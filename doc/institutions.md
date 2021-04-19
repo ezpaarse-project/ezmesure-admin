@@ -33,9 +33,9 @@ $ ezmesure-admin institutions get MyInstitution # with insitution(s) name
 ╔══════════════════╤═══════════╤═════════════════════════════════╤═════════╤═══════════╤═══════════╤════════════════╤════════════════╤═════════════════════╗
 ║ Name             │ City      │ Website                         │ Domains │ Auto      │ Validate  │ Index prefix   │ Role           │ Contact             ║
 ╟──────────────────┼───────────┼─────────────────────────────────┼─────────┼───────────┼───────────┼────────────────┼────────────────┼─────────────────────╢
-║ MyInstitution 1  │ Paris     │ https://www.my-institution.fr/  │         │ <span color="green">ezPAARSE</span>  │ <span color="green">Validated</span> │ my_institution │ my_institution │ Doc : DOC Contact   ║
-║                  │           │                                 │         │ <span color="green">ezMESURE</span>  │           │                │                │ Tech : TECH Contact ║
-║                  │           │                                 │         │ <span color="red">Reporting</span> │           │                │                │                     ║
+║ MyInstitution 1  │ Paris     │ https://www.my-institution.fr/  │         │ ezPAARSE  │ Validated │ my_institution │ my_institution │ Doc : DOC Contact   ║
+║                  │           │                                 │         │ ezMESURE  │           │                │                │ Tech : TECH Contact ║
+║                  │           │                                 │         │ Reporting │           │                │                │                     ║
 ╚══════════════════╧═══════════╧═════════════════════════════════╧═════════╧═══════════╧═══════════╧════════════════╧════════════════╧═════════════════════╝
 ```
 
@@ -51,8 +51,8 @@ $ ezmesure-admin institutions get
 ╔══════════════════╤═══════════╤═════════════════════════════════╤═════════╤═══════════╤═══════════╤════════════════╤════════════════╤═════════════════════╗
 ║ Name             │ City      │ Website                         │ Domains │ Auto      │ Validate  │ Index prefix   │ Role           │ Contact             ║
 ╟──────────────────┼───────────┼─────────────────────────────────┼─────────┼───────────┼───────────┼────────────────┼────────────────┼─────────────────────╢
-║ MyInstitution 1  │ Paris     │ https://www.my-institution.fr/  │         │ <span color="green">ezPAARSE</span>  │ <span color="green">Validated</span> │ my_institution │ my_institution │ Doc : DOC Contact   ║
-║                  │           │                                 │         │ <span color="green">ezMESURE</span>  │           │                │                │ Tech : TECH Contact ║
-║                  │           │                                 │         │ <span color="red">Reporting</span> │           │                │                │                     ║
+║ MyInstitution 1  │ Paris     │ https://www.my-institution.fr/  │         │ ezPAARSE  │ Validated │ my_institution │ my_institution │ Doc : DOC Contact   ║
+║                  │           │                                 │         │ ezMESURE  │           │                │                │ Tech : TECH Contact ║
+║                  │           │                                 │         │ Reporting │           │                │                │                     ║
 ╚══════════════════╧═══════════╧═════════════════════════════════╧═════════╧═══════════╧═══════════╧════════════════╧════════════════╧═════════════════════╝
 ```
