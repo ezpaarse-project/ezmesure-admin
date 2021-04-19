@@ -102,6 +102,7 @@ exports.handler = async function handler(argv) {
     if (argv.output) {
       try {
         await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), report, { spaces: 2 });
+        console.log(`Data exported successfully at ${path.resolve(argv.output, `${fileName}.json`)}`);
       } catch (error) {
         console.log(error);
         process.exit(1);

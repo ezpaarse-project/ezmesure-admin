@@ -24,7 +24,7 @@ exports.builder = function builder(yargs) {
 exports.handler = async function handler(argv) {
   let tasks;
 
-  if (argv.frequencies.length) {
+  if (argv.frequencies && argv.frequencies.length) {
     try {
       const { body } = await findByFrequency(argv.frequencies);
       if (body) { tasks = get(body, 'hits.hits'); }
@@ -34,7 +34,7 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  if (!argv.frequencies.length) {
+  if (!argv.frequencies || !argv.frequencies.length) {
     try {
       const { body } = await findAll();
       if (body) { tasks = get(body, 'hits.hits'); }
