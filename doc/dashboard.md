@@ -24,8 +24,8 @@ $ ezmesure-admin dashboard export --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
-| -a, --all | Export all dashboards |
-| -o, --output | Output path |
+| -a, --all | Boolean | Export all dashboards |
+| -o, --output | String | Output path |
 
 ```bash
 $ ezmesure-admin dashboard export org-template

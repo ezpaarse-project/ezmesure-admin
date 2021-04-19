@@ -90,7 +90,7 @@ $ ezmesure-admin institutions export --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
-| -o, --output | Output path |
+| -o, --output | String | Output path |
 
 Example :
 
@@ -123,7 +123,7 @@ $ ezmesure-admin institutions import --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
-| -f, --files | Files path |
+| -f, --files | String | Files path |
 
 Example :
 
