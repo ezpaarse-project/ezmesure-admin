@@ -1,4 +1,4 @@
-# counter (deprecated)
+# counter4 (deprecated)
 
 ## Usage
 
