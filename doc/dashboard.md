@@ -16,6 +16,11 @@ $ ezmesure-admin dashboard --help
 
 ### export
 
+#### Usage
+```bash
+$ ezmesure-admin dashboard export --help
+```
+
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
