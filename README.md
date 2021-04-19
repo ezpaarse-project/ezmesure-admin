@@ -11,7 +11,7 @@
 ```sh
 $ git clone https://github.com/ezpaarse-project/ezmesure-admin.git
 $ cd ezmesure-admin
-$ npm i -g
+$ npm i -g .
 ```
 
 ## Usage
