@@ -6,15 +6,19 @@ inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 
 const usersLib = require('../../../lib/users');
 
-exports.command = 'get [users...]';
+exports.command = 'get <a> [users...]';
 exports.desc = 'Get one or more users';
 exports.builder = function builder(yargs) {
   return yargs.positional('users', {
     describe: 'Users name',
     type: 'string',
+  }).positional('a', {
+    describe: 'Users name',
+    type: 'string',
   }).option('j', {
     alias: 'json',
     describe: 'Print result(s) in json',
+    type: 'boolean',
   });
 };
 exports.handler = async function handler(argv) {
