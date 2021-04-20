@@ -21,12 +21,15 @@ exports.builder = function builder(yargs) {
     type: 'string',
   }).option('token', {
     describe: 'ezMESURE token',
+    type: 'string',
   }).option('a', {
     alias: 'all',
     describe: 'Test all platforms for once institution',
+    type: 'boolean',
   }).option('j', {
     alias: 'json',
     describe: 'Print result(s) in json',
+    type: 'boolean',
   });
 };
 exports.handler = async function handler(argv) {
@@ -171,7 +174,7 @@ exports.handler = async function handler(argv) {
         result.took || '',
         result.message || '',
         result.url,
-        result.reports.join(', '),
+        Array.isArray(result.reports) ? result.reports.join(', ') : result.reports,
       ]);
     return console.log(table([header, ...lines]));
   }
