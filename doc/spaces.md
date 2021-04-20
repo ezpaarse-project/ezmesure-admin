@@ -22,35 +22,74 @@ $ ezmesure-admin spaces --help
 
 #### Usage
 ```bash
-$ ezmesure-admin roles add --help
+$ ezmesure-admin spaces add --help
+```
+
+#### Options
+| Name | Type | Description |
+| --- | --- | --- |
+| -c, --color | String | Space color |
+| -d, --description | String | Space description |
+| -i, --initials | String | Space initials |
+| --it, --interactive | Boolean | Interactive mode |
+
+Example :
+```bash
+$ ezmesure-admin spaces add --color "#CCCCC" --description "My Space" --initials "ms"
 ```
 
 ### delete
 
 #### Usage
 ```bash
-$ ezmesure-admin roles delete --help
+$ ezmesure-admin spaces delete --help
+```
+
+Example :
+```bash
+$ ezmesure-admin spaces delete mySpace
 ```
 
 ### get
 
 #### Usage
 ```bash
-$ ezmesure-admin roles get --help
+$ ezmesure-admin spaces get --help
 ```
 
+#### Options
+| Name | Type | Description |
+| --- | --- | --- |
+| -j, --json | Boolean | Display data in json |
+| -a, --all | Boolean | Display all data in table |
+
+
+Example :
+```bash
+$ ezmesure-admin spaces get mySpace --json
+```
 ### list
 
 #### Usage
 ```bash
-$ ezmesure-admin roles list --help
+$ ezmesure-admin spaces list --help
+```
+#### Options
+| Name | Type | Description |
+| --- | --- | --- |
+| -j, --json | Boolean | Display data in json |
+| -a, --all | Boolean | Display all data in table |
+
+Example :
+```bash
+$ ezmesure-admin spaces list --all
 ```
 
 ### reporting
 
 #### Usage
 ```bash
-$ ezmesure-admin roles reporting --help
+$ ezmesure-admin spaces reporting --help
 ```
 
 ### Commands
@@ -66,12 +105,22 @@ $ ezmesure-admin roles reporting --help
 
 #### Usage
 ```bash
-$ ezmesure-admin roles reporting delete --help
+$ ezmesure-admin spaces reporting delete --help
+```
+
+Example :
+```bash
+$ ezmesure-admin spaces reporting delete mySpace
 ```
 
 #### reporting list
 
 #### Usage
 ```bash
-$ ezmesure-admin roles reporting list --help
+$ ezmesure-admin spaces reporting list --help
+```
+
+Example :
+```bash
+$ ezmesure-admin spaces reporting list mySpace
 ```
