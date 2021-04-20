@@ -9,13 +9,13 @@ exports.command = 'add <space>';
 exports.desc = 'Create new space';
 exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
-    describe: 'space name, case sensitive',
+    describe: 'Space name, case sensitive',
     type: 'string',
   })
     .option('c', {
       alias: 'color',
       type: 'string',
-      describe: 'SPace color',
+      describe: 'Space color',
     })
     .option('d', {
       alias: 'description',
