@@ -23,12 +23,7 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const options = {};
-
   const exportFormat = argv.export ? argv.export.toLowerCase() : 'json';
-
-  if (argv.timeout) { options.timeout = argv.timeout; }
-  if (argv.token) { options.token = argv.token; }
 
   let institutions;
 
@@ -55,7 +50,7 @@ exports.handler = async function handler(argv) {
   if (!argv.institution) {
     let institutionsData;
     try {
-      const { data } = await getAll(options);
+      const { data } = await getAll();
       if (data) { institutionsData = data; }
     } catch (error) {
       console.error(error);
@@ -81,7 +76,7 @@ exports.handler = async function handler(argv) {
 
       for (let j = 0; j < data.length; j += 1) {
         try {
-          const res = await sushiTest(data[j], options);
+          const res = await sushiTest(data[j]);
           success.push({
             ...res,
             vendor: data[j].vendor,

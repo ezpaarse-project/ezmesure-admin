@@ -54,7 +54,7 @@ exports.handler = async function handler(argv) {
       .filter((institution) => argv.institutions.includes(institution.name));
 
     if (!institutions.length) {
-      console.log(`institution(s) [${argv.insitutions.join(', ')}] not found`);
+      console.log(`institution(s) [${argv.institutions.join(', ')}] not found`);
       process.exit(0);
     }
   }

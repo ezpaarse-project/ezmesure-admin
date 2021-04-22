@@ -33,11 +33,6 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const options = {};
-
-  if (argv.timeout) { options.timeout = argv.timeout; }
-  if (argv.token) { options.token = argv.token; }
-
   let institutionsId = [];
 
   if (argv.institution) {
@@ -61,7 +56,7 @@ exports.handler = async function handler(argv) {
   if (!argv.institution) {
     let institutions;
     try {
-      const { data } = await getAll(options);
+      const { data } = await getAll();
       if (data) { institutions = data; }
     } catch (error) {
       console.error(error);
@@ -143,7 +138,7 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < credentials.length; i += 1) {
     let res;
     try {
-      res = await sushiTest(credentials[i], options);
+      res = await sushiTest(credentials[i]);
     } catch (err) {
       res = JSON.parse(err.message);
     }

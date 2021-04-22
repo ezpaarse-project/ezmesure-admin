@@ -18,11 +18,6 @@ exports.builder = function builder(yargs) {
   }).array('files');
 };
 exports.handler = async function handler(argv) {
-  const options = {};
-
-  if (argv.timeout) { options.timeout = argv.timeout; }
-  if (argv.token) { options.token = argv.token; }
-
   let credentialFiles = [];
 
   if (argv.files) { credentialFiles = argv.files; }
@@ -68,7 +63,7 @@ exports.handler = async function handler(argv) {
 
   let institutions;
   try {
-    const { data } = await getAll(options);
+    const { data } = await getAll();
     institutions = data;
   } catch (error) {
     console.error('Institutions not found');

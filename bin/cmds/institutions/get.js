@@ -16,14 +16,9 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const options = {};
-
-  if (argv.timeout) { options.timeout = argv.timeout; }
-  if (argv.token) { options.token = argv.token; }
-
   let institutions;
   try {
-    const { data } = await getAll(options);
+    const { data } = await getAll();
     institutions = data;
   } catch (error) {
     console.error(error);
@@ -39,7 +34,7 @@ exports.handler = async function handler(argv) {
       .filter((institution) => argv.institutions.includes(institution.name));
 
     if (!institutions.length) {
-      console.log(`institution(s) [${argv.insitutions.join(', ')}] not found`);
+      console.log(`institution(s) [${argv.institutions.join(', ')}] not found`);
       process.exit(0);
     }
   }
