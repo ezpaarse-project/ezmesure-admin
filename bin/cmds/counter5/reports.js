@@ -9,7 +9,7 @@ inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 const { getAll } = require('../../../lib/institutions');
 const { getSushi, sushiTest } = require('../../../lib/sushi');
 
-exports.command = 'reports [institutions...]';
+exports.command = 'reports check [institutions...]';
 exports.desc = 'Get COUNTER5 reports for one or more institutions';
 exports.builder = function builder(yargs) {
   return yargs.positional('institutions', {
@@ -61,7 +61,7 @@ async function generateCSV(opts) {
 
   if (opts.output) {
     try {
-      const fileName = `sushi_counter5_${opts.name}_reports.csv`;
+      const fileName = `sushi_counter5_${opts.name}_reports_check.csv`;
       await fs.writeFile(path.resolve(opts.output, fileName), csv);
       console.log(`SUSHI COUNTER5 reports available file : ${path.resolve(opts.output, fileName)} exported succesfully`);
     } catch (error) {

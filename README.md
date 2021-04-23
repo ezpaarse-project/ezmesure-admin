@@ -35,6 +35,7 @@ $ ezmesure-admin --help
 | [cluster](/doc/cluster.md) | Manage cluster |
 | [config](/doc/config.md) | Manage ezmesure-admin config |
 | [counter4](/doc/counter4.md) (deprecated) | Load counter4 files in Kibana | 
+| [counter5](/doc/counter5.md) | COUNTER5 commands | 
 | [dashboard](/doc/dashboard.md) | Manage Kibana dashboards |
 | [institutions](/doc/institutions.md) | Manage ezMESURE institutions |
 | [reporting](/doc/reporting.md) | Manage ezMESURE reporting |
