@@ -170,6 +170,7 @@ $ ezmesure-admin sushi test --help
 | --token | String | ezMESURE token |
 | -a, --all | Boolean | Test all platforms for once institution |
 | -j, --json | Boolean | Print result(s) in json |
+| -o, --output | Boolean | Output path |
 
 
 Example :

@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 const autocomplete = require('inquirer-autocomplete-prompt');
@@ -19,42 +22,56 @@ exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
     describe: 'Institution name, case sensitive',
     type: 'string',
-  }).option('token', {
-    describe: 'ezMESURE token',
-    type: 'string',
-  }).option('a', {
-    alias: 'all',
-    describe: 'Test all platforms for once institution',
-    type: 'boolean',
-  }).option('j', {
-    alias: 'json',
-    describe: 'Print result(s) in json',
-    type: 'boolean',
-  });
+  })
+    .option('token', {
+      describe: 'ezMESURE token',
+      type: 'string',
+    })
+    .option('a', {
+      alias: 'all',
+      describe: 'Test all platforms for once institution',
+      type: 'boolean',
+    })
+    .option('j', {
+      alias: 'json',
+      describe: 'Print result(s) in json',
+      type: 'boolean',
+    })
+    .option('o', {
+      alias: 'output',
+      describe: 'Output path',
+    });
 };
 exports.handler = async function handler(argv) {
   let institutionsId = [];
 
+  let institutions = [];
+
   if (argv.institution) {
-    let institution;
     try {
       const { body } = await getInstitution(argv.institution);
-      if (body) { institution = get(body, 'hits.hits[0]'); }
+      if (body) {
+        const data = get(body, 'hits.hits[0]');
+        const institution = {
+          id: data._id.split(':').pop(),
+          ...data._source.institution,
+        };
+        institutions.push(institution);
+      }
     } catch (error) {
       console.error(error);
       process.exit(1);
     }
 
-    if (!institution) {
+    if (!institutions.length) {
       console.log(`Institution [${argv.institution}] not found`);
       process.exit(0);
     }
 
-    institutionsId.push(get(institution, '_source.institution.id'));
+    institutionsId.push(get(institutions[0], 'id'));
   }
 
   if (!argv.institution) {
-    let institutions;
     try {
       const { data } = await getAll();
       if (data) { institutions = data; }
@@ -94,19 +111,20 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  let credentials;
-  let sushi;
-  try {
-    const { data } = await getSushi(institutionsId);
-    if (data) {
-      sushi = data;
-      credentials = sushi;
-    }
-  } catch (err) {
-    console.error(err);
-  }
+  let credentials = [];
+  let sushi = [];
 
   if (!argv.all) {
+    try {
+      const { data } = await getSushi(institutionsId);
+      if (data) {
+        sushi = data;
+        credentials = sushi;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
     const { vendorsSelected } = await inquirer.prompt([{
       type: 'checkbox-plus',
       pageSize: 20,
@@ -128,9 +146,24 @@ exports.handler = async function handler(argv) {
     credentials = sushi.filter(({ id }) => vendorsSelected.includes(id));
   }
 
-  if (!credentials.length) {
+  if (!credentials.length && !argv.all) {
     console.log(`No credentials found for ${argv.institution}`);
     process.exit(0);
+  }
+
+  if (argv.all) {
+    for (let i = 0; i < institutionsId.length; i += 1) {
+      try {
+        const { data } = await getSushi(institutionsId[i]);
+        if (data) {
+          sushi = [...sushi, ...data];
+          credentials = [...credentials, ...data];
+        }
+      } catch (err) {
+        console.log(err);
+        console.log(`No credentials found for ${institutionsId[i]}`);
+      }
+    }
   }
 
   const results = [];
@@ -143,7 +176,11 @@ exports.handler = async function handler(argv) {
       res = JSON.parse(err.message);
     }
 
+    const { name: institution } = institutions
+      .find(({ id }) => id === credentials[i].institutionId);
+
     const result = {
+      institution,
       vendor: credentials[i].vendor,
       package: credentials[i].package,
       status: res.status,
@@ -160,9 +197,10 @@ exports.handler = async function handler(argv) {
   }
 
   if (!argv.json) {
-    const header = ['vendor', 'package', 'status', 'duration (ms)', 'message', 'endpoint', 'reports'];
+    const header = ['institution', 'vendor', 'package', 'status', 'duration (ms)', 'message', 'endpoint', 'reports'];
     const lines = results.sort((a, b) => b.status.localeCompare(a.status))
       .map((result) => [
+        result.institution,
         result.vendor,
         result.package,
         chalk.hex(result.status === 'error' ? '#e55039' : '#78e08f').bold(result.status),
@@ -174,5 +212,16 @@ exports.handler = async function handler(argv) {
     return console.log(table([header, ...lines]));
   }
 
-  return console.log(JSON.stringify(results, null, 2));
+  if (argv.json) {
+    return console.log(JSON.stringify(results, null, 2));
+  }
+
+  if (argv.output) {
+    try {
+      await fs.writeJson(path.resolve(argv.output, `sushi_test-${new Date().getTime()}.json`), results, { spaces: 2 });
+    } catch (error) {
+      console.log(error);
+      process.exit(1);
+    }
+  }
 };
