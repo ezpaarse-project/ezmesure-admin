@@ -1,5 +1,6 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
+const { format } = require('date-fns');
 
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
@@ -187,6 +188,7 @@ exports.handler = async function handler(argv) {
       took: res.took,
       message: '',
       url: credentials[i].sushiUrl,
+      reports: res.reports || [],
     };
 
     if (res.error) {
@@ -196,32 +198,34 @@ exports.handler = async function handler(argv) {
     results.push(result);
   }
 
-  if (!argv.json) {
-    const header = ['institution', 'vendor', 'package', 'status', 'duration (ms)', 'message', 'endpoint', 'reports'];
-    const lines = results.sort((a, b) => b.status.localeCompare(a.status))
-      .map((result) => [
-        result.institution,
-        result.vendor,
-        result.package,
-        chalk.hex(result.status === 'error' ? '#e55039' : '#78e08f').bold(result.status),
-        result.took || '',
-        result.message || '',
-        result.url,
-        Array.isArray(result.reports) ? result.reports.join(', ') : result.reports,
-      ]);
-    return console.log(table([header, ...lines]));
-  }
-
   if (argv.json) {
+    if (argv.output) {
+      try {
+        const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
+        const filePath = path.resolve(argv.output, `sushis_test_${currentDate}.json`);
+        await fs.writeJson(filePath, results, { spaces: 2 });
+        return console.log(`File exported to : ${filePath}`);
+      } catch (error) {
+        console.log(error);
+        process.exit(1);
+      }
+    }
+
     return console.log(JSON.stringify(results, null, 2));
   }
 
-  if (argv.output) {
-    try {
-      await fs.writeJson(path.resolve(argv.output, `sushi_test-${new Date().getTime()}.json`), results, { spaces: 2 });
-    } catch (error) {
-      console.log(error);
-      process.exit(1);
-    }
-  }
+  const header = ['institution', 'vendor', 'package', 'status', 'duration (ms)', 'message', 'endpoint', 'reports'];
+  const lines = results.sort((a, b) => b.status.localeCompare(a.status))
+    .map((result) => [
+      result.institution,
+      result.vendor,
+      result.package,
+      chalk.hex(result.status === 'error' ? '#e55039' : '#78e08f').bold(result.status),
+      result.took || '',
+      result.message || '',
+      result.url,
+      Array.isArray(result.reports) ? result.reports.join(', ') : result.reports,
+    ]);
+
+  return console.log(table([header, ...lines]));
 };
