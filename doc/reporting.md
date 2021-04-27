@@ -50,13 +50,12 @@ $ ezmesure-admin reporting info --help
 | Name | Type | Description |
 | --- | --- | --- |
 | -s, --status | Array | Reporting status: ongoing, completed, error |
-| -e, --export | String | Export format (json) |
 | -o, --output | String | Output path |
 
 Example :
 
 ```bash
-$ ezmesure-admin reporting info -e json -o ~/Documents/exports
+$ ezmesure-admin reporting info -o ~/Documents/exports
 
 Data exported successfully at /home/wilmouth/Téléchargements/reporting_info_2021_04_19_14_5_59.json
 ```

@@ -13,17 +13,12 @@ exports.builder = function builder(yargs) {
     alias: 'status',
     describe: 'Reporting status: ongoing, completed, error',
     type: 'array',
-  }).option('e', {
-    alias: 'export',
-    describe: 'Export format (json)',
   }).option('o', {
     alias: 'output',
     describe: 'Output path',
   });
 };
 exports.handler = async function handler(argv) {
-  const exportFormat = argv.export ? argv.export.toLowerCase() : 'json';
-
   let reporting;
   try {
     const { body } = await reportingLib.findAll();
@@ -79,7 +74,7 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  let report = reporting;
+  let report = [];
 
   if (argv.status) {
     report = [];
@@ -94,19 +89,17 @@ exports.handler = async function handler(argv) {
   const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
   const fileName = `reporting_info_${currentDate}`;
 
-  if (exportFormat === 'json') {
-    if (!argv.output) {
-      console.log(JSON.stringify(report, null, 2));
-    }
+  if (!argv.output) {
+    console.log(JSON.stringify(report, null, 2));
+  }
 
-    if (argv.output) {
-      try {
-        await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), report, { spaces: 2 });
-        console.log(`Data exported successfully at ${path.resolve(argv.output, `${fileName}.json`)}`);
-      } catch (error) {
-        console.log(error);
-        process.exit(1);
-      }
+  if (argv.output) {
+    try {
+      await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), report, { spaces: 2 });
+      console.log(`Data exported successfully at ${path.resolve(argv.output, `${fileName}.json`)}`);
+    } catch (error) {
+      console.log(error);
+      process.exit(1);
     }
   }
 };
