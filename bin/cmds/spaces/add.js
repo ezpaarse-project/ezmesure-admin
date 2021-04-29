@@ -2,7 +2,7 @@ const inquirer = require('inquirer');
 
 const rolesLib = require('../../../lib/roles');
 const spaces = require('../../../lib/spaces');
-const { import: importDashboard, export: exportDashboard } = require('../../../lib/dashboard');
+const { importOne, exportOne } = require('../../../lib/dashboard');
 const { config } = require('../../../lib/app/config');
 
 exports.command = 'add <space>';
@@ -101,8 +101,8 @@ exports.handler = async function handler(argv) {
   try {
     const templateSelected = config.dashboard.homepage || 'homepage';
 
-    const { data: exportedDashboard } = await exportDashboard(templateSelected,
-      config.space.template ? { space: config.space.template } : null);
+    const { data: exportedDashboard } = await exportOne(templateSelected,
+      config.space.template || null);
 
     if (exportedDashboard && exportedDashboard.objects) {
       const indexPattern = Object.values(exportedDashboard.objects)
@@ -117,13 +117,13 @@ exports.handler = async function handler(argv) {
         dashboard.id = 'homepage';
       }
 
-      const objects = await importDashboard(space.toLowerCase(), exportedDashboard);
+      const objects = await importOne(space.toLowerCase(), exportedDashboard);
       if (objects.status !== 200) {
         console.log(`Problem with import ${dashboard.id} (id: ${templateSelected}) in ${space}`);
       }
       console.log(`dashboard [${dashboard.id} (id: ${templateSelected})] imported successfully`);
     }
   } catch (error) {
-    console.log(error.response.data.message);
+    console.log(error);
   }
 };
