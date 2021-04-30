@@ -2,12 +2,14 @@ const { table } = require('table');
 
 const usersLib = require('../../../lib/users');
 
+const { i18n } = global;
+
 exports.command = 'list';
-exports.desc = 'List users';
+exports.desc = i18n.t('users.list.description');
 exports.builder = function builder(yargs) {
   return yargs.option('j', {
     alias: 'json',
-    describe: 'Print result(s) in json',
+    describe: i18n.t('users.list.options.json'),
   });
 };
 exports.handler = async function handler(argv) {
@@ -21,7 +23,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!users) {
-    console.log('No users found');
+    console.log(i18n.t('users.noUsersFound'));
     process.exit(1);
   }
 
@@ -32,7 +34,7 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  const header = ['Username', 'Full name', 'email', 'roles', 'reserved'];
+  const header = [i18n.t('users.username'), i18n.t('users.fullName'), i18n.t('users.email'), i18n.t('users.assignedRoles'), i18n.t('users.reserved')];
   const row = users.map(({
     username, full_name: fullName, email, roles, metadata: { _reserved },
   }) => ([

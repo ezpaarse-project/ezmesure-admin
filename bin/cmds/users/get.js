@@ -6,15 +6,17 @@ inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 
 const usersLib = require('../../../lib/users');
 
+const { i18n } = global;
+
 exports.command = 'get [users...]';
-exports.desc = 'Get one or more users';
+exports.desc = i18n.t('users.get.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('users', {
-    describe: 'Users name',
+    describe: i18n.t('users.get.options.users'),
     type: 'string',
   }).option('j', {
     alias: 'json',
-    describe: 'Print result(s) in json',
+    describe: i18n.t('users.get.options.json'),
     type: 'boolean',
   });
 };
@@ -41,7 +43,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!users) {
-    console.log('No users found');
+    console.log(i18n.t('users.noUsersFound'));
     process.exit(1);
   }
 
@@ -54,7 +56,7 @@ exports.handler = async function handler(argv) {
       pageSize: 20,
       searchable: true,
       highlight: true,
-      message: 'Users :',
+      message: i18n.t('users.get.checkboxLabel'),
       source: (answersSoFar, input) => new Promise((resolve) => {
         const result = users
           .map(({ username }) => ({ name: username, value: username }))
@@ -72,7 +74,7 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  const header = ['Username', 'Full name', 'email', 'roles', 'reserved'];
+  const header = [i18n.t('users.username'), i18n.t('users.fullName'), i18n.t('users.email'), i18n.t('users.assignedRoles'), i18n.t('users.reserved')];
   const row = users.map(({
     username, full_name: fullName, email, roles, metadata: { _reserved },
   }) => ([

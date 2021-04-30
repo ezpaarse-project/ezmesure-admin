@@ -1,0 +1,60 @@
+{
+	"global": {
+		"options": {
+			"timeout": "Request timeout in milliseconds"
+		}
+	},
+	"users": {
+		"description": "Manage users <command>: list, get, roles",
+		"noUsersFound": "No users found",
+		"noUserFound": "No user found",
+		"username": "Username",
+		"fullName": "Full name",
+		"email": "Email",
+		"assignedRoles": "Roles",
+		"reserved": "reserved",
+		"userUpdated": "user [{{user}}] updated successfully",
+		"roles": {
+			"description": "Manage users roles <command>: add, delete, list",
+			"add": {
+				"description": "Add role",
+				"options": {
+					"user": "Users name",
+					"roles": "Roles name"
+				},
+				"usersNotFound": "user(s) [{{users}}] not found",
+				"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+				"noRolesSpecified": "No role(s) specified",
+				"errorRoles": "[Error#{{statusCode}}] {{message}} (role: {{role}})",
+				"checkboxRoles": "Roles (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+				"hasRole": "user [{{user}}] has already role [{{role}}]"
+			},
+			"delete": {
+				"description": "Delete role",
+				"options": {
+					"user": "Users name",
+					"roles": "Roles name"
+				},
+				"checkboxUsers": "Users (User arrow keys or begin typing to search, press <enter> to submit)",
+				"noRolesSpecified": "No role(s) specified",
+				"noRolesSelected": "No roles selected",
+				"checkboxRoles": "Roles (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+				"errorRoles": "[Error#{{statusCode}}] {{message}} (role: {{role}})"
+			}
+		},
+		"list": {
+			"description": "List users",
+			"options": {
+				"json": "Print result(s) in json"
+			}
+		},
+		"get": {
+			"description": "Get one or more users",
+			"options": {
+				"users": "Users name",
+				"json": "Print result(s) in json"
+			},
+			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
+		}
+	}
+}

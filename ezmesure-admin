@@ -1,6 +1,16 @@
 #!/usr/bin/env node
 
 const yargs = require('yargs');
+const path = require('path');
+const I18n = require('./lib/app/i18n');
+
+const i18n = new I18n({
+  locales: ['en'],
+  default: 'en',
+  directory: path.resolve(__dirname, 'locales'),
+});
+global.i18n = i18n;
+
 const config = require('./lib/app/config');
 
 config.loadEnv(process.argv);
@@ -8,7 +18,7 @@ config.loadEnv(process.argv);
 yargs.commandDir('bin/cmds')
   .option('t', {
     alias: 'timeout',
-    describe: 'Request timeout in milliseconds',
+    describe: i18n.t('global.options.timeout'),
     number: true,
     global: true,
   })
@@ -16,3 +26,5 @@ yargs.commandDir('bin/cmds')
   .locale('en')
   .help()
   .parse();
+
+module.exports = yargs;

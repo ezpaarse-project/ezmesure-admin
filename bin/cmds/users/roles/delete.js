@@ -8,15 +8,17 @@ inquirer.registerPrompt('autocomplete', autocomplete);
 const usersLib = require('../../../../lib/users');
 const rolesLib = require('../../../../lib/roles');
 
+const { i18n } = global;
+
 exports.command = 'delete [user]';
-exports.desc = 'Delete role';
+exports.desc = i18n.t('users.roles.delete.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('user', {
-    describe: 'User name',
+    describe: i18n.t('users.roles.delete.options.user'),
     type: 'string',
   }).option('r', {
     alias: 'roles',
-    describe: 'Roles name',
+    describe: i18n.t('users.roles.delete.options.roles'),
     type: 'array',
   });
 };
@@ -34,7 +36,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (!user) {
-      console.log('No user found');
+      console.log(i18n.t('users.noUserFound'));
       process.exit(0);
     }
 
@@ -46,12 +48,12 @@ exports.handler = async function handler(argv) {
       const { body } = await usersLib.findAll();
       if (body) { users = body; }
     } catch (error) {
-      console.log('No users found');
+      console.log(i18n.t('users.noUsersFound'));
       process.exit(1);
     }
 
     if (!users) {
-      console.log('No users found');
+      console.log(i18n.t('users.noUsersFound'));
       process.exit(0);
     }
 
@@ -65,7 +67,7 @@ exports.handler = async function handler(argv) {
       pageSize: 20,
       searchable: true,
       highlight: true,
-      message: 'Users :',
+      message: i18n.t('users.roles.delete.checkboxUsers'),
       source: (answersSoFar, input) => new Promise((resolve) => {
         input = input ? input.toLowerCase() : '';
 
@@ -84,7 +86,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (argv.roles && !argv.roles.length) {
-    console.log('No role(s) specified');
+    console.log(i18n.t('users.roles.delete.noRolesSpecified'));
     process.exit(0);
   }
 
@@ -98,7 +100,11 @@ exports.handler = async function handler(argv) {
         }
       } catch (error) {
         if (error?.meta) {
-          console.log(`[Error#${error?.meta?.statusCode}] ${error.message} (role: ${argv.roles[i].toLowerCase()})`);
+          console.log(i18n.t('users.roles.delete.errorRoles', {
+            statusCode: error?.meta?.statusCode,
+            messgae: error.message,
+            role: argv.roles[i].toLowerCase(),
+          }));
         } else {
           console.log(error);
         }
@@ -113,7 +119,7 @@ exports.handler = async function handler(argv) {
       pageSize: 20,
       searchable: true,
       highlight: true,
-      message: 'Roles :',
+      message: i18n.t('users.roles.delete.checkboxRoles'),
       source: (answersSoFar, input) => new Promise((resolve) => {
         const result = user.roles
           .map((role) => ({ name: role, value: role }))
@@ -127,7 +133,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!roles) {
-    console.log('No roles selected');
+    console.log(i18n.t('users.roles.delete.noRolesSelected'));
     process.exit(0);
   }
 
@@ -136,7 +142,7 @@ exports.handler = async function handler(argv) {
   try {
     const res = await usersLib.update(user);
     if (res && res.statusCode === 200) {
-      console.log(`user [${user.username}] updated successfully`);
+      console.log(i18n.t('users.userUpdated', { user: user.username }));
     }
   } catch (error) {
     console.log(error);
