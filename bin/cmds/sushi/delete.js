@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 const autocomplete = require('inquirer-autocomplete-prompt');
@@ -9,12 +11,8 @@ const { getSushi, deleteSushi } = require('../../../lib/sushi');
 const { getAll } = require('../../../lib/institutions');
 
 exports.command = 'delete';
-exports.desc = 'Delete a sushi';
-exports.builder = function builder(yargs) {
-  return yargs.option('token', {
-    describe: 'ezMESURE token',
-  });
-};
+exports.desc = i18n.t('sushi.delete.description');
+exports.builder = function builder(yargs) {};
 exports.handler = async function handler(argv) {
   let institutions;
   try {
@@ -25,7 +23,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!institutions) {
-    console.log('Institutions not found');
+    console.log(i18n.t('institutions.institutionsNotFound'));
     process.exit(0);
   }
 
@@ -34,7 +32,7 @@ exports.handler = async function handler(argv) {
     type: 'autocomplete',
     pageSize: 20,
     name: 'institutionSelected',
-    message: 'Institutions (enter: select institution)',
+    message: i18n.t('institutions.institutionsSelect'),
     searchable: true,
     highlight: true,
     source: (answersSoFar, input) => new Promise((resolve) => {
@@ -59,7 +57,7 @@ exports.handler = async function handler(argv) {
     type: 'checkbox-plus',
     pageSize: 20,
     name: 'vendorsSelected',
-    message: 'Sushi vendor (space to select item)',
+    message: i18n.t('suhsi.vendorCheckbox'),
     searchable: true,
     highlight: true,
     source: (answersSoFar, input) => new Promise((resolve) => {
@@ -74,7 +72,7 @@ exports.handler = async function handler(argv) {
   }]);
 
   if (!vendorsSelected) {
-    console.log('No SUSHI\'s credentials found.');
+    console.log(i18n.t('sushi.noCredentialsFound'));
     process.exit(0);
   }
 
@@ -85,5 +83,5 @@ exports.handler = async function handler(argv) {
     process.exit(1);
   }
 
-  console.log('Data removed successfully.');
+  console.log(i18n.t('sushi.delete.removed'));
 };

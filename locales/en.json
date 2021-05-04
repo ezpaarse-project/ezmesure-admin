@@ -56,5 +56,142 @@
 			},
 			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
 		}
+	},
+	"sushi": {
+		"description": "Manage sushi <command>: add, delete, list, info, test, export, import",
+		"noCredentialsFound": "No sushi credentials found",
+		"noDataFound": "No sushi data found",
+		"cannotReadFile": "`Cannot read file : {{file}}`",
+		"cannotParse": "`Cannot parse : {{file}}`",
+		"vendorCheckbox": "Sushi vendor (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+		"noCredentialsFoundFor": "There are no sushi credentials for this institution ({{institution}})",
+		"add": {
+			"description": "Create new sushi",
+			"options": {
+				"filesPath": "Files path"
+			},
+			"nCredentialsFound": "{{count}} credentilas found",
+			"insertionCompleted": "Insertion successfully completed"
+		},
+		"delete": {
+			"description": "Delete a sushi",
+			"removed": "Data removed successfully"
+		},
+		"export": {
+			"description": "Export sushi data",
+			"options": {
+				"institutions": "Institution name, case sensitive",
+				"output": "Output type : json or csv",
+				"all": "Export all sushi data for all institutions",
+				"destination": "Destination path"
+			},
+			"exported": "Sushi exported successfully : {{file}}",
+			"id": "id",
+			"vendor": "vendor",
+			"sushiUrl": "sushiUrl",
+			"requestorId": "requestorId",
+			"customerId": "customerId",
+			"apiKey": "apiKey",
+			"comment": "comment",
+			"params": "params",
+			"package": "package",
+			"insitutionId": "insitutionId",
+			"updatedAt": "updatedAt",
+			"createdAt": "createdAt"
+		},
+		"import": {
+			"description": "Import sushi(s)",
+			"options": {
+				"filesPath": "Files path",
+				"institution": "Institution name, case sensitive"
+			},
+			"cannotReadFile": "`Cannot read file : {{file}}`",
+			"imported": "Imported successfully"
+		},
+		"info": {
+			"description": "Get SUSHI informations",
+			"options": {
+				"institution": "Institution name, case sensitive",
+				"export": "Export format (json, csv)",
+				"output": "Output path"
+			},
+			"institution": "Institution",
+			"package": "Package",
+			"vendor": "Vendor",
+			"status": "Status",
+			"message": "Message",
+			"took": "Took (ms)",
+			"endpoint": "Endpoint",
+			"reports": "Reports"
+		},
+		"list": {
+			"description": "List SUSHI informations of institutions",
+			"package": "package",
+			"vendor": "vendor",
+			"endpoint": "endpoint",
+			"customerId": "customerId",
+			"requestorId": "requestorId",
+			"apiKey": "apiKey",
+			"comment": "comment"
+		},
+		"test": {
+			"description": "Test SUSHI informations of institutions",
+			"options": {
+				"institution": "Institution name, case sensitive",
+				"all": "Test all platforms for once institution",
+				"json": "Print result(s) in json",
+				"output": "Output path"
+			},
+			"institution": "institution",
+			"vendor": "vendor",
+			"package": "package",
+			"status": "status",
+			"duration": "duration (ms)",
+			"message": "message",
+			"endpoint": "endpoint",
+			"reports": "reports"
+		}
+	},
+	"spaces":	{
+		"description": "Manage spaces <command>: get, add, edit, delete, list, reporting",
+		"add": {
+			"description": "Create new space",
+			"options": {
+				"space": "Space name, case sensitive",
+				"color": "Space color",
+				"description": "Space description",
+				"initials": "Space initials",
+				"interactive": "Interactive mode"
+			},
+			"spaceDescription": "Enter space description",
+			"spaceInitials": "Enter space initials",
+			"spaceColor": "Enter space color (ex: #FF00FF)",
+			"created": "space [{{space}}] created successfully",
+			"roleDoesNotExists": "role [{{role}}] does not exists, create with ezmesure-admin roles add {{role}}",
+			"dashboardDoesNotExists": "dashboard [{{dashboard}}] does not exists",
+			"importError": "Problem with import {{dashboardId}} (id: {{templateSelected}}) in {{space}}",
+			"imported": "dashboard [{{dashboardId}} (id: {{templateSelected}})] imported successfully"
+		},
+		"delete": {
+			"description": "Delete space(s)",
+			"options": {
+				"spaces": "Space(s) name, case sensitive"
+			}
+		},
+		"get": {
+			"description": ""
+		},
+		"list": {
+			"description": ""
+		},
+		"reporting": {
+
+		}
+	},
+	"institutions": {
+		"institutionsCheckbox": "Institutions (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+		"institutionsSelect": "Institutions (Use arrow keys or begin typing to search, press <enter> to submit)",
+		"institutionsNotFound": "Institutions not found",
+		"institutionsNamesNotFound": "institution(s) [{{institutions}}] not found"
 	}
 }

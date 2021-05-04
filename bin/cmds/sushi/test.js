@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const fs = require('fs-extra');
 const path = require('path');
 const { format } = require('date-fns');
@@ -18,30 +20,23 @@ const { getSushi, sushiTest } = require('../../../lib/sushi');
 const { getAll, getInstitution } = require('../../../lib/institutions');
 
 exports.command = 'test [institution]';
-exports.desc = 'Test SUSHI informations of institutions';
+exports.desc = i18n.t('sushi.test.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
-    describe: 'Institution name, case sensitive',
+    describe: i18n.t('sushi.test.options.institution'),
     type: 'string',
-  })
-    .option('token', {
-      describe: 'ezMESURE token',
-      type: 'string',
-    })
-    .option('a', {
-      alias: 'all',
-      describe: 'Test all platforms for once institution',
-      type: 'boolean',
-    })
-    .option('j', {
-      alias: 'json',
-      describe: 'Print result(s) in json',
-      type: 'boolean',
-    })
-    .option('o', {
-      alias: 'output',
-      describe: 'Output path',
-    });
+  }).option('a', {
+    alias: 'all',
+    describe: i18n.t('sushi.test.options.all'),
+    type: 'boolean',
+  }).option('j', {
+    alias: 'json',
+    describe: i18n.t('sushi.test.options.all'),
+    type: 'boolean',
+  }).option('o', {
+    alias: 'output',
+    describe: i18n.t('sushi.test.options.output'),
+  });
 };
 exports.handler = async function handler(argv) {
   let institutionsId = [];
@@ -65,7 +60,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (!institutions.length) {
-      console.log(`Institution [${argv.institution}] not found`);
+      console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: argv.institution }));
       process.exit(0);
     }
 
@@ -81,7 +76,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (!institutions) {
-      console.log('No institutions found');
+      console.log(i18n.t('institutions.institutionsNotFound'));
       process.exit(0);
     }
 
@@ -90,7 +85,7 @@ exports.handler = async function handler(argv) {
         type: 'autocomplete',
         pageSize: 20,
         name: 'institutionsSelected',
-        message: 'Institutions (Press <enter> to select institution)',
+        message: i18n.t('institutions.institutionsSelect'),
         searchable: true,
         highlight: true,
         source: (answersSoFar, input) => new Promise((resolve) => {
@@ -130,7 +125,7 @@ exports.handler = async function handler(argv) {
       type: 'checkbox-plus',
       pageSize: 20,
       name: 'vendorsSelected',
-      message: 'Sushi vendor (Press <space> to select item)',
+      message: i18n.t('sushi.vendorCheckbox'),
       searchable: true,
       highlight: true,
       source: (answersSoFar, input) => new Promise((resolve) => {
@@ -148,7 +143,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!credentials.length && !argv.all) {
-    console.log(`No credentials found for ${argv.institution}`);
+    console.log(i18n.t('sushi.noCredentialsFoundFor', { institution: argv.institution }));
     process.exit(0);
   }
 
@@ -162,7 +157,7 @@ exports.handler = async function handler(argv) {
         }
       } catch (err) {
         console.log(err);
-        console.log(`No credentials found for ${institutionsId[i]}`);
+        console.log(i18n.t('sushi.noCredentialsFoundFor', { institution: institutionsId[i] }));
       }
     }
   }
@@ -214,7 +209,16 @@ exports.handler = async function handler(argv) {
     return console.log(JSON.stringify(results, null, 2));
   }
 
-  const header = ['institution', 'vendor', 'package', 'status', 'duration (ms)', 'message', 'endpoint', 'reports'];
+  const header = [
+    i18n.t('sushi.test.institution'),
+    i18n.t('sushi.test.vendor'),
+    i18n.t('sushi.test.package'),
+    i18n.t('sushi.test.status'),
+    i18n.t('sushi.test.duration'),
+    i18n.t('sushi.test.message'),
+    i18n.t('sushi.test.endpoint'),
+    i18n.t('sushi.test.reports'),
+  ];
   const lines = results.sort((a, b) => b.status.localeCompare(a.status))
     .map((result) => [
       result.institution,

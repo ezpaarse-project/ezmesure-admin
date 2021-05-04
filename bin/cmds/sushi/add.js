@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const fs = require('fs-extra');
 const path = require('path');
 const inquirer = require('inquirer');
@@ -8,13 +10,11 @@ const { addSushi } = require('../../../lib/sushi');
 inquirer.registerPrompt('autocomplete', autocomplete);
 
 exports.command = 'add';
-exports.desc = 'Create new sushi';
+exports.desc = i18n.t('sushi.add.description');
 exports.builder = function builder(yargs) {
-  return yargs.option('token', {
-    describe: 'ezMESURE token',
-  }).option('f', {
+  return yargs.option('f', {
     alias: 'files',
-    describe: 'Files path',
+    describe: i18n.t('sushi.add.options.filesPath'),
   }).array('files');
 };
 exports.handler = async function handler(argv) {
@@ -29,14 +29,14 @@ exports.handler = async function handler(argv) {
       content = await fs.readFile(path.resolve(credentialFiles[i]), 'utf8');
     } catch (err) {
       console.error(err);
-      console.error(`Cannot read file : ${credentialFiles[i]}`, err);
+      console.error(i18n.t('sushi.cannotReadFile', { file: credentialFiles[i] }), err);
     }
 
     if (content) {
       try {
         content = JSON.parse(content);
       } catch (e) {
-        console.error(`Cannot parse : ${credentialFiles[i]}`, e);
+        console.error(i18n.t('sushi.cannotParse', { file: credentialFiles[i] }), e);
       }
 
       content.map((item) => {
@@ -53,20 +53,20 @@ exports.handler = async function handler(argv) {
   }
 
   if (!credentials.length) {
-    console.log('No sushi credentials found.');
+    console.log(i18n.t('sushi.noCredentialsFound'));
     process.exit(0);
   }
 
   credentials = credentials.flatMap((credential) => credential);
 
-  console.log(`${credentials.length} credentials found.`);
+  console.log(i18n.t('sushi.add.nCredentialsFound', { count: credentials.length }));
 
   let institutions;
   try {
     const { data } = await getAll();
     institutions = data;
   } catch (error) {
-    console.error('Institutions not found');
+    console.error(i18n.t('institutions.institutionsNotFound'));
     process.exit(0);
   }
 
@@ -75,7 +75,7 @@ exports.handler = async function handler(argv) {
     type: 'autocomplete',
     pageSize: 20,
     name: 'institutionSelected',
-    message: 'Institutions (enter: select institution)',
+    message: i18n.t('institutions.institutionsSelect'),
     searchable: true,
     highlight: true,
     source: (answersSoFar, input) => new Promise((resolve) => {
@@ -97,5 +97,5 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  console.log('Insertion successfully completed.');
+  console.log(i18n.t('sushi.add.insertionCompleted'));
 };

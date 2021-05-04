@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 const autocomplete = require('inquirer-autocomplete-prompt');
@@ -11,12 +13,8 @@ const { getSushi } = require('../../../lib/sushi');
 const { getAll } = require('../../../lib/institutions');
 
 exports.command = 'list';
-exports.desc = 'List SUSHI informations of institutions';
-exports.builder = function builder(yargs) {
-  return yargs.option('token', {
-    describe: 'ezMESURE token',
-  });
-};
+exports.desc = i18n.t('sushi.list.description');
+exports.builder = function builder(yargs) {};
 exports.handler = async function handler(argv) {
   let institutions;
   try {
@@ -27,7 +25,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!institutions) {
-    console.log('No institutions found');
+    console.log(i18n.t('institutions.institutionsNotFound'));
     process.exit(0);
   }
 
@@ -35,7 +33,7 @@ exports.handler = async function handler(argv) {
     type: 'autocomplete',
     pageSize: 20,
     name: 'institutionSelected',
-    message: 'Institutions (enter: select institution)',
+    message: i18n.t('institutions.institutionsSelect'),
     searchable: true,
     highlight: true,
     source: (answersSoFar, input) => new Promise((resolve) => {
@@ -61,7 +59,7 @@ exports.handler = async function handler(argv) {
     type: 'checkbox-plus',
     pageSize: 20,
     name: 'vendorsSelected',
-    message: 'Sushi vendor (space to select item)',
+    message: i18n.t('sushi.vendorCheckbox'),
     searchable: true,
     highlight: true,
     source: (answersSoFar, input) => new Promise((resolve) => {
@@ -78,7 +76,15 @@ exports.handler = async function handler(argv) {
   const selectedSushi = sushi.filter(({ id }) => vendorsSelected.includes(id));
   console.log(selectedSushi);
 
-  const header = ['package', 'vendor', 'endpoint', 'customerId', 'requestorId', 'apiKey', 'comment'];
+  const header = [
+    i18n.t('sushi.list.package'),
+    i18n.t('sushi.list.vendor'),
+    i18n.t('sushi.list.endpoint'),
+    i18n.t('sushi.list.customerId'),
+    i18n.t('sushi.list.requestorId'),
+    i18n.t('sushi.list.apiKey'),
+    i18n.t('sushi.list.comment'),
+  ];
   const lines = selectedSushi.map((platform) => ([
     platform.package,
     platform.vendor,

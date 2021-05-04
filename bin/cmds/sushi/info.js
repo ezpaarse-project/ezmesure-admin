@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const get = require('lodash.get');
 const path = require('path');
 const fs = require('fs-extra');
@@ -7,19 +9,17 @@ const { getAll, getInstitution } = require('../../../lib/institutions');
 const { getSushi, sushiTest } = require('../../../lib/sushi');
 
 exports.command = 'info [institution]';
-exports.desc = 'Get SUSHI informations';
+exports.desc = i18n.t('sushi.info.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
-    describe: 'Institution name, case sensitive',
+    describe: i18n.t('sushi.info.option.institution'),
     type: 'string',
-  }).option('token', {
-    describe: 'ezMESURE token',
   }).option('e', {
     alias: 'export',
-    describe: 'Export format (json, csv)',
+    describe: i18n.t('sushi.info.option.export'),
   }).option('o', {
     alias: 'output',
-    describe: 'Output path',
+    describe: i18n.t('sushi.info.option.output'),
   });
 };
 exports.handler = async function handler(argv) {
@@ -37,7 +37,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (!institution) {
-      console.log(`Institution [${argv.institution}] not found`);
+      console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: argv.institution }));
       process.exit(0);
     }
 
@@ -57,7 +57,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (!institutionsData) {
-      console.log('No institutions found');
+      console.log(i18n.t('institutions.institutionsNotFound'));
       process.exit(0);
     }
 
@@ -124,7 +124,16 @@ exports.handler = async function handler(argv) {
   }
 
   if (exportFormat === 'csv') {
-    const fields = ['Institution', 'Package', 'Vendor', 'Status', 'Message', 'Took (ms)', 'Endpoint', 'Reports'];
+    const fields = [
+      i18n.t('sushi.info.institution'),
+      i18n.t('sushi.info.package'),
+      i18n.t('sushi.info.vendor'),
+      i18n.t('sushi.info.status'),
+      i18n.t('sushi.info.message'),
+      i18n.t('sushi.info.took'),
+      i18n.t('sushi.info.endpoint'),
+      i18n.t('sushi.info.reports'),
+    ];
     const data = [];
     report.forEach(({
       name, success, failed,

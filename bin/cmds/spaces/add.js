@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const inquirer = require('inquirer');
 
 const rolesLib = require('../../../lib/roles');
@@ -6,31 +8,31 @@ const { importOne, exportOne } = require('../../../lib/dashboard');
 const { config } = require('../../../lib/app/config');
 
 exports.command = 'add <space>';
-exports.desc = 'Create new space';
+exports.desc = i18n.t('spaces.add.description');
 exports.builder = function builder(yargs) {
-  return yargs.positional('institution', {
-    describe: 'Space name, case sensitive',
+  return yargs.positional('space', {
+    describe: i18n.t('spaces.add.options.space'),
     type: 'string',
   })
     .option('c', {
       alias: 'color',
       type: 'string',
-      describe: 'Space color',
+      describe: i18n.t('spaces.add.options.color'),
     })
     .option('d', {
       alias: 'description',
       type: 'string',
-      describe: 'Space description',
+      describe: i18n.t('spaces.add.options.description'),
     })
     .option('i', {
       alias: 'initials',
       type: 'string',
-      describe: 'Space initials',
+      describe: i18n.t('spaces.add.options.initials'),
     })
     .option('it', {
       alias: 'interactive',
       type: 'boolean',
-      describe: 'Interactive mode',
+      describe: i18n.t('spaces.add.options.interactive'),
     });
 };
 exports.handler = async function handler(argv) {
@@ -51,17 +53,17 @@ exports.handler = async function handler(argv) {
       {
         type: 'input',
         name: 'spaceDescr',
-        message: 'Enter space description',
+        message: i18n.t('spaces.add.spaceDescription'),
       },
       {
         type: 'input',
         name: 'spaceInitials',
-        message: 'Enter space initials',
+        message: i18n.t('spaces.add.spaceInitials'),
       },
       {
         type: 'input',
         name: 'spaceColor',
-        message: 'Enter space color (ex: #FF00FF)',
+        message: i18n.t('spaces.add.spaceColor'),
       },
     ]);
 
@@ -80,7 +82,7 @@ exports.handler = async function handler(argv) {
   try {
     const res = await spaces.add(options);
     if (res && res.status === 200) {
-      console.log(`space [${space}] created successfully`);
+      console.log(i18n.t('spaces.add.created', { space }));
     }
   } catch (error) {
     if (error && error?.response && error?.response?.data) {
@@ -95,7 +97,7 @@ exports.handler = async function handler(argv) {
   try {
     await rolesLib.findByName(space.toLowerCase());
   } catch (erorr) {
-    console.error(`role [${space.toLowerCase()}] does not exists, create with ezmesure-admin roles add ${space.toLowerCase()}`);
+    console.error(i18n.t('spaces.add.roleDoesNotExists', { role: space.toLowerCase() }));
   }
 
   try {
@@ -103,6 +105,11 @@ exports.handler = async function handler(argv) {
 
     const { data: exportedDashboard } = await exportOne(templateSelected,
       config.space.template || null);
+
+    if (!exportedDashboard) {
+      console.log(i18n.t('spaces.add.dashboardDoesNotExists', { dashboard: templateSelected }));
+      process.exit(1);
+    }
 
     if (exportedDashboard && exportedDashboard.objects) {
       const indexPattern = Object.values(exportedDashboard.objects)
@@ -119,9 +126,9 @@ exports.handler = async function handler(argv) {
 
       const objects = await importOne(space.toLowerCase(), exportedDashboard);
       if (objects.status !== 200) {
-        console.log(`Problem with import ${dashboard.id} (id: ${templateSelected}) in ${space}`);
+        console.log(i18n.t('spaces.add.importError', { dashboardId: dashboard.id, templateSelected, space }));
       }
-      console.log(`dashboard [${dashboard.id} (id: ${templateSelected})] imported successfully`);
+      console.log(i18n.t('spaces.add.imported', { dashboardId: dashboard.id, templateSelected }));
     }
   } catch (error) {
     console.log(error);

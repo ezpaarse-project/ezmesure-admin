@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const path = require('path');
 const fs = require('fs-extra');
 const Papa = require('papaparse');
@@ -14,21 +16,21 @@ const { getInstitutions } = require('../../../lib/institutions');
 const { getSushi } = require('../../../lib/sushi');
 
 exports.command = 'export [institutions...]';
-exports.desc = 'Export sushi data';
+exports.desc = i18n.t('sushi.export.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('institutions', {
-    describe: 'Institution name, case sensitive',
+    descibe: i18n.t('sushi.export.options.institutions'),
     type: 'string',
   }).option('o', {
     alias: 'output',
-    describe: 'Output type : json or csv',
+    descibe: i18n.t('sushi.export.options.output'),
   }).option('a', {
     type: 'boolean',
     alias: 'all',
-    describe: 'Export all sushi data for all institutions',
+    descibe: i18n.t('sushi.export.options.all'),
   }).option('d', {
     alias: 'destination',
-    describe: 'Destination path',
+    descibe: i18n.t('sushi.export.options.destination'),
   });
 };
 exports.handler = async function handler(argv) {
@@ -49,7 +51,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!institutions) {
-    console.error('No institutions found');
+    console.error(i18n.t('institutions.institutionsNotFound'));
     process.exit(0);
   }
 
@@ -60,7 +62,7 @@ exports.handler = async function handler(argv) {
       .filter((institution) => argv.institutions.includes(institution.name));
 
     if (!institutions.length) {
-      console.log(`institution(s) [${argv.institutions.join(', ')}] not found`);
+      console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: argv.institutions.join(', ') }));
       process.exit(0);
     }
   }
@@ -74,7 +76,7 @@ exports.handler = async function handler(argv) {
         pageSize: 20,
         searchable: true,
         highlight: true,
-        message: 'Institutions :',
+        message: i18n.t('institutions.institutionsCheckbox'),
         source: (answersSoFar, input) => new Promise((resolve) => {
           const result = institutions
             .map(({ id, name }) => ({ name, value: id }))
@@ -91,7 +93,7 @@ exports.handler = async function handler(argv) {
     institutions = institutions.filter(({ id }) => institutionsId.includes(id));
 
     if (!institutions) {
-      console.error('No institutions found');
+      console.error(i18n.t('institutions.institutionsNotFound'));
       process.exit(0);
     }
   }
@@ -107,7 +109,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (!sushi.length) {
-      console.log(`There are no sushi credentials for this institution (${institutions[i].name})`);
+      console.log(i18n.t('sushi.noCredentialFoundFor', { institution: institutions[i].name }));
     }
 
     if (sushi.length) {
@@ -122,7 +124,7 @@ exports.handler = async function handler(argv) {
           } catch (error) {
             console.log(error);
           }
-          console.log(`Sushi exported successfully, ${filePath}`);
+          console.log(i18n.t('sushi.export.exported', { file: filePath }));
         }
 
         if (!argv.destination) {
@@ -131,7 +133,20 @@ exports.handler = async function handler(argv) {
       }
 
       if (output && output.toLowerCase() === 'csv') {
-        const fields = ['id', 'vendor', 'sushiUrl', 'requestorId', 'customerId', 'apiKey', 'comment', 'params', 'package', 'insitutionId', 'updatedAt', 'createdAt'];
+        const fields = [
+          i18n.t('sushi.expoirt.id'),
+          i18n.t('sushi.expoirt.vendor'),
+          i18n.t('sushi.expoirt.sushiUrl'),
+          i18n.t('sushi.expoirt.requestorId'),
+          i18n.t('sushi.expoirt.customerId'),
+          i18n.t('sushi.expoirt.apiKey'),
+          i18n.t('sushi.expoirt.comment'),
+          i18n.t('sushi.expoirt.params'),
+          i18n.t('sushi.expoirt.package'),
+          i18n.t('sushi.expoirt.insitutionId'),
+          i18n.t('sushi.expoirt.updatedAt'),
+          i18n.t('sushi.expoirt.createdAt'),
+        ];
         const data = [];
         sushi.forEach(({
           id,
@@ -172,7 +187,7 @@ exports.handler = async function handler(argv) {
             console.log(error);
             process.exit(1);
           }
-          console.log(`Sushi exported successfully, ${filePath}`);
+          console.log(i18n.t('sushi.export.exported', { file: filePath }));
         }
 
         if (!argv.destination) {

@@ -227,6 +227,27 @@ exports.handler = async function handler(argv) {
   });
 
   const applications = [];
+
+  if (!indicesSelected) {
+    console.log('Please select an index');
+    process.exit(0);
+  }
+
+  if (!indicesPrivileges) {
+    console.log('Please select indices privileges');
+    process.exit(0);
+  }
+
+  if (!spacesSelected) {
+    console.log('Please select a space');
+    process.exit(0);
+  }
+
+  if (!spacesPrivileges) {
+    console.log('Please select spaces privileges');
+    process.exit(0);
+  }
+
   spacesPrivileges.forEach((privilege, index) => {
     if (!privilege) { return; }
 

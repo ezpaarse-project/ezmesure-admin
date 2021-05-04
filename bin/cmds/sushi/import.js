@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const fs = require('fs-extra');
 const path = require('path');
 const get = require('lodash.get');
@@ -6,14 +8,14 @@ const { importSushi } = require('../../../lib/sushi');
 const { getInstitution } = require('../../../lib/institutions');
 
 exports.command = 'import [institution]';
-exports.desc = 'Import sushi(s)';
+exports.desc = i18n.t('sushi.import.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
-    describe: 'Institution name, case sensitive',
+    describe: i18n.t('sushi.import.options.institution'),
     type: 'string',
   }).option('f', {
     alias: 'files',
-    describe: 'Files path',
+    describe: i18n.t('sushi.import.options.filesPath'),
   }).array('files');
 };
 exports.handler = async function handler(argv) {
@@ -31,13 +33,13 @@ exports.handler = async function handler(argv) {
       const { body } = await getInstitution(argv.institution);
       if (body) { institutionId = get(body, 'hits.hits[0]._id'); }
     } catch (error) {
-      console.log(`institution [${argv.institution}] not found`);
+      console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: argv.institution }));
       process.exit(1);
     }
   }
 
   if (!institutionId) {
-    console.log(`institution [${argv.institution}] not found`);
+    console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: argv.institution }));
     process.exit(1);
   }
 
@@ -48,14 +50,14 @@ exports.handler = async function handler(argv) {
       content = await fs.readFile(path.resolve(files[i]), 'utf8');
     } catch (err) {
       console.error(err);
-      console.error(`Cannot read file : ${files[i]}`, err);
+      console.error(i18n.t('sushi.cannotReadFile', { file: files[i] }), err);
     }
 
     if (content) {
       try {
         content = JSON.parse(content);
       } catch (e) {
-        console.error(`Cannot parse : ${files[i]}`, e);
+        console.error(i18n.t('sushi.cannotParse', { file: files[i] }), e);
       }
 
       if (!Array.isArray(content)) {
@@ -69,7 +71,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!sushi.length) {
-    console.log('No sushi data found.');
+    console.log(i18n.t('sushi.noDataFound'));
     process.exit(1);
   }
 
@@ -84,7 +86,7 @@ exports.handler = async function handler(argv) {
 
   try {
     await importSushi(sushiDocs);
-    console.log('Successfully imported sushi.');
+    console.log(i18n.t('sushi.import.imported'));
   } catch (error) {
     console.error(error);
   }

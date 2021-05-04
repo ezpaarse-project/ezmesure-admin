@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 
@@ -6,11 +8,11 @@ inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 const spacesLib = require('../../../lib/spaces');
 
 exports.command = 'delete [spaces..]';
-exports.desc = 'Delete space (s)';
+exports.desc = i18n.t('spaces.delete.description');
 exports.builder = function builder(yargs) {
-  return yargs.positional('institution', {
-    describe: 'space name, case sensitive',
-    type: 'string',
+  return yargs.positional('spaces', {
+    describe: i18n.t('spaces.delete.option.spaces'),
+    type: 'array',
   });
 };
 exports.handler = async function handler(argv) {
