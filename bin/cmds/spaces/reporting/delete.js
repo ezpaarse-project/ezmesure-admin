@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 const autocomplete = require('inquirer-autocomplete-prompt');
@@ -13,10 +15,10 @@ const dashboard = require('../../../../lib/dashboard');
 const reporting = require('../../../../lib/reporting');
 
 exports.command = 'delete [space]';
-exports.desc = 'Delete reporting on space';
+exports.desc = i18n.t('spaces.reporting.delete.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('space', {
-    describe: 'Space name, case sensitive',
+    describe: i18n.t('spaces.reporting.delete.options.space'),
     type: 'string',
   });
 };
@@ -29,7 +31,7 @@ exports.handler = async function handler(argv) {
       const { data } = await spacesLib.getById(space);
       if (data) { spaceId = data.id; }
     } catch (error) {
-      console.log(`space [${space}] not found`);
+      console.log(i18n.t('spaces.notFoundSpace', { space }));
     }
   }
 
@@ -39,14 +41,14 @@ exports.handler = async function handler(argv) {
       const { data } = await spacesLib.findAll();
       if (data) { spaces = data; }
     } catch (error) {
-      console.log(`space [${space}] not found`);
+      console.log(i18n.t('spaces.notFound'));
     }
 
     const { spaceSelected } = await inquirer.prompt([{
       type: 'autocomplete',
       pageSize: 20,
       name: 'spaceSelected',
-      message: 'Spaces (enter: select institution)',
+      message: i18n.t('spaces.spaceSelect'),
       searchable: true,
       highlight: true,
       source: (answersSoFar, input) => new Promise((resolve) => {
@@ -64,7 +66,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!spaceId) {
-    console.log(`space [${space}] does not found`);
+    console.log(i18n.t('spaces.notFoundSpace', { space }));
     process.exit(0);
   }
 
@@ -73,12 +75,12 @@ exports.handler = async function handler(argv) {
     const { body } = await findBySpace(spaceId);
     if (body) { tasks = get(body, 'hits.hits'); }
   } catch (error) {
-    console.log('No reporting tak(s) found');
+    console.log(i18n.t('reporting.noTasksFound'));
     process.exit(0);
   }
 
   if (!tasks.length) {
-    console.log('No reporting tak(s) found');
+    console.log(i18n.t('reporting.noTasksFound'));
     process.exit(0);
   }
 
@@ -92,7 +94,7 @@ exports.handler = async function handler(argv) {
         tasks[i].dashboardName = body.dashboard.title;
       }
     } catch (error) {
-      console.log(`dashboard [${tasks.space ? `${tasks.space}:` : ''}dashboard:${task.dashboardId}] does not found`);
+      console.log(i18n.t('spaces.reporting.dashboardNotFound', { dashboardId: `${tasks.space ? `${tasks.space}:` : ''}dashboard:${task.dashboardId}` }));
     }
   }
 
@@ -100,7 +102,7 @@ exports.handler = async function handler(argv) {
     type: 'checkbox-plus',
     pageSize: 20,
     name: 'tasksSelected',
-    message: 'Spaces (enter: select institution)',
+    message: i18n.t('spaces.spaceCheckbox'),
     searchable: true,
     highlight: true,
     source: (answersSoFar, input) => new Promise((resolve) => {
@@ -115,7 +117,7 @@ exports.handler = async function handler(argv) {
   }]);
 
   if (!tasksSelected.length) {
-    console.log('No tasks selected');
+    console.log(i18n.t('reporting.noTaskSelected'));
     process.exit(0);
   }
 
@@ -127,11 +129,11 @@ exports.handler = async function handler(argv) {
 
       if (itemDeleted && itemDeleted.result === 'deleted') {
         const task = tasks.find(({ id }) => id === itemDeleted._id);
-        console.log(`tasks [${task.print ? '[OI] ' : ''}${task.dashboardName}] delete successfully`);
+        console.log(i18n.t('reporting.deleted', { taskName: `${task.print ? '[OI] ' : ''}${task.dashboardName}` }));
       }
 
       if (itemDeleted && itemDeleted.result !== 'deleted') {
-        console.log(`tasks [${itemDeleted._id}] ${itemDeleted.result}`);
+        console.log(i18n.t('reporting.deletedMessage', { id: itemDeleted._id, result: itemDeleted.result }));
       }
     }
   } catch (error) {

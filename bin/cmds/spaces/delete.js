@@ -29,7 +29,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (!Array.isArray(spacesList) || !spacesList.length) {
-      console.log('No space(s) found.');
+      console.log(i18n.t('spaces.notFound'));
       process.exit(0);
     }
 
@@ -40,7 +40,7 @@ exports.handler = async function handler(argv) {
         pageSize: 20,
         searchable: true,
         highlight: true,
-        message: 'Spaces :',
+        message: i18n.t('spaces.spaceCheckbox'),
         source: (answersSoFar, input) => new Promise((resolve) => {
           const result = spacesList
             .map(({ id, name }) => ({ name, value: id }))
@@ -55,7 +55,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!Array.isArray(spaces) || !spaces.length) {
-    console.log('No space(s) selected');
+    console.log(i18n.t('spaces.noSpacesSelected'));
     process.exit(0);
   }
 
@@ -64,7 +64,7 @@ exports.handler = async function handler(argv) {
       const response = await spacesLib.delete(spaces[i]);
 
       if (response && response.status === 204) {
-        console.log(`space ${spaces[i]} removed successully`);
+        console.log(i18n.t('spaces.delete.removed', { space: spaces[i] }));
       }
     } catch (error) {
       if (error && error?.response && error?.response?.data) {

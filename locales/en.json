@@ -153,7 +153,12 @@
 		}
 	},
 	"spaces":	{
+		"spaceCheckbox": "Spaces (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+		"spaceSelect": "Spaces (Use arrow keys, press <enter> to submit)",
 		"description": "Manage spaces <command>: get, add, edit, delete, list, reporting",
+		"notFound": "No space(s) found",
+		"noSpacesSelected": "No space(s) selected",
+		"notFoundSpace": "space [{{space}}] not found",
 		"add": {
 			"description": "Create new space",
 			"options": {
@@ -176,17 +181,57 @@
 			"description": "Delete space(s)",
 			"options": {
 				"spaces": "Space(s) name, case sensitive"
-			}
+			},
+			"removed": "space {{space}} removed successully"
 		},
 		"get": {
-			"description": ""
+			"description": "Display information for one space",
+			"id": "ID",
+			"name": "Name",
+			"descr": "Description",
+			"initials": "Initials",
+			"color": "Color",
+			"options": {
+				"space": "Space name",
+				"json": "Display data in json",
+				"all": "Display all data in table"
+			}
 		},
 		"list": {
-			"description": ""
+			"description": "List all spaces",
+			"options": {
+				"json": "Display data in json",
+				"all": "Display all data in table"
+			}
 		},
 		"reporting": {
-
+			"description": "Manage reporting <command>: list, delete",
+			"dashboardNotFound": "dashboard [{{dashboardId}}] does not found",
+			"list": {
+				"description": "List reporting on space",
+				"options": {
+					"space": "Space name, case sensitive"
+				},
+				"dashboard": "Dashboard",
+				"frequency": "Frequency",
+				"emails": "Emails",
+				"print": "Print",
+				"sentAt": "Sent at"
+			},
+			"delete": {
+				"description": "Delete reporting on space",
+				"options": {
+					"space": "Space name, case sensitive"
+				},
+			}
 		}
+	},
+	"reporting": {
+		"description": "",
+		"noTasksFound": "No reporting tak(s) found",
+		"noTaskSelected": "No tasks selected",
+		"deleted": "tasks [{{taskName}}] delete successfully",
+		"deletedMessage": "tasks [{{id}}] {{result}}"
 	},
 	"institutions": {
 		"institutionsCheckbox": "Institutions (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",

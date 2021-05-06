@@ -1,19 +1,21 @@
+const { i18n } = global;
+
 const { table } = require('table');
 const chalk = require('chalk');
 const spacesLib = require('../../../lib/spaces');
 
 exports.command = 'get <space>';
-exports.desc = 'Display information for one space';
+exports.desc = i18n.t('spaces.get.description');
 exports.builder = function builder(yargs) {
-  return yargs.positional('source', {
-    describe: 'Space name',
+  return yargs.positional('space', {
+    describe: i18n.t('spaces.get.options.space'),
     type: 'string',
   }).option('j', {
     alias: 'json',
-    describe: 'Display data in json',
+    describe: i18n.t('spaces.get.options.json'),
   }).option('a', {
     alias: 'all',
-    describe: 'Display all data in table',
+    describe: i18n.t('spaces.get.options.all'),
   });
 };
 exports.handler = async function handler(argv) {
@@ -28,7 +30,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!spaces) {
-    console.log('No space(s) found');
+    console.log(i18n.t('spaces.notFound'));
     process.exit(0);
   }
 
@@ -37,9 +39,9 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  let header = ['ID', 'Name', 'Description'];
+  let header = [i18n.t('spaces.id'), i18n.t('spaces.name'), i18n.t('spaces.descr')];
   if (argv.all) {
-    header = header.concat(['Initials', 'Color']);
+    header = header.concat([i18n.t('spaces.initials'), i18n.t('spaces.color')]);
   }
 
   spaces = Array.isArray(spaces) ? spaces : [spaces];

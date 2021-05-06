@@ -73,7 +73,7 @@ exports.handler = async function handler(argv) {
   }
 
   try {
-    await spaces.build(options);
+    // await spaces.build(options);
   } catch (error) {
     console.log(error);
     process.exit(1);
@@ -109,6 +109,14 @@ exports.handler = async function handler(argv) {
     if (!exportedDashboard) {
       console.log(i18n.t('spaces.add.dashboardDoesNotExists', { dashboard: templateSelected }));
       process.exit(1);
+    }
+
+    if (exportedDashboard
+        && exportedDashboard.objects.length
+        && exportedDashboard.objects[0].error
+    ) {
+      console.log(i18n.t('spaces.add.dashboardDoesNotExists', { dashboard: templateSelected }));
+      process.exit(0);
     }
 
     if (exportedDashboard && exportedDashboard.objects) {
