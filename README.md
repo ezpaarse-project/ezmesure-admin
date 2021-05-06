@@ -54,6 +54,40 @@ $ npm install
 
 To use the command in development mode simply use it as follows: ``./ezmesure-admin <command>``
 
+## i18n
+
+1. In ``ezmesure-admin`` file, add your locale in ``locales`` array.
+2. Create your locale ``JSON`` file in ``locales`` folder.
+3. ``Import i18n`` in your commande file
+4. Use ``i18n.t()`` function to translate
+
+Example :
+
+Command file :
+
+```js
+const { i18n } = global;
+
+exports.command = 'mycmd';
+exports.desc = i18n.t('mycmd.description');
+exports.builder = {};
+exports.handler = async function handler() {
+  console.log(i18n.t('mycmd.helloWorld'))
+};
+```
+
+Locale file :
+
+```json
+{
+  "mycmd": {
+    "descritpion": "This is my command",
+    "helloWorld": "Hello World"
+  }
+}
+```
+
+
 ## License
 
 MIT.
