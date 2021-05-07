@@ -1,13 +1,21 @@
+const { i18n } = global;
+
 const fs = require('fs-extra');
 const set = require('lodash.set');
 const scopes = require('../../../lib/app/config').getScopes();
 
 exports.command = 'set <key> <value>';
-exports.desc = 'Set the value of a key in the config';
+exports.desc = i18n.t('config.set.description');
 exports.builder = function builder(yargs) {
-  return yargs.option('global', {
+  return yargs.positional('key', {
+    describe: i18n.t('config.set.options.key'),
+    type: 'string',
+  }).positional('value', {
+    describe: i18n.t('config.set.options.value'),
+    type: 'string',
+  }).option('global', {
     alias: 'g',
-    describe: 'Set config globally',
+    describe: i18n.t('config.set.options.global'),
     boolean: true,
   });
 };

@@ -1,22 +1,24 @@
+const { i18n } = global;
+
 const fs = require('fs-extra');
 const { prompt } = require('enquirer');
 const { spawn } = require('child_process');
 const scopes = require('../../../lib/app/config').getScopes();
 
 exports.command = 'edit';
-exports.desc = 'Edit configuration';
+exports.desc = i18n.t('config.edit.description');
 exports.builder = function builder(yargs) {
   return yargs.option('global', {
     alias: 'g',
-    describe: 'Edit global config',
+    describe: i18n.t('config.edit.options.global'),
     boolean: true,
   }).option('interactive', {
     alias: 'i',
-    describe: 'Intractive mode',
+    describe: i18n.t('config.edit.options.interactive'),
     boolean: true,
   }).option('editor', {
     alias: 'e',
-    describe: 'The editor command to use. Defaults to EDITOR environment variable if set, or "vi" on Posix, or "notepad" on Windows',
+    describe: i18n.t('config.edit.options.editor'),
   });
 };
 exports.handler = async function handler(argv) {
@@ -41,19 +43,19 @@ exports.handler = async function handler(argv) {
       {
         type: 'input',
         name: 'baseUrl',
-        message: 'ezmESURE base API URL',
+        message: i18n.t('config.edit.baseUrl'),
         initial: scope.config.baseUrl,
       },
       {
         type: 'input',
         name: 'token',
-        message: 'Authentication token',
+        message: i18n.t('config.edit.token'),
         initial: scope.config.token,
       },
       {
         type: 'numeral',
         name: 'timeout',
-        message: 'Request timeout in milliseconds',
+        message: i18n.t('config.edit.timeout'),
         initial: scope.config.timeout,
         result: (val) => Number.parseInt(val, 10),
       },
@@ -62,7 +64,7 @@ exports.handler = async function handler(argv) {
     return prompt({
       type: 'select',
       name: 'action',
-      message: 'What do you want to set ?',
+      message: i18n.t('config.edit.whatDoYouWant'),
       choices: options.map((o) => ({
         name: o.name,
         hint: o.message,

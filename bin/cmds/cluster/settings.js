@@ -1,7 +1,9 @@
+const { i18n } = global;
+
 const { getSettings } = require('../../../lib/cluster');
 
 exports.command = 'settings';
-exports.desc = 'Show cluster settings';
+exports.desc = i18n.t('cluster.settings.description');
 exports.builder = {};
 exports.handler = async function handler() {
   let response;
@@ -10,7 +12,7 @@ exports.handler = async function handler() {
     response = body;
   } catch (e) {
     const dataError = e.response && e.response.body && e.response.body.error;
-    console.error('Failed to get cluster settings');
+    console.error(i18n.t('cluster.settings.failed'));
     console.error(dataError || e.message);
     process.exit(1);
   }

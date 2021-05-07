@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const fs = require('fs-extra');
 const path = require('path');
 
@@ -14,24 +16,24 @@ const spacesLib = require('../../../lib/spaces');
 const dashboardLib = require('../../../lib/dashboard');
 
 exports.command = 'import [space]';
-exports.desc = 'Import dashboard(s)';
+exports.desc = i18n.t('dashboard.import.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('space', {
-    describe: 'Space name, case sensitive',
+    describe: i18n.t('dashboard.import.options.space'),
     type: 'string',
   })
     .option('i', {
       alias: 'index-pattern',
-      describe: 'Index pattern name',
+      describe: i18n.t('dashboard.import.options.indexPattern'),
     })
     .option('o', {
       alias: 'overwrite',
       type: 'boolean',
-      describe: 'Overwrite conflicts',
+      describe: i18n.t('dashboard.import.options.overwrite'),
     })
     .option('f', {
       alias: 'files',
-      describe: 'Files path',
+      describe: i18n.t('dashboard.import.options.files'),
     })
     .array('files');
 };
@@ -50,7 +52,7 @@ exports.handler = async function handler(argv) {
       const { data } = await spacesLib.findById(argv.space);
       if (data) { spaceId = get(data, 'id'); }
     } catch (error) {
-      console.log(`space [${argv.space}] not found`);
+      console.error(i18n.t('dashboard.spaceNotFound', { spaceName: argv.space }));
       process.exit(1);
     }
   }
@@ -61,14 +63,14 @@ exports.handler = async function handler(argv) {
       const { data } = await spacesLib.findAll();
       if (data) { spaces = data; }
     } catch (error) {
-      console.log(`space [${argv.space}] not found`);
+      console.error(i18n.t('dashboard.spaceNotFound', { spaceName: argv.space }));
     }
 
     const { spaceSelected } = await inquirer.prompt([{
       type: 'autocomplete',
       pageSize: 20,
       name: 'spaceSelected',
-      message: 'Spaces (enter: select space)',
+      message: i18n.t('spaces.spaceCheckbox'),
       searchable: true,
       highlight: true,
       source: (answersSoFar, input) => new Promise((resolve) => {
@@ -86,7 +88,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!spaceId) {
-    console.log(`space [${argv.space}] not found`);
+    console.error(i18n.t('dashboard.spaceNotFound', { spaceName: argv.space }));
     process.exit(1);
   }
 
@@ -95,14 +97,14 @@ exports.handler = async function handler(argv) {
     const { index } = await inquirer.prompt([{
       type: 'input',
       name: 'index',
-      message: 'Index pattern :',
+      message: i18n.t('dashboard.import.indexPattern'),
     }]);
 
     indexPattern = index;
   }
 
   if (!indexPattern) {
-    console.log('No index pattern');
+    console.log(i18n.t('dashboard.import.noIndexPattern'));
     process.exit(0);
   }
 
@@ -113,14 +115,14 @@ exports.handler = async function handler(argv) {
       content = await fs.readFile(path.resolve(files[i]), 'utf8');
     } catch (err) {
       console.error(err);
-      console.error(`Cannot read file : ${files[i]}`, err);
+      console.error(i18n.t('dashboard.import.cannotRead', { file: files[i] }), err);
     }
 
     if (content) {
       try {
         content = JSON.parse(content);
       } catch (e) {
-        console.error(`Cannot parse : ${files[i]}`, e);
+        console.error(i18n.t('dashboard.import.cannotParse', { file: files[i] }), e);
       }
 
       if (!Array.isArray(content)) {
@@ -134,7 +136,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!dashboards.length) {
-    console.log('No dashboard(s) data found.');
+    console.log(i18n.t('dashboard.import.noDashboardData'));
     process.exit(1);
   }
 
@@ -156,15 +158,15 @@ exports.handler = async function handler(argv) {
         .importOne(argv.space || spaceId, dashboard, argv.overwrite || false);
 
       if (status !== 200) {
-        console.log(`[Error#${status}] : dashbord does not imported`);
+        console.log(i18n.t('dashboard.import.error', { status }));
       }
 
       if (data && status === 200) {
         const errors = data.objects.filter(({ error }) => error);
         if (errors.length) {
-          console.log('There are conflicts, use the --overwrite option to force the rewriting of conflicts');
+          console.log(i18n.t('dashboard.import.conflict'));
         } else {
-          console.log('Dashboard imported successfully');
+          console.log(i18n.t('dashboard.import.imported'));
         }
       }
     } catch (error) {

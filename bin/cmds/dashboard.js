@@ -1,5 +1,7 @@
+const { i18n } = global;
+
 exports.command = 'dashboard <command>';
-exports.desc = 'Manage dashboard with a <command>: import, export';
+exports.desc = i18n.t('dashboard.description');
 exports.handler = function handler() {};
 exports.builder = function builder(yargs) {
   return yargs.commandDir('dashboard');

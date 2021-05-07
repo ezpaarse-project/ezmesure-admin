@@ -1,10 +1,12 @@
+const { i18n } = global;
+
 const { setShardAllocation } = require('../../../../lib/cluster');
 
 exports.command = 'allocation <type>';
-exports.desc = 'Enable or disable allocation for specific kinds of elasticsearch shards.';
+exports.desc = i18n.t('cluster.shard.allocation.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('type', {
-    describe: 'Can be : all, primaries, new_primaries, none, null',
+    describe: i18n.t('cluster.shard.allocation.options.type'),
     type: 'string',
   });
 };
@@ -14,7 +16,7 @@ exports.handler = async function handler(argv) {
   let { type } = argv;
 
   if (!validValues.has(type)) {
-    console.log().error(`Invalid value "${type}", valid values are : ${Array.from(validValues).join(', ')}`);
+    console.log().error(i18n.t('cluster.shard.allocation.invalidValue', { type, values: Array.from(validValues).join(', ') }));
     process.exit(1);
   }
 
@@ -28,17 +30,17 @@ exports.handler = async function handler(argv) {
     response = body;
   } catch (e) {
     const dataError = e.response && e.response.body && e.response.body.error;
-    console.error('Failed to apply cluster settings');
+    console.error(i18n.t('cluster.shard.allocation.failedToApply'));
     console.error(dataError || e.message);
     process.exit(1);
   }
 
   if (!response || response.acknowledged !== true) {
-    console.error('Invalid elasticsearch response body');
+    console.error(i18n.t('cluster.invalidReponse'));
     console.error(response);
     process.exit(1);
   }
 
-  console.info('Cluster settings applied');
+  console.info(i18n.t('cluster.shard.allocation.applied'));
   process.exit(0);
 };

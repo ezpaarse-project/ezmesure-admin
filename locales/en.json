@@ -61,8 +61,8 @@
 		"description": "Manage sushi <command>: add, delete, list, info, test, export, import",
 		"noCredentialsFound": "No sushi credentials found",
 		"noDataFound": "No sushi data found",
-		"cannotReadFile": "`Cannot read file : {{file}}`",
-		"cannotParse": "`Cannot parse : {{file}}`",
+		"cannotReadFile": "Cannot read file : {{file}}",
+		"cannotParse": "Cannot parse : {{file}}",
 		"vendorCheckbox": "Sushi vendor (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"noCredentialsFoundFor": "There are no sushi credentials for this institution ({{institution}})",
 		"add": {
@@ -105,7 +105,7 @@
 				"filesPath": "Files path",
 				"institution": "Institution name, case sensitive"
 			},
-			"cannotReadFile": "`Cannot read file : {{file}}`",
+			"cannotReadFile": "Cannot read file : {{file}}",
 			"imported": "Imported successfully"
 		},
 		"info": {
@@ -352,6 +352,7 @@
 		"mectrics": "Metrics"
 	},
 	"counter5": {
+		"description": "counter5 <command>: reports",
 		"report": {
 			"description": "Get COUNTER5 reports for one or more institutions",
 			"options": {
@@ -363,5 +364,107 @@
 		},
 		"noSushiReports": "institution [{{name}}] sushi reports not found",
 		"exported": "SUSHI COUNTER5 reports available file : {{dest}} exported succesfully"
+	},
+	"config": {
+		"description": "Manage config with a <command>: get, set, delete, view or edit",
+		"delete": {
+			"description": "Delete a key in the config",
+			"options": {
+				"key": "Config key",
+				"global": "Delete key globally"
+			}
+		},
+		"get": {
+			"description": "Get the value of a key in the config",
+			"options": {
+				"key": "Config key"
+			}
+		},
+		"set": {
+			"description": "Set the value of a key in the config",
+			"options": {
+				"key": "Config key",
+				"value": "Config value",
+				"global": "Delete key globally"
+			}
+		},
+		"view": {
+			"description": "View current configuration",
+			"global": "Global",
+			"local": "Local"
+		},
+		"edit": {
+			"description": "Edit configuration",
+			"options": {
+				"editor": "The editor command to use. Defaults to EDITOR environment variable if set, or 'vi' on Posix, or 'notepad' on Windows",
+				"intractive": "Intractive mode",
+				"global": "Edit global config"
+			},
+			"baseUrl": "ezmESURE base API URL",
+			"token": "Authentication token",
+			"timeout": "Request timeout in milliseconds",
+			"whatDoYoutWant": "What do you want to set ?"
+		}
+	},
+	"cluster": {
+		"description": "Manage cluster <command>: settings, flush, shard",
+		"invalidReponse": "Invalid elasticsearch response body",
+		"shard": {
+			"description": "Manage shards <command>: allocation",
+			"allocation": {
+				"description": "Enable or disable allocation for specific kinds of elasticsearch shards",
+				"options": {
+					"type": "Can be : all, primaries, new_primaries, none, null"
+				},
+				"invalidValue": "Invalid value {{type}}, valid values are : {{values}}",
+				"failedToApply": "Failed to apply cluster settings",
+				"applied": "Cluster settings applied"
+			}
+		},
+		"flush": {
+			"description": "Flush all data streams and indices in the cluster",
+			"flushFailed": "Failed to flush cluster",
+			"shardsFailed": "Some shards failed to flush",
+			"total": "Total",
+			"sauccessful": "Successful",
+			"failed": "Failed"
+		},
+		"settings": {
+			"description": "Show cluster settings",
+			"failed": "Failed to get cluster settings"
+		}
+	},
+	"dashboard": {
+		"description": "Manage dashboard with a <command>: import, export",
+		"dashboardsCheckbox": "Dashboard(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+		"noDashaboardsSelected": "'No dashaboard(s) selected",
+		"notFound": "dashboard [{{dashboardId}}] not found",
+		"spaceNotFound": "space [{{spaceName}}] not found",
+		"export": {
+			"description": "Export dashboard",
+			"options": {
+				"space": "Space name, case sensitive",
+				"all": "Export all dashboards",
+				"output": "Output path"
+			},
+			"exported": "dashboard [{{dashboardTitle}}] exported successfully"
+		},
+		"import": {
+			"description": "Import dashboard(s)",
+			"options": {
+				"space":"Space name, case sensitive",
+				"indexPattern": "Index pattern name",
+				"overwrite": "Overwrite conflicts",
+				"files": "Files path"
+			},
+			"indexPattern": "Index pattern",
+			"noIndexPattern": "No index pattern typed",
+			"noDashboardData": "No dashboard(s) data found",
+			"cannotReadFile": "Cannot read file : {{file}}",
+			"cannotParse": "Cannot parse : {{file}}",
+			"error": "[Error#{{status}}] : dashbord does not imported",
+			"conflict": "There are conflicts, use the --overwrite option to force the rewriting of conflicts",
+			"imported": "Dashboard imported successfully"
+		}
 	}
 }

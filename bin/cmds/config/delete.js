@@ -1,13 +1,18 @@
+const { i18n } = global;
+
 const fs = require('fs-extra');
 const unset = require('lodash.unset');
 const scopes = require('../../../lib/app/config').getScopes();
 
 exports.command = 'delete <key>';
-exports.desc = 'Delete a key in the config';
+exports.desc = i18n.t('config.delete.description');
 exports.builder = function builder(yargs) {
-  return yargs.option('global', {
+  return yargs.positional('key', {
+    describe: i18n.t('config.delete.options.key'),
+    type: 'string',
+  }).option('global', {
     alias: 'g',
-    describe: 'Delete key globally',
+    describe: i18n.t('config.delete.options.global'),
     boolean: true,
   });
 };

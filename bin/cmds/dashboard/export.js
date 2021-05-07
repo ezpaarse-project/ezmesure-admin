@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const path = require('path');
 const fs = require('fs-extra');
 const { format } = require('date-fns');
@@ -15,17 +17,17 @@ const { findAll, findById } = require('../../../lib/spaces');
 const { findBySpace, exportOne } = require('../../../lib/dashboard');
 
 exports.command = 'export [space]';
-exports.desc = 'Export dashboard';
+exports.desc = i18n.t('dashboard.export.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('space', {
-    describe: 'Space name, case sensitive',
+    describe: i18n.t('dashboard.export.options.space'),
     type: 'string',
   }).option('a', {
     alias: 'all',
-    describe: 'Export all dashboards',
+    describe: i18n.t('dashboard.export.options.all'),
   }).option('o', {
     alias: 'output',
-    describe: 'Output path',
+    describe: i18n.t('dashboard.export.options.output'),
   });
 };
 exports.handler = async function handler(argv) {
@@ -40,7 +42,7 @@ exports.handler = async function handler(argv) {
       const { data } = await findById(argv.space);
       if (data) { spaceId = get(data, 'id'); }
     } catch (error) {
-      console.error(`space [${argv.space}] not found`);
+      console.error(i18n.t('dashboard.spaceNotFound', { spaceName: argv.space }));
       process.exit(1);
     }
   }
@@ -51,14 +53,14 @@ exports.handler = async function handler(argv) {
       const { data } = await findAll();
       if (data) { spaces = data; }
     } catch (error) {
-      console.log(`space [${argv.space}] not found`);
+      console.error(i18n.t('dashboard.spaceNotFound', { spaceName: argv.space }));
     }
 
     const { spaceSelected } = await inquirer.prompt([{
       type: 'autocomplete',
       pageSize: 20,
       name: 'spaceSelected',
-      message: 'Spaces (enter: select space)',
+      message: i18n.t('spaces.spaceSelect'),
       searchable: true,
       highlight: true,
       source: (answersSoFar, input) => new Promise((resolve) => {
@@ -76,7 +78,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!spaceId) {
-    console.log('No space selected');
+    console.log(i18n.t('spaces.noSpacesSelected'));
     process.exit(0);
   }
 
@@ -96,7 +98,7 @@ exports.handler = async function handler(argv) {
         pageSize: 20,
         searchable: true,
         highlight: true,
-        message: 'Dashboard (space to select, enter to valid) :',
+        message: i18n.t('dashboard.dashboardsCheckbox'),
         source: (answersSoFar, input) => new Promise((resolve) => {
           const result = dashboards
             .map(({ _id, _source }) => ({ name: _source.dashboard.title, value: _id }))
@@ -108,7 +110,7 @@ exports.handler = async function handler(argv) {
     ]);
 
     if (!dashboardsId.length) {
-      console.log('No dashaboard(s) selected.');
+      console.log(i18n.t('dashboard.noDashaboardsSelected'));
       process.exit(0);
     }
 
@@ -125,7 +127,7 @@ exports.handler = async function handler(argv) {
       const { data } = await exportOne(dashboardId, spaceId === 'default' ? null : spaceId);
       if (data) { dashboardData = data; }
     } catch (error) {
-      console.log(`dashboard [${dashboards[i]._id}] not found`);
+      console.log(i18n.t('dashboard.noFound', { dashboardId: dashboards[i]._id }));
     }
 
     if (dashboardData) {
@@ -137,7 +139,7 @@ exports.handler = async function handler(argv) {
         } catch (error) {
           console.log(error);
         }
-        console.log(`dashboard [${dashboards[i]._source.dashboard.title}] exported successfully`);
+        console.log(i18n.t('dashboard.export.exported', { dashboardTitle: dashboards[i]._source.dashboard.title }));
       }
 
       if (!argv.output) {
