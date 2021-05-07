@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const path = require('path');
 const fs = require('fs-extra');
 const { format } = require('date-fns');
@@ -14,14 +16,14 @@ const { findAll } = require('../../../lib/sushi');
 const rolesLib = require('../../../lib/roles');
 
 exports.command = 'export [institutions...]';
-exports.desc = 'Export institution(s)';
+exports.desc = i18n.t('institutions.export.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('institutions', {
-    describe: 'Institution(s) name, case sensitive',
+    describe: i18n.t('institutions.export.options.institutions'),
     type: 'string',
   }).option('o', {
     alias: 'output',
-    describe: 'Output path',
+    describe: i18n.t('institutions.export.options.output'),
   });
 };
 exports.handler = async function handler(argv) {
@@ -40,7 +42,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!institutions) {
-    console.error('No institutions found');
+    console.error(i18n.t('institutions.institutionsNotFound'));
     process.exit(0);
   }
 
@@ -54,7 +56,7 @@ exports.handler = async function handler(argv) {
       .filter((institution) => argv.institutions.includes(institution.name));
 
     if (!institutions.length) {
-      console.log(`institution(s) [${argv.institutions.join(', ')}] not found`);
+      console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: argv.institutions.join(', ') }));
       process.exit(0);
     }
   }
@@ -68,7 +70,7 @@ exports.handler = async function handler(argv) {
         pageSize: 20,
         searchable: true,
         highlight: true,
-        message: 'Institutions :',
+        message: i18n.t('institutions.institutionsCheckbox'),
         source: (answersSoFar, input) => new Promise((resolve) => {
           const result = institutions
             .map(({ id, name }) => ({ name, value: id }))
@@ -85,7 +87,7 @@ exports.handler = async function handler(argv) {
     institutions = institutions.filter(({ id }) => institutionsId.includes(id));
 
     if (!institutions) {
-      console.error('No institutions found');
+      console.error(i18n.t('institutions.institutionsNotFound'));
       process.exit(0);
     }
   }
@@ -119,7 +121,7 @@ exports.handler = async function handler(argv) {
       const fileName = `export_${institutions[i].name.toLowerCase()}_${currentDate}`;
       try {
         await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), institutions[i], { spaces: 2 });
-        console.log(`institution [${institutions[i].name.toLowerCase()}] exported successfully`);
+        console.log(i18n.t('institutions.export.exported', { name: institutions[i].name.toLowerCase() }));
       } catch (error) {
         console.log(error);
       }

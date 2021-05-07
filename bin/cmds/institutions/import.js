@@ -1,10 +1,12 @@
+const { i18n } = global;
+
 const fs = require('fs-extra');
 const path = require('path');
 const { importInstitution } = require('../../../lib/institutions');
 const rolesLib = require('../../../lib/roles');
 
 exports.command = 'import';
-exports.desc = 'Import institution(s)';
+exports.desc = i18n.t('institutions.import.description');
 exports.builder = function builder(yargs) {
   return yargs.option('f', {
     alias: 'files',
@@ -15,7 +17,7 @@ exports.handler = async function handler(argv) {
   const options = {};
 
   if (!argv.files) {
-    console.log('Please sepecify JSON files path');
+    console.log(i18n.t('institutions.import.sepecifyJSONFile'));
     process.exit(0);
   }
 
@@ -32,14 +34,14 @@ exports.handler = async function handler(argv) {
       content = await fs.readFile(path.resolve(files[i]), 'utf8');
     } catch (err) {
       console.error(err);
-      console.error(`Cannot read file : ${files[i]}`, err);
+      console.error(i18n.t('institutions.import.cannotRead', { file: files[i] }), err);
     }
 
     if (content) {
       try {
         content = JSON.parse(content);
       } catch (e) {
-        console.error(`Cannot parse : ${files[i]}`, e);
+        console.error(i18n.t('institutions.import.cannotParse', { file: files[i] }), e);
       }
 
       if (!Array.isArray(content)) {
@@ -126,7 +128,7 @@ exports.handler = async function handler(argv) {
 
     try {
       await importInstitution(institutionDoc, sushiDocs);
-      console.log('Successfully imported institution(s).');
+      console.log(i18n.t('institutions.import.imported'));
     } catch (error) {
       console.error(error);
     }

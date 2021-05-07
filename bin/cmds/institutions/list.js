@@ -1,14 +1,12 @@
+const { i18n } = global;
+
 const { table } = require('table');
 const chalk = require('chalk');
 const { getAll } = require('../../../lib/institutions');
 
 exports.command = 'list';
-exports.desc = 'List all institutions';
-exports.builder = function builder(yargs) {
-  return yargs.option('token', {
-    describe: 'ezMESURE token',
-  });
-};
+exports.desc = i18n.t('institutions.list.description');
+exports.builder = function builder(yargs) {};
 exports.handler = async function handler(argv) {
   let institutions;
   try {
@@ -20,10 +18,20 @@ exports.handler = async function handler(argv) {
   }
 
   if (!institutions) {
-    console.error('No institutions found');
+    console.error(i18n.t('institutions.institutionsNotFound'));
   }
 
-  const header = ['Name', 'City', 'Website', 'Domains', 'Auto', 'Validate', 'Index prefix', 'Role', 'Contact'];
+  const header = [
+    i18n.t('institutions.name'),
+    i18n.t('institutions.city'),
+    i18n.t('institutions.website'),
+    i18n.t('institutions.domains'),
+    i18n.t('institutions.auto'),
+    i18n.t('institutions.validate'),
+    i18n.t('institutions.indexPrefix'),
+    i18n.t('institutions.role'),
+    i18n.t('institutions.contact'),
+  ];
   const row = institutions.map(({
     name, city, website, domains, auto, validated,
     indexPrefix, role, docContactName, techContactName,
@@ -37,10 +45,10 @@ exports.handler = async function handler(argv) {
       chalk.hex(auto.ezmesure ? '#78e08f' : '#e55039').bold('ezMESURE'),
       chalk.hex(auto.report ? '#78e08f' : '#e55039').bold('Reporting'),
     ].join('\n'),
-    validated ? chalk.hex('#78e08f').bold('Validated') : chalk.hex('#e55039').bold('Not validated'),
+    validated ? chalk.hex('#78e08f').bold(i18n.t('institutions.get.validated')) : chalk.hex('#e55039').bold(i18n.t('institutions.get.notValidated')),
     indexPrefix,
     role,
-    [`Doc : ${docContactName}`, `Tech : ${techContactName}`].join('\n'),
+    [`${i18n.t('institutions.get.doc')} : ${docContactName}`, `${i18n.t('institutions.get.tech')} : ${techContactName}`].join('\n'),
   ]));
 
   console.log(table([header, ...row]));
