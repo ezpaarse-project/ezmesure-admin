@@ -19,8 +19,8 @@
 			"add": {
 				"description": "Add role",
 				"options": {
-					"user": "Users name",
-					"roles": "Roles name"
+					"users": "User(s) name(s)",
+					"roles": "Role(s) name(s)"
 				},
 				"usersNotFound": "user(s) [{{users}}] not found",
 				"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
@@ -32,8 +32,8 @@
 			"delete": {
 				"description": "Delete role",
 				"options": {
-					"user": "Users name",
-					"roles": "Roles name"
+					"user": "User name",
+					"roles": "Role(s) name(s)"
 				},
 				"checkboxUsers": "Users (User arrow keys or begin typing to search, press <enter> to submit)",
 				"noRolesSpecified": "No role(s) specified",
@@ -51,7 +51,7 @@
 		"get": {
 			"description": "Get one or more users",
 			"options": {
-				"users": "Users name",
+				"users": "User(s) name(s)",
 				"json": "Print result(s) in json"
 			},
 			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
@@ -153,8 +153,8 @@
 		}
 	},
 	"spaces":	{
-		"spaceCheckbox": "Spaces (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
-		"spaceSelect": "Spaces (Use arrow keys, press <enter> to submit)",
+		"spaceCheckbox": "Space(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+		"spaceSelect": "Space (Use arrow keys, press <enter> to submit)",
 		"description": "Manage spaces <command>: get, add, edit, delete, list, reporting",
 		"notFound": "No space(s) found",
 		"noSpacesSelected": "No space(s) selected",
@@ -222,21 +222,133 @@
 				"description": "Delete reporting on space",
 				"options": {
 					"space": "Space name, case sensitive"
-				},
+				}
+			}
+		}
+	},
+	"roles": {
+		"description": "Manage roles <command>: get, add, edit, delete, list",
+		"noRolesSelected": "No roles have been selected",
+		"rolesNotFound": "No roles found",
+		"roleNotFound": "role [{{role}}] was not found",
+		"role": "Role",
+		"indexes": "Indexes",
+		"applications": "Applications",
+		"names": "Names",
+		"privileges": "Privileges",
+		"add": {
+			"description": "Create new role",
+			"options": {
+				"role": "Role name, case sensitive"
+			},
+			"exists": "role [{{roleName}}] already exists",
+			"canBeCreated": "role [{{roleName}}] can be create",
+			"errorOccured": "An error occured to create role",
+			"selectIndex": "Please select an Index",
+			"indexesPrivileges": "Please select Indexes privileges",
+			"selectSpace": "Please select a space",
+			"created": "role [{{roleName]]] created succefully",
+			"failed": "role [{{roleName]]] creation failed",
+			"kibanaSpacesCheckbox": "[Kibana] Space(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+			"kibanaSpacesPrivileges": "Space(s) privilege(s) (Use arrow keys, press <space> to select, press <enter> to submit)",
+			"elasticIndexesPrivileges": "[Elastic] Index(es) privileges (Use arrow keys, press <space> to select, press <enter> to submit)",
+			"elasticIndexesCheckbox": "[Elastic] Index(es) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
+		},
+		"delete": {
+			"description": "Delete role(s)",
+			"options": {
+				"roles": "Role(s) name(s)"
+			},
+			"rolesCheckbox": "Role(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+			"deleted": "role [{{role}}] deleted succefully"
+		},
+		"edit": {
+			"description": "Edit role",
+			"options": {
+				"role": "Role name, case sensitive"
+			},
+			"roleDoesNotExists": "role [{{roleName}}] does not exists",
+			"errorOccured": "An error occured to edit role",
+			"updated": "role [{{roleName}}] updated succefully",
+			"updateFailed": "role [{{roleName}}] update faild"
+		},
+		"get": {
+			"description": "Get and display role informations",
+			"options": {
+				"json": "Display data in json"
+			}
+		},
+		"list": {
+			"description": "List all roles",
+			"options": {
+				"json": "Display data in json"
 			}
 		}
 	},
 	"reporting": {
-		"description": "",
-		"noTasksFound": "No reporting tak(s) found",
+		"description": "Manage reporting <command>: list, report",
+		"noTasksFound": "No reporting task(s) found",
 		"noTaskSelected": "No tasks selected",
 		"deleted": "tasks [{{taskName}}] delete successfully",
-		"deletedMessage": "tasks [{{id}}] {{result}}"
+		"deletedMessage": "tasks [{{id}}] {{result}}",
+		"info": {
+			"description": "Get report",
+			"options": {
+				"status": "Reporting status: ongoing, completed, error",
+				"output": "Output path"
+			},
+			"dashboardNotFound": "No dashboard(s) found for {{reportingId}}",
+			"noHistoryFor": "No history found for {{reportingId}}",
+			"exported": "Data exported successfully at {{dest}}"
+		},
+		"list": {
+			"description": "List all reporting tasks",
+			"options": {
+				"frequencies": "Report frequency (weekly, monthly, quarterly, semi-annual, annual)"
+			},
+			"dashboardNotFound": "dashboard [{{dashboardId}}] does not found",
+			"dashboard": "Dashboard",
+			"frequency": "Frequency",
+			"emails": "Emails",
+			"print": "Print",
+			"sentAt": "Sent at"
+		}
 	},
 	"institutions": {
 		"institutionsCheckbox": "Institutions (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"institutionsSelect": "Institutions (Use arrow keys or begin typing to search, press <enter> to submit)",
 		"institutionsNotFound": "Institutions not found",
 		"institutionsNamesNotFound": "institution(s) [{{institutions}}] not found"
+	},
+	"counter4": {
+		"description": "output an expanded JSON file or load a COUNTER 4 JR1 file into ezMESURE / KIBANA (bulk)",
+		"options": {
+			"files": "JR1 files",
+			"package": "JR1 package",
+			"bulk": "bulk index JR1 data",
+			"depositor": "Index prefix name for publisher index",
+			"ndjson": "only output newline delimited JSON file",
+			"json": "Save in JSON file"
+		},
+		"incorrectJR1Type": "Incorrect JR1 type ({{type}})",
+		"incorrectJR1Title": "Incorrect JR1 title ({{title}})",
+		"incorrectJR1Date": "Incorrect JR1 date ({{startDate}}, {{endDate}})",
+		"headerDoesNotFound": "Header does not found",
+		"noReportsAvailable": "No reports available",
+		"writing": "Writing {{file}} with {{count}} objects",
+		"files": "Files",
+		"file": "File",
+		"isNotCSV": "{{file}} is not a CSV file",
+		"fileDoesNotExists": "{{file}} does not exists",
+		"index": "Index",
+		"package": "Package",
+		"took": "Took (ms)",
+		"inserted": "Inserted",
+		"updated": "Updated",
+		"deleted": "Deleted",
+		"errors": "Errors",
+		"total": "Total",
+		"filesProcessed": "{{files}} files processed",
+		"mectrics": "Metrics"
 	}
 }

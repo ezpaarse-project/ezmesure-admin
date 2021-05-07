@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 
@@ -6,8 +8,13 @@ inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 const rolesLib = require('../../../lib/roles');
 
 exports.command = 'delete [roles...]';
-exports.desc = 'Delete role(s)';
-exports.builder = {};
+exports.desc = i18n.t('roles.delete.description');
+exports.builder = function builder(yargs) {
+  return yargs.positional('roles', {
+    describe: i18n.t('roles.delete.options.roles'),
+    type: 'string',
+  });
+};
 exports.handler = async function handler(argv) {
   let rolesName = argv.roles;
 
@@ -26,7 +33,7 @@ exports.handler = async function handler(argv) {
       type: 'checkbox-plus',
       pageSize: 20,
       name: 'selectedRoles',
-      message: 'Roles (space to select item)',
+      message: i18n.t('roles.delete.rolesCheckbox'),
       searchable: true,
       highlight: true,
       source: (answersSoFar, input) => new Promise((resolve) => {
@@ -37,7 +44,7 @@ exports.handler = async function handler(argv) {
     }]);
 
     if (!selectedRoles.length) {
-      console.log('No roles have been selected');
+      console.log(i18n.t('roles.noRolesSelected'));
       process.exit(0);
     }
 
@@ -57,13 +64,13 @@ exports.handler = async function handler(argv) {
 
       if (Object.prototype.hasOwnProperty.call(error?.meta?.body, 'found')) {
         if (!error.meta.body.found) {
-          console.error(`role [${role}] was not found`);
+          console.error(i18n.t('roles.roleNotFound', { role }));
         }
       }
     }
 
     if (response && response.found) {
-      console.log(`role [${role}] deleted succefully`);
+      console.log(i18n.t('roles.delete.deleted', { role }));
     }
   }
 };

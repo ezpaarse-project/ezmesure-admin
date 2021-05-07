@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const get = require('lodash.get');
 
 const inquirer = require('inquirer');
@@ -43,7 +45,7 @@ const createRoleMenu = async () => {
     pageSize: 20,
     searchable: true,
     highlight: true,
-    message: '[Elastic] Indice :',
+    message: i18n.t('roles.add.elasticIndexesCheckbox'),
     source: (answersSoFar, input) => new Promise((resolve) => {
       const result = indices
         .filter((indice) => indice.includes(input));
@@ -58,7 +60,7 @@ const createRoleMenu = async () => {
       {
         type: 'table',
         name: 'indicePrivileges',
-        message: 'Elastic] Indices privileges :',
+        message: i18n.t('roles.add.elasticIndexesPrivileges'),
         pageSize: indicesSelected.length,
         columns: [
           {
@@ -127,7 +129,7 @@ const createRoleMenu = async () => {
     pageSize: 20,
     searchable: true,
     highlight: true,
-    message: '[Kibana] Spaces :',
+    message: i18n.t('roles.add.kibanaSpacesCheckbox'),
     source: (answersSoFar, input) => new Promise((resolve) => {
       const result = spaces
         .filter((space) => space.includes(input));
@@ -142,7 +144,7 @@ const createRoleMenu = async () => {
       {
         type: 'table',
         name: 'spacePrivileges',
-        message: 'Space privileges',
+        message: i18n.t('roles.add.kibanaSpacesPrivileges'),
         pageSize: spacesSelected.length,
         columns: [
           {
@@ -174,10 +176,10 @@ const createRoleMenu = async () => {
 };
 
 exports.command = 'add <role>';
-exports.desc = 'Create new role';
+exports.desc = i18n.t('roles.add.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('role', {
-    describe: 'Role name, case sensitive',
+    describe: i18n.t('roles.add.options.role'),
     type: 'string',
   });
 };
@@ -186,10 +188,10 @@ exports.handler = async function handler(argv) {
 
   try {
     await rolesLib.findByName(roleName);
-    console.log(`role [${roleName}] already exists`);
+    console.log(i18n.t('roles.add.exists', { roleName }));
     process.exit(0);
   } catch (error) {
-    console.log(`role [${roleName}] can be create`);
+    console.log(i18n.t('roles.add.canBeCreated', { roleName }));
   }
 
   let result;
@@ -201,7 +203,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!result) {
-    console.error('An error occured to create role');
+    console.error(i18n.t('roles.add.errorOccured'));
     process.exit(1);
   }
 
@@ -229,17 +231,17 @@ exports.handler = async function handler(argv) {
   const applications = [];
 
   if (!indicesSelected) {
-    console.log('Please select an index');
+    console.log(i18n.t('roles.add.selectIndex'));
     process.exit(0);
   }
 
   if (!indicesPrivileges) {
-    console.log('Please select indices privileges');
+    console.log(i18n.t('roles.add.indexesPrivileges'));
     process.exit(0);
   }
 
   if (!spacesSelected) {
-    console.log('Please select a space');
+    console.log(i18n.t('roles.add.selectSpace'));
     process.exit(0);
   }
 
@@ -277,11 +279,11 @@ exports.handler = async function handler(argv) {
 
   if (response && response.role) {
     if (response.role.created) {
-      console.log(`role [${roleName}] created succefully`);
+      console.log(i18n.t('roles.add.created', { roleName }));
       process.exit(0);
     }
 
-    console.error(`role [${roleName}] creation failed`);
+    console.error(i18n.t('roles.add.failed', { roleName }));
     process.exit(1);
   }
 };

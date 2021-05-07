@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const get = require('lodash.get');
 
 const inquirer = require('inquirer');
@@ -174,10 +176,10 @@ const createRoleMenu = async () => {
 };
 
 exports.command = 'edit [role]';
-exports.desc = 'Edit role';
+exports.desc = i18n.t('roles.edit.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('role', {
-    describe: 'Role name, case sensitive',
+    describe: i18n.t('roles.edit.options.role'),
     type: 'string',
   });
 };
@@ -189,7 +191,7 @@ exports.handler = async function handler(argv) {
     const { body } = await rolesLib.findByName(roleName);
     if (body) { dataRole = body[roleName]; }
   } catch (error) {
-    console.log(`role [${roleName}] does not exists`);
+    console.log(i18n.t('roles.edit.roleDoesNotExists', { roleName }));
     process.exit(0);
   }
 
@@ -202,7 +204,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!result) {
-    console.error('An error occured to edit role');
+    console.error(i18n.t('roles.edit.errorOccured'));
     process.exit(1);
   }
 
@@ -257,11 +259,11 @@ exports.handler = async function handler(argv) {
 
   if (response && response.role) {
     if (!response.role.created) {
-      console.log(`role [${roleName}] updated succefully`);
+      console.log(i18n.t('roles.edit.updated', { roleName }));
       process.exit(0);
     }
 
-    console.error(`role [${roleName}] update failed`);
+    console.error(i18n.t('roles.edit.updateFailed', { roleName }));
     process.exit(1);
   }
 };

@@ -1,12 +1,14 @@
+const { i18n } = global;
+
 const { table } = require('table');
 const rolesLib = require('../../../lib/roles');
 
 exports.command = 'get <role>';
-exports.desc = 'Get and display role informations';
+exports.desc = i18n.t('roles.get.description');
 exports.builder = function builder(yargs) {
   return yargs.option('j', {
     alias: 'json',
-    describe: 'Display data in json',
+    describe: i18n.t('roles.get.options.json'),
   });
 };
 exports.handler = async function handler(argv) {
@@ -23,7 +25,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!role) {
-    console.log(`${roleName} role not found.`);
+    console.log(i18n.t('roles.roleNotFound', { role: roleName }));
     process.exit(0);
   }
 
@@ -32,7 +34,7 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  const header = ['role', 'indices', 'applications'];
+  const header = [i18n.t('roles.role'), i18n.t('roles.indexes'), i18n.t('roles.applications')];
 
   const { indices, applications } = role[roleName];
 
@@ -44,8 +46,8 @@ exports.handler = async function handler(argv) {
   const row = [
     [
       roleName,
-      `Names: ${indicesNames || ''}\nPrivileges: ${indicesPrivileges || ''}`,
-      `Application: ${application || ''}`,
+      `${i18n.t('roles.names')}: ${indicesNames || ''}\n${i18n.t('roles.privileges')}: ${indicesPrivileges || ''}`,
+      `${i18n.t('roles.applications')}: ${application || ''}`,
     ],
   ];
 

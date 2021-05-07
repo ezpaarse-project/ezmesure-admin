@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 const autocomplete = require('inquirer-autocomplete-prompt');
@@ -12,11 +14,11 @@ const { findAll, findByFrequency } = require('../../../lib/reporting');
 const dashboard = require('../../../lib/dashboard');
 
 exports.command = 'list';
-exports.desc = 'List all reporting tasks';
+exports.desc = i18n.t('reporting.list.description');
 exports.builder = function builder(yargs) {
   return yargs.option('f', {
     alias: 'frequencies',
-    describe: 'Report frequency (weekly, monthly, quarterly, semi-annual, annual)',
+    describe: i18n.t('reporting.list.options.frequencies'),
     type: 'array',
   });
 };
@@ -29,7 +31,7 @@ exports.handler = async function handler(argv) {
       const { body } = await findByFrequency(argv.frequencies);
       if (body) { tasks = get(body, 'hits.hits'); }
     } catch (error) {
-      console.log('No reporting tak(s) found');
+      console.log(i18n.t('reporting.noTasksFound'));
       process.exit(0);
     }
   }
@@ -39,13 +41,13 @@ exports.handler = async function handler(argv) {
       const { body } = await findAll();
       if (body) { tasks = get(body, 'hits.hits'); }
     } catch (error) {
-      console.log('No reporting tak(s) found');
+      console.log(i18n.t('reporting.noTasksFound'));
       process.exit(0);
     }
   }
 
   if (!tasks.length) {
-    console.log('No reporting tak(s) found');
+    console.log(i18n.t('reporting.noTasksFound'));
     process.exit(0);
   }
 
@@ -59,11 +61,17 @@ exports.handler = async function handler(argv) {
         tasks[i].dashboardName = body.dashboard.title;
       }
     } catch (error) {
-      console.log(`dashboard [${tasks.space ? `${tasks.space}:` : ''}dashboard:${task.dashboardId}] does not found`);
+      console.log(i18n.t('reporting.list.dashboardNotFound', { dashboardId: `${tasks.space ? `${tasks.space}:` : ''}dashboard:${task.dashboardId}` }));
     }
   }
 
-  const header = ['Dashboard', 'Frequency', 'Emails', 'Print', 'Sent at'];
+  const header = [
+    i18n.t('reporting.list.dashboard'),
+    i18n.t('reporting.list.frequency'),
+    i18n.t('reporting.list.emails'),
+    i18n.t('reporting.list.print'),
+    i18n.t('reporting.list.sentAt'),
+  ];
   const rows = tasks.map(({
     dashboardName, frequency, emails, print, sentAt,
   }) => ([

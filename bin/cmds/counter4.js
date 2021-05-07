@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const fs = require('fs-extra');
 const path = require('path');
 const papaparse = require('papaparse');
@@ -9,36 +11,36 @@ const cliProgress = require('cli-progress');
 const counterLib = require('../../lib/counter');
 
 exports.command = 'counter4 <files...>';
-exports.desc = 'output an expanded JSON file or load a COUNTER 4 JR1 file into ezMESURE / KIBANA (bulk)';
+exports.desc = i18n.t('counter4.description');
 exports.builder = function builder(yargs) {
   return yargs
     .positional('files', {
-      describe: 'JR1 files',
-      type: 'string',
+      describe: i18n.t('counter4.options.files'),
+      type: 'array',
     })
     .option('p', {
       alias: 'package',
-      describe: 'JR1 package',
+      describe: i18n.t('counter4.options.package'),
       type: 'string',
     })
     .option('b', {
       alias: 'bulk',
-      describe: 'bulk index JR1 data',
+      describe: i18n.t('counter4.options.bulk'),
       type: 'boolean',
     })
     .option('d', {
       alias: 'depositor',
-      describe: 'Index prefix name for publisher index',
+      describe: i18n.t('counter4.options.depositor'),
       type: 'string',
     })
     .option('n', {
       alias: 'ndjson',
-      describe: 'only output newline delimited JSON file',
+      describe: i18n.t('counter4.options.ndjson'),
       type: 'boolean',
     })
     .option('j', {
       alias: 'json',
-      describe: 'Save in JSON file',
+      describe: i18n.t('counter4.options.json'),
       type: 'boolean',
     });
 };
@@ -64,19 +66,19 @@ function checkJR1({
   ].map((t) => t.toLowerCase());
 
   if (!types.includes(type.toLowerCase())) {
-    return Promise.reject(new Error(`Incorrect JR1 type (${type})`));
+    return Promise.reject(new Error(i18n.t('counter4.incorrectJR1Type', { type })));
   }
 
   if (!titles.includes(title.toLowerCase())) {
-    return Promise.reject(new Error(`Incorrect JR1 title (${title})`));
+    return Promise.reject(new Error(i18n.t('counter4.incorrectJR1Title', { title })));
   }
 
   if (!startDate || !endDate) {
-    return Promise.reject(new Error(`Incorrect JR1 date (${startDate}, ${endDate})`));
+    return Promise.reject(new Error(i18n.t('counter4.incorrectJR1Date', { startDate, endDate })));
   }
 
   if (compareDesc(new Date(startDate), new Date(endDate)) === -1) {
-    return Promise.reject(new Error(`Incorrect JR1 date (${startDate}, ${endDate})`));
+    return Promise.reject(new Error(i18n.t('counter4.incorrectJR1Date', { startDate, endDate })));
   }
 
   return Promise.resolve();
@@ -97,7 +99,7 @@ async function process4(results, argv, file) {
 
   const JR1Header = results.data.slice(0, 9);
   if (!JR1Header.length) {
-    return Promise.reject(new Error('Header does not found'));
+    return Promise.reject(new Error(i18n.t('counter4.headerDoesNotFound')));
   }
 
   const [
@@ -182,7 +184,7 @@ async function process4(results, argv, file) {
   });
 
   if (!flatReport.length) {
-    return Promise.reject(new Error('No reports available'));
+    return Promise.reject(new Error(i18n.t('counter4.noReportsAvailable')));
   }
 
   const basename = path.basename(file, path.extname(file));
@@ -192,12 +194,12 @@ async function process4(results, argv, file) {
     const writeStream = fs.createWriteStream(path.resolve(`${outputFile}.ndjson`));
     flatReport.forEach((report) => writeStream.write(`${JSON.stringify({ _id: report._id, ...report.doc })}\r\n`));
     writeStream.close();
-    console.log(`Writing ${chalk.bold(`${outputFile}.ndjson`)} with ${chalk.bold(flatReport.length)} objects`);
+    console.log(i18n.t('counter4.writing', { file: chalk.bold(`${outputFile}.ndjson`), count: chalk.bold(flatReport.length) }));
   }
 
   if (argv.json) {
     await fs.writeJson(path.resolve(`${outputFile}.json`), flatReport.map(({ _id, doc }) => ({ _id, ...doc })), { spaces: 2 });
-    console.log(`Writing ${chalk.bold(`${outputFile}.json`)} with ${chalk.bold(flatReport.length)} objects`);
+    console.log(i18n.t('counter4.writing', { file: chalk.bold(`${outputFile}.json`), count: chalk.bold(flatReport.length) }));
   }
 
   if (argv.bulk) {
@@ -211,7 +213,7 @@ exports.handler = async function handler(argv) {
   const { files } = argv;
 
   const progressBar = new cliProgress.SingleBar({
-    format: '{bar} {percentage}% | {value}/{total} Files | File : {file}',
+    format: `{bar} {percentage}% | {value}/{total} ${i18n.t('counter4.files')} | ${i18n.t('counter4.file')} : {file}`,
     barCompleteChar: '\u2588',
     barIncompleteChar: '\u2591',
     hideCursor: true,
@@ -228,7 +230,7 @@ exports.handler = async function handler(argv) {
     let isCSV = true;
 
     if (path.extname(filePath) !== '.csv') {
-      console.error(`${file} is not a CSV file`);
+      console.error(i18n.t('counter4.isNotCSV', { file }));
       isCSV = false;
     }
 
@@ -239,7 +241,7 @@ exports.handler = async function handler(argv) {
         await fs.stat(filePath);
       } catch (error) {
         if (error.code && error.code === 'ENOENT') {
-          console.log(`${file} does not exists`);
+          console.log(i18n.t('counter4.fileDoesNotExists', { file }));
           fileExists = false;
         }
 
@@ -282,7 +284,17 @@ exports.handler = async function handler(argv) {
 
   progressBar.stop();
 
-  const header = ['File', 'Index', 'Package', 'Took (ms)', 'Inserted', 'Updated', 'Deleted', 'Errors', 'Total'];
+  const header = [
+    i18n.t('counter4.file'),
+    i18n.t('counter4.index'),
+    i18n.t('counter4.package'),
+    i18n.t('counter4.took'),
+    i18n.t('counter4.inserted'),
+    i18n.t('counter4.updated'),
+    i18n.t('counter4.deleted'),
+    i18n.t('counter4.errors'),
+    i18n.t('counter4.total'),
+  ];
   const rows = [];
 
   const metrics = {
@@ -315,11 +327,11 @@ exports.handler = async function handler(argv) {
   });
 
   console.log(table([header, ...rows]));
-  console.log(`${chalk.bold(processResults.length)} / ${chalk.bold(files.length)} files processed`);
-  console.log('Metrics :');
-  console.log(`  - Inserted: ${metrics.inserted}`);
-  console.log(`  - Updated: ${metrics.updated}`);
-  console.log(`  - Deleted: ${metrics.deleted}`);
-  console.log(`  - Errors: ${metrics.errors}`);
-  console.log(`  - Total: ${metrics.total}`);
+  console.log(i18n.t('counter4.filesProcessed', { files: `${chalk.bold(processResults.length)} / ${chalk.bold(files.length)}` }));
+  console.log(`${i18n.t('counter4.mectrics')} :`);
+  console.log(`  - ${i18n.t('counter4.inserted')}: ${metrics.inserted}`);
+  console.log(`  - ${i18n.t('counter4.updated')}: ${metrics.updated}`);
+  console.log(`  - ${i18n.t('counter4.deleted')}: ${metrics.deleted}`);
+  console.log(`  - ${i18n.t('counter4.errors')}: ${metrics.errors}`);
+  console.log(`  - ${i18n.t('counter4.total')}: ${metrics.total}`);
 };

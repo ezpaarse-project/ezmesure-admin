@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const get = require('lodash.get');
 const path = require('path');
 const fs = require('fs-extra');
@@ -7,15 +9,15 @@ const reportingLib = require('../../../lib/reporting');
 const dashboardLib = require('../../../lib/dashboard');
 
 exports.command = 'info';
-exports.desc = 'Get report';
+exports.desc = i18n.t('reporting.info');
 exports.builder = function builder(yargs) {
   return yargs.option('s', {
     alias: 'status',
-    describe: 'Reporting status: ongoing, completed, error',
+    describe: i18n.t('reporting.info.options.status'),
     type: 'array',
   }).option('o', {
     alias: 'output',
-    describe: 'Output path',
+    describe: i18n.t('reporting.info.options.output'),
   });
 };
 exports.handler = async function handler(argv) {
@@ -28,7 +30,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!reporting) {
-    console.log('No reporting found');
+    console.log(i18n.t('reporting.noTasksFound'));
     process.exit(0);
   }
 
@@ -47,7 +49,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (!dashboard) {
-      console.log(`No dashboard found for${reporting[i].id}`);
+      console.log(i18n.t('reporting.info.dashboardNotFound', { reportingId: reporting[i].id }));
     }
 
     let history;
@@ -59,7 +61,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (!history) {
-      console.log(`No history found for${reporting[i].id}`);
+      console.log(i18n.t('reporting.info.noHistoryFor', { reportingId: reporting[i].id }));
     }
 
     if (dashboard && history) {
@@ -96,7 +98,7 @@ exports.handler = async function handler(argv) {
   if (argv.output) {
     try {
       await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), report, { spaces: 2 });
-      console.log(`Data exported successfully at ${path.resolve(argv.output, `${fileName}.json`)}`);
+      console.log(i18n.t('reporting.info.exported', { dest: path.resolve(argv.output, `${fileName}.json`) }));
     } catch (error) {
       console.log(error);
       process.exit(1);
