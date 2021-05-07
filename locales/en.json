@@ -61,31 +61,31 @@
 		"description": "Manage sushi <command>: add, delete, list, info, test, export, import",
 		"noCredentialsFound": "No sushi credentials found",
 		"noDataFound": "No sushi data found",
-		"cannotReadFile": "Cannot read file : {{file}}",
-		"cannotParse": "Cannot parse : {{file}}",
+		"cannotReadFile": "Cannot read file {{file}}",
+		"cannotParse": "Cannot parse {{file}}",
 		"vendorCheckbox": "Sushi vendor (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"noCredentialsFoundFor": "There are no sushi credentials for this institution ({{institution}})",
 		"add": {
-			"description": "Create new sushi",
+			"description": "Create new sushi credentials",
 			"options": {
 				"filesPath": "Files path"
 			},
-			"nCredentialsFound": "{{count}} credentilas found",
+			"nCredentialsFound": "{{count}} credentials found",
 			"insertionCompleted": "Insertion successfully completed"
 		},
 		"delete": {
-			"description": "Delete a sushi",
+			"description": "Delete sushi credentials",
 			"removed": "Data removed successfully"
 		},
 		"export": {
-			"description": "Export sushi data",
+			"description": "Export sushi credentials",
 			"options": {
 				"institutions": "Institution name, case sensitive",
-				"output": "Output type : json or csv",
+				"output": "Output type (json or csv)",
 				"all": "Export all sushi data for all institutions",
 				"destination": "Destination path"
 			},
-			"exported": "Sushi exported successfully : {{file}}",
+			"exported": "Sushi exported successfully: {{file}}",
 			"id": "id",
 			"vendor": "vendor",
 			"sushiUrl": "sushiUrl",
@@ -100,12 +100,12 @@
 			"createdAt": "createdAt"
 		},
 		"import": {
-			"description": "Import sushi(s)",
+			"description": "Import sushi credentials",
 			"options": {
 				"filesPath": "Files path",
 				"institution": "Institution name, case sensitive"
 			},
-			"cannotReadFile": "Cannot read file : {{file}}",
+			"cannotReadFile": "Cannot read file {{file}}",
 			"imported": "Imported successfully"
 		},
 		"info": {
@@ -125,7 +125,7 @@
 			"reports": "Reports"
 		},
 		"list": {
-			"description": "List SUSHI informations of institutions",
+			"description": "List SUSHI credentials of institution",
 			"package": "package",
 			"vendor": "vendor",
 			"endpoint": "endpoint",
@@ -135,10 +135,10 @@
 			"comment": "comment"
 		},
 		"test": {
-			"description": "Test SUSHI informations of institutions",
+			"description": "Test SUSHI credentials for one or more institutions",
 			"options": {
 				"institution": "Institution name, case sensitive",
-				"all": "Test all platforms for once institution",
+				"all": "Test all platforms for one institution",
 				"json": "Print result(s) in json",
 				"output": "Output path"
 			},
@@ -172,8 +172,8 @@
 			"spaceInitials": "Enter space initials",
 			"spaceColor": "Enter space color (ex: #FF00FF)",
 			"created": "space [{{space}}] created successfully",
-			"roleDoesNotExists": "role [{{role}}] does not exists, create with ezmesure-admin roles add {{role}}",
-			"dashboardDoesNotExists": "dashboard [{{dashboard}}] does not exists",
+			"roleDoesNotExists": "role [{{role}}] does not exist, create with ezmesure-admin roles add {{role}}",
+			"dashboardDoesNotExists": "dashboard [{{dashboard}}] does not exist",
 			"importError": "Problem with import {{dashboardId}} (id: {{templateSelected}}) in {{space}}",
 			"imported": "dashboard [{{dashboardId}} (id: {{templateSelected}})] imported successfully"
 		},
@@ -205,10 +205,10 @@
 			}
 		},
 		"reporting": {
-			"description": "Manage reporting <command>: list, delete",
-			"dashboardNotFound": "dashboard [{{dashboardId}}] does not found",
+			"description": "Manage reporting tasks <command>: list, delete",
+			"dashboardNotFound": "dashboard [{{dashboardId}}] not found",
 			"list": {
-				"description": "List reporting on space",
+				"description": "List reporting task(s) on space",
 				"options": {
 					"space": "Space name, case sensitive"
 				},
@@ -219,7 +219,7 @@
 				"sentAt": "Sent at"
 			},
 			"delete": {
-				"description": "Delete reporting on space",
+				"description": "Delete reporting task(s) on space",
 				"options": {
 					"space": "Space name, case sensitive"
 				}
@@ -267,13 +267,13 @@
 			"options": {
 				"role": "Role name, case sensitive"
 			},
-			"roleDoesNotExists": "role [{{roleName}}] does not exists",
+			"roleDoesNotExists": "role [{{roleName}}] does not exist",
 			"errorOccured": "An error occured to edit role",
-			"updated": "role [{{roleName}}] updated succefully",
-			"updateFailed": "role [{{roleName}}] update faild"
+			"updated": "role [{{roleName}}] updated successfully",
+			"updateFailed": "role [{{roleName}}] update failed"
 		},
 		"get": {
-			"description": "Get and display role informations",
+			"description": "Get and display role information",
 			"options": {
 				"json": "Display data in json"
 			}
@@ -286,7 +286,7 @@
 		}
 	},
 	"reporting": {
-		"description": "Manage reporting <command>: list, report",
+		"description": "Manage reporting tasks <command>: list, report",
 		"noTasksFound": "No reporting task(s) found",
 		"noTaskSelected": "No tasks selected",
 		"deleted": "tasks [{{taskName}}] delete successfully",
@@ -350,8 +350,8 @@
 		"import": {
 			"description": "Import institution(s)",
 			"sepecifyJSONFile": "Please sepecify JSON files path",
-			"cannotReadFile": "Cannot read file : {{file}}",
-			"cannotParse": "Cannot parse : {{file}}",
+			"cannotReadFile": "Cannot read file {{file}}",
+			"cannotParse": "Cannot parse {{file}}",
 			"imported": "Successfully imported institution(s)"
 		},
 		"list": {
@@ -377,7 +377,7 @@
 		"files": "Files",
 		"file": "File",
 		"isNotCSV": "{{file}} is not a CSV file",
-		"fileDoesNotExists": "{{file}} does not exists",
+		"fileDoesNotExists": "{{file}} does not exist",
 		"index": "Index",
 		"package": "Package",
 		"took": "Took (ms)",
@@ -401,7 +401,7 @@
 			}
 		},
 		"noSushiReports": "institution [{{name}}] sushi reports not found",
-		"exported": "SUSHI COUNTER5 reports available file : {{dest}} exported succesfully"
+		"exported": "SUSHI COUNTER5 reports available file: {{dest}} exported succesfully"
 	},
 	"config": {
 		"description": "Manage config with a <command>: get, set, delete, view or edit",
@@ -452,9 +452,9 @@
 			"allocation": {
 				"description": "Enable or disable allocation for specific kinds of elasticsearch shards",
 				"options": {
-					"type": "Can be : all, primaries, new_primaries, none, null"
+					"type": "Can be: all, primaries, new_primaries, none, null"
 				},
-				"invalidValue": "Invalid value {{type}}, valid values are : {{values}}",
+				"invalidValue": "Invalid value {{type}}, valid values are: {{values}}",
 				"failedToApply": "Failed to apply cluster settings",
 				"applied": "Cluster settings applied"
 			}
@@ -498,9 +498,9 @@
 			"indexPattern": "Index pattern",
 			"noIndexPattern": "No index pattern typed",
 			"noDashboardData": "No dashboard(s) data found",
-			"cannotReadFile": "Cannot read file : {{file}}",
-			"cannotParse": "Cannot parse : {{file}}",
-			"error": "[Error#{{status}}] : dashbord does not imported",
+			"cannotReadFile": "Cannot read file {{file}}",
+			"cannotParse": "Cannot parse {{file}}",
+			"error": "[Error#{{status}}]: dashbord does not imported",
 			"conflict": "There are conflicts, use the --overwrite option to force the rewriting of conflicts",
 			"imported": "Dashboard imported successfully"
 		}
