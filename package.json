@@ -10,7 +10,7 @@
   "scripts": {
     "test": "mocha test",
     "lint": "eslint --ext .js .",
-    "precommit": "npm run lint"
+    "prepare": "husky install"
   },
   "engines": {
     "node": ">=14.15.0",
@@ -46,6 +46,6 @@
     "eslint": "^7.19.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.22.1",
-    "husky": "^5.0.9"
+    "husky": "^6.0.0"
   }
 }
