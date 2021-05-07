@@ -1,3 +1,5 @@
+const { i18n } = global;
+
 const Papa = require('papaparse');
 const path = require('path');
 const fs = require('fs-extra');
@@ -10,25 +12,25 @@ const { getAll } = require('../../../lib/institutions');
 const { getSushi, sushiTest } = require('../../../lib/sushi');
 
 exports.command = 'reports check [institutions...]';
-exports.desc = 'Get COUNTER5 reports for one or more institutions';
+exports.desc = i18n.t('counter5.report.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('institutions', {
-    describe: 'Institution(s) name, case sensitive',
+    describe: i18n.t('counter5.report.options.institutions'),
     type: 'array',
   })
     .option('o', {
       alias: 'output',
-      describe: 'Output path',
+      describe: i18n.t('counter5.report.options.output'),
       type: 'string',
     })
     .option('a', {
       alias: 'all',
-      describe: 'Use all institutions',
+      describe: i18n.t('counter5.report.options.all'),
       type: 'boolean',
     })
     .option('m', {
       alias: 'merge',
-      describe: 'Merge in one file',
+      describe: i18n.t('counter5.report.options.merge'),
       type: 'boolean',
     });
 };
@@ -63,7 +65,7 @@ async function generateCSV(opts) {
     try {
       const fileName = `sushi_counter5_${opts.name}_reports_check.csv`;
       await fs.writeFile(path.resolve(opts.output, fileName), csv);
-      console.log(`SUSHI COUNTER5 reports available file : ${path.resolve(opts.output, fileName)} exported succesfully`);
+      console.log(i18n.t('counter5.report.exported', { dest: path.resolve(opts.output, fileName) }));
     } catch (error) {
       console.log(error);
       process.exit(1);
@@ -83,7 +85,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!institutions) {
-    console.error('No institutions found');
+    console.error(i18n.t('counter5.report.institutionsNotFound'));
   }
 
   if (argv.institutions.length && !argv.all) {
@@ -91,7 +93,7 @@ exports.handler = async function handler(argv) {
       .filter((institution) => argv.institutions.includes(institution.name));
 
     if (!institutions.length) {
-      console.log(`institution(s) [${argv.institutions.join(', ')}] not found`);
+      console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: argv.institutions.join(', ') }));
       process.exit(0);
     }
   }
@@ -104,7 +106,7 @@ exports.handler = async function handler(argv) {
         pageSize: 20,
         searchable: true,
         highlight: true,
-        message: 'Institutions :',
+        message: i18n.t('institutions.institutionsCheckbox'),
         source: (answersSoFar, input) => new Promise((resolve) => {
           const result = institutions
             .map((institution) => ({ name: institution.name, value: institution }))
@@ -119,7 +121,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!institutions.length) {
-    console.error('No institutions found');
+    console.error(i18n.t('institutions.institutionsNotFound'));
   }
 
   const counterReportsAvailable = [
@@ -186,7 +188,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (!Object.keys(rows).length) {
-      console.log(`institution [${institutions[i].name}] sushi reports not found`);
+      console.log(i18n.t('counter5.report.noSushiReports', { name: institutions[i].name }));
     }
 
     if (!argv.merge) {

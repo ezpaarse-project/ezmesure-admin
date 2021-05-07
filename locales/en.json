@@ -350,5 +350,18 @@
 		"total": "Total",
 		"filesProcessed": "{{files}} files processed",
 		"mectrics": "Metrics"
+	},
+	"counter5": {
+		"report": {
+			"description": "Get COUNTER5 reports for one or more institutions",
+			"options": {
+				"institutions": "Institution(s) name, case sensitive",
+				"output": "Output path",
+				"all": "Use all institutions",
+				"merge": "Merge in one file"
+			}
+		},
+		"noSushiReports": "institution [{{name}}] sushi reports not found",
+		"exported": "SUSHI COUNTER5 reports available file : {{dest}} exported succesfully"
 	}
 }
