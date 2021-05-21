@@ -1,41 +1,51 @@
 {
-  "name": "ezspace",
-  "version": "1.0.0",
+  "name": "ezmesure-admin",
+  "version": "2.0.0",
   "description": "Command line utilities to manage ezMESURE",
   "bin": {
-    "ezmesure-admin": "./bin/ezmesure-admin",
-    "ezadmin": "./bin/ezmesure-admin"
+    "ezmesure-admin": "./ezmesure-admin",
+    "ezadmin": "./ezmesure-admin"
   },
   "main": "index.js",
   "scripts": {
     "test": "mocha test",
     "lint": "eslint --ext .js .",
-    "precommit": "npm run lint"
+    "prepare": "husky install"
+  },
+  "engines": {
+    "node": ">=14.15.0",
+    "npm": ">=6.14.8"
   },
   "author": "ezTEAM",
   "license": "ISC",
   "dependencies": {
-    "@elastic/elasticsearch": "^7.9.1",
-    "axios": "^0.19.0",
-    "chai": "^4.2.0",
-    "chalk": "^2.4.2",
-    "commander": "^2.20.0",
-    "config": "^3.1.0",
-    "fs-extra": "^9.0.1",
-    "inquirer": "^6.4.1",
-    "inquirer-autocomplete-prompt": "^1.0.1",
+    "@elastic/elasticsearch": "^7.10.0",
+    "axios": "^0.21.1",
+    "chai": "^4.3.0",
+    "chalk": "^4.1.0",
+    "cli-progress": "^3.9.0",
+    "commander": "^7.0.0",
+    "date-fns": "^2.18.0",
+    "enquirer": "^2.3.6",
+    "fs-extra": "^9.1.0",
+    "https-proxy-agent": "^5.0.0",
+    "inquirer": "^7.3.3",
+    "inquirer-autocomplete-prompt": "^1.3.0",
     "inquirer-checkbox-plus-prompt": "^1.0.1",
-    "md5": "^2.2.1",
-    "moment": "^2.24.0",
-    "papaparse": "^5.1.0",
-    "table": "^5.3.3",
-    "uuid": "^8.3.0",
-    "winston": "^3.2.1"
+    "inquirer-table-prompt": "^0.2.1",
+    "lodash.get": "^4.4.2",
+    "lodash.set": "^4.3.2",
+    "lodash.unset": "^4.5.2",
+    "papaparse": "^5.3.0",
+    "table": "^6.0.7",
+    "uuid": "^8.3.2",
+    "winston": "^3.3.3",
+    "yargs": "^16.2.0"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.17.2",
-    "husky": "^2.2.0"
+    "eslint": "^7.19.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "husky": "^6.0.0"
   }
 }

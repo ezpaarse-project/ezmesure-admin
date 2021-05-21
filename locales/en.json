@@ -1,0 +1,508 @@
+{
+	"global": {
+		"options": {
+			"timeout": "Request timeout in milliseconds"
+		}
+	},
+	"users": {
+		"description": "Manage users <command>: list, get, roles",
+		"noUsersFound": "No users found",
+		"noUserFound": "No user found",
+		"username": "Username",
+		"fullName": "Full name",
+		"email": "Email",
+		"assignedRoles": "Roles",
+		"reserved": "reserved",
+		"userUpdated": "user [{{user}}] updated successfully",
+		"roles": {
+			"description": "Manage users roles <command>: add, delete, list",
+			"add": {
+				"description": "Add role",
+				"options": {
+					"users": "User(s) name(s)",
+					"roles": "Role(s) name(s)"
+				},
+				"usersNotFound": "user(s) [{{users}}] not found",
+				"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+				"noRolesSpecified": "No role(s) specified",
+				"errorRoles": "[Error#{{statusCode}}] {{message}} (role: {{role}})",
+				"checkboxRoles": "Roles (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+				"hasRole": "user [{{user}}] has already role [{{role}}]"
+			},
+			"delete": {
+				"description": "Delete role",
+				"options": {
+					"user": "User name",
+					"roles": "Role(s) name(s)"
+				},
+				"checkboxUsers": "Users (User arrow keys or begin typing to search, press <enter> to submit)",
+				"noRolesSpecified": "No role(s) specified",
+				"noRolesSelected": "No roles selected",
+				"checkboxRoles": "Roles (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+				"errorRoles": "[Error#{{statusCode}}] {{message}} (role: {{role}})"
+			}
+		},
+		"list": {
+			"description": "List users",
+			"options": {
+				"json": "Print result(s) in json"
+			}
+		},
+		"get": {
+			"description": "Get one or more users",
+			"options": {
+				"users": "User(s) name(s)",
+				"json": "Print result(s) in json"
+			},
+			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
+		}
+	},
+	"sushi": {
+		"description": "Manage sushi <command>: add, delete, list, info, test, export, import",
+		"noCredentialsFound": "No sushi credentials found",
+		"noDataFound": "No sushi data found",
+		"cannotReadFile": "Cannot read file {{file}}",
+		"cannotParse": "Cannot parse {{file}}",
+		"vendorCheckbox": "Sushi vendor (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+		"noCredentialsFoundFor": "There are no sushi credentials for this institution ({{institution}})",
+		"add": {
+			"description": "Create new sushi credentials",
+			"options": {
+				"filesPath": "Files path"
+			},
+			"nCredentialsFound": "{{count}} credentials found",
+			"insertionCompleted": "Insertion successfully completed"
+		},
+		"delete": {
+			"description": "Delete sushi credentials",
+			"removed": "Data removed successfully"
+		},
+		"export": {
+			"description": "Export sushi credentials",
+			"options": {
+				"institutions": "Institution name, case sensitive",
+				"output": "Output type (json or csv)",
+				"all": "Export all sushi data for all institutions",
+				"destination": "Destination path"
+			},
+			"exported": "Sushi exported successfully: {{file}}",
+			"id": "id",
+			"vendor": "vendor",
+			"sushiUrl": "sushiUrl",
+			"requestorId": "requestorId",
+			"customerId": "customerId",
+			"apiKey": "apiKey",
+			"comment": "comment",
+			"params": "params",
+			"package": "package",
+			"insitutionId": "insitutionId",
+			"updatedAt": "updatedAt",
+			"createdAt": "createdAt"
+		},
+		"import": {
+			"description": "Import sushi credentials",
+			"options": {
+				"filesPath": "Files path",
+				"institution": "Institution name, case sensitive"
+			},
+			"cannotReadFile": "Cannot read file {{file}}",
+			"imported": "Imported successfully"
+		},
+		"info": {
+			"description": "Get SUSHI informations",
+			"options": {
+				"institution": "Institution name, case sensitive",
+				"export": "Export format (json, csv)",
+				"output": "Output path"
+			},
+			"institution": "Institution",
+			"package": "Package",
+			"vendor": "Vendor",
+			"status": "Status",
+			"message": "Message",
+			"took": "Took (ms)",
+			"endpoint": "Endpoint",
+			"reports": "Reports"
+		},
+		"list": {
+			"description": "List SUSHI credentials of institution",
+			"package": "package",
+			"vendor": "vendor",
+			"endpoint": "endpoint",
+			"customerId": "customerId",
+			"requestorId": "requestorId",
+			"apiKey": "apiKey",
+			"comment": "comment"
+		},
+		"test": {
+			"description": "Test SUSHI credentials for one or more institutions",
+			"options": {
+				"institution": "Institution name, case sensitive",
+				"all": "Test all platforms for one institution",
+				"json": "Print result(s) in json",
+				"output": "Output path"
+			},
+			"institution": "institution",
+			"vendor": "vendor",
+			"package": "package",
+			"status": "status",
+			"duration": "duration (ms)",
+			"message": "message",
+			"endpoint": "endpoint",
+			"reports": "reports"
+		}
+	},
+	"spaces":	{
+		"spaceCheckbox": "Space(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+		"spaceSelect": "Space (Use arrow keys, press <enter> to submit)",
+		"description": "Manage spaces <command>: get, add, edit, delete, list, reporting",
+		"notFound": "No space(s) found",
+		"noSpacesSelected": "No space(s) selected",
+		"notFoundSpace": "space [{{space}}] not found",
+		"add": {
+			"description": "Create new space",
+			"options": {
+				"space": "Space name, case sensitive",
+				"color": "Space color",
+				"description": "Space description",
+				"initials": "Space initials",
+				"interactive": "Interactive mode"
+			},
+			"spaceDescription": "Enter space description",
+			"spaceInitials": "Enter space initials",
+			"spaceColor": "Enter space color (ex: #FF00FF)",
+			"created": "space [{{space}}] created successfully",
+			"roleDoesNotExists": "role [{{role}}] does not exist, create with ezmesure-admin roles add {{role}}",
+			"dashboardDoesNotExists": "dashboard [{{dashboard}}] does not exist",
+			"importError": "Problem with import {{dashboardId}} (id: {{templateSelected}}) in {{space}}",
+			"imported": "dashboard [{{dashboardId}} (id: {{templateSelected}})] imported successfully"
+		},
+		"delete": {
+			"description": "Delete space(s)",
+			"options": {
+				"spaces": "Space(s) name, case sensitive"
+			},
+			"removed": "space [{{space}}] removed successully"
+		},
+		"get": {
+			"description": "Display information for one space",
+			"id": "ID",
+			"name": "Name",
+			"descr": "Description",
+			"initials": "Initials",
+			"color": "Color",
+			"options": {
+				"space": "Space name",
+				"json": "Display data in json",
+				"all": "Display all data in table"
+			}
+		},
+		"list": {
+			"description": "List all spaces",
+			"options": {
+				"json": "Display data in json",
+				"all": "Display all data in table"
+			}
+		},
+		"reporting": {
+			"description": "Manage reporting tasks <command>: list, delete",
+			"dashboardNotFound": "dashboard [{{dashboardId}}] not found",
+			"list": {
+				"description": "List reporting task(s) on space",
+				"options": {
+					"space": "Space name, case sensitive"
+				},
+				"dashboard": "Dashboard",
+				"frequency": "Frequency",
+				"emails": "Emails",
+				"print": "Print",
+				"sentAt": "Sent at"
+			},
+			"delete": {
+				"description": "Delete reporting task(s) on space",
+				"options": {
+					"space": "Space name, case sensitive"
+				}
+			}
+		}
+	},
+	"roles": {
+		"description": "Manage roles <command>: get, add, edit, delete, list",
+		"noRolesSelected": "No roles have been selected",
+		"rolesNotFound": "No roles found",
+		"roleNotFound": "role [{{role}}] was not found",
+		"role": "Role",
+		"indexes": "Indexes",
+		"applications": "Applications",
+		"names": "Names",
+		"privileges": "Privileges",
+		"add": {
+			"description": "Create new role",
+			"options": {
+				"role": "Role name, case sensitive"
+			},
+			"exists": "role [{{roleName}}] already exists",
+			"canBeCreated": "role [{{roleName}}] can be create",
+			"errorOccured": "An error occured to create role",
+			"selectIndex": "Please select an Index",
+			"indexesPrivileges": "Please select Indexes privileges",
+			"selectSpace": "Please select a space",
+			"created": "role [{{roleName]]] created succefully",
+			"failed": "role [{{roleName]]] creation failed",
+			"kibanaSpacesCheckbox": "[Kibana] Space(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+			"kibanaSpacesPrivileges": "Space(s) privilege(s) (Use arrow keys, press <space> to select, press <enter> to submit)",
+			"elasticIndexesPrivileges": "[Elastic] Index(es) privileges (Use arrow keys, press <space> to select, press <enter> to submit)",
+			"elasticIndexesCheckbox": "[Elastic] Index(es) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
+		},
+		"delete": {
+			"description": "Delete role(s)",
+			"options": {
+				"roles": "Role(s) name(s)"
+			},
+			"rolesCheckbox": "Role(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+			"deleted": "role [{{role}}] deleted succefully"
+		},
+		"edit": {
+			"description": "Edit role",
+			"options": {
+				"role": "Role name, case sensitive"
+			},
+			"roleDoesNotExists": "role [{{roleName}}] does not exist",
+			"errorOccured": "An error occured to edit role",
+			"updated": "role [{{roleName}}] updated successfully",
+			"updateFailed": "role [{{roleName}}] update failed"
+		},
+		"get": {
+			"description": "Get and display role information",
+			"options": {
+				"json": "Display data in json"
+			}
+		},
+		"list": {
+			"description": "List all roles",
+			"options": {
+				"json": "Display data in json"
+			}
+		}
+	},
+	"reporting": {
+		"description": "Manage reporting tasks <command>: list, report",
+		"noTasksFound": "No reporting task(s) found",
+		"noTaskSelected": "No tasks selected",
+		"deleted": "tasks [{{taskName}}] delete successfully",
+		"deletedMessage": "tasks [{{id}}] {{result}}",
+		"info": {
+			"description": "Get report",
+			"options": {
+				"status": "Reporting status: ongoing, completed, error",
+				"output": "Output path"
+			},
+			"dashboardNotFound": "No dashboard(s) found for {{reportingId}}",
+			"noHistoryFor": "No history found for {{reportingId}}",
+			"exported": "Data exported successfully at {{dest}}"
+		},
+		"list": {
+			"description": "List all reporting tasks",
+			"options": {
+				"frequencies": "Report frequency (weekly, monthly, quarterly, semi-annual, annual)"
+			},
+			"dashboardNotFound": "dashboard [{{dashboardId}}] does not found",
+			"dashboard": "Dashboard",
+			"frequency": "Frequency",
+			"emails": "Emails",
+			"print": "Print",
+			"sentAt": "Sent at"
+		}
+	},
+	"institutions": {
+		"description": "Manage institutions <command>: list, get, export, import",
+		"institutionsCheckbox": "Institutions (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+		"institutionsSelect": "Institutions (Use arrow keys or begin typing to search, press <enter> to submit)",
+		"institutionsNotFound": "Institutions not found",
+		"institutionsNamesNotFound": "institution(s) [{{institutions}}] not found",
+		"validated": "Validated",
+		"notVaidated": "Not validated",
+		"doc": "Doc",
+		"tech": "Tech",
+		"name": "Name",
+		"city": "City",
+		"website": "Website",
+		"domains": "Domains",
+		"auto": "Auto",
+		"validate": "Validate",
+		"indexPrefix": "Index Prefix",
+		"role": "Role",
+		"contact": "Contact",
+		"export": {
+			"description": "Export institution(s)",
+			"options": {
+				"institutions": "Institution(s) name, case sensitive",
+				"output": "Output path"
+			},
+			"exported": "institution [{{name}}] exported successfully"
+		},
+		"get": {
+			"description": "Get institution(s) informations",
+			"options": {
+				"institutions": "Institution(s) name, case sensitive"
+			}
+		},
+		"import": {
+			"description": "Import institution(s)",
+			"sepecifyJSONFile": "Please sepecify JSON files path",
+			"cannotReadFile": "Cannot read file {{file}}",
+			"cannotParse": "Cannot parse {{file}}",
+			"imported": "Successfully imported institution(s)"
+		},
+		"list": {
+			"description": "List all institutions"
+		}
+	},
+	"counter4": {
+		"description": "output an expanded JSON file or load a COUNTER 4 JR1 file into ezMESURE / KIBANA (bulk)",
+		"options": {
+			"files": "JR1 files",
+			"package": "JR1 package",
+			"bulk": "bulk index JR1 data",
+			"depositor": "Index prefix name for publisher index",
+			"ndjson": "only output newline delimited JSON file",
+			"json": "Save in JSON file"
+		},
+		"incorrectJR1Type": "Incorrect JR1 type ({{type}})",
+		"incorrectJR1Title": "Incorrect JR1 title ({{title}})",
+		"incorrectJR1Date": "Incorrect JR1 date ({{startDate}}, {{endDate}})",
+		"headerDoesNotFound": "Header does not found",
+		"noReportsAvailable": "No reports available",
+		"writing": "Writing {{file}} with {{count}} objects",
+		"files": "Files",
+		"file": "File",
+		"isNotCSV": "{{file}} is not a CSV file",
+		"fileDoesNotExists": "{{file}} does not exist",
+		"index": "Index",
+		"package": "Package",
+		"took": "Took (ms)",
+		"inserted": "Inserted",
+		"updated": "Updated",
+		"deleted": "Deleted",
+		"errors": "Errors",
+		"total": "Total",
+		"filesProcessed": "{{files}} files processed",
+		"mectrics": "Metrics"
+	},
+	"counter5": {
+		"description": "counter5 <command>: reports",
+		"report": {
+			"description": "Get COUNTER5 reports for one or more institutions",
+			"options": {
+				"institutions": "Institution(s) name, case sensitive",
+				"output": "Output path",
+				"all": "Use all institutions",
+				"merge": "Merge in one file"
+			}
+		},
+		"noSushiReports": "institution [{{name}}] sushi reports not found",
+		"exported": "SUSHI COUNTER5 reports available file: {{dest}} exported succesfully"
+	},
+	"config": {
+		"description": "Manage config with a <command>: get, set, delete, view or edit",
+		"delete": {
+			"description": "Delete a key in the config",
+			"options": {
+				"key": "Config key",
+				"global": "Delete key globally"
+			}
+		},
+		"get": {
+			"description": "Get the value of a key in the config",
+			"options": {
+				"key": "Config key"
+			}
+		},
+		"set": {
+			"description": "Set the value of a key in the config",
+			"options": {
+				"key": "Config key",
+				"value": "Config value",
+				"global": "Delete key globally"
+			}
+		},
+		"view": {
+			"description": "View current configuration",
+			"global": "Global",
+			"local": "Local"
+		},
+		"edit": {
+			"description": "Edit configuration",
+			"options": {
+				"editor": "The editor command to use. Defaults to EDITOR environment variable if set, or 'vi' on Posix, or 'notepad' on Windows",
+				"intractive": "Intractive mode",
+				"global": "Edit global config"
+			},
+			"baseUrl": "ezmESURE base API URL",
+			"token": "Authentication token",
+			"timeout": "Request timeout in milliseconds",
+			"whatDoYoutWant": "What do you want to set ?"
+		}
+	},
+	"cluster": {
+		"description": "Manage cluster <command>: settings, flush, shard",
+		"invalidReponse": "Invalid elasticsearch response body",
+		"shard": {
+			"description": "Manage shards <command>: allocation",
+			"allocation": {
+				"description": "Enable or disable allocation for specific kinds of elasticsearch shards",
+				"options": {
+					"type": "Can be: all, primaries, new_primaries, none, null"
+				},
+				"invalidValue": "Invalid value {{type}}, valid values are: {{values}}",
+				"failedToApply": "Failed to apply cluster settings",
+				"applied": "Cluster settings applied"
+			}
+		},
+		"flush": {
+			"description": "Flush all data streams and indices in the cluster",
+			"flushFailed": "Failed to flush cluster",
+			"shardsFailed": "Some shards failed to flush",
+			"total": "Total",
+			"sauccessful": "Successful",
+			"failed": "Failed"
+		},
+		"settings": {
+			"description": "Show cluster settings",
+			"failed": "Failed to get cluster settings"
+		}
+	},
+	"dashboard": {
+		"description": "Manage dashboard with a <command>: import, export",
+		"dashboardsCheckbox": "Dashboard(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
+		"noDashaboardsSelected": "'No dashaboard(s) selected",
+		"notFound": "dashboard [{{dashboardId}}] not found",
+		"spaceNotFound": "space [{{spaceName}}] not found",
+		"export": {
+			"description": "Export dashboard",
+			"options": {
+				"space": "Space name, case sensitive",
+				"all": "Export all dashboards",
+				"output": "Output path"
+			},
+			"exported": "dashboard [{{dashboardTitle}}] exported successfully"
+		},
+		"import": {
+			"description": "Import dashboard(s)",
+			"options": {
+				"space":"Space name, case sensitive",
+				"indexPattern": "Index pattern name",
+				"overwrite": "Overwrite conflicts",
+				"files": "Files path"
+			},
+			"indexPattern": "Index pattern",
+			"noIndexPattern": "No index pattern typed",
+			"noDashboardData": "No dashboard(s) data found",
+			"cannotReadFile": "Cannot read file {{file}}",
+			"cannotParse": "Cannot parse {{file}}",
+			"error": "[Error#{{status}}]: dashbord does not imported",
+			"conflict": "There are conflicts, use the --overwrite option to force the rewriting of conflicts",
+			"imported": "Dashboard imported successfully"
+		}
+	}
+}
