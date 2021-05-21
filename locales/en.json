@@ -182,7 +182,7 @@
 			"options": {
 				"spaces": "Space(s) name, case sensitive"
 			},
-			"removed": "space {{space}} removed successully"
+			"removed": "space [{{space}}] removed successully"
 		},
 		"get": {
 			"description": "Display information for one space",
