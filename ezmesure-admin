@@ -2,6 +2,7 @@
 
 const yargs = require('yargs');
 const path = require('path');
+const config = require('./lib/app/config');
 const I18n = require('./lib/app/i18n');
 
 const i18n = new I18n({
@@ -10,8 +11,6 @@ const i18n = new I18n({
   directory: path.resolve(__dirname, 'locales'),
 });
 global.i18n = i18n;
-
-const config = require('./lib/app/config');
 
 config.loadEnv(process.argv);
 
@@ -23,7 +22,6 @@ yargs.commandDir('bin/cmds')
     global: true,
   })
   .demandCommand(1)
-  .locale('en')
   .help()
   .parse();
 
