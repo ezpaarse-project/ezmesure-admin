@@ -11,7 +11,7 @@ const get = require('lodash.get');
 
 const spacesLib = require('../../../../lib/spaces');
 const { findBySpace } = require('../../../../lib/reporting');
-const dashboard = require('../../../../lib/dashboard');
+const dashboard = require('../../../../lib/dashboards');
 const reporting = require('../../../../lib/reporting');
 
 exports.command = 'delete [space]';

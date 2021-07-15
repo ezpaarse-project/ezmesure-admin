@@ -12,8 +12,8 @@ const { getAll } = require('../../../lib/institutions');
 
 exports.command = 'delete';
 exports.desc = i18n.t('sushi.delete.description');
-exports.builder = function builder(yargs) {};
-exports.handler = async function handler(argv) {
+exports.builder = function builder() {};
+exports.handler = async function handler() {
   let institutions;
   try {
     const { data } = await getAll();

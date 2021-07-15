@@ -11,7 +11,7 @@ const get = require('lodash.get');
 const { table } = require('table');
 
 const { findAll, findByFrequency } = require('../../../lib/reporting');
-const dashboard = require('../../../lib/dashboard');
+const dashboard = require('../../../lib/dashboards');
 
 exports.command = 'list';
 exports.desc = i18n.t('reporting.list.description');
@@ -56,9 +56,9 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < tasks.length; i += 1) {
     const task = tasks[i];
     try {
-      const { body } = await dashboard.findById(task.space, task.dashboardId);
-      if (body) {
-        tasks[i].dashboardName = body.dashboard.title;
+      const { data } = await dashboard.findAll(task.space);
+      if (data) {
+        tasks[i].dashboardName = data.find(({ id }) => id === task.dashboardId).attributes.title;
       }
     } catch (error) {
       console.log(i18n.t('reporting.list.dashboardNotFound', { dashboardId: `${tasks.space ? `${tasks.space}:` : ''}dashboard:${task.dashboardId}` }));

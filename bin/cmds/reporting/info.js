@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 const { format } = require('date-fns');
 
 const reportingLib = require('../../../lib/reporting');
-const dashboardLib = require('../../../lib/dashboard');
+const dashboardLib = require('../../../lib/dashboards');
 
 exports.command = 'info';
 exports.desc = i18n.t('reporting.info');
@@ -42,8 +42,10 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < reporting.length; i += 1) {
     let dashboard;
     try {
-      const { body } = await dashboardLib.findById(reporting[i].space, reporting[i].dashboardId);
-      if (body) { dashboard = body.dashboard.title; }
+      const { data } = await dashboardLib.findAll(reporting[i].space);
+      if (data) {
+        dashboard = data.find(({ id }) => id === reporting[i].dashboardId).attributes.title;
+      }
     } catch (error) {
       console.error(error);
     }
@@ -76,7 +78,7 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  let report = [];
+  let report = reporting;
 
   if (argv.status) {
     report = [];

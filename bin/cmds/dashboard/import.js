@@ -3,17 +3,8 @@ const { i18n } = global;
 const fs = require('fs-extra');
 const path = require('path');
 
-const get = require('lodash.get');
-
-const inquirer = require('inquirer');
-const checkboxPlus = require('inquirer-checkbox-plus-prompt');
-const autocomplete = require('inquirer-autocomplete-prompt');
-
-inquirer.registerPrompt('checkbox-plus', checkboxPlus);
-inquirer.registerPrompt('autocomplete', autocomplete);
-
-const spacesLib = require('../../../lib/spaces');
-const dashboardLib = require('../../../lib/dashboard');
+const dashboards = require('../../../lib/dashboards');
+const it = require('./interactive/import');
 
 exports.command = 'import [space]';
 exports.desc = i18n.t('dashboard.import.description');
@@ -24,6 +15,7 @@ exports.builder = function builder(yargs) {
   })
     .option('i', {
       alias: 'index-pattern',
+      type: 'string',
       describe: i18n.t('dashboard.import.options.indexPattern'),
     })
     .option('o', {
@@ -31,84 +23,30 @@ exports.builder = function builder(yargs) {
       type: 'boolean',
       describe: i18n.t('dashboard.import.options.overwrite'),
     })
+    .option('it', {
+      alias: 'interactive',
+      describe: i18n.t('dashboard.import.options.interactive'),
+      type: 'boolean',
+    })
     .option('f', {
       alias: 'files',
+      type: 'array',
       describe: i18n.t('dashboard.import.options.files'),
     })
     .array('files');
 };
 exports.handler = async function handler(argv) {
-  const options = {};
+  const {
+    files, overwrite, indexPattern, interactive,
+  } = argv;
 
-  if (argv.timeout) { options.timeout = argv.timeout; }
+  let { space } = argv;
 
-  let files = [];
-
-  if (argv.files) { files = argv.files; }
-
-  let spaceId;
-  if (argv.space) {
-    try {
-      const { data } = await spacesLib.findById(argv.space);
-      if (data) { spaceId = get(data, 'id'); }
-    } catch (error) {
-      console.error(i18n.t('dashboard.spaceNotFound', { spaceName: argv.space }));
-      process.exit(1);
-    }
+  if (interactive) {
+    const { spaceId } = await it();
+    space = spaceId;
   }
 
-  if (!argv.space) {
-    let spaces;
-    try {
-      const { data } = await spacesLib.findAll();
-      if (data) { spaces = data; }
-    } catch (error) {
-      console.error(i18n.t('dashboard.spaceNotFound', { spaceName: argv.space }));
-    }
-
-    const { spaceSelected } = await inquirer.prompt([{
-      type: 'autocomplete',
-      pageSize: 20,
-      name: 'spaceSelected',
-      message: i18n.t('spaces.spaceCheckbox'),
-      searchable: true,
-      highlight: true,
-      source: (answersSoFar, input) => new Promise((resolve) => {
-        input = input ? input.toLowerCase() : '';
-
-        const result = spaces
-          .map(({ id, name }) => ({ name, value: id }))
-          .filter(({ name }) => name.toLowerCase().includes(input));
-
-        resolve(result);
-      }),
-    }]);
-
-    spaceId = spaceSelected;
-  }
-
-  if (!spaceId) {
-    console.error(i18n.t('dashboard.spaceNotFound', { spaceName: argv.space }));
-    process.exit(1);
-  }
-
-  let indexPattern = argv['index-pattern'];
-  if (!argv['index-pattern']) {
-    const { index } = await inquirer.prompt([{
-      type: 'input',
-      name: 'index',
-      message: i18n.t('dashboard.import.indexPattern'),
-    }]);
-
-    indexPattern = index;
-  }
-
-  if (!indexPattern) {
-    console.log(i18n.t('dashboard.import.noIndexPattern'));
-    process.exit(0);
-  }
-
-  const dashboards = [];
   for (let i = 0; i < files.length; i += 1) {
     let content;
     try {
@@ -119,58 +57,31 @@ exports.handler = async function handler(argv) {
     }
 
     if (content) {
+      let dashboard;
       try {
-        content = JSON.parse(content);
+        dashboard = JSON.parse(content);
       } catch (e) {
         console.error(i18n.t('dashboard.import.cannotParse', { file: files[i] }), e);
       }
 
-      if (!Array.isArray(content)) {
-        dashboards.push(content);
-      }
-
-      if (Array.isArray(content)) {
-        content.forEach((data) => dashboards.push(data));
-      }
-    }
-  }
-
-  if (!dashboards.length) {
-    console.log(i18n.t('dashboard.import.noDashboardData'));
-    process.exit(1);
-  }
-
-  for (let i = 0; i < dashboards.length; i += 1) {
-    const dashboard = dashboards[i];
-
-    for (let j = 0; j < dashboard.objects.length; j += 1) {
-      const object = dashboard.objects[j];
-
-      object.namespaces = [argv.space];
-
-      if (object.type === 'index-pattern') {
-        object.attributes.title = indexPattern;
-      }
-    }
-
-    try {
-      const { status, data } = await dashboardLib
-        .importOne(argv.space || spaceId, dashboard, argv.overwrite || false);
-
-      if (status !== 200) {
-        console.log(i18n.t('dashboard.import.error', { status }));
-      }
-
-      if (data && status === 200) {
-        const errors = data.objects.filter(({ error }) => error);
-        if (errors.length) {
-          console.log(i18n.t('dashboard.import.conflict'));
-        } else {
+      if (dashboard) {
+        try {
+          await dashboards.import({
+            space,
+            dashboard,
+            indexPattern,
+            force: overwrite,
+          });
           console.log(i18n.t('dashboard.import.imported'));
+        } catch (error) {
+          if (error.response.data) {
+            console.error(`[Error#${error.response.data.status}] ${error.response.data.error}`);
+            process.exit(1);
+          } else {
+            console.error(error);
+          }
         }
       }
-    } catch (error) {
-      console.log(error);
     }
   }
 };
