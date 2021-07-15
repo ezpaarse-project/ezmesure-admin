@@ -12,8 +12,7 @@ $ ezmesure-admin spaces --help
 | --- | --- |
 | [add](#add) <space> | Create new space |
 | [delete](#delete) [spaces...] | Delete space(s) |
-| [get](#get) <space> | Get and display role informations |
-| [list](#list) [role] | List all spaces |
+| [get](#get) [spaces...] | Get and display space(s) informations |
 | [reporting](#reporting) <command> | Manage reporting |
 
 ## Commands details
@@ -62,27 +61,11 @@ $ ezmesure-admin spaces get --help
 | --- | --- | --- |
 | -j, --json | Boolean | Display data in json |
 | -a, --all | Boolean | Display all data in table |
-
+| --it | Boolean | Interactive mode |
 
 Example :
 ```bash
 $ ezmesure-admin spaces get mySpace --json
-```
-### list
-
-#### Usage
-```bash
-$ ezmesure-admin spaces list --help
-```
-#### Options
-| Name | Type | Description |
-| --- | --- | --- |
-| -j, --json | Boolean | Display data in json |
-| -a, --all | Boolean | Display all data in table |
-
-Example :
-```bash
-$ ezmesure-admin spaces list --all
 ```
 
 ### reporting

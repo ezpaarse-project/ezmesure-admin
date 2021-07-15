@@ -33,23 +33,31 @@ exports.handler = async function handler(argv) {
     const { name, space, indexPrefix } = content.institution;
 
     let institution;
-
-    // Create institution
     try {
-      const { data } = await institutions.create(content.institution);
-      institution = data;
-      console.log(`institution [${name}] created`);
+      const { data } = await institutions.findAll();
+      institution = data
+        .filter((el) => el.name === name)
+        .pop();
     } catch (err) {
-      console.error(`[Import institution][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      console.error(`[${i18n.t('institutions.add.getInstitutions')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
       process.exit(1);
     }
 
-    // Validate institution
-    try {
-      await institutions.validate(institution.id, true);
-      console.log(`institution [${name}] validated.`);
-    } catch (err) {
-      console.error(`[Validate][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    if (institution) {
+      console.log(i18n.t('institutions.import.institutionAlreadyExists', { name }));
+    }
+
+    // eslint-disable-next-line no-continue
+    if (!institution) {
+      // Create institution
+      try {
+        const { data } = await institutions.create(content.institution);
+        institution = data;
+        console.log(i18n.t('institutions.add.institutionImported', { name }));
+      } catch (err) {
+        console.error(`[${i18n.t('institutions.add.importInstitution')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+        process.exit(1);
+      }
     }
 
     // Create space
@@ -58,26 +66,26 @@ exports.handler = async function handler(argv) {
         id: space,
         name: space,
       });
-      console.log(`space [${space}] created.`);
+      console.log(i18n.t('institutions.add.institutionImported', { space }));
     } catch (err) {
-      console.error(`[Import space][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      console.error(`[${i18n.t('institutions.add.importSpace')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
     }
 
     // Create index
     try {
-      const { data } = await indices.create(indexPrefix);
-      console.log(`index [${indexPrefix}] ${data.message === 'Nothing to do' ? 'already exists' : 'imported'}`);
+      await indices.create(indexPrefix);
+      console.log(i18n.t('institutions.add.indexCreated', { index: indexPrefix }));
     } catch (err) {
-      console.error(`[Import index][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      console.error(`[${i18n.t('institutions.add.importIndex')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
     }
 
     // Create index-patterns
     for (let j = 0; j < content.indexPattern.length; j += 1) {
       try {
         await spaces.addIndexPatterns(space, content.indexPattern[j]);
-        console.log(`index-pattern [${space}] imported.`);
+        console.log(i18n.t('institutions.add.indexPatternImported', { indexPattern: content.indexPattern[j].title }));
       } catch (err) {
-        console.error(`[Import index-pattern][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+        console.error(`[${i18n.t('institutions.add.importIndexPattern')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
       }
     }
 
@@ -85,10 +93,11 @@ exports.handler = async function handler(argv) {
     for (let j = 0; j < content.roles.length; j += 1) {
       try {
         await roles.createOrUpdate(content.roles[j].name, content.roles[j]);
+        console.log(i18n.t('institutions.add.roleImported'));
         console.log(`roles [${space}] imported (created or updated).`);
       } catch (err) {
         console.error(err);
-        console.error(`[Import all role][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+        console.error(`[${i18n.t('institutions.add.importRole')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
       }
     }
 

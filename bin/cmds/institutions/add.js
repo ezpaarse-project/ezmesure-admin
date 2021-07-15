@@ -72,7 +72,7 @@ exports.handler = async function handler(argv) {
       .filter((el) => el.name === name)
       .pop();
   } catch (err) {
-    console.error(`[Get institutions][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.getInstitutions')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
     process.exit(1);
   }
 
@@ -90,18 +90,18 @@ exports.handler = async function handler(argv) {
         },
       });
       institution = data;
-      console.log(`institution [${name}] created`);
+      console.log(i18n.t('institutions.add.institutionCreated', { name }));
     } catch (err) {
-      console.error(`[Create institution][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      console.error(`[${i18n.t('institutions.add.createInstitution')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
       process.exit(1);
     }
   }
 
   try {
     await institutions.validate(institution.id, true);
-    console.log(`institution [${name}] validated.`);
+    console.log(i18n.t('institutions.add.institutionValidated', { name }));
   } catch (err) {
-    console.error(`[Validate][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.validate')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
   }
 
   try {
@@ -109,25 +109,25 @@ exports.handler = async function handler(argv) {
       id: space,
       name: space,
     });
-    console.log(`space [${space}] created.`);
+    console.log(i18n.t('institutions.add.spaceCreated', { space }));
   } catch (err) {
-    console.error(`[Create space][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.createSpace')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
   }
 
   try {
-    const { data } = await indices.create(index);
-    console.log(`index [${index}] ${data.message === 'Nothing to do' ? 'already exists' : 'created'}`);
+    await indices.create(index);
+    console.log(i18n.t('institutions.add.indexCreated', { index }));
   } catch (err) {
-    console.error(`[Create index][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.createIndex')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
   }
 
   try {
     await spaces.addIndexPatterns(space, {
       title: `${index}*`,
     });
-    console.log(`index-pattern [${space}] created.`);
+    console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: index }));
   } catch (err) {
-    console.error(`[Create index-pattern][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.createIndexPattern')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
   }
 
   // Create all privileges role
@@ -148,9 +148,9 @@ exports.handler = async function handler(argv) {
         },
       ],
     });
-    console.log(`roles [${space}] created or updated.`);
+    console.log(i18n.t('institutions.add.roleCreated', { roleName: space }));
   } catch (err) {
-    console.error(`[Create all role][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.createRole')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
   }
 
   // Create read_only privileges role
@@ -171,9 +171,9 @@ exports.handler = async function handler(argv) {
         },
       ],
     });
-    console.log(`roles [${space}_read_only] created or updated.`);
+    console.log(i18n.t('institutions.add.roleCreated', { roleName: `${space}_read_only` }));
   } catch (err) {
     console.log(err);
-    console.error(`[Create read_only roles][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.createRole')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
   }
 };

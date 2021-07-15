@@ -40,6 +40,11 @@ exports.handler = async function handler(argv) {
     }
   }
 
+  if (!institutions.length) {
+    console.log(i18n.t('institutions.export.noInstitutionsSelected'));
+    process.exit(0);
+  }
+
   for (let i = 0; i < institutions.length; i += 1) {
     const { institution } = institutions[i];
 
@@ -49,7 +54,7 @@ exports.handler = async function handler(argv) {
       delete data.disabledFeatures;
       institutions[i].space = data;
     } catch (error) {
-      console.error(`institution [${institution.name}] cannot get [space] informations`);
+      console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'space' }));
     }
 
     // Get index-pattern informations
@@ -57,7 +62,7 @@ exports.handler = async function handler(argv) {
       const { data } = await spaces.getIndexPatterns(institution.space);
       institutions[i].indexPattern = data.map(({ attributes }) => attributes);
     } catch (error) {
-      console.error(`institution [${institution.name}] cannot get [index-pattern] informations`);
+      console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'index-pattern' }));
     }
 
     // Get roles informations
@@ -74,7 +79,7 @@ exports.handler = async function handler(argv) {
       };
       institutions[i].roles.push(role);
     } catch (error) {
-      console.error(`institution [${institution.name}] cannot get [roles] informations`);
+      console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'roles (all)' }));
     }
 
     try {
@@ -89,7 +94,7 @@ exports.handler = async function handler(argv) {
       };
       institutions[i].roles.push(role);
     } catch (error) {
-      console.error(`institution [${institution.name}] cannot get [roles] informations`);
+      console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'roles (read only)' }));
     }
 
     // Get SUSHI informations
@@ -97,8 +102,7 @@ exports.handler = async function handler(argv) {
       const { data } = await institutionsLib.getSushi(institution.id);
       institutions[i].sushi = data.map(({ attributes }) => attributes);
     } catch (error) {
-      console.log(error);
-      console.error(`institution [${institution.name}] cannot get [sushi] informations`);
+      console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'sushi' }));
     }
 
     delete institution.id;

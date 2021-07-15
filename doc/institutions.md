@@ -11,7 +11,6 @@ $ ezmesure-admin institutions --help
 | Name | Description |
 | --- | --- |
 | [get](#get) [institutions...] | Get institution(s) informations |
-| [list](#list) | List all institutions |
 | [export](#export) [institutions...] |Export institution(s) |
 | [import](#import) | Import institution(s) |
 
@@ -24,6 +23,10 @@ $ ezmesure-admin institutions --help
 ```bash
 $ ezmesure-admin institutions get --help
 ```
+#### Options
+| Name | Type | Description |
+| --- | --- | --- |
+| -a, --all | String | Export all institutions |
 
 Example :
 
@@ -57,28 +60,6 @@ $ ezmesure-admin institutions get
 ╚══════════════════╧═══════════╧═════════════════════════════════╧═════════╧═══════════╧═══════════╧════════════════╧════════════════╧═════════════════════╝
 ```
 
-### list
-
-#### Usage
-
-```bash
-$ ezmesure-admin institutions list --help
-```
-
-Example :
-
-```bash
-$ ezmesure-admin institutions list
-
-╔══════════════════╤═══════════╤═════════════════════════════════╤═════════╤═══════════╤═══════════╤════════════════╤════════════════╤═════════════════════╗
-║ Name             │ City      │ Website                         │ Domains │ Auto      │ Validate  │ Index prefix   │ Role           │ Contact             ║
-╟──────────────────┼───────────┼─────────────────────────────────┼─────────┼───────────┼───────────┼────────────────┼────────────────┼─────────────────────╢
-║ MyInstitution 1  │ Paris     │ https://www.my-institution.fr/  │         │ ezPAARSE  │ Validated │ my_institution │ my_institution │ Doc : DOC Contact   ║
-║                  │           │                                 │         │ ezMESURE  │           │                │                │ Tech : TECH Contact ║
-║                  │           │                                 │         │ Reporting │           │                │                │                     ║
-╚══════════════════╧═══════════╧═════════════════════════════════╧═════════╧═══════════╧═══════════╧════════════════╧════════════════╧═════════════════════╝
-```
-
 ### export
 
 #### Usage
@@ -90,12 +71,12 @@ $ ezmesure-admin institutions export --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
-| -o, --output | String | Output path |
+| -a, --all | String | Export all institutions |
 
 Example :
 
 ```bash
-$ ezmesure-admin institutions export -o ~/Documents/exports
+$ ezmesure-admin institutions export ~/Documents/exports
 
 ? Institutions : 
 ❯◯ MyInstitution
@@ -107,7 +88,7 @@ institution [MyInstitution] exported successfully
 or
 
 ```bash
-$ ezmesure-admin institutions export MyInstitution s-o ~/Documents/exports
+$ ezmesure-admin institutions export ~/Documents/exports --all
 
 institution [MyInstitution] exported successfully
 ```

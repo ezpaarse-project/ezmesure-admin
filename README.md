@@ -18,6 +18,8 @@ $ npm i -g .
 
 ```bash
 $ ezmesure-admin --help
+$ ezadmin --help
+$ eza --help
 ```
 
 ## Global options

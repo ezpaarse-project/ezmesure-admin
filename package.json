@@ -4,7 +4,8 @@
   "description": "Command line utilities to manage ezMESURE",
   "bin": {
     "ezmesure-admin": "./ezmesure-admin",
-    "ezadmin": "./ezmesure-admin"
+    "ezadmin": "./ezmesure-admin",
+    "eza": "./ezmesure-admin"
   },
   "main": "index.js",
   "scripts": {
@@ -33,6 +34,7 @@
     "inquirer-autocomplete-prompt": "^1.3.0",
     "inquirer-checkbox-plus-prompt": "^1.0.1",
     "inquirer-table-prompt": "^0.2.1",
+    "joi": "^17.4.0",
     "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2",
     "lodash.unset": "^4.5.2",

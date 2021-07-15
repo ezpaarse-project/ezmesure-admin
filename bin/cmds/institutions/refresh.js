@@ -11,5 +11,5 @@ exports.handler = async function handler() {
     console.error(`[Error#${error.response.data.status}] ${error.response.data.error}`);
     process.exit(1);
   }
-  console.log('Institutions are refreshed.');
+  console.log(i18n.t('institutions.refresh.refreshed'));
 };
