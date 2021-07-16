@@ -218,12 +218,13 @@
 	},
 	"roles": {
 		"description": "Manage roles <command>: get, add, edit, delete, list",
+		"roleCheckbox": "Roles(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"noRolesSelected": "No roles have been selected",
 		"rolesNotFound": "No roles found",
-		"roleNotFound": "role [{{role}}] was not found",
 		"role": "Role",
 		"indexes": "Indexes",
-		"applications": "Applications",
+		"spaces": "Spaces",
+		"space": "Space",
 		"names": "Names",
 		"privileges": "Privileges",
 		"add": {
@@ -265,13 +266,10 @@
 		"get": {
 			"description": "Get and display role information",
 			"options": {
-				"json": "Display data in json"
-			}
-		},
-		"list": {
-			"description": "List all roles",
-			"options": {
-				"json": "Display data in json"
+				"roles": "Roles(s) name(s)",
+				"json": "Display data in json",
+				"all": "Display all data in table",
+				"interactive": "Interactive mode"
 			}
 		}
 	},

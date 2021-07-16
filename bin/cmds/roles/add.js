@@ -270,7 +270,7 @@ exports.handler = async function handler(argv) {
 
   let response;
   try {
-    const { body } = await rolesLib.create(roleName, data);
+    const { body } = await rolesLib.createOrUpdate(roleName, data);
     response = body;
   } catch (error) {
     console.error(error);
