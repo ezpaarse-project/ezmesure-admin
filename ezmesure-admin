@@ -22,7 +22,7 @@ yargs.commandDir('bin/cmds')
     number: true,
     global: true,
   })
-  .version(`${name} version ${version}`)
+  .version('version', i18n.t('global.options.version'), `${name} version ${version}`)
   .demandCommand(1)
   .help()
   .parse();

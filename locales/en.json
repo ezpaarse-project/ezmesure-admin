@@ -1,7 +1,8 @@
 {
 	"global": {
 		"options": {
-			"timeout": "Request timeout in milliseconds"
+			"timeout": "Request timeout in milliseconds",
+			"version": "Print version information and quit"
 		}
 	},
 	"users": {
