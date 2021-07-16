@@ -39,12 +39,14 @@ $ eza --help
 | [counter4](/doc/counter4.md) (deprecated) | Load counter4 files in Kibana | 
 | [counter5](/doc/counter5.md) | COUNTER5 commands | 
 | [dashboard](/doc/dashboard.md) | Manage Kibana dashboards |
+| [indices](/doc/indices.md) | Manager ezMESURE/Kibana users |
+| [index-pattern](/doc/index-pattern.md) | Manager ezMESURE/Kibana users |
 | [institutions](/doc/institutions.md) | Manage ezMESURE institutions |
 | [reporting](/doc/reporting.md) | Manage ezMESURE reporting |
 | [roles](/doc/roles.md) | Manage Kibana roles |
 | [spaces](/doc/spaces.md) | Manage Kibana spaces |
 | [sushi](/doc/sushi.md) | Manage ezMESURE sushi |
-| [users](/doc/users.md) | Manager ezMESURE/Kibana users |
+| [users](/doc/users.md) | Manage ezMESURE/Kibana users |
 
 ## Development
 

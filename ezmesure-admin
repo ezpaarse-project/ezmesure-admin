@@ -16,8 +16,7 @@ global.i18n = i18n;
 config.loadEnv(process.argv);
 
 yargs.commandDir('bin/cmds')
-  .option('t', {
-    alias: 'timeout',
+  .option('timeout', {
     describe: i18n.t('global.options.timeout'),
     number: true,
     global: true,

@@ -1,7 +1,6 @@
 exports.cluster = require('./lib/cluster');
 exports.counter = require('./lib/counter');
 exports.dashboards = require('./lib/dashboards');
-exports.indexPattern = require('./lib/indexPattern');
 exports.indices = require('./lib/indices');
 exports.institutions = require('./lib/institutions');
 exports.reporting = require('./lib/reporting');
