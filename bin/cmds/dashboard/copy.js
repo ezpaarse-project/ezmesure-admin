@@ -85,7 +85,7 @@ exports.handler = async function handler(argv) {
     await dashboards.copy({ source, target, force: argv.force });
   } catch (err) {
     if (err.response.data) {
-      console.error(i18n.t('dashboard.copy.targetIsRequired', {
+      console.error(i18n.t('dashboard.copy.error', {
         statusCode: err.response.data.status,
         message: err.response.data.error,
       }));

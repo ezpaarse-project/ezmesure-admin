@@ -156,7 +156,7 @@
 	"spaces":	{
 		"spaceCheckbox": "Space(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"spaceSelect": "Space (Use arrow keys, press <enter> to submit)",
-		"description": "Manage spaces <command>: get, add, edit, delete, list, reporting",
+		"description": "Manage spaces <command>: get, add, edit, delete, reporting",
 		"notFound": "No space(s) found",
 		"noSpacesSelected": "No space(s) selected",
 		"notFoundSpace": "space [{{space}}] not found",
@@ -249,9 +249,9 @@
 		"delete": {
 			"description": "Delete role(s)",
 			"options": {
-				"roles": "Role(s) name(s)"
+				"roles": "Role(s) name(s)",
+				"interactive": "Interactive mode"
 			},
-			"rolesCheckbox": "Role(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 			"deleted": "role [{{role}}] deleted succefully"
 		},
 		"edit": {
@@ -556,5 +556,27 @@
 		"warning": "WARNING! Using --password via the CLI is insecure. Use --password-stdin.",
 		"loginFailed": "user [{{username}}] login failed",
 		"loggedin": "user [{{username}}] logged in successfully"
+	},
+	"indexPattern": {
+		"description": "Manage index-pattern with a <command> : add",
+		"add": {
+			"description": "Create index-pattern",
+			"options": {
+				"space": "Space name, case sensitive",
+				"title": "Index-pattern name",
+				"timeFieldName": "Time field name (default: datetime)"
+			},
+			"created": "index-pattern [{{title}}] created in [{{space}}] space"
+		}
+	},
+	"indices": {
+		"description": "Manage indices with a <command> : add",
+		"add": {
+			"description": "Create indice",
+			"options": {
+				"name": "Indice name"
+			},
+			"created": "indice [{{name}}] created successfully"
+		}
 	}
 }

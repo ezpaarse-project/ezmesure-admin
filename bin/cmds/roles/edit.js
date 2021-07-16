@@ -13,12 +13,11 @@ inquirer.registerPrompt('table', tableprompt);
 
 const rolesLib = require('../../../lib/roles');
 const spacesLib = require('../../../lib/spaces');
-const indexPatternLib = require('../../../lib/indexPattern');
 
 const createRoleMenu = async () => {
   let indices = [];
   try {
-    const { body } = await indexPatternLib.findAll();
+    const { body } = await rolesLib.findAll();
     if (body) {
       const indexPatterns = get(body, 'hits.hits');
       if (indexPatterns.length) {

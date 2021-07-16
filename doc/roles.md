@@ -12,7 +12,7 @@ $ ezmesure-admin roles --help
 | --- | --- |
 | [add](#add) <role> | Create new role |
 | [delete](#delete) [roles...] | Delete role(s) |
-| [edit](#edit) [role] | Edit report |
+| [edit](#edit) [role] | Edit role |
 | [get](#get) <role> | Get and display role(s) informations |
 
 ## Commands details
