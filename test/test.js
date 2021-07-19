@@ -2,7 +2,7 @@
 /* global describe, it, before */
 const path = require('path');
 const { expect } = require('chai');
-const sushiCmd = require('../bin/cmds/sushi.js');
+const sushiCmd = require('../bin/cmds/sushi');
 
 const sushiNatureTestFile1 = path.join(__dirname, '/sushi-nature-test.json');
 const sushiNatureTestFile2 = path.join(__dirname, '/sushi-nature-test-multi.json');

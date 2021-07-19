@@ -24,12 +24,20 @@ $ ezmesure-admin roles --help
 $ ezmesure-admin roles add --help
 ```
 
+| Name | Type | Description |
+| --- | --- | --- |
+| -i, --index-pattern | String | Index-pattern name (e.g: my-index, m-y-index*) |
+| -s, --space | String | Space name, case sensitive |
+| -p, --privileges | String | Privileges (all or read) |
+| -r, --read-only | String | Create role with read privileges and _read_only suffix |
+
 Example :
 
 ```bash
-$ ezmesure-admin roles add newRole
+$ ezmesure-admin roles add my-role --space my-space --index-pattern my-index --privileges read --read-only
 
-role [newRole] created succefully
+role [my-role] created or updated
+role [my-role_read_only] created or updated
 ```
 
 ### delete

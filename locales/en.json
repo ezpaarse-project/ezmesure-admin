@@ -23,24 +23,8 @@
 					"users": "User(s) name(s)",
 					"roles": "Role(s) name(s)"
 				},
-				"usersNotFound": "user(s) [{{users}}] not found",
-				"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 				"noRolesSpecified": "No role(s) specified",
-				"errorRoles": "[Error#{{statusCode}}] {{message}} (role: {{role}})",
-				"checkboxRoles": "Roles (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
-				"hasRole": "user [{{user}}] has already role [{{role}}]"
-			},
-			"delete": {
-				"description": "Delete role",
-				"options": {
-					"user": "User name",
-					"roles": "Role(s) name(s)"
-				},
-				"checkboxUsers": "Users (User arrow keys or begin typing to search, press <enter> to submit)",
-				"noRolesSpecified": "No role(s) specified",
-				"noRolesSelected": "No roles selected",
-				"checkboxRoles": "Roles (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
-				"errorRoles": "[Error#{{statusCode}}] {{message}} (role: {{role}})"
+				"added": "role(s) [{{role}}] added to user [{{username}}]"
 			}
 		},
 		"list": {
@@ -53,6 +37,7 @@
 			"description": "Get one or more users",
 			"options": {
 				"users": "User(s) name(s)",
+				"interactive":"Interactive mode",
 				"json": "Print result(s) in json"
 			},
 			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
@@ -231,20 +216,13 @@
 		"add": {
 			"description": "Create new role",
 			"options": {
-				"role": "Role name, case sensitive"
+				"role": "Role name, case sensitive",
+				"indexPatten": "Index-pattern name (e.g: my-index, m-y-index*)",
+				"space": "Space name, case sensitive",
+				"privileges": "Privileges (all or read)",
+				"readOnly": "Create role with read privileges and _read_only suffix"
 			},
-			"exists": "role [{{roleName}}] already exists",
-			"canBeCreated": "role [{{roleName}}] can be create",
-			"errorOccured": "An error occured to create role",
-			"selectIndex": "Please select an Index",
-			"indexesPrivileges": "Please select Indexes privileges",
-			"selectSpace": "Please select a space",
-			"created": "role [{{roleName]]] created succefully",
-			"failed": "role [{{roleName]]] creation failed",
-			"kibanaSpacesCheckbox": "[Kibana] Space(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
-			"kibanaSpacesPrivileges": "Space(s) privilege(s) (Use arrow keys, press <space> to select, press <enter> to submit)",
-			"elasticIndexesPrivileges": "[Elastic] Index(es) privileges (Use arrow keys, press <space> to select, press <enter> to submit)",
-			"elasticIndexesCheckbox": "[Elastic] Index(es) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
+			"roleCreated": "role [{{roleName}}] created or updated"
 		},
 		"delete": {
 			"description": "Delete role(s)",
@@ -257,7 +235,7 @@
 		"edit": {
 			"description": "Edit role",
 			"options": {
-				"role": "Role name, case sensitive"
+				"roles": "Role name, case sensitive"
 			},
 			"roleDoesNotExists": "role [{{roleName}}] does not exist",
 			"errorOccured": "An error occured to edit role",
