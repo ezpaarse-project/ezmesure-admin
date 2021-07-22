@@ -15,7 +15,8 @@ module.exports = async function it() {
     const { data } = await spacesLib.findAll();
     spaces = data;
   } catch (error) {
-    console.error(error);
+    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    process.exit(1);
   }
 
   const { spaceSelected } = await inquirer.prompt([{
