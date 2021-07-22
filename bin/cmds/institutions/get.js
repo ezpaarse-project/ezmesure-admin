@@ -72,17 +72,17 @@ exports.handler = async function handler(argv) {
     indexPrefix, role, docContactName, techContactName,
   }) => ([
     name,
-    city,
-    website,
-    domains.join(', '),
+    city || '',
+    website || '',
+    (domains && domains.join(', ')) || '',
     [
       chalk.hex(auto.ezpaarse ? '#78e08f' : '#e55039').bold('ezPAARSE'),
       chalk.hex(auto.ezmesure ? '#78e08f' : '#e55039').bold('ezMESURE'),
       chalk.hex(auto.report ? '#78e08f' : '#e55039').bold('Reporting'),
     ].join('\n'),
     validated ? chalk.hex('#78e08f').bold(i18n.t('institutions.get.validated')) : chalk.hex('#e55039').bold(i18n.t('institutions.get.notValidated')),
-    indexPrefix,
-    role,
+    indexPrefix || '',
+    role || '',
     [`${i18n.t('institutions.get.doc')} : ${docContactName || '-'}`, `${i18n.t('institutions.get.tech')} : ${techContactName || '-'}`].join('\n'),
   ]));
 

@@ -37,6 +37,17 @@ exports.handler = async function handler(argv) {
     console.log(i18n.t('login.warning'));
   }
 
+  if (!username) {
+    const { user } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'user',
+        message: i18n.t('login.username'),
+      },
+    ]);
+    credentials.username = user;
+  }
+
   if (!password && !passwordStdin) {
     const { pwd } = await inquirer.prompt([
       {
@@ -47,17 +58,6 @@ exports.handler = async function handler(argv) {
       },
     ]);
     credentials.password = pwd;
-  }
-
-  if (!username) {
-    const { user } = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'user',
-        message: i18n.t('login.username'),
-      },
-    ]);
-    credentials.username = user;
   }
 
   if (passwordStdin) {
@@ -78,7 +78,7 @@ exports.handler = async function handler(argv) {
     res = await ezmesure.post('/login/local', credentials);
   } catch (error) {
     console.log(`[Error#${error?.response?.status}] ${error?.response?.statusText}`);
-    console.error(i18n.t('login.loginFailed', { username }));
+    console.error(i18n.t('login.loginFailed', { username: credentials.username }));
     process.exit(1);
   }
 
@@ -93,6 +93,6 @@ exports.handler = async function handler(argv) {
       process.exit(1);
     }
 
-    console.log(i18n.t('login.loggedin', { username }));
+    console.log(i18n.t('login.loggedIn', { username: credentials.username }));
   }
 };

@@ -72,7 +72,11 @@ exports.handler = async function handler(argv) {
       .filter((el) => el.name === name)
       .pop();
   } catch (err) {
-    console.error(`[${i18n.t('institutions.add.getInstitutions')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    if (err?.response?.data) {
+      console.error(`[${i18n.t('institutions.add.getInstitutions')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      process.exit(1);
+    }
+    console.error(`[${i18n.t('institutions.add.getInstitutions')}]`, err);
     process.exit(1);
   }
 
@@ -88,7 +92,7 @@ exports.handler = async function handler(argv) {
           ezmesure,
           report: reporting,
         },
-      });
+      }, false);
       institution = data;
       console.log(i18n.t('institutions.add.institutionCreated', { name }));
     } catch (err) {

@@ -318,6 +318,14 @@
 		},
 		"add": {
 			"description": "Create institution",
+			"options": {
+				"name": "Institution name",
+				"index": "Index name",
+				"space":"Space name",
+				"ezpaarse": "Automation ezPAARSE",
+				"ezmesure": "Automation ezMESURE",
+				"reporting": "Automation Reporting"
+			},
 			"getInstitutions": "Get institutions",
 			"institutionCreated": "institution [{{name}}] created",
 			"createInstitution": "Create institution",
@@ -349,6 +357,8 @@
 				"all": "Export all institutions",
 				"interactive": "Interactive mode"
 			},
+			"validated": "Validated",
+			"notValidated": "Not validated",
 			"doc": "Doc contact",
 			"tech": "Tech contact"
 		},
@@ -545,7 +555,7 @@
 		"password": "Password",
 		"warning": "WARNING! Using --password via the CLI is insecure. Use --password-stdin.",
 		"loginFailed": "user [{{username}}] login failed",
-		"loggedin": "user [{{username}}] logged in successfully"
+		"loggedIn": "user [{{username}}] logged in successfully"
 	},
 	"indexPattern": {
 		"description": "Manage index-pattern with a <command> : add",
