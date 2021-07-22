@@ -6,7 +6,7 @@
 		}
 	},
 	"users": {
-		"description": "Manage users <command>: list, get, roles",
+		"description": "Manage users <command>: list, get, roles, add",
 		"noUsersFound": "No users found",
 		"noUserFound": "No user found",
 		"username": "Username",
@@ -41,6 +41,18 @@
 				"json": "Print result(s) in json"
 			},
 			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
+		},
+		"add": {
+			"description": "Create user",
+			"options": {
+				"username": "Username (e.g. john.doe)",
+				"password": "Password",
+				"email": "Email address",
+				"fullName":"Full name (e.g. John Doe)",
+				"roles": "Role(s) name(s)",
+				"enabled": "Enabled user (default: true)"
+			},
+			"created": "user [{{username}}] created or updated"
 		}
 	},
 	"sushi": {
@@ -245,7 +257,7 @@
 		"get": {
 			"description": "Get and display role information",
 			"options": {
-				"roles": "Roles(s) name(s)",
+				"roles": "Role(s) name(s)",
 				"json": "Display data in json",
 				"all": "Display all data in table",
 				"interactive": "Interactive mode"
@@ -313,7 +325,7 @@
 			"validate": "Validate",
 			"spaceCreated": "space [{{space}}] created",
 			"createSpace": "Create space",
-			"indexCreated": "index [{{space}}] created",
+			"indexCreated": "index [{{index}}] created",
 			"createIndex": "Create index",
 			"indexPatternCreated": "index-pattern [{{indexPattern}}] created",
 			"createIndexPattern": "Create index-pattern",
@@ -504,7 +516,7 @@
 			"cannotParse": "Cannot parse {{file}}",
 			"error": "[Error#{{status}}]: dashbord does not imported",
 			"conflict": "There are conflicts, use the --overwrite option to force the rewriting of conflicts",
-			"imported": "Dashboard imported successfully"
+			"imported": "Dashboard imported [{{title}}] successfully"
 		},
 		"copy": {
 			"description": "Copy a dashboard from one space to another",

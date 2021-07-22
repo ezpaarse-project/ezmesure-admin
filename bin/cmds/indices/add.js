@@ -20,5 +20,5 @@ exports.handler = async function handler(argv) {
     process.exit(1);
   }
 
-  console.log(i18n.t('indices.add.create', { index }));
+  console.log(i18n.t('indices.add.created', { index }));
 };

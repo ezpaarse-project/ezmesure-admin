@@ -30,5 +30,5 @@ exports.handler = async function handler(argv) {
     process.exit(1);
   }
 
-  console.log(i18n.t('indexPattern.add.create', { space, title }));
+  console.log(i18n.t('indexPattern.add.created', { space, title }));
 };

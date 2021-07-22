@@ -42,9 +42,13 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < dashboardsSelected.length; i += 1) {
     let dashboardData;
     try {
-      const { data } = await dashboards.export({ selectedSpace, dashboard: dashboardsSelected[i] });
+      const { data } = await dashboards.export({
+        space: selectedSpace,
+        dashboard: dashboardsSelected[i],
+      });
       dashboardData = data;
     } catch (err) {
+      console.log(err);
       if (err.response.data) {
         console.error(`[Error#${err.response.data.status}] ${err.response.data.error}`);
         process.exit(1);

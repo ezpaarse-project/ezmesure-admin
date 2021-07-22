@@ -37,7 +37,7 @@ exports.handler = async function handler(argv) {
     console.log(i18n.t('login.warning'));
   }
 
-  if (username && !password && !passwordStdin) {
+  if (!password && !passwordStdin) {
     const { pwd } = await inquirer.prompt([
       {
         type: 'password',
@@ -49,7 +49,7 @@ exports.handler = async function handler(argv) {
     credentials.password = pwd;
   }
 
-  if (!username && password && !passwordStdin) {
+  if (!username) {
     const { user } = await inquirer.prompt([
       {
         type: 'input',
@@ -58,24 +58,6 @@ exports.handler = async function handler(argv) {
       },
     ]);
     credentials.username = user;
-  }
-
-  if (!username && !password && !passwordStdin) {
-    const { user, pass } = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'user',
-        message: i18n.t('login.username'),
-      },
-      {
-        type: 'password',
-        name: 'pass',
-        mask: '*',
-        message: i18n.t('login.password'),
-      },
-    ]);
-    credentials.username = user;
-    credentials.password = pass;
   }
 
   if (passwordStdin) {
