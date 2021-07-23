@@ -526,7 +526,8 @@
 			"cannotParse": "Cannot parse {{file}}",
 			"error": "[Error#{{status}}]: dashbord does not imported",
 			"conflict": "There are conflicts, use the --overwrite option to force the rewriting of conflicts",
-			"imported": "Dashboard imported [{{title}}] successfully"
+			"imported": "Dashboard imported [{{title}}] successfully",
+			"noFiles": "No files specified"
 		},
 		"copy": {
 			"description": "Copy a dashboard from one space to another",

@@ -42,6 +42,11 @@ exports.handler = async function handler(argv) {
 
   let { space } = argv;
 
+  if (!files) {
+    console.log(i18n.t('dashboard.import.noFiles'));
+    process.exit(1);
+  }
+
   if (interactive) {
     const { spaceId } = await it();
     space = spaceId;

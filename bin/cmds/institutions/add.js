@@ -112,6 +112,7 @@ exports.handler = async function handler(argv) {
     await spaces.create({
       id: space,
       name: space,
+      description: `Espace par defautl ${space}`,
     });
     console.log(i18n.t('institutions.add.spaceCreated', { space }));
   } catch (err) {
