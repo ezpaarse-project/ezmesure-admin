@@ -67,7 +67,7 @@ exports.handler = async function handler(argv) {
 
   const lines = spaces.map((el) => {
     const color = el.color ? chalk.hex(el.color).bold(` ${el.color} `) : '';
-    return [el.id, el.name, el.description, el.initials, color];
+    return [el.id || '', el.name || '', el.description || '', el.initials || '', color || ''];
   });
   console.log(table([header, ...lines]));
 };
