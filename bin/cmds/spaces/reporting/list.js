@@ -11,8 +11,8 @@ const get = require('lodash.get');
 const { table } = require('table');
 
 const spacesLib = require('../../../../lib/spaces');
-const { findBySpace } = require('../../../../lib/reporting');
-const dashboard = require('../../../../lib/dashboards');
+const reportingLib = require('../../../../lib/reporting');
+const dashboardLib = require('../../../../lib/dashboards');
 
 exports.command = 'list [space]';
 exports.desc = i18n.t('spaces.reporting.list.description');
@@ -24,6 +24,14 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const { space } = argv;
+
+  let dashboards;
+  try {
+    const { data } = await dashboardLib.findAll(space);
+    dashboards = data;
+  } catch (error) {
+    console.error(error);
+  }
 
   let spaceId;
   if (space) {
@@ -72,7 +80,7 @@ exports.handler = async function handler(argv) {
 
   let tasks;
   try {
-    const { body } = await findBySpace(spaceId);
+    const { body } = await reportingLib.findBySpace(spaceId);
     if (body) { tasks = get(body, 'hits.hits'); }
   } catch (error) {
     console.log(i18n.t('reporting.noTasksFound'));
@@ -89,10 +97,8 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < tasks.length; i += 1) {
     const task = tasks[i];
     try {
-      const { body } = await dashboard.findById(task.space, task.dashboardId);
-      if (body) {
-        tasks[i].dashboardName = body.dashboard.title;
-      }
+      tasks[i].dashboardName = dashboards.find(({ id }) => id === task.dashboardId)
+        .attributes.title;
     } catch (error) {
       console.log(i18n.t('spaces.reporting.dashboardNotFound', { dashboardId: `${tasks.space ? `${tasks.space}:` : ''}dashboard:${task.dashboardId}` }));
     }
@@ -108,11 +114,11 @@ exports.handler = async function handler(argv) {
   const rows = tasks.map(({
     dashboardName, frequency, emails, print, sentAt,
   }) => ([
-    dashboardName,
-    frequency,
-    emails.join(', '),
+    dashboardName || '-',
+    frequency || '-',
+    `${emails.slice(0, 3).join(', ')}, ...`,
     print,
-    sentAt,
+    sentAt || '-',
   ]));
 
   console.log(table([header, ...rows]));

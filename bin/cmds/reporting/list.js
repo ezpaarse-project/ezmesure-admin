@@ -67,8 +67,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (dashboards[task.space] && dashboards[task.space].length) {
-      const dashboard = dashboards[task.space].find(({ type }) => type === 'dashboard');
-      tasks[i].dashboardName = dashboard.attributes.title;
+      tasks[i].dashboardName = dashboards[task.space]?.attributes.title;
     }
   }
 
@@ -85,7 +84,7 @@ exports.handler = async function handler(argv) {
     dashboardName || '-',
     frequency || '-',
     `${emails.slice(0, 3).join(', ')}, ...`,
-    print || '-',
+    print,
     sentAt || '-',
   ]));
 
