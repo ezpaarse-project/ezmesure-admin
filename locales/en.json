@@ -153,7 +153,7 @@
 	"spaces":	{
 		"spaceCheckbox": "Space(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"spaceSelect": "Space (Use arrow keys, press <enter> to submit)",
-		"description": "Manage spaces <command>: get, add, edit, delete, reporting",
+		"description": "Manage spaces <command>: get, add, update, edit, delete, reporting",
 		"notFound": "No space(s) found",
 		"noSpacesSelected": "No space(s) selected",
 		"notFoundSpace": "space [{{space}}] not found",
@@ -168,8 +168,23 @@
 			},
 			"spaceDescription": "Enter space description",
 			"spaceInitials": "Enter space initials",
-			"spaceColor": "Enter space color (ex: #FF00FF)",
+			"spaceColor": "Enter space color (ex: #9C27B0)",
 			"created": "space [{{space}}] created successfully"
+		},
+		"update": {
+			"description": "Update space",
+			"options": {
+				"name": "Space name, case sensitive",
+				"newName": "New space name, case sensitive",
+				"color": "Space color",
+				"description": "Space description",
+				"initials": "Space initials",
+				"interactive": "Interactive mode"
+			},
+			"spaceDescription": "Enter space description",
+			"spaceInitials": "Enter space initials",
+			"spaceColor": "Enter space color (ex: #9C27B0)",
+			"updated": "space [{{space}}] updated successfully"
 		},
 		"delete": {
 			"description": "Delete space(s)",
@@ -193,13 +208,14 @@
 			}
 		},
 		"reporting": {
-			"description": "Manage reporting tasks <command>: list, delete",
+			"description": "Manage reporting tasks <command>: list, info",
 			"dashboardNotFound": "dashboard [{{dashboardId}}] not found",
 			"list": {
 				"description": "List reporting task(s) on space",
 				"options": {
 					"space": "Space name, case sensitive"
 				},
+				"connotGetDashboards": "Cannot get dashboards for [{{space}}] space",
 				"dashboard": "Dashboard",
 				"frequency": "Frequency",
 				"emails": "Emails",

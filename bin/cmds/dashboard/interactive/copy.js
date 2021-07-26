@@ -36,14 +36,15 @@ module.exports = async function it() {
       resolve(result);
     }),
   }]);
-  const spaceId = spaceSelected === 'default' ? null : spaceSelected;
+  const spaceId = spaceSelected === '' ? undefined : spaceSelected;
 
   let dashboards;
   try {
     const { data } = await dashboardLib.findAll(spaceId);
     dashboards = data;
   } catch (error) {
-    console.error(error);
+    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    process.exit(1);
   }
 
   const { dashboardId } = await inquirer.prompt([{

@@ -82,6 +82,7 @@ exports.handler = async function handler(argv) {
 
           console.log(i18n.t('dashboard.import.imported', { title: dshData?.pop().attributes?.title }));
         } catch (error) {
+          console.log(error);
           if (error.response.data) {
             console.error(`[Error#${error.response.data.status}] ${error.response.data.error}`);
             process.exit(1);

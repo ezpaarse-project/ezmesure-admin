@@ -39,15 +39,21 @@ exports.handler = async function handler(argv) {
     ..._source,
   }));
 
+  const dashboards = {};
   for (let i = 0; i < reporting.length; i += 1) {
     let dashboard;
-    try {
-      const { data } = await dashboardLib.findAll(reporting[i].space);
-      if (data) {
-        dashboard = data.find(({ id }) => id === reporting[i].dashboardId).attributes.title;
+    if (!dashboards[reporting[i].space]) {
+      try {
+        const { data } = await dashboardLib.findAll(reporting[i].space);
+        dashboards[reporting[i].space] = data || [];
+      } catch (error) {
+        console.error(i18n.t('reporting.list.connotGetDashboards', { space: reporting[i].space }));
       }
-    } catch (error) {
-      console.error(error);
+    }
+
+    if (dashboards[reporting[i].space] && dashboards[reporting[i].space].length) {
+      const dsh = dashboards[reporting[i].space].find(({ type }) => type === 'dashboard');
+      dashboard = dsh?.attributes?.title;
     }
 
     if (!dashboard) {
@@ -72,7 +78,7 @@ exports.handler = async function handler(argv) {
         dashboard,
         history: history
           .map(({ _source }) => ({ ..._source }))
-          .sort((a, b) => a.startTime - b.startTime)
+          .sort((a, b) => b.startTime - a.startTime)
           .pop(),
       };
     }
@@ -85,7 +91,7 @@ exports.handler = async function handler(argv) {
     for (let i = 0; i < reporting.length; i += 1) {
       const lastHistory = reporting[i].history;
       if (lastHistory?.status && argv.status.includes(lastHistory?.status)) {
-        report.push(reporting);
+        report.push(reporting[i]);
       }
     }
   }

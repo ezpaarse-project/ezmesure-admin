@@ -10,8 +10,8 @@ inquirer.registerPrompt('autocomplete', autocomplete);
 const get = require('lodash.get');
 const { table } = require('table');
 
-const { findAll, findByFrequency } = require('../../../lib/reporting');
-const dashboard = require('../../../lib/dashboards');
+const reportingLib = require('../../../lib/reporting');
+const dashboardLib = require('../../../lib/dashboards');
 
 exports.command = 'list';
 exports.desc = i18n.t('reporting.list.description');
@@ -28,7 +28,7 @@ exports.handler = async function handler(argv) {
 
   if (argv.frequencies && argv.frequencies.length) {
     try {
-      const { body } = await findByFrequency(argv.frequencies);
+      const { body } = await reportingLib.findByFrequency(argv.frequencies);
       if (body) { tasks = get(body, 'hits.hits'); }
     } catch (error) {
       console.log(i18n.t('reporting.noTasksFound'));
@@ -38,7 +38,7 @@ exports.handler = async function handler(argv) {
 
   if (!argv.frequencies || !argv.frequencies.length) {
     try {
-      const { body } = await findAll();
+      const { body } = await reportingLib.findAll();
       if (body) { tasks = get(body, 'hits.hits'); }
     } catch (error) {
       console.log(i18n.t('reporting.noTasksFound'));
@@ -53,15 +53,22 @@ exports.handler = async function handler(argv) {
 
   tasks = tasks.map(({ _id, _source }) => ({ id: _id, ..._source }));
 
+  const dashboards = {};
+
   for (let i = 0; i < tasks.length; i += 1) {
     const task = tasks[i];
-    try {
-      const { data } = await dashboard.findAll(task.space);
-      if (data) {
-        tasks[i].dashboardName = data.find(({ id }) => id === task.dashboardId).attributes.title;
+    if (!dashboards[task.space]) {
+      try {
+        const { data } = await dashboardLib.findAll(task.space);
+        dashboards[task.space] = data || [];
+      } catch (error) {
+        console.error(i18n.t('reporting.list.connotGetDashboards', { space: task.space }));
       }
-    } catch (error) {
-      console.log(i18n.t('reporting.list.dashboardNotFound', { dashboardId: `${tasks.space ? `${tasks.space}:` : ''}dashboard:${task.dashboardId}` }));
+    }
+
+    if (dashboards[task.space] && dashboards[task.space].length) {
+      const dashboard = dashboards[task.space].find(({ type }) => type === 'dashboard');
+      tasks[i].dashboardName = dashboard.attributes.title;
     }
   }
 
@@ -75,11 +82,11 @@ exports.handler = async function handler(argv) {
   const rows = tasks.map(({
     dashboardName, frequency, emails, print, sentAt,
   }) => ([
-    dashboardName,
-    frequency,
+    dashboardName || '-',
+    frequency || '-',
     `${emails.slice(0, 3).join(', ')}, ...`,
-    print,
-    sentAt,
+    print || '-',
+    sentAt || '-',
   ]));
 
   console.log(table([header, ...rows]));
