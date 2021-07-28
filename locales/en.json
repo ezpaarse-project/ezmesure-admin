@@ -199,6 +199,7 @@
 			"name": "Name",
 			"descr": "Description",
 			"initials": "Initials",
+			"indexPatterns": "Index-Patterns",
 			"color": "Color",
 			"options": {
 				"spaces": "Space(s) name(s)",
@@ -302,6 +303,7 @@
 				"frequencies": "Report frequency (weekly, monthly, quarterly, semi-annual, annual)"
 			},
 			"dashboardNotFound": "dashboard [{{dashboardId}}] does not found",
+			"space": "Space",
 			"dashboard": "Dashboard",
 			"frequency": "Frequency",
 			"emails": "Emails",
@@ -557,7 +559,6 @@
 			},
 			"error": "[Error#{{statusCode}}] {{message}}",
 			"dashboardIsRequired": "\"dashboard\" is required",
-			"targetIsRequired": "\"target\" is required",
 			"copied": "Dashboard [{{source}}] copied to [{{target}}]"
 		}
 	},
