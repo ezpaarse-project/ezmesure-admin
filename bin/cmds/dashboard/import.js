@@ -52,6 +52,8 @@ exports.handler = async function handler(argv) {
     space = spaceId;
   }
 
+  if (space === 'default') { space = undefined; }
+
   for (let i = 0; i < files.length; i += 1) {
     let content;
     try {
@@ -82,13 +84,12 @@ exports.handler = async function handler(argv) {
 
           console.log(i18n.t('dashboard.import.imported', { title: dshData?.pop().attributes?.title }));
         } catch (error) {
-          console.log(error);
-          if (error.response.data) {
-            console.error(`[Error#${error.response.data.status}] ${error.response.data.error}`);
+          if (error?.response?.data) {
+            console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
             process.exit(1);
-          } else {
-            console.error(error);
           }
+          console.error(error);
+          process.exit(1);
         }
       }
     }

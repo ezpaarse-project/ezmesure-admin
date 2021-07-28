@@ -52,6 +52,17 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
+  for (let i = 0; i < spaces.length; i += 1) {
+    try {
+      const { data } = await spacesLib.getIndexPatterns(spaces[i].id);
+      if (data && data.length) {
+        spaces[i].indexPatterns = data.map(({ attributes }) => attributes.title);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   if (argv && argv.json) {
     console.log(JSON.stringify(spaces, null, 2));
     process.exit(0);
@@ -63,11 +74,19 @@ exports.handler = async function handler(argv) {
     i18n.t('spaces.get.descr'),
     i18n.t('spaces.get.initials'),
     i18n.t('spaces.get.color'),
+    i18n.t('spaces.get.indexPatterns'),
   ];
 
   const lines = spaces.map((el) => {
     const color = el.color ? chalk.hex(el.color).bold(` ${el.color} `) : '';
-    return [el.id || '', el.name || '', el.description || '', el.initials || '', color || ''];
+    return [
+      el.id || '',
+      el.name || '',
+      el.description || '',
+      el.initials || '',
+      color || '',
+      (el.indexPatterns && el.indexPatterns.join(', ')) || '',
+    ];
   });
   console.log(table([header, ...lines]));
 };

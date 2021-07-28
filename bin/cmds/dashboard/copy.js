@@ -69,12 +69,15 @@ exports.handler = async function handler(argv) {
       dashboard: Joi.string().trim().required().error(new Error(i18n.t('dashboard.copy.dashboardIsRequired'))),
     }).required(),
     target: Joi.object({
-      space: Joi.string().trim().required().error(new Error(i18n.t('dashboard.copy.targetIsRequired'))),
+      space: Joi.string().trim(),
       indexPattern: Joi.string().trim(),
     }).required(),
   });
 
   const { error } = schema.validate({ source, target });
+
+  if (source?.space === 'default') { source.space = undefined; }
+  if (target?.space === 'default') { target.space = undefined; }
 
   if (error) {
     console.error(error.message);
@@ -84,10 +87,10 @@ exports.handler = async function handler(argv) {
   try {
     await dashboards.copy({ source, target, force: argv.force });
   } catch (err) {
-    if (err.response.data) {
+    if (err?.response?.data) {
       console.error(i18n.t('dashboard.copy.error', {
-        statusCode: err.response.data.status,
-        message: err.response.data.error,
+        statusCode: err?.response?.data?.status,
+        message: err?.response?.data?.error,
       }));
       process.exit(1);
     }

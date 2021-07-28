@@ -153,7 +153,7 @@
 	"spaces":	{
 		"spaceCheckbox": "Space(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"spaceSelect": "Space (Use arrow keys, press <enter> to submit)",
-		"description": "Manage spaces <command>: get, add, update, edit, delete, reporting",
+		"description": "Manage spaces <command>: get, add, update, edit, delete",
 		"notFound": "No space(s) found",
 		"noSpacesSelected": "No space(s) selected",
 		"notFoundSpace": "space [{{space}}] not found",
@@ -206,28 +206,6 @@
 				"json": "Display data in json",
 				"all": "Display all data in table",
 				"interactive": "Interactive mode"
-			}
-		},
-		"reporting": {
-			"description": "Manage reporting tasks <command>: list, info",
-			"dashboardNotFound": "dashboard [{{dashboardId}}] not found",
-			"list": {
-				"description": "List reporting task(s) on space",
-				"options": {
-					"space": "Space name, case sensitive"
-				},
-				"connotGetDashboards": "Cannot get dashboards for [{{space}}] space",
-				"dashboard": "Dashboard",
-				"frequency": "Frequency",
-				"emails": "Emails",
-				"print": "Print",
-				"sentAt": "Sent at"
-			},
-			"delete": {
-				"description": "Delete reporting task(s) on space",
-				"options": {
-					"space": "Space name, case sensitive"
-				}
 			}
 		}
 	},
@@ -282,11 +260,12 @@
 		}
 	},
 	"reporting": {
-		"description": "Manage reporting tasks <command>: list, report",
+		"description": "Manage reporting tasks <command>: list, report, delete",
 		"noTasksFound": "No reporting task(s) found",
 		"noTaskSelected": "No tasks selected",
 		"deleted": "tasks [{{taskName}}] delete successfully",
 		"deletedMessage": "tasks [{{id}}] {{result}}",
+		"cannotGetDashboards": "no dashboards found for [{{space}}] space",
 		"info": {
 			"description": "Get report",
 			"options": {
@@ -300,15 +279,26 @@
 		"list": {
 			"description": "List all reporting tasks",
 			"options": {
+				"space": "Space(s) name, case sensitive",
 				"frequencies": "Report frequency (weekly, monthly, quarterly, semi-annual, annual)"
 			},
 			"dashboardNotFound": "dashboard [{{dashboardId}}] does not found",
+			"id": "ID",
 			"space": "Space",
 			"dashboard": "Dashboard",
 			"frequency": "Frequency",
 			"emails": "Emails",
 			"print": "Print",
 			"sentAt": "Sent at"
+		},
+		"delete": {
+			"description": "Delete reporting task(s) on space",
+			"options": {
+				"noDashboard": "Delete reporting without dashboard",
+				"ids": "Reporting IDs"
+			},
+			"deleted": "task [{{taskId}}] deleted successfully",
+			"notFound": "task [{{taskId}}] not found"
 		}
 	},
 	"institutions": {

@@ -13,10 +13,14 @@ const { table } = require('table');
 const reportingLib = require('../../../lib/reporting');
 const dashboardLib = require('../../../lib/dashboards');
 
-exports.command = 'list';
+exports.command = 'list [spaces...]';
 exports.desc = i18n.t('reporting.list.description');
 exports.builder = function builder(yargs) {
-  return yargs.option('f', {
+  return yargs.positional('spaces', {
+    alias: 'status',
+    describe: i18n.t('reporting.list.options.spaces'),
+    type: 'array',
+  }).option('f', {
     alias: 'frequencies',
     describe: i18n.t('reporting.list.options.frequencies'),
     type: 'array',
@@ -51,6 +55,10 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
+  if (argv.spaces && argv.spaces.length) {
+    tasks = tasks.filter((task) => argv.spaces.includes(task?._source?.space));
+  }
+
   tasks = tasks.map(({ _id, _source }) => ({ id: _id, ..._source }));
 
   const dashboards = {};
@@ -62,31 +70,39 @@ exports.handler = async function handler(argv) {
         const { data } = await dashboardLib.findAll(task.space);
         dashboards[task.space] = data || [];
       } catch (error) {
-        console.error(i18n.t('reporting.list.connotGetDashboards', { space: task.space }));
+        console.error(i18n.t('reporting.cannotGetDashboards', { space: task.space }));
       }
     }
 
     if (dashboards[task.space] && dashboards[task.space].length) {
-      tasks[i].dashboardName = dashboards[task.space]?.attributes.title;
+      const dashboard = dashboards[task.space].find(({ type, id }) => (type === 'dashboard' && id === task.dashboardId));
+      tasks[i].dashboardName = dashboard?.attributes?.title;
     }
   }
 
   const header = [
+    i18n.t('reporting.list.id'),
+    i18n.t('reporting.list.space'),
     i18n.t('reporting.list.dashboard'),
     i18n.t('reporting.list.frequency'),
     i18n.t('reporting.list.emails'),
     i18n.t('reporting.list.print'),
     i18n.t('reporting.list.sentAt'),
   ];
-  const rows = tasks.map(({
-    dashboardName, frequency, emails, print, sentAt,
-  }) => ([
-    dashboardName || '-',
-    frequency || '-',
-    `${emails.slice(0, 3).join(', ')}, ...`,
-    print,
-    sentAt || '-',
-  ]));
+
+  const rows = tasks
+    .sort((a, b) => (a.space.localeCompare(b.space)))
+    .map(({
+      id, space, dashboardName, frequency, emails, print, sentAt,
+    }) => ([
+      id,
+      space || '',
+      dashboardName || '-',
+      frequency || '-',
+      `${emails.slice(0, 3).join(', ')}, ...`,
+      print,
+      sentAt || '-',
+    ]));
 
   console.log(table([header, ...rows]));
 };

@@ -14,7 +14,7 @@ exports.builder = function builder(yargs) {
   return yargs.option('s', {
     alias: 'status',
     describe: i18n.t('reporting.info.options.status'),
-    type: 'array',
+    type: 'string',
   }).option('o', {
     alias: 'output',
     describe: i18n.t('reporting.info.options.output'),
@@ -52,7 +52,8 @@ exports.handler = async function handler(argv) {
     }
 
     if (dashboards[reporting[i].space] && dashboards[reporting[i].space].length) {
-      dashboard = dashboards[reporting[i].space]?.attributes?.title;
+      const dsh = dashboards[reporting[i].space].find(({ type }) => type === 'dashboard');
+      dashboard = dsh?.attributes?.title;
     }
 
     if (!dashboard) {

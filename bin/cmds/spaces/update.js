@@ -93,15 +93,12 @@ exports.handler = async function handler(argv) {
   }
 
   const space = {
+    id: name.toLowerCase(),
     name: (newName || name),
     color,
     initials,
     disabledFeatures: features && kibanaFeatures.filter((feature) => !features.includes(feature)),
   };
-
-  if (name.toLowerCase() !== 'default') {
-    space.id = name.toLowerCase();
-  }
 
   if (interactive) {
     const { spaceDescr, spaceInitials, spaceColor } = await it();

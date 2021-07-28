@@ -39,6 +39,8 @@ exports.handler = async function handler(argv) {
     dashboardsSelected = dashboardsId;
   }
 
+  if (selectedSpace === 'default') { selectedSpace = undefined; }
+
   for (let i = 0; i < dashboardsSelected.length; i += 1) {
     let dashboardData;
     try {
@@ -49,8 +51,8 @@ exports.handler = async function handler(argv) {
       dashboardData = data;
     } catch (err) {
       console.log(err);
-      if (err.response.data) {
-        console.error(`[Error#${err.response.data.status}] ${err.response.data.error}`);
+      if (err?.response?.data) {
+        console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
         process.exit(1);
       }
       console.error(err);
