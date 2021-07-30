@@ -505,7 +505,7 @@
 	"dashboard": {
 		"description": "Manage dashboard with a <command>: import, export, copy",
 		"dashboardsCheckbox": "Dashboard(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
-		"noDashaboardsSelected": "'No dashaboard(s) selected",
+		"noDashaboardsSelected": "No dashaboard(s) selected",
 		"notFound": "dashboard [{{dashboardId}}] not found",
 		"spaceNotFound": "space [{{spaceName}}] not found",
 		"export": {
@@ -547,9 +547,12 @@
 				"force": "Override existing objects",
 				"interactive": "Interactive mode"
 			},
+			"indexPatternSelect": "Index-pattern (Use arrow key, press <enter> to submit)",
+			"indexPatternInput": "Index-pattern (Press <enter> to submit)",
 			"error": "[Error#{{statusCode}}] {{message}}",
 			"dashboardIsRequired": "\"dashboard\" is required",
-			"copied": "Dashboard [{{source}}] copied to [{{target}}]"
+			"copied": "Dashboard [{{source}}] copied to [{{target}}]",
+			"indexDoesNotExists": "index and index-pattern [{{index}}] does not exists, we create them for you"
 		}
 	},
 	"login": {
@@ -584,7 +587,7 @@
 			"options": {
 				"name": "Indice name"
 			},
-			"created": "indice [{{name}}] created successfully"
+			"created": "indice [{{index}}] created successfully"
 		}
 	}
 }

@@ -39,68 +39,77 @@ exports.builder = function builder(yargs) {
     });
 };
 exports.handler = async function handler(argv) {
-  let source = {
-    space: argv.source,
-    dashboard: argv.dashboard,
+  const copy = async ({ source, target }) => {
+    const schema = Joi.object({
+      source: Joi.object({
+        space: Joi.string().trim(),
+        dashboard: Joi.string().trim().required().error(new Error(i18n.t('dashboard.copy.dashboardIsRequired'))),
+      }).required(),
+      target: Joi.object({
+        space: Joi.string().trim(),
+        indexPattern: Joi.string().trim(),
+      }).required(),
+    });
+
+    const { error } = schema.validate({ source, target });
+
+    if (source?.space === 'default') { source.space = undefined; }
+    if (target?.space === 'default') { target.space = undefined; }
+
+    if (error) {
+      console.error(error.message);
+      process.exit(1);
+    }
+
+    try {
+      await dashboards.copy({ source, target, force: argv.force });
+    } catch (err) {
+      if (err?.response?.data) {
+        console.error(i18n.t('dashboard.copy.error', {
+          statusCode: err?.response?.data?.status,
+          message: err?.response?.data?.error,
+        }));
+      }
+    }
+
+    console.log(i18n.t('dashboard.copy.copied', {
+      source: `${source.space ? source.space : 'default'}:${source.dashboard}`,
+      target: target.space,
+    }));
   };
 
-  let target = {
-    space: argv.target,
-    indexPattern: argv.indexPattern,
-  };
+  if (!argv.interactive) {
+    await copy({
+      source: {
+        space: argv.source,
+        dashboard: argv.dashboard,
+      },
+      target: {
+        space: argv.target,
+        indexPattern: argv.indexPattern,
+      },
+    });
+    process.exit(0);
+  }
 
   if (argv.interactive) {
     const {
-      spaceId, dashboardId, targetId, indexPattern,
+      spaceId, dashboardsId, targetId, indexPattern,
     } = await it();
-    source = {
-      space: spaceId,
-      dashboard: dashboardId,
-    };
-    target = {
-      space: targetId,
-      indexPattern,
-    };
-  }
 
-  const schema = Joi.object({
-    source: Joi.object({
-      space: Joi.string().trim(),
-      dashboard: Joi.string().trim().required().error(new Error(i18n.t('dashboard.copy.dashboardIsRequired'))),
-    }).required(),
-    target: Joi.object({
-      space: Joi.string().trim(),
-      indexPattern: Joi.string().trim(),
-    }).required(),
-  });
-
-  const { error } = schema.validate({ source, target });
-
-  if (source?.space === 'default') { source.space = undefined; }
-  if (target?.space === 'default') { target.space = undefined; }
-
-  if (error) {
-    console.error(error.message);
-    process.exit(1);
-  }
-
-  try {
-    await dashboards.copy({ source, target, force: argv.force });
-  } catch (err) {
-    if (err?.response?.data) {
-      console.error(i18n.t('dashboard.copy.error', {
-        statusCode: err?.response?.data?.status,
-        message: err?.response?.data?.error,
-      }));
-      process.exit(1);
+    for (let i = 0; i < dashboardsId.length; i += 1) {
+      await copy({
+        source: {
+          space: spaceId,
+          dashboard: dashboardsId[i],
+        },
+        target: {
+          space: targetId,
+          indexPattern,
+        },
+      });
     }
-    console.error(err);
-    process.exit(1);
-  }
 
-  console.log(i18n.t('dashboard.copy.copied', {
-    source: `${source.space ? source.space : 'default'}:${source.dashboard}`,
-    target: target.space,
-  }));
-  process.exit(0);
+    process.exit(0);
+  }
 };
