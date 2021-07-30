@@ -12,9 +12,8 @@ $ ezmesure-admin roles --help
 | --- | --- |
 | [add](#add) <role> | Create new role |
 | [delete](#delete) [roles...] | Delete role(s) |
-| [edit](#edit) [role] | Edit report |
-| [get](#get) <role> | Get and display role informations |
-| [list](#list) | List all roles |
+| [edit](#edit) [role] | Edit role |
+| [get](#get) <role> | Get and display role(s) informations |
 
 ## Commands details
 
@@ -25,12 +24,20 @@ $ ezmesure-admin roles --help
 $ ezmesure-admin roles add --help
 ```
 
+| Name | Type | Description |
+| --- | --- | --- |
+| -i, --index-pattern | String | Index-pattern name (e.g: my-index, m-y-index*) |
+| -s, --space | String | Space name, case sensitive |
+| -p, --privileges | String | Privileges (all or read) |
+| -r, --read-only | String | Create role with read privileges and _read_only suffix |
+
 Example :
 
 ```bash
-$ ezmesure-admin roles add newRole
+$ ezmesure-admin roles add my-role --space my-space --index-pattern my-index --privileges read --read-only
 
-role [newRole] created succefully
+role [my-role] created or updated
+role [my-role_read_only] created or updated
 ```
 
 ### delete
@@ -81,45 +88,9 @@ Example :
 $ ezmesure-admin roles get apm_system
 
 ╔═════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════╤═════════════════════════════╗
-║ role                        │ indices                                                                                │ applications                ║
+║ role                        │ indices                                                                                │ spaces                      ║
 ╟─────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────╢
-║ apm_system                  │ Names:                                                                                 │ Application:                ║
-║                             │ Privileges:                                                                            │                             ║
-╚═════════════════════════════╧════════════════════════════════════════════════════════════════════════════════════════╧═════════════════════════════╝
-```
-### list
-
-#### Usage
-```bash
-$ ezmesure-admin roles list --help
-```
-
-#### Options
-| Name | Type | Description |
-| --- | --- | --- |
-| -j, --json | Boolean | Display data in json |
-
-Example :
-
-```bash
-$ ezmesure-admin roles list
-
-╔═════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════╤═════════════════════════════╗
-║ role                        │ indices                                                                                │ applications                ║
-╟─────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────╢
-║ kibana_dashboard_only_user  │ Names:                                                                                 │ Application: kibana-.kibana ║
-║                             │ Privileges:                                                                            │                             ║
-╟─────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────╢
-║ apm_system                  │ Names:                                                                                 │ Application:                ║
-║                             │ Privileges:                                                                            │                             ║
-╟─────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────╢
-║ watcher_admin               │ Names: .watches,.triggered_watches,.watcher-history-*,read                             │ Application:                ║
-║                             │ Privileges:                                                                            │                             ║
-╟─────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────╢
-║ logstash_system             │ Names:                                                                                 │ Application:                ║
-║                             │ Privileges:                                                                            │                             ║
-╟─────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────╢
-║ rollup_user                 │ Names:                                                                                 │ Application:                ║
-║                             │ Privileges:                                                                            │                             ║
+║ apm_system                  │ Names:                                                                                 │ Space:                      ║
+║                             │ Privileges:                                                                            │ Privileges:                 ║
 ╚═════════════════════════════╧════════════════════════════════════════════════════════════════════════════════════════╧═════════════════════════════╝
 ```

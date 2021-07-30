@@ -30,13 +30,13 @@ $ ezmesure-admin reporting list --help
 Example :
 
 ```bash
-$ ezmesure-admin reporting list
+$ ezmesure-admin reporting list my-space
 
-╔═════════════════════════════════════╤═══════════╤════════════════════════╤═══════╤═════════╗
-║ Dashboard                           │ Frequency │ Emails                 │ Print │ Sent at ║
-╟─────────────────────────────────────┼───────────┼────────────────────────┼───────┼─────────╢
-║ my Dashboard for reporting          │ 1w        │ john.doe@email.fr, ... │ true  │         ║
-╚═════════════════════════════════════╧═══════════╧════════════════════════╧═══════╧═════════╝
+╔══════════╤═════════════════════════════════════╤═══════════╤════════════════════════╤═══════╤═════════╗
+║ Space    │ Dashboard                           │ Frequency │ Emails                 │ Print │ Sent at ║
+╟──────────┼─────────────────────────────────────┼───────────┼────────────────────────┼───────┼─────────╢
+║ my-space │ my Dashboard for reporting          │ 1w        │ john.doe@email.fr, ... │ true  │         ║
+╚══════════╧═════════════════════════════════════╧═══════════╧════════════════════════╧═══════╧═════════╝
 ```
 
 ### info
@@ -57,5 +57,5 @@ Example :
 ```bash
 $ ezmesure-admin reporting info -o ~/Documents/exports
 
-Data exported successfully at /home/wilmouth/Téléchargements/reporting_info_2021_04_19_14_5_59.json
+Data exported successfully at /home/user/Téléchargements/reporting_info_2021_04_19_14_5_59.json
 ```

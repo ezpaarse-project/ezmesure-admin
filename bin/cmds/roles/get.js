@@ -2,54 +2,81 @@ const { i18n } = global;
 
 const { table } = require('table');
 const rolesLib = require('../../../lib/roles');
+const it = require('./interactive/get');
 
-exports.command = 'get <role>';
+exports.command = 'get [roles...]';
 exports.desc = i18n.t('roles.get.description');
 exports.builder = function builder(yargs) {
-  return yargs.option('j', {
+  return yargs.positional('roles', {
+    describe: i18n.t('roles.get.options.roles'),
+    type: 'array',
+  }).option('j', {
     alias: 'json',
     describe: i18n.t('roles.get.options.json'),
+    type: 'boolean',
+  }).option('a', {
+    alias: 'all',
+    describe: i18n.t('roles.get.options.all'),
+    type: 'boolean',
+  }).option('it', {
+    describe: i18n.t('roles.get.options.interactive'),
+    boolean: true,
   });
 };
 exports.handler = async function handler(argv) {
-  const { role: roleName } = argv;
-
-  let role;
+  let roles = [];
 
   try {
-    const { body } = await rolesLib.findByName(roleName);
-    if (body) { role = body; }
-  } catch (err) {
-    console.error(err);
+    const { data } = await rolesLib.findAll(true);
+    roles = data;
+  } catch (error) {
+    console.error(error);
     process.exit(1);
   }
 
-  if (!role) {
-    console.log(i18n.t('roles.roleNotFound', { role: roleName }));
+  if (!argv.all && argv.roles.length) {
+    roles = roles.filter(({ name }) => argv.roles.includes(name));
+  }
+
+  if (!argv.all && argv.it) {
+    try {
+      roles = await it(roles);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  if (!roles.length) {
+    console.log(i18n.t('roles.rolesNotFound'));
     process.exit(0);
   }
 
   if (argv && argv.json) {
-    console.log(JSON.stringify(role, null, 2));
+    console.log(JSON.stringify(roles, null, 2));
     process.exit(0);
   }
 
-  const header = [i18n.t('roles.role'), i18n.t('roles.indexes'), i18n.t('roles.applications')];
+  const header = [i18n.t('roles.role'), i18n.t('roles.indexes'), i18n.t('roles.spaces')];
 
-  const { indices, applications } = role[roleName];
+  const rows = roles.map((role) => {
+    const { name, elasticsearch, kibana } = role;
 
-  const [indicesNames, indicesPrivileges] = indices.map((indice) => [
-    indice.names, indice.privileges,
-  ]);
+    const indicesData = elasticsearch.indices.map((indice) => [
+      indice.names, indice.privileges,
+    ]);
 
-  const application = applications.map((appli) => appli.application);
-  const row = [
-    [
-      roleName,
-      `${i18n.t('roles.names')}: ${indicesNames || ''}\n${i18n.t('roles.privileges')}: ${indicesPrivileges || ''}`,
-      `${i18n.t('roles.applications')}: ${application || ''}`,
-    ],
-  ];
+    const spacesAccess = kibana.map(({ base, spaces }) => ({ base: base.join(','), spaces: spaces.join(', ') }));
 
-  console.log(table([header, ...row]));
+    return [
+      name,
+      indicesData.map(([indiceName, indicePrivileges]) => (
+        `${i18n.t('roles.names')}: ${indiceName || ''}\n${i18n.t('roles.privileges')}: ${indicePrivileges || ''}`
+      )).join('\n'),
+      spacesAccess.map(({ base, spaces }) => (
+        `${i18n.t('roles.space')}: ${spaces || ''}\n${i18n.t('roles.privileges')}: ${base || ''}`
+      )),
+    ];
+  });
+
+  console.log(table([header, ...rows]));
 };

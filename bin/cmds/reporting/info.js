@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 const { format } = require('date-fns');
 
 const reportingLib = require('../../../lib/reporting');
-const dashboardLib = require('../../../lib/dashboard');
+const dashboardLib = require('../../../lib/dashboards');
 
 exports.command = 'info';
 exports.desc = i18n.t('reporting.info');
@@ -14,7 +14,7 @@ exports.builder = function builder(yargs) {
   return yargs.option('s', {
     alias: 'status',
     describe: i18n.t('reporting.info.options.status'),
-    type: 'array',
+    type: 'string',
   }).option('o', {
     alias: 'output',
     describe: i18n.t('reporting.info.options.output'),
@@ -39,13 +39,21 @@ exports.handler = async function handler(argv) {
     ..._source,
   }));
 
+  const dashboards = {};
   for (let i = 0; i < reporting.length; i += 1) {
     let dashboard;
-    try {
-      const { body } = await dashboardLib.findById(reporting[i].space, reporting[i].dashboardId);
-      if (body) { dashboard = body.dashboard.title; }
-    } catch (error) {
-      console.error(error);
+    if (!dashboards[reporting[i].space]) {
+      try {
+        const { data } = await dashboardLib.findAll(reporting[i].space);
+        dashboards[reporting[i].space] = data || [];
+      } catch (error) {
+        console.error(i18n.t('reporting.list.connotGetDashboards', { space: reporting[i].space }));
+      }
+    }
+
+    if (dashboards[reporting[i].space] && dashboards[reporting[i].space].length) {
+      const dsh = dashboards[reporting[i].space].find(({ type }) => type === 'dashboard');
+      dashboard = dsh?.attributes?.title;
     }
 
     if (!dashboard) {
@@ -70,20 +78,20 @@ exports.handler = async function handler(argv) {
         dashboard,
         history: history
           .map(({ _source }) => ({ ..._source }))
-          .sort((a, b) => a.startTime - b.startTime)
+          .sort((a, b) => b.startTime - a.startTime)
           .pop(),
       };
     }
   }
 
-  let report = [];
+  let report = reporting;
 
   if (argv.status) {
     report = [];
     for (let i = 0; i < reporting.length; i += 1) {
       const lastHistory = reporting[i].history;
       if (lastHistory?.status && argv.status.includes(lastHistory?.status)) {
-        report.push(reporting);
+        report.push(reporting[i]);
       }
     }
   }

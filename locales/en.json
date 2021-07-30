@@ -1,11 +1,12 @@
 {
 	"global": {
 		"options": {
-			"timeout": "Request timeout in milliseconds"
+			"timeout": "Request timeout in milliseconds",
+			"version": "Print version information and quit"
 		}
 	},
 	"users": {
-		"description": "Manage users <command>: list, get, roles",
+		"description": "Manage users <command>: list, get, roles, add",
 		"noUsersFound": "No users found",
 		"noUserFound": "No user found",
 		"username": "Username",
@@ -22,24 +23,8 @@
 					"users": "User(s) name(s)",
 					"roles": "Role(s) name(s)"
 				},
-				"usersNotFound": "user(s) [{{users}}] not found",
-				"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 				"noRolesSpecified": "No role(s) specified",
-				"errorRoles": "[Error#{{statusCode}}] {{message}} (role: {{role}})",
-				"checkboxRoles": "Roles (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
-				"hasRole": "user [{{user}}] has already role [{{role}}]"
-			},
-			"delete": {
-				"description": "Delete role",
-				"options": {
-					"user": "User name",
-					"roles": "Role(s) name(s)"
-				},
-				"checkboxUsers": "Users (User arrow keys or begin typing to search, press <enter> to submit)",
-				"noRolesSpecified": "No role(s) specified",
-				"noRolesSelected": "No roles selected",
-				"checkboxRoles": "Roles (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
-				"errorRoles": "[Error#{{statusCode}}] {{message}} (role: {{role}})"
+				"added": "role(s) [{{role}}] added to user [{{username}}]"
 			}
 		},
 		"list": {
@@ -52,9 +37,22 @@
 			"description": "Get one or more users",
 			"options": {
 				"users": "User(s) name(s)",
+				"interactive":"Interactive mode",
 				"json": "Print result(s) in json"
 			},
 			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
+		},
+		"add": {
+			"description": "Create user",
+			"options": {
+				"username": "Username (e.g. john.doe)",
+				"password": "Password",
+				"email": "Email address",
+				"fullName":"Full name (e.g. John Doe)",
+				"roles": "Role(s) name(s)",
+				"enabled": "Enabled user (default: true)"
+			},
+			"created": "user [{{username}}] created or updated"
 		}
 	},
 	"sushi": {
@@ -155,14 +153,14 @@
 	"spaces":	{
 		"spaceCheckbox": "Space(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"spaceSelect": "Space (Use arrow keys, press <enter> to submit)",
-		"description": "Manage spaces <command>: get, add, edit, delete, list, reporting",
+		"description": "Manage spaces <command>: get, add, update, edit, delete",
 		"notFound": "No space(s) found",
 		"noSpacesSelected": "No space(s) selected",
 		"notFoundSpace": "space [{{space}}] not found",
 		"add": {
 			"description": "Create new space",
 			"options": {
-				"space": "Space name, case sensitive",
+				"name": "Space name, case sensitive",
 				"color": "Space color",
 				"description": "Space description",
 				"initials": "Space initials",
@@ -170,12 +168,23 @@
 			},
 			"spaceDescription": "Enter space description",
 			"spaceInitials": "Enter space initials",
-			"spaceColor": "Enter space color (ex: #FF00FF)",
-			"created": "space [{{space}}] created successfully",
-			"roleDoesNotExists": "role [{{role}}] does not exist, create with ezmesure-admin roles add {{role}}",
-			"dashboardDoesNotExists": "dashboard [{{dashboard}}] does not exist",
-			"importError": "Problem with import {{dashboardId}} (id: {{templateSelected}}) in {{space}}",
-			"imported": "dashboard [{{dashboardId}} (id: {{templateSelected}})] imported successfully"
+			"spaceColor": "Enter space color (ex: #9C27B0)",
+			"created": "space [{{space}}] created successfully"
+		},
+		"update": {
+			"description": "Update space",
+			"options": {
+				"name": "Space name, case sensitive",
+				"newName": "New space name, case sensitive",
+				"color": "Space color",
+				"description": "Space description",
+				"initials": "Space initials",
+				"interactive": "Interactive mode"
+			},
+			"spaceDescription": "Enter space description",
+			"spaceInitials": "Enter space initials",
+			"spaceColor": "Enter space color (ex: #9C27B0)",
+			"updated": "space [{{space}}] updated successfully"
 		},
 		"delete": {
 			"description": "Delete space(s)",
@@ -190,82 +199,50 @@
 			"name": "Name",
 			"descr": "Description",
 			"initials": "Initials",
+			"indexPatterns": "Index-Patterns",
 			"color": "Color",
 			"options": {
-				"space": "Space name",
+				"spaces": "Space(s) name(s)",
 				"json": "Display data in json",
-				"all": "Display all data in table"
-			}
-		},
-		"list": {
-			"description": "List all spaces",
-			"options": {
-				"json": "Display data in json",
-				"all": "Display all data in table"
-			}
-		},
-		"reporting": {
-			"description": "Manage reporting tasks <command>: list, delete",
-			"dashboardNotFound": "dashboard [{{dashboardId}}] not found",
-			"list": {
-				"description": "List reporting task(s) on space",
-				"options": {
-					"space": "Space name, case sensitive"
-				},
-				"dashboard": "Dashboard",
-				"frequency": "Frequency",
-				"emails": "Emails",
-				"print": "Print",
-				"sentAt": "Sent at"
-			},
-			"delete": {
-				"description": "Delete reporting task(s) on space",
-				"options": {
-					"space": "Space name, case sensitive"
-				}
+				"all": "Display all data in table",
+				"interactive": "Interactive mode"
 			}
 		}
 	},
 	"roles": {
 		"description": "Manage roles <command>: get, add, edit, delete, list",
+		"roleCheckbox": "Roles(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"noRolesSelected": "No roles have been selected",
 		"rolesNotFound": "No roles found",
-		"roleNotFound": "role [{{role}}] was not found",
 		"role": "Role",
 		"indexes": "Indexes",
-		"applications": "Applications",
+		"spaces": "Spaces",
+		"space": "Space",
 		"names": "Names",
 		"privileges": "Privileges",
 		"add": {
 			"description": "Create new role",
 			"options": {
-				"role": "Role name, case sensitive"
+				"role": "Role name, case sensitive",
+				"indexPatten": "Index-pattern name (e.g: my-index, m-y-index*)",
+				"space": "Space name, case sensitive",
+				"privileges": "Privileges (all or read)",
+				"readOnly": "Create role with read privileges and _read_only suffix"
 			},
-			"exists": "role [{{roleName}}] already exists",
-			"canBeCreated": "role [{{roleName}}] can be create",
-			"errorOccured": "An error occured to create role",
-			"selectIndex": "Please select an Index",
-			"indexesPrivileges": "Please select Indexes privileges",
-			"selectSpace": "Please select a space",
-			"created": "role [{{roleName]]] created succefully",
-			"failed": "role [{{roleName]]] creation failed",
-			"kibanaSpacesCheckbox": "[Kibana] Space(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
-			"kibanaSpacesPrivileges": "Space(s) privilege(s) (Use arrow keys, press <space> to select, press <enter> to submit)",
-			"elasticIndexesPrivileges": "[Elastic] Index(es) privileges (Use arrow keys, press <space> to select, press <enter> to submit)",
-			"elasticIndexesCheckbox": "[Elastic] Index(es) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
+			"roleCreated": "role [{{roleName}}] created or updated"
 		},
 		"delete": {
 			"description": "Delete role(s)",
 			"options": {
-				"roles": "Role(s) name(s)"
+				"roles": "Role(s) name(s)",
+				"interactive": "Interactive mode"
 			},
-			"rolesCheckbox": "Role(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 			"deleted": "role [{{role}}] deleted succefully"
 		},
 		"edit": {
 			"description": "Edit role",
 			"options": {
-				"role": "Role name, case sensitive"
+				"roles": "Role name, case sensitive"
 			},
 			"roleDoesNotExists": "role [{{roleName}}] does not exist",
 			"errorOccured": "An error occured to edit role",
@@ -275,22 +252,20 @@
 		"get": {
 			"description": "Get and display role information",
 			"options": {
-				"json": "Display data in json"
-			}
-		},
-		"list": {
-			"description": "List all roles",
-			"options": {
-				"json": "Display data in json"
+				"roles": "Role(s) name(s)",
+				"json": "Display data in json",
+				"all": "Display all data in table",
+				"interactive": "Interactive mode"
 			}
 		}
 	},
 	"reporting": {
-		"description": "Manage reporting tasks <command>: list, report",
+		"description": "Manage reporting tasks <command>: list, report, delete",
 		"noTasksFound": "No reporting task(s) found",
 		"noTaskSelected": "No tasks selected",
 		"deleted": "tasks [{{taskName}}] delete successfully",
 		"deletedMessage": "tasks [{{id}}] {{result}}",
+		"cannotGetDashboards": "no dashboards found for [{{space}}] space",
 		"info": {
 			"description": "Get report",
 			"options": {
@@ -304,18 +279,30 @@
 		"list": {
 			"description": "List all reporting tasks",
 			"options": {
+				"space": "Space(s) name, case sensitive",
 				"frequencies": "Report frequency (weekly, monthly, quarterly, semi-annual, annual)"
 			},
 			"dashboardNotFound": "dashboard [{{dashboardId}}] does not found",
+			"id": "ID",
+			"space": "Space",
 			"dashboard": "Dashboard",
 			"frequency": "Frequency",
 			"emails": "Emails",
 			"print": "Print",
 			"sentAt": "Sent at"
+		},
+		"delete": {
+			"description": "Delete reporting task(s) on space",
+			"options": {
+				"noDashboard": "Delete reporting without dashboard",
+				"ids": "Reporting IDs"
+			},
+			"deleted": "task [{{taskId}}] deleted successfully",
+			"notFound": "task [{{taskId}}] not found"
 		}
 	},
 	"institutions": {
-		"description": "Manage institutions <command>: list, get, export, import",
+		"description": "Manage institutions <command>: add, delete, refresh, get, export, import",
 		"institutionsCheckbox": "Institutions (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"institutionsSelect": "Institutions (Use arrow keys or begin typing to search, press <enter> to submit)",
 		"institutionsNotFound": "Institutions not found",
@@ -333,29 +320,72 @@
 		"indexPrefix": "Index Prefix",
 		"role": "Role",
 		"contact": "Contact",
+		"refresh": {
+			"description": "Refresh dynamic institution fields (contacts, number of ECs).",
+			"refreshed": "Institutions are refreshed"
+		},
+		"add": {
+			"description": "Create institution",
+			"options": {
+				"name": "Institution name",
+				"index": "Index name",
+				"space":"Space name",
+				"ezpaarse": "Automation ezPAARSE",
+				"ezmesure": "Automation ezMESURE",
+				"reporting": "Automation Reporting"
+			},
+			"getInstitutions": "Get institutions",
+			"institutionCreated": "institution [{{name}}] created",
+			"createInstitution": "Create institution",
+			"institutionValidated": "institution [{{name}}] validated",
+			"validate": "Validate",
+			"spaceCreated": "space [{{space}}] created",
+			"createSpace": "Create space",
+			"indexCreated": "index [{{index}}] created",
+			"createIndex": "Create index",
+			"indexPatternCreated": "index-pattern [{{indexPattern}}] created",
+			"createIndexPattern": "Create index-pattern",
+			"roleCreated": "role [{{roleName}}] created or updated",
+			"createRole": "Create role"
+		},
 		"export": {
 			"description": "Export institution(s)",
 			"options": {
-				"institutions": "Institution(s) name, case sensitive",
+				"all": "Export all institutions",
 				"output": "Output path"
 			},
-			"exported": "institution [{{name}}] exported successfully"
+			"exported": "institution [{{name}}] exported successfully",
+			"noInstitutionsSelected": "No institutions selected",
+			"cannotGetField": "institution [{{institutionName}}] cannot get [{{field}}] informations"
 		},
 		"get": {
 			"description": "Get institution(s) informations",
 			"options": {
-				"institutions": "Institution(s) name, case sensitive"
-			}
+				"institutions": "Institution(s) name, case sensitive",
+				"all": "Export all institutions",
+				"interactive": "Interactive mode"
+			},
+			"validated": "Validated",
+			"notValidated": "Not validated",
+			"doc": "Doc contact",
+			"tech": "Tech contact"
 		},
 		"import": {
 			"description": "Import institution(s)",
 			"sepecifyJSONFile": "Please sepecify JSON files path",
 			"cannotReadFile": "Cannot read file {{file}}",
-			"cannotParse": "Cannot parse {{file}}",
-			"imported": "Successfully imported institution(s)"
-		},
-		"list": {
-			"description": "List all institutions"
+			"institutionAlreadyExists": "institution [{{name}}] already exists",
+			"getInstitutions": "Get institutions",
+			"institutionImported": "institution [{{name}}] imported",
+			"createInstitution": "Import institution",
+			"spaceImported": "space [{{space}}] imported",
+			"importSpace": "Import space",
+			"indexCreated": "index [{{index}}] imported",
+			"createImported": "Import index",
+			"indexPatternImported": "index-pattern [{{indexPattern}}] imported",
+			"createIndexPattern": "Import index-pattern",
+			"roleImported": "role imported (created or updated)",
+			"importRole": "Import role"
 		}
 	},
 	"counter4": {
@@ -473,19 +503,20 @@
 		}
 	},
 	"dashboard": {
-		"description": "Manage dashboard with a <command>: import, export",
+		"description": "Manage dashboard with a <command>: import, export, copy",
 		"dashboardsCheckbox": "Dashboard(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
-		"noDashaboardsSelected": "'No dashaboard(s) selected",
+		"noDashaboardsSelected": "No dashaboard(s) selected",
 		"notFound": "dashboard [{{dashboardId}}] not found",
 		"spaceNotFound": "space [{{spaceName}}] not found",
 		"export": {
 			"description": "Export dashboard",
 			"options": {
 				"space": "Space name, case sensitive",
-				"all": "Export all dashboards",
-				"output": "Output path"
+				"dashboard": "Dashboard ID",
+				"output": "Output path",
+				"interactive": "Interactive mode"
 			},
-			"exported": "dashboard [{{dashboardTitle}}] exported successfully"
+			"exported": "Dashboard [{{title}}] exported successfully ({{path}})"
 		},
 		"import": {
 			"description": "Import dashboard(s)",
@@ -493,7 +524,8 @@
 				"space":"Space name, case sensitive",
 				"indexPattern": "Index pattern name",
 				"overwrite": "Overwrite conflicts",
-				"files": "Files path"
+				"files": "Files path",
+				"interactive": "Interactive mode"
 			},
 			"indexPattern": "Index pattern",
 			"noIndexPattern": "No index pattern typed",
@@ -502,7 +534,60 @@
 			"cannotParse": "Cannot parse {{file}}",
 			"error": "[Error#{{status}}]: dashbord does not imported",
 			"conflict": "There are conflicts, use the --overwrite option to force the rewriting of conflicts",
-			"imported": "Dashboard imported successfully"
+			"imported": "Dashboard imported [{{title}}] successfully",
+			"noFiles": "No files specified"
+		},
+		"copy": {
+			"description": "Copy a dashboard from one space to another",
+			"options": {
+				"source": "Space name, case sensitive",
+				"dashboard": "Dashboard ID",
+				"target": "Space name, case sensitive",
+				"indexPattern": "Index pattern name",
+				"force": "Override existing objects",
+				"interactive": "Interactive mode"
+			},
+			"indexPatternSelect": "Index-pattern (Use arrow key, press <enter> to submit)",
+			"indexPatternInput": "Index-pattern (Press <enter> to submit)",
+			"error": "[Error#{{statusCode}}] {{message}}",
+			"dashboardIsRequired": "\"dashboard\" is required",
+			"copied": "Dashboard [{{source}}] copied to [{{target}}]",
+			"indexDoesNotExists": "index and index-pattern [{{index}}] does not exists, we create them for you"
+		}
+	},
+	"login": {
+		"description": "Log in to ezMESURE",
+		"options": {
+			"username": "Username",
+			"password": "Password",
+			"passwordStdin": "Take the password from stdin"
+		},
+		"username": "Username",
+		"password": "Password",
+		"warning": "WARNING! Using --password via the CLI is insecure. Use --password-stdin.",
+		"loginFailed": "user [{{username}}] login failed",
+		"loggedIn": "user [{{username}}] logged in successfully"
+	},
+	"indexPattern": {
+		"description": "Manage index-pattern with a <command> : add",
+		"add": {
+			"description": "Create index-pattern",
+			"options": {
+				"space": "Space name, case sensitive",
+				"title": "Index-pattern name",
+				"timeFieldName": "Time field name (default: datetime)"
+			},
+			"created": "index-pattern [{{title}}] created in [{{space}}] space"
+		}
+	},
+	"indices": {
+		"description": "Manage indices with a <command> : add",
+		"add": {
+			"description": "Create indice",
+			"options": {
+				"name": "Indice name"
+			},
+			"created": "indice [{{index}}] created successfully"
 		}
 	}
 }

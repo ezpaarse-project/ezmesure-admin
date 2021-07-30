@@ -10,13 +10,17 @@ inquirer.registerPrompt('autocomplete', autocomplete);
 const get = require('lodash.get');
 const { table } = require('table');
 
-const { findAll, findByFrequency } = require('../../../lib/reporting');
-const dashboard = require('../../../lib/dashboard');
+const reportingLib = require('../../../lib/reporting');
+const dashboardLib = require('../../../lib/dashboards');
 
-exports.command = 'list';
+exports.command = 'list [spaces...]';
 exports.desc = i18n.t('reporting.list.description');
 exports.builder = function builder(yargs) {
-  return yargs.option('f', {
+  return yargs.positional('spaces', {
+    alias: 'status',
+    describe: i18n.t('reporting.list.options.spaces'),
+    type: 'array',
+  }).option('f', {
     alias: 'frequencies',
     describe: i18n.t('reporting.list.options.frequencies'),
     type: 'array',
@@ -28,7 +32,7 @@ exports.handler = async function handler(argv) {
 
   if (argv.frequencies && argv.frequencies.length) {
     try {
-      const { body } = await findByFrequency(argv.frequencies);
+      const { body } = await reportingLib.findByFrequency(argv.frequencies);
       if (body) { tasks = get(body, 'hits.hits'); }
     } catch (error) {
       console.log(i18n.t('reporting.noTasksFound'));
@@ -38,7 +42,7 @@ exports.handler = async function handler(argv) {
 
   if (!argv.frequencies || !argv.frequencies.length) {
     try {
-      const { body } = await findAll();
+      const { body } = await reportingLib.findAll();
       if (body) { tasks = get(body, 'hits.hits'); }
     } catch (error) {
       console.log(i18n.t('reporting.noTasksFound'));
@@ -51,36 +55,54 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
+  if (argv.spaces && argv.spaces.length) {
+    tasks = tasks.filter((task) => argv.spaces.includes(task?._source?.space));
+  }
+
   tasks = tasks.map(({ _id, _source }) => ({ id: _id, ..._source }));
+
+  const dashboards = {};
 
   for (let i = 0; i < tasks.length; i += 1) {
     const task = tasks[i];
-    try {
-      const { body } = await dashboard.findById(task.space, task.dashboardId);
-      if (body) {
-        tasks[i].dashboardName = body.dashboard.title;
+    if (!dashboards[task.space]) {
+      try {
+        const { data } = await dashboardLib.findAll(task.space);
+        dashboards[task.space] = data || [];
+      } catch (error) {
+        console.error(i18n.t('reporting.cannotGetDashboards', { space: task.space }));
       }
-    } catch (error) {
-      console.log(i18n.t('reporting.list.dashboardNotFound', { dashboardId: `${tasks.space ? `${tasks.space}:` : ''}dashboard:${task.dashboardId}` }));
+    }
+
+    if (dashboards[task.space] && dashboards[task.space].length) {
+      const dashboard = dashboards[task.space].find(({ type, id }) => (type === 'dashboard' && id === task.dashboardId));
+      tasks[i].dashboardName = dashboard?.attributes?.title;
     }
   }
 
   const header = [
+    i18n.t('reporting.list.id'),
+    i18n.t('reporting.list.space'),
     i18n.t('reporting.list.dashboard'),
     i18n.t('reporting.list.frequency'),
     i18n.t('reporting.list.emails'),
     i18n.t('reporting.list.print'),
     i18n.t('reporting.list.sentAt'),
   ];
-  const rows = tasks.map(({
-    dashboardName, frequency, emails, print, sentAt,
-  }) => ([
-    dashboardName,
-    frequency,
-    `${emails.slice(0, 3).join(', ')}, ...`,
-    print,
-    sentAt,
-  ]));
+
+  const rows = tasks
+    .sort((a, b) => (a.space.localeCompare(b.space)))
+    .map(({
+      id, space, dashboardName, frequency, emails, print, sentAt,
+    }) => ([
+      id,
+      space || '',
+      dashboardName || '-',
+      frequency || '-',
+      `${emails.slice(0, 3).join(', ')}, ...`,
+      print,
+      sentAt || '-',
+    ]));
 
   console.log(table([header, ...rows]));
 };

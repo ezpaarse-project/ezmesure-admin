@@ -3,3 +3,4 @@ node_modules
 log
 sushi-*.json
 .ezmesurerc
+ezmesure-templates
