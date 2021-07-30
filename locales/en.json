@@ -583,11 +583,11 @@
 	"indices": {
 		"description": "Manage indices with a <command> : add",
 		"add": {
-			"description": "Create indice",
+			"description": "Create index",
 			"options": {
 				"name": "Indice name"
 			},
-			"created": "indice [{{index}}] created successfully"
+			"created": "index [{{index}}] created successfully"
 		}
 	}
 }
