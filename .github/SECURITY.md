@@ -1,0 +1,1 @@
+Please email [ezTEAM](mailto:ezteam@couperin.org) if you have a potential security vulnerability to report.
