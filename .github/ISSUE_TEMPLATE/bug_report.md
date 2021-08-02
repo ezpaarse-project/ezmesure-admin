@@ -9,9 +9,7 @@ assignees: ''
 
 **Description**
 
-<!--
-Briefly describe the problem you are having in a few paragraphs.
--->
+<!-- Briefly describe the problem you are having in a few paragraphs. -->
 
 **Steps to reproduce the issue:**
 1.
