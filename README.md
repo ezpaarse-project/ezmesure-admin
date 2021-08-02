@@ -94,4 +94,4 @@ Locale file :
 
 ## License
 
-MIT.
+CeCILL.
