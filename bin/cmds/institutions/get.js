@@ -17,11 +17,11 @@ exports.builder = function builder(yargs) {
     boolean: true,
   }).option('a', {
     alias: 'all',
-    describe: i18n.t('institutions.export.get.all'),
+    describe: i18n.t('institutions.get.options.all'),
     type: 'boolean',
   }).option('j', {
     alias: 'json',
-    describe: i18n.t('institutions.export.get.json'),
+    describe: i18n.t('institutions.get.options.json'),
     type: 'boolean',
   });
 };
