@@ -49,7 +49,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (json) {
-    console.log(JSON.stringify(users, null, 2));
+    console.log(JSON.stringify(usersData, null, 2));
     process.exit(0);
   }
 
