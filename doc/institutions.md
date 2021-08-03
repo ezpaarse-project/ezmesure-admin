@@ -27,6 +27,7 @@ $ ezmesure-admin institutions get --help
 | Name | Type | Description |
 | --- | --- | --- |
 | -a, --all | String | Export all institutions |
+| -j, --json | Boolean | Print result(s) in json |
 
 Example :
 

@@ -19,10 +19,14 @@ exports.builder = function builder(yargs) {
     alias: 'all',
     describe: i18n.t('institutions.export.get.all'),
     type: 'boolean',
+  }).option('j', {
+    alias: 'json',
+    describe: i18n.t('institutions.export.get.json'),
+    type: 'boolean',
   });
 };
 exports.handler = async function handler(argv) {
-  const { institutions, all } = argv;
+  const { institutions, all, json } = argv;
 
   let institutionsData;
   try {
@@ -53,6 +57,11 @@ exports.handler = async function handler(argv) {
       console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: institutions.join(', ') }));
       process.exit(0);
     }
+  }
+
+  if (json) {
+    console.log(JSON.stringify(institutionsData, null, 2));
+    process.exit(0);
   }
 
   const header = [

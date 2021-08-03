@@ -6,7 +6,7 @@
 		}
 	},
 	"users": {
-		"description": "Manage users <command>: list, get, roles, add",
+		"description": "Manage users <command>: get, roles, add",
 		"noUsersFound": "No users found",
 		"noUserFound": "No user found",
 		"username": "Username",
@@ -16,7 +16,7 @@
 		"reserved": "reserved",
 		"userUpdated": "user [{{user}}] updated successfully",
 		"roles": {
-			"description": "Manage users roles <command>: add, delete, list",
+			"description": "Manage users roles <command>: add",
 			"add": {
 				"description": "Add role",
 				"options": {
@@ -363,6 +363,7 @@
 			"options": {
 				"institutions": "Institution(s) name, case sensitive",
 				"all": "Export all institutions",
+				"json": "Print result(s) in json",
 				"interactive": "Interactive mode"
 			},
 			"validated": "Validated",
