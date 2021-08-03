@@ -124,6 +124,9 @@
 		},
 		"list": {
 			"description": "List SUSHI credentials of institution",
+			"options": {
+				"json": "Print result(s) in json"
+			},
 			"package": "package",
 			"vendor": "vendor",
 			"endpoint": "endpoint",
@@ -210,7 +213,7 @@
 		}
 	},
 	"roles": {
-		"description": "Manage roles <command>: get, add, edit, delete, list",
+		"description": "Manage roles <command>: get, add, edit, delete",
 		"roleCheckbox": "Roles(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"noRolesSelected": "No roles have been selected",
 		"rolesNotFound": "No roles found",
@@ -280,7 +283,8 @@
 			"description": "List all reporting tasks",
 			"options": {
 				"space": "Space(s) name, case sensitive",
-				"frequencies": "Report frequency (weekly, monthly, quarterly, semi-annual, annual)"
+				"frequencies": "Report frequency (weekly, monthly, quarterly, semi-annual, annual)",
+				"json": "Print result(s) in json"
 			},
 			"dashboardNotFound": "dashboard [{{dashboardId}}] does not found",
 			"id": "ID",
@@ -459,6 +463,10 @@
 		},
 		"view": {
 			"description": "View current configuration",
+			"options": {
+				"global": "View global config"
+			},
+			"priority": "When the [Local] configuration is set, it is used first and will be overridden by the [Global] configuration.",
 			"global": "Global",
 			"local": "Local"
 		},

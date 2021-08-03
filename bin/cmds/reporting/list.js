@@ -24,6 +24,10 @@ exports.builder = function builder(yargs) {
     alias: 'frequencies',
     describe: i18n.t('reporting.list.options.frequencies'),
     type: 'array',
+  }).option('j', {
+    alias: 'json',
+    describe: i18n.t('reporting.list.options.json'),
+    type: 'boolean',
   });
 };
 
@@ -78,6 +82,11 @@ exports.handler = async function handler(argv) {
       const dashboard = dashboards[task.space].find(({ type, id }) => (type === 'dashboard' && id === task.dashboardId));
       tasks[i].dashboardName = dashboard?.attributes?.title;
     }
+  }
+
+  if (argv.json) {
+    console.log(JSON.stringify(tasks, null, 2));
+    process.exit(0);
   }
 
   const header = [

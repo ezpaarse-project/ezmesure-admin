@@ -30,7 +30,7 @@ exports.handler = async function handler(argv) {
     const { data } = await rolesLib.findAll(true);
     roles = data;
   } catch (error) {
-    console.error(error);
+    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
     process.exit(1);
   }
 

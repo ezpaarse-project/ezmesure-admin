@@ -9,16 +9,24 @@ inquirer.registerPrompt('autocomplete', autocomplete);
 
 const { table } = require('table');
 
-const { getSushi } = require('../../../lib/sushi');
-const { getAll } = require('../../../lib/institutions');
+const sushiLib = require('../../../lib/sushi');
+const institutionsLib = require('../../../lib/institutions');
 
 exports.command = 'list';
 exports.desc = i18n.t('sushi.list.description');
-exports.builder = function builder() {};
-exports.handler = async function handler() {
+exports.builder = function builder(yargs) {
+  return yargs.option('j', {
+    alias: 'json',
+    describe: i18n.t('sushi.list.options.json'),
+    type: 'boolean',
+  });
+};
+exports.handler = async function handler(argv) {
+  const { json } = argv;
+
   let institutions;
   try {
-    const { data } = await getAll();
+    const { data } = await institutionsLib.findAll();
     if (data) { institutions = data; }
   } catch (error) {
     console.error(error);
@@ -49,10 +57,11 @@ exports.handler = async function handler() {
 
   let sushi;
   try {
-    const { data } = await getSushi(institutionSelected);
+    const { data } = await sushiLib.getSushi(institutionSelected);
     if (data) { sushi = data; }
   } catch (err) {
-    console.error(err);
+    console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    process.exit(0);
   }
 
   const { vendorsSelected } = await inquirer.prompt([{
@@ -74,6 +83,12 @@ exports.handler = async function handler() {
   }]);
 
   const selectedSushi = sushi.filter(({ id }) => vendorsSelected.includes(id));
+
+  if (json) {
+    console.log(JSON.stringify(selectedSushi, null, 2));
+    process.exit(0);
+  }
+
   console.log(selectedSushi);
 
   const header = [
