@@ -12,7 +12,7 @@ exports.handler = async function handler() {
     elasticPing = await elasticLib.ping();
   } catch (error) {
     console.error('ElasticSearch: Ping failed');
-    console.log(error);
+    console.error(`ElasticSearch respond with statusCode [${error?.meta?.statusCode}]`);
   }
 
   if (elasticPing) {
