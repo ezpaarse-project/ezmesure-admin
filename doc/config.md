@@ -6,6 +6,19 @@
 $ ezmesure-admin config --help
 ```
 
+### Configuration
+
+| Key | Value | Description |
+| --- | --- | --- |
+| timeout | 3000 | Timeout |
+| elastic.user | - | ElasticSearch username |
+| elastic.pass | - | ElasticSearch password |
+| elastic.baseUrl | e.g. ``http://my-app.fr/elastic`` | ElasticSearch API URL |
+| ezmesure.baseUrl | e.g. ``https://my-app.fr/api`` | ezMESURE API URL address |
+| ezmesure.token | - | ezMESURE token |
+| index.reporting | .ezreporting | ezMESURE Reporting index name |
+| index.depositors | depositors | ezMESURE depositors index name |
+
 ## Commands
 
 | Name | Description |
