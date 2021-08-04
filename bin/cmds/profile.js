@@ -1,5 +1,3 @@
-const { i18n } = global;
-
 const ezmesure = require('../../lib/app/ezmesure');
 
 exports.command = 'profile';
