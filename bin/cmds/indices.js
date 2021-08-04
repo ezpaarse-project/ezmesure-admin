@@ -4,5 +4,7 @@ exports.command = 'indices <command>';
 exports.desc = i18n.t('indices.description');
 exports.handler = function handler() {};
 exports.builder = function builder(yargs) {
-  return yargs.commandDir('indices').parse();
+  return yargs.commandDir('indices')
+    .demandCommand(1, 'You need at least one command before moving on')
+    .parse();
 };
