@@ -28,6 +28,9 @@ exports.builder = function builder(yargs) {
     alias: 'json',
     describe: i18n.t('reporting.list.options.json'),
     type: 'boolean',
+  }).option('ndjson', {
+    describe: i18n.t('reporting.list.options.ndjson'),
+    type: 'boolean',
   });
 };
 
@@ -82,6 +85,11 @@ exports.handler = async function handler(argv) {
       const dashboard = dashboards[task.space].find(({ type, id }) => (type === 'dashboard' && id === task.dashboardId));
       tasks[i].dashboardName = dashboard?.attributes?.title;
     }
+  }
+
+  if (argv.ndjson) {
+    tasks.forEach((task) => console.log(JSON.stringify(task)));
+    process.exit(0);
   }
 
   if (argv.json) {

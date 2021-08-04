@@ -10,18 +10,25 @@ exports.builder = function builder(yargs) {
   return yargs.positional('roles', {
     describe: i18n.t('roles.get.options.roles'),
     type: 'array',
-  }).option('j', {
-    alias: 'json',
-    describe: i18n.t('roles.get.options.json'),
-    type: 'boolean',
-  }).option('a', {
-    alias: 'all',
-    describe: i18n.t('roles.get.options.all'),
-    type: 'boolean',
-  }).option('it', {
-    describe: i18n.t('roles.get.options.interactive'),
-    boolean: true,
-  });
+  })
+    .option('a', {
+      alias: 'all',
+      describe: i18n.t('roles.get.options.all'),
+      type: 'boolean',
+    })
+    .option('j', {
+      alias: 'json',
+      describe: i18n.t('roles.get.options.json'),
+      type: 'boolean',
+    })
+    .option('ndjson', {
+      describe: i18n.t('roles.get.options.ndjson'),
+      type: 'boolean',
+    })
+    .option('it', {
+      describe: i18n.t('roles.get.options.interactive'),
+      boolean: true,
+    });
 };
 exports.handler = async function handler(argv) {
   let roles = [];
@@ -48,6 +55,11 @@ exports.handler = async function handler(argv) {
 
   if (!roles.length) {
     console.log(i18n.t('roles.rolesNotFound'));
+    process.exit(0);
+  }
+
+  if (argv && argv.ndjson) {
+    roles.forEach((role) => console.log(JSON.stringify(role)));
     process.exit(0);
   }
 

@@ -25,18 +25,25 @@ exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
     describe: i18n.t('sushi.test.options.institution'),
     type: 'string',
-  }).option('a', {
-    alias: 'all',
-    describe: i18n.t('sushi.test.options.all'),
-    type: 'boolean',
-  }).option('j', {
-    alias: 'json',
-    describe: i18n.t('sushi.test.options.all'),
-    type: 'boolean',
-  }).option('o', {
-    alias: 'output',
-    describe: i18n.t('sushi.test.options.output'),
-  });
+  })
+    .option('a', {
+      alias: 'all',
+      describe: i18n.t('sushi.test.options.all'),
+      type: 'boolean',
+    })
+    .option('j', {
+      alias: 'json',
+      describe: i18n.t('sushi.test.options.json'),
+      type: 'boolean',
+    })
+    .option('ndjson', {
+      describe: i18n.t('sushi.test.options.ndjson'),
+      type: 'boolean',
+    })
+    .option('o', {
+      alias: 'output',
+      describe: i18n.t('sushi.test.options.output'),
+    });
 };
 exports.handler = async function handler(argv) {
   let institutionsId = [];
@@ -191,6 +198,23 @@ exports.handler = async function handler(argv) {
     }
 
     results.push(result);
+  }
+
+  if (argv.ndjson) {
+    if (argv.output) {
+      const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
+      const filePath = path.resolve(argv.output, `sushis_test_${currentDate}.json`);
+
+      const writeStream = fs.createWriteStream(filePath);
+      results.forEach((result) => writeStream.write(`${result}\r\n`));
+      writeStream.close();
+
+      console.log(`File exported to : ${filePath}`);
+      process.exit(0);
+    }
+
+    results.forEach((result) => console.log(JSON.stringify(result)));
+    process.exit(0);
   }
 
   if (argv.json) {

@@ -60,6 +60,7 @@ $ ezmesure-admin spaces get --help
 | Name | Type | Description |
 | --- | --- | --- |
 | -j, --json | Boolean | Display data in json |
+| --ndjson | Boolean | Display data in ndjson |
 | -a, --all | Boolean | Display all data in table |
 | --it | Boolean | Interactive mode |
 

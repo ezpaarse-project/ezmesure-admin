@@ -38,7 +38,8 @@
 			"options": {
 				"users": "User(s) name(s)",
 				"interactive":"Interactive mode",
-				"json": "Print result(s) in json"
+				"json": "Print result(s) in json",
+				"ndjson": "Print result(s) in ndjson"
 			},
 			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
 		},
@@ -125,7 +126,8 @@
 		"list": {
 			"description": "List SUSHI credentials of institution",
 			"options": {
-				"json": "Print result(s) in json"
+				"json": "Print result(s) in json",
+				"ndjson": "Print result(s) in ndjson"
 			},
 			"package": "package",
 			"vendor": "vendor",
@@ -141,6 +143,7 @@
 				"institution": "Institution name, case sensitive",
 				"all": "Test all platforms for one institution",
 				"json": "Print result(s) in json",
+				"ndjson": "Print result(s) in ndjson",
 				"output": "Output path"
 			},
 			"institution": "institution",
@@ -242,21 +245,12 @@
 			},
 			"deleted": "role [{{role}}] deleted succefully"
 		},
-		"edit": {
-			"description": "Edit role",
-			"options": {
-				"roles": "Role name, case sensitive"
-			},
-			"roleDoesNotExists": "role [{{roleName}}] does not exist",
-			"errorOccured": "An error occured to edit role",
-			"updated": "role [{{roleName}}] updated successfully",
-			"updateFailed": "role [{{roleName}}] update failed"
-		},
 		"get": {
 			"description": "Get and display role information",
 			"options": {
 				"roles": "Role(s) name(s)",
 				"json": "Display data in json",
+				"ndjson": "Display data in ndjson",
 				"all": "Display all data in table",
 				"interactive": "Interactive mode"
 			}
@@ -284,7 +278,8 @@
 			"options": {
 				"space": "Space(s) name, case sensitive",
 				"frequencies": "Report frequency (weekly, monthly, quarterly, semi-annual, annual)",
-				"json": "Print result(s) in json"
+				"json": "Print result(s) in json",
+				"ndjson": "Print result(s) in ndjson"
 			},
 			"dashboardNotFound": "dashboard [{{dashboardId}}] does not found",
 			"id": "ID",
@@ -368,6 +363,7 @@
 				"institutions": "Institution(s) name, case sensitive",
 				"all": "Export all institutions",
 				"json": "Print result(s) in json",
+				"ndjson": "Print result(s) in ndjson",
 				"interactive": "Interactive mode"
 			},
 			"validated": "Validated",
@@ -464,9 +460,9 @@
 		"view": {
 			"description": "View current configuration",
 			"options": {
-				"global": "View global config"
+				"global": "View global config",
+				"local": "View local config"
 			},
-			"priority": "When the [Local] configuration is set, it is used first and will be overridden by the [Global] configuration.",
 			"global": "Global",
 			"local": "Local"
 		},
@@ -598,5 +594,8 @@
 			},
 			"created": "index [{{index}}] created successfully"
 		}
+	},
+	"ping": {
+		"description": "Lets you know that both ezMESURE and ElasticSearch instances are available and that you are properly configured to use both instances"
 	}
 }

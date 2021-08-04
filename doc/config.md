@@ -2,6 +2,8 @@
 
 ## Usage
 
+**The ``local`` configuration overrides the ``global`` configuration.**
+
 ```bash
 $ ezmesure-admin config --help
 ```
@@ -98,6 +100,12 @@ $ ezmesure-admin config set space.template org-template
 $ ezmesure-admin config view
 ```
 
+#### Options
+| Name | Type | Description |
+|--- | --- | --- |
+| -g, --global | Boolean | View global config |
+| -l, --local | Boolean | View local config |
+
 Example of result :
 
 ```bash
@@ -106,13 +114,9 @@ Example of result :
   "elastic": {
     "user": "elastic",
     "pass": "changeme"
-  }
-}
-
-[Local]
-{
-  "space": {
-    "template": "org-template"
+  },
+  "ezmesure": {
+    "baseUrl": "https://ezmesure.couperin.org"
   }
 }
 ```

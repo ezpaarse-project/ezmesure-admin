@@ -11,18 +11,25 @@ exports.builder = function builder(yargs) {
   return yargs.positional('spaces', {
     describe: i18n.t('spaces.get.options.spaces'),
     type: 'string',
-  }).option('j', {
-    alias: 'json',
-    describe: i18n.t('spaces.get.options.json'),
-    type: 'boolean',
-  }).option('a', {
-    alias: 'all',
-    describe: i18n.t('spaces.get.options.all'),
-    type: 'boolean',
-  }).option('it', {
-    describe: i18n.t('spaces.get.options.interactive'),
-    boolean: true,
-  });
+  })
+    .option('j', {
+      alias: 'json',
+      describe: i18n.t('spaces.get.options.json'),
+      type: 'boolean',
+    })
+    .option('ndjson', {
+      describe: i18n.t('spaces.get.options.ndjson'),
+      type: 'boolean',
+    })
+    .option('a', {
+      alias: 'all',
+      describe: i18n.t('spaces.get.options.all'),
+      type: 'boolean',
+    })
+    .option('it', {
+      describe: i18n.t('spaces.get.options.interactive'),
+      boolean: true,
+    });
 };
 exports.handler = async function handler(argv) {
   let spaces = [];
@@ -59,8 +66,14 @@ exports.handler = async function handler(argv) {
         spaces[i].indexPatterns = data.map(({ attributes }) => attributes.title);
       }
     } catch (error) {
-      console.error(error);
+      console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      spaces[i].indexPatterns = [];
     }
+  }
+
+  if (argv && argv.ndjson) {
+    spaces.forEach((space) => console.log(JSON.stringify(space)));
+    process.exit(0);
   }
 
   if (argv && argv.json) {

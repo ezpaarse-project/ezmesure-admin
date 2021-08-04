@@ -19,11 +19,14 @@ exports.builder = function builder(yargs) {
     alias: 'json',
     describe: i18n.t('users.get.options.json'),
     type: 'boolean',
+  }).option('ndjson', {
+    describe: i18n.t('users.get.options.ndjson'),
+    type: 'boolean',
   });
 };
 exports.handler = async function handler(argv) {
   let { users } = argv;
-  const { json, interactive } = argv;
+  const { json, ndjson, interactive } = argv;
 
   let usersData;
   try {
@@ -45,6 +48,11 @@ exports.handler = async function handler(argv) {
 
   if (!usersData) {
     console.log(i18n.t('users.noUsersFound'));
+    process.exit(0);
+  }
+
+  if (ndjson) {
+    usersData.forEach((user) => console.log(JSON.stringify(user)));
     process.exit(0);
   }
 

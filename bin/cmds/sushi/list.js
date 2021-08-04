@@ -19,10 +19,13 @@ exports.builder = function builder(yargs) {
     alias: 'json',
     describe: i18n.t('sushi.list.options.json'),
     type: 'boolean',
+  }).option('ndjson', {
+    describe: i18n.t('sushi.list.options.ndjson'),
+    type: 'boolean',
   });
 };
 exports.handler = async function handler(argv) {
-  const { json } = argv;
+  const { json, ndjson } = argv;
 
   let institutions;
   try {
@@ -83,6 +86,11 @@ exports.handler = async function handler(argv) {
   }]);
 
   const selectedSushi = sushi.filter(({ id }) => vendorsSelected.includes(id));
+
+  if (ndjson) {
+    selectedSushi.forEach((el) => console.log(JSON.stringify(el)));
+    process.exit(0);
+  }
 
   if (json) {
     console.log(JSON.stringify(selectedSushi, null, 2));

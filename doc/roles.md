@@ -80,7 +80,9 @@ $ ezmesure-admin roles get --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
+| -a, --all | String | Display all data in table |
 | -j, --json | Boolean | Display data in json |
+| --nd | Boolean | Display data in nd |
 
 Example :
 
