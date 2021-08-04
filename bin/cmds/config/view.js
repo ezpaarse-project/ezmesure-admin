@@ -1,5 +1,7 @@
 const { i18n } = global;
 
+const merge = require('lodash.merge');
+
 const scopes = require('../../../lib/app/config').getScopes();
 
 exports.command = 'view';
@@ -22,7 +24,7 @@ exports.handler = async function handler(argv) {
 
   if (!seeLocal && !seeGlobal) {
     console.log('[Configuration]');
-    console.log(JSON.stringify({ ...global?.config, ...local?.config } || {}, null, 2));
+    console.log(JSON.stringify(merge(global?.config, local?.config), null, 2));
     console.log(`[Local] : ${local?.location}`);
     console.log(`[Global] : ${global?.location}`);
     process.exit(0);
