@@ -41,6 +41,7 @@ $ eza --help
 | [index-pattern](/doc/index-pattern.md) | Manager ezMESURE/Kibana users |
 | [institutions](/doc/institutions.md) | Manage ezMESURE institutions |
 | [login](/doc/login.md) | Login user in commands |
+| [logout](/doc/logout.md) | Log out from ezMESURE |
 | [ping](/doc/ping.md) | Ping ElasticSearch and ezMESURE |
 | [profile](/doc/profile.md) | Displays the person who is connected to the command |
 | [reporting](/doc/reporting.md) | Manage ezMESURE reporting |

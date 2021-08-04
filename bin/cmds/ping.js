@@ -24,7 +24,7 @@ exports.handler = async function handler() {
     ezmesurePing = await ezmesure.get('/');
   } catch (error) {
     console.error('ezMESURE: Ping failed');
-    console.log(error);
+    console.error(`ezMESURE respond with statusCode [${error?.response?.data?.status} - ${error?.response?.data?.error}]`);
   }
 
   if (ezmesurePing) {

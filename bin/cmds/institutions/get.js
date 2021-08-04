@@ -33,14 +33,16 @@ exports.builder = function builder(yargs) {
     });
 };
 exports.handler = async function handler(argv) {
-  const { institutions, all, json, ndjson } = argv;
+  const {
+    institutions, all, json, ndjson,
+  } = argv;
 
   let institutionsData;
   try {
     const { data } = await institutionsLib.findAll();
     institutionsData = data;
   } catch (error) {
-    console.error(i18n.t('institutions.institutionsNotFound'));
+    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
     process.exit(1);
   }
 
