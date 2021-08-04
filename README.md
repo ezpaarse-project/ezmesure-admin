@@ -40,6 +40,8 @@ $ eza --help
 | [indices](/doc/indices.md) | Manager ezMESURE/Kibana users |
 | [index-pattern](/doc/index-pattern.md) | Manager ezMESURE/Kibana users |
 | [institutions](/doc/institutions.md) | Manage ezMESURE institutions |
+| [login](/doc/login.md) | Login user in commands |
+| [ping](/doc/ping.md) | Ping ElasticSearch and ezMESURE |
 | [reporting](/doc/reporting.md) | Manage ezMESURE reporting |
 | [roles](/doc/roles.md) | Manage Kibana roles |
 | [spaces](/doc/spaces.md) | Manage Kibana spaces |
