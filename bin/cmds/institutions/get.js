@@ -42,7 +42,7 @@ exports.handler = async function handler(argv) {
     const { data } = await institutionsLib.findAll();
     institutionsData = data;
   } catch (error) {
-    console.error(i18n.t('institutions.institutionsNotFound'));
+    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
     process.exit(1);
   }
 
