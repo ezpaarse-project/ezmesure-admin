@@ -242,16 +242,6 @@
 			},
 			"deleted": "role [{{role}}] deleted succefully"
 		},
-		"edit": {
-			"description": "Edit role",
-			"options": {
-				"roles": "Role name, case sensitive"
-			},
-			"roleDoesNotExists": "role [{{roleName}}] does not exist",
-			"errorOccured": "An error occured to edit role",
-			"updated": "role [{{roleName}}] updated successfully",
-			"updateFailed": "role [{{roleName}}] update failed"
-		},
 		"get": {
 			"description": "Get and display role information",
 			"options": {
@@ -464,9 +454,9 @@
 		"view": {
 			"description": "View current configuration",
 			"options": {
-				"global": "View global config"
+				"global": "View global config",
+				"local": "View local config"
 			},
-			"priority": "When the [Local] configuration is set, it is used first and will be overridden by the [Global] configuration.",
 			"global": "Global",
 			"local": "Local"
 		},
@@ -598,5 +588,8 @@
 			},
 			"created": "index [{{index}}] created successfully"
 		}
+	},
+	"ping": {
+		"description": "Lets you know that both ezMESURE and ElasticSearch instances are available and that you are properly configured to use both instances"
 	}
 }
