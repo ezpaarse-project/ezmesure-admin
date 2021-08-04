@@ -127,6 +127,12 @@ $ ezmesure-admin sushi info myInstitution ~/Documents/sushi/info
 
 ### list
 
+#### Options
+| Name | Type | Description |
+| --- | --- | --- |
+| -j, --json | Boolean | Print result(s) in json |
+| --ndjson | Boolean | Print result(s) in ndjson |
+
 #### Usage
 ```bash
 $ ezmesure-admin sushi list --help
@@ -170,8 +176,8 @@ $ ezmesure-admin sushi test --help
 | --token | String | ezMESURE token |
 | -a, --all | Boolean | Test all platforms for once institution |
 | -j, --json | Boolean | Print result(s) in json |
+| --ndjson | Boolean | Print result(s) in ndjson |
 | -o, --output | Boolean | Output path |
-
 
 Example :
 ```bash

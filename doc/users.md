@@ -29,6 +29,7 @@ $ ezmesure-admin users get [users...]
 | --- | --- | --- |
 | -i, --interactive | Boolean | Interactive mode |
 | -j, --json | Boolean | Print result(s) in json |
+| --ndjson | Boolean | Print result(s) in ndjson |
 
 Example :
 ```bash

@@ -25,7 +25,10 @@ $ ezmesure-admin reporting list --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
+| -s, --status | Array | Reporting status: ongoing, completed, error |
 | -f, --frequencies | Array | Report frequency (weekly, monthly, quarterly, semi-annual, annual) |
+| -j, --json | Boolean | Print result(s) in json |
+| --ndjson | Boolean | Print result(s) in ndjson |
 
 Example :
 

@@ -12,21 +12,28 @@ exports.builder = function builder(yargs) {
   return yargs.positional('institutions', {
     describe: i18n.t('institutions.get.options.institutions'),
     type: 'string',
-  }).option('it', {
-    describe: i18n.t('institutions.get.options.interactive'),
-    boolean: true,
-  }).option('a', {
-    alias: 'all',
-    describe: i18n.t('institutions.get.options.all'),
-    type: 'boolean',
-  }).option('j', {
-    alias: 'json',
-    describe: i18n.t('institutions.get.options.json'),
-    type: 'boolean',
-  });
+  })
+    .option('it', {
+      describe: i18n.t('institutions.get.options.interactive'),
+      boolean: true,
+    })
+    .option('a', {
+      alias: 'all',
+      describe: i18n.t('institutions.get.options.all'),
+      type: 'boolean',
+    })
+    .option('j', {
+      alias: 'json',
+      describe: i18n.t('institutions.get.options.json'),
+      type: 'boolean',
+    })
+    .option('ndjson', {
+      describe: i18n.t('institutions.get.options.ndjson'),
+      type: 'boolean',
+    });
 };
 exports.handler = async function handler(argv) {
-  const { institutions, all, json } = argv;
+  const { institutions, all, json, ndjson } = argv;
 
   let institutionsData;
   try {
@@ -57,6 +64,11 @@ exports.handler = async function handler(argv) {
       console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: institutions.join(', ') }));
       process.exit(0);
     }
+  }
+
+  if (ndjson) {
+    institutionsData.forEach((data) => console.log(JSON.stringify(data)));
+    process.exit(0);
   }
 
   if (json) {
