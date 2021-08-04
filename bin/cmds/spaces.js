@@ -4,5 +4,5 @@ exports.command = 'spaces <command>';
 exports.desc = i18n.t('spaces.description');
 exports.handler = function handler() {};
 exports.builder = function builder(yargs) {
-  return yargs.commandDir('spaces');
+  return yargs.commandDir('spaces').parse();
 };

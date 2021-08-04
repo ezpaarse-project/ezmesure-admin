@@ -17,11 +17,11 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('roles.update.options.spaceAdd'),
       type: 'string',
     })
-    .option('indice-remove', {
+    .option('index-remove', {
       describe: i18n.t('roles.update.options.indiceRemove'),
       type: 'string',
     })
-    .option('indice-add', {
+    .option('index-add', {
       describe: i18n.t('roles.update.options.indiceAdd'),
       type: 'string',
     });
@@ -59,14 +59,14 @@ exports.handler = async function handler(argv) {
 
   if (indiceRemove?.length) {
     for (let i = 0; i < current?.elasticsearch?.indices?.length; i += 1) {
-      const indice = current?.elasticsearch?.indices[i];
-      if (indice?.names?.length === 1 && indiceRemove?.includes(indice?.names)) {
+      const index = current?.elasticsearch?.indices[i];
+      if (index?.names?.length === 1 && indiceRemove?.includes(index?.names)) {
         current?.elasticsearch?.indices?.splice(i, i + 1);
       }
 
-      if (indice?.names?.length > 1) {
+      if (index?.names?.length > 1) {
         const indicesNames = indiceRemove?.split(',');
-        current.elasticsearch.indices[i].names = indice?.names
+        current.elasticsearch.indices[i].names = index?.names
           .filter((name) => !indicesNames?.includes(name));
       }
     }
@@ -77,7 +77,11 @@ exports.handler = async function handler(argv) {
   }
 
   if (indiceAdd && indiceAdd.length) {
-    // TODO
+    for (let i = 0; i < current?.elasticsearch?.indices?.length; i += 1) {
+      const index = current?.elasticsearch?.indices[i];
+
+      console.log(index);
+    }
   }
 
   console.log(JSON.stringify(current, null, 2));
