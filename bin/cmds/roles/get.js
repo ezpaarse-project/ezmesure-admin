@@ -64,7 +64,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (argv && argv.json) {
-    process.stdout.write(JSON.stringify(roles));
+    console.log(JSON.stringify(roles, null, 2));
     process.exit(0);
   }
 
