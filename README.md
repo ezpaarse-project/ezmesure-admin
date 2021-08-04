@@ -42,6 +42,7 @@ $ eza --help
 | [institutions](/doc/institutions.md) | Manage ezMESURE institutions |
 | [login](/doc/login.md) | Login user in commands |
 | [ping](/doc/ping.md) | Ping ElasticSearch and ezMESURE |
+| [profile](/doc/profile.md) | Displays the person who is connected to the command |
 | [reporting](/doc/reporting.md) | Manage ezMESURE reporting |
 | [roles](/doc/roles.md) | Manage Kibana roles |
 | [spaces](/doc/spaces.md) | Manage Kibana spaces |
