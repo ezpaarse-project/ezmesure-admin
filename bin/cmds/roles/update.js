@@ -18,17 +18,17 @@ exports.builder = function builder(yargs) {
       type: 'string',
     })
     .option('index-remove', {
-      describe: i18n.t('roles.update.options.indiceRemove'),
+      describe: i18n.t('roles.update.options.indexRemove'),
       type: 'string',
     })
     .option('index-add', {
-      describe: i18n.t('roles.update.options.indiceAdd'),
+      describe: i18n.t('roles.update.options.indexAdd'),
       type: 'string',
     });
 };
 exports.handler = async function handler(argv) {
   const {
-    spaceRemove, spaceAdd, indiceRemove, indiceAdd,
+    spaceRemove, spaceAdd, indexRemove, indexAdd,
   } = argv;
 
   let current;
@@ -39,8 +39,6 @@ exports.handler = async function handler(argv) {
     console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
     process.exit(1);
   }
-
-  current = fakeRole;
 
   if (spaceRemove?.length) {
     for (let i = 0; i < current?.kibana?.length; i += 1) {
@@ -57,15 +55,15 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  if (indiceRemove?.length) {
+  if (indexRemove?.length) {
     for (let i = 0; i < current?.elasticsearch?.indices?.length; i += 1) {
       const index = current?.elasticsearch?.indices[i];
-      if (index?.names?.length === 1 && indiceRemove?.includes(index?.names)) {
+      if (index?.names?.length === 1 && indexRemove?.includes(index?.names)) {
         current?.elasticsearch?.indices?.splice(i, i + 1);
       }
 
       if (index?.names?.length > 1) {
-        const indicesNames = indiceRemove?.split(',');
+        const indicesNames = indexRemove?.split(',');
         current.elasticsearch.indices[i].names = index?.names
           .filter((name) => !indicesNames?.includes(name));
       }
@@ -76,11 +74,28 @@ exports.handler = async function handler(argv) {
     // TODO
   }
 
-  if (indiceAdd && indiceAdd.length) {
+  if (indexAdd && indexAdd.length) {
+    const [indexName, indexPrivileges] = indexAdd?.split(':');
+
+    const indexCustomPrivileges = indexPrivileges?.includes(',') ? indexPrivileges?.split(',') : null;
+
     for (let i = 0; i < current?.elasticsearch?.indices?.length; i += 1) {
       const index = current?.elasticsearch?.indices[i];
 
-      console.log(index);
+      if (index?.names?.includes(indexName.toLowerCase())) {
+        if (index?.names?.length === 1) {
+          // eslint-disable-next-line max-len
+          index.privileges = indexCustomPrivileges?.length ? indexCustomPrivileges : [indexPrivileges];
+        }
+
+        if (index?.names?.length > 1) {
+          index.names = index?.names?.filter((name) => name !== indexName);
+          current.elasticsearch.indices.push({
+            names: [indexName],
+            privileges: indexCustomPrivileges?.length ? indexCustomPrivileges : [indexPrivileges],
+          });
+        }
+      }
     }
   }
 
@@ -93,6 +108,7 @@ const fakeRole = {
     indices: [
       {
         names: [
+          'aaa',
           'univ-example',
         ],
         privileges: [
