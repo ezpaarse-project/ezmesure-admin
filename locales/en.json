@@ -254,6 +254,16 @@
 				"all": "Display all data in table",
 				"interactive": "Interactive mode"
 			}
+		},
+		"update": {
+			"description": "Update role",
+			"options": {
+				"role": "Role name, case sensitive",
+				"spaceRemove": "Name of space(s) to be deleted",
+				"spaceAdd": "Name of space(s) to be added",
+				"indexRemove": "Name of index to be deleted",
+				"indexAdd": "Name of index to be added"
+			}
 		}
 	},
 	"reporting": {
