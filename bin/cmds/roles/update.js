@@ -71,71 +71,54 @@ exports.handler = async function handler(argv) {
   }
 
   if (spaceAdd && spaceAdd.length) {
-    // TODO
+    const spacesAdd = Array.isArray(spaceAdd) ? spaceAdd?.map((space) => space?.split(':')) : [spaceAdd?.split(':')];
+
+    spacesAdd.forEach(([spaceName, spacePrivileges]) => {
+      const exists = current?.kibana?.find((space) => space?.spaces?.includes(spaceName));
+
+      if (exists && exists?.spaces?.length === 1) {
+        exists.base = [spacePrivileges];
+      } else if (exists && exists?.spaces?.length > 1) {
+        exists.spaces = exists?.spaces?.filter((s) => s !== spaceName);
+        current.kibana.push({
+          base: [spacePrivileges],
+          spaces: [spaceName],
+        });
+      } else {
+        current.kibana.push({
+          base: [spacePrivileges],
+          spaces: [spaceName],
+        });
+      }
+    });
   }
 
   if (indexAdd && indexAdd.length) {
-    const [indexName, indexPrivileges] = indexAdd?.split(':');
+    const indicesAdd = Array.isArray(indexAdd) ? indexAdd?.map((index) => index?.split(':')) : [indexAdd?.split(':')];
 
-    const indexCustomPrivileges = indexPrivileges?.includes(',') ? indexPrivileges?.split(',') : null;
+    indicesAdd.forEach(([indexName, indexPrivileges]) => {
+      const indexCustomPrivileges = indexPrivileges?.includes(',') ? indexPrivileges?.split(',') : null;
 
-    for (let i = 0; i < current?.elasticsearch?.indices?.length; i += 1) {
-      const index = current?.elasticsearch?.indices[i];
+      // eslint-disable-next-line max-len
+      const exists = current?.elasticsearch?.indices?.find((index) => index?.names?.includes(indexName));
 
-      if (index?.names?.includes(indexName.toLowerCase())) {
-        if (index?.names?.length === 1) {
-          // eslint-disable-next-line max-len
-          index.privileges = indexCustomPrivileges?.length ? indexCustomPrivileges : [indexPrivileges];
-        }
-
-        if (index?.names?.length > 1) {
-          index.names = index?.names?.filter((name) => name !== indexName);
-          current.elasticsearch.indices.push({
-            names: [indexName],
-            privileges: indexCustomPrivileges?.length ? indexCustomPrivileges : [indexPrivileges],
-          });
-        }
+      if (exists && exists?.names?.length === 1) {
+        // eslint-disable-next-line max-len
+        exists.privileges = indexCustomPrivileges?.length ? indexCustomPrivileges : [indexPrivileges];
+      } else if (exists && exists?.names?.length > 1) {
+        exists.names = exists?.names?.filter((name) => name !== indexName);
+        current.elasticsearch.indices.push({
+          names: [indexName],
+          privileges: indexCustomPrivileges?.length ? indexCustomPrivileges : [indexPrivileges],
+        });
+      } else {
+        current.elasticsearch.indices.push({
+          names: [indexName],
+          privileges: indexCustomPrivileges?.length ? indexCustomPrivileges : [indexPrivileges],
+        });
       }
-    }
+    });
   }
 
   console.log(JSON.stringify(current, null, 2));
-};
-
-const fakeRole = {
-  elasticsearch: {
-    cluster: [],
-    indices: [
-      {
-        names: [
-          'aaa',
-          'univ-example',
-        ],
-        privileges: [
-          'read',
-        ],
-      },
-    ],
-  },
-  kibana: [
-    {
-      base: [
-        'read',
-      ],
-      feature: {},
-      spaces: [
-        'bienvenue',
-        'cnrs',
-      ],
-    },
-    {
-      base: [
-        'all',
-      ],
-      feature: {},
-      spaces: [
-        'welcome',
-      ],
-    },
-  ],
 };
