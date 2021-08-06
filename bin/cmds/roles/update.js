@@ -1,6 +1,7 @@
 const { i18n } = global;
 
 const rolesLib = require('../../../lib/roles');
+const spacesLib = require('../../../lib/spaces');
 
 exports.command = 'update <role>';
 exports.desc = i18n.t('roles.update.description');
@@ -28,97 +29,89 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    spaceRemove, spaceAdd, indexRemove, indexAdd,
+    spaceRemove = '', spaceAdd, indexRemove = '', indexAdd,
   } = argv;
 
-  let current;
+  let role;
   try {
     const { data } = await rolesLib.findByName(argv.role);
-    current = data;
+    role = data;
   } catch (error) {
     console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
     process.exit(1);
   }
 
-  if (spaceRemove?.length) {
-    for (let i = 0; i < current?.kibana?.length; i += 1) {
-      const kbnSpace = current?.kibana[i];
-      if (kbnSpace?.spaces?.length === 1 && spaceRemove?.includes(kbnSpace?.spaces)) {
-        current?.kibana?.splice(i, i + 1);
-      }
+  // Spaces management
+  let spacesToAdd = Array.isArray(spaceAdd) ? spaceAdd : [spaceAdd];
+  spacesToAdd = spacesToAdd.filter((x) => x).map((space) => space?.split(':'));
 
-      if (kbnSpace?.spaces?.length > 1) {
-        const spacesNames = spaceRemove?.split(',');
-        current.kibana[i].spaces = kbnSpace?.spaces
-          .filter((space) => !spacesNames?.includes(space));
-      }
+  const spacesNamesToAdd = spacesToAdd.map(([spaceName]) => spaceName)
+    .map((x) => x.trim())
+    .filter((x) => x);
+
+  let spacesNamesToRemove = Array.isArray(spaceRemove) ? spaceRemove : (spaceRemove || '').split(',');
+
+  spacesNamesToRemove = [
+    ...spacesNamesToRemove.filter((x) => x),
+    ...spacesNamesToAdd,
+  ];
+
+  role.kibana = role?.kibana?.map((spaceRights) => {
+    // eslint-disable-next-line max-len
+    spaceRights.spaces = spaceRights?.spaces?.filter((space) => !spacesNamesToRemove?.includes(space));
+    return spaceRights;
+  }).filter(({ spaces }) => spaces?.length > 0);
+
+  for (let i = 0; i < spacesNamesToAdd.length; i += 1) {
+    try {
+      await spacesLib.findById(spacesNamesToAdd[i]);
+    } catch (error) {
+      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      process.exit(1);
     }
   }
 
-  if (indexRemove?.length) {
-    for (let i = 0; i < current?.elasticsearch?.indices?.length; i += 1) {
-      const index = current?.elasticsearch?.indices[i];
-      if (index?.names?.length === 1 && indexRemove?.includes(index?.names)) {
-        current?.elasticsearch?.indices?.splice(i, i + 1);
-      }
-
-      if (index?.names?.length > 1) {
-        const indicesNames = indexRemove?.split(',');
-        current.elasticsearch.indices[i].names = index?.names
-          .filter((name) => !indicesNames?.includes(name));
-      }
-    }
-  }
-
-  if (spaceAdd && spaceAdd.length) {
-    const spacesAdd = Array.isArray(spaceAdd) ? spaceAdd?.map((space) => space?.split(':')) : [spaceAdd?.split(':')];
-
-    spacesAdd.forEach(([spaceName, spacePrivileges]) => {
-      const exists = current?.kibana?.find((space) => space?.spaces?.includes(spaceName));
-
-      if (exists && exists?.spaces?.length === 1) {
-        exists.base = [spacePrivileges];
-      } else if (exists && exists?.spaces?.length > 1) {
-        exists.spaces = exists?.spaces?.filter((s) => s !== spaceName);
-        current.kibana.push({
-          base: [spacePrivileges],
-          spaces: [spaceName],
-        });
-      } else {
-        current.kibana.push({
-          base: [spacePrivileges],
-          spaces: [spaceName],
-        });
-      }
+  spacesToAdd?.forEach(([spaceName, spacePrivileges]) => {
+    role?.kibana?.push({
+      base: [spacePrivileges],
+      spaces: [spaceName],
     });
-  }
+  });
 
-  if (indexAdd && indexAdd.length) {
-    const indicesAdd = Array.isArray(indexAdd) ? indexAdd?.map((index) => index?.split(':')) : [indexAdd?.split(':')];
+  // Indices management
+  let indicesToAdd = Array.isArray(indexAdd) ? indexAdd : [indexAdd];
+  indicesToAdd = indicesToAdd.filter((x) => x).map((space) => space?.split(':'));
 
-    indicesAdd.forEach(([indexName, indexPrivileges]) => {
-      const indexCustomPrivileges = indexPrivileges?.includes(',') ? indexPrivileges?.split(',') : null;
+  const indicesNamesToAdd = indicesToAdd.map(([spaceName]) => spaceName)
+    .map((x) => x.trim())
+    .filter((x) => x);
 
+  let indicesNamesToRemove = Array.isArray(indexRemove) ? indexRemove : (indexRemove || '').split(',');
+
+  indicesNamesToRemove = [
+    ...indicesNamesToRemove.filter((x) => x),
+    ...indicesNamesToAdd,
+  ];
+
+  if (indicesNamesToRemove?.length) {
+    role.elasticsearch.indices = role?.elasticsearch?.indices?.map((indicesRights) => {
       // eslint-disable-next-line max-len
-      const exists = current?.elasticsearch?.indices?.find((index) => index?.names?.includes(indexName));
-
-      if (exists && exists?.names?.length === 1) {
-        // eslint-disable-next-line max-len
-        exists.privileges = indexCustomPrivileges?.length ? indexCustomPrivileges : [indexPrivileges];
-      } else if (exists && exists?.names?.length > 1) {
-        exists.names = exists?.names?.filter((name) => name !== indexName);
-        current.elasticsearch.indices.push({
-          names: [indexName],
-          privileges: indexCustomPrivileges?.length ? indexCustomPrivileges : [indexPrivileges],
-        });
-      } else {
-        current.elasticsearch.indices.push({
-          names: [indexName],
-          privileges: indexCustomPrivileges?.length ? indexCustomPrivileges : [indexPrivileges],
-        });
-      }
-    });
+      indicesRights.names = indicesRights?.names?.filter((index) => !indicesNamesToRemove?.includes(index));
+      return indicesRights;
+    }).filter(({ names }) => names?.length > 0);
   }
 
-  console.log(JSON.stringify(current, null, 2));
+  indicesToAdd?.forEach(([indexName, indexPrivileges]) => {
+    role.elasticsearch.indices.push({
+      names: [indexName],
+      privileges: indexPrivileges.split(','),
+    });
+  });
+
+  try {
+    await rolesLib.createOrUpdate(role.name, role);
+  } catch (error) {
+    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    process.exit(1);
+  }
 };
