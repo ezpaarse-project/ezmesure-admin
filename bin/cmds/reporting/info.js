@@ -55,8 +55,8 @@ exports.handler = async function handler(argv) {
       }
     }
 
-    if (dashboards[reporting[i].space] && dashboards[reporting[i].space].length) {
-      const dsh = dashboards[reporting[i].space].find(({ type }) => type === 'dashboard');
+    if (dashboards[reporting[i]?.space]?.length) {
+      const dsh = dashboards[reporting[i].space].find(({ id, type }) => type === 'dashboard' && id === reporting[i].dashboardId);
       dashboard = dsh?.attributes?.title;
     }
 

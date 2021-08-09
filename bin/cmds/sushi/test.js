@@ -207,7 +207,7 @@ exports.handler = async function handler(argv) {
       const filePath = path.resolve(argv.output, `sushis_test_${currentDate}.json`);
 
       const writeStream = fs.createWriteStream(filePath);
-      results.forEach((result) => writeStream.write(`${result}\r\n`));
+      results.forEach((result) => writeStream.write(`${JSON.stringify(result)}\r\n`));
       writeStream.close();
 
       console.log(`File exported to : ${filePath}`);
