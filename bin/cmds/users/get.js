@@ -77,7 +77,7 @@ exports.handler = async function handler(argv) {
   }) => ([
     username,
     fullName,
-    email,
+    email || '-',
     roles.join(' '),
   ]));
 
