@@ -1,4 +1,5 @@
 const ezmesure = require('../../lib/app/ezmesure');
+const { config } = require('../../lib/app/config');
 
 exports.command = 'profile';
 exports.desc = 'Displays the person who is connected to the command';
@@ -13,6 +14,6 @@ exports.handler = async function handler() {
     process.exit(1);
   }
 
-  console.log(`You are authenticated as ${profile?.username}`);
+  console.log(`You are authenticated as ${profile?.username} on ${config.ezmesure.baseUrl}`);
   console.log(`Roles: ${profile?.roles?.join(', ')}`);
 };
