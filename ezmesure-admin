@@ -25,6 +25,8 @@ yargs.commandDir('bin/cmds')
   .version('version', i18n.t('global.options.version'), `${name} version ${version}`)
   .demandCommand(1, 'You need at least one command before moving on')
   .help()
+  .wrap(yargs.terminalWidth())
+  .completion('completion', (current, argv, done) => done(yargs.getCommandInstance().getCommands()))
   .parse();
 
 module.exports = yargs;
