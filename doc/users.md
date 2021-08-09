@@ -22,14 +22,14 @@ $ ezmesure-admin users --help
 $ ezmesure-admin users get --help
 $ ezmesure-admin users get [users...]
 ```
-> If no user is specified, the command takes all users
+> If no user is specified, the command takes ten first users
 
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
 | -i, --interactive | Boolean | Interactive mode |
 | -j, --json | Boolean | Print result(s) in json |
-| --ndjson | Boolean | Print result(s) in ndjson |
+| -n, --ndjson | boolean | Output newline delimited JSON file |
 
 Example :
 ```bash

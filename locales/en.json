@@ -279,7 +279,7 @@
 				"status": "Reporting status: ongoing, completed, error",
 				"output": "Output path"
 			},
-			"dashboardNotFound": "No dashboard(s) found for {{reportingId}}",
+			"dashboardNotFound": "Dashboard [{{dashboard}}] not found for reporting [{{reportingId}}] in space [{{space}}]",
 			"noHistoryFor": "No history found for {{reportingId}}",
 			"exported": "Data exported successfully at {{dest}}"
 		},

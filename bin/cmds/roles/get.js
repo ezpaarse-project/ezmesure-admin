@@ -21,7 +21,8 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('roles.get.options.json'),
       type: 'boolean',
     })
-    .option('ndjson', {
+    .option('n', {
+      alias: 'ndjson',
       describe: i18n.t('roles.get.options.ndjson'),
       type: 'boolean',
     })

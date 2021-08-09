@@ -19,7 +19,8 @@ exports.builder = function builder(yargs) {
     alias: 'json',
     describe: i18n.t('sushi.list.options.json'),
     type: 'boolean',
-  }).option('ndjson', {
+  }).option('n', {
+    alias: 'ndjson',
     describe: i18n.t('sushi.list.options.ndjson'),
     type: 'boolean',
   });

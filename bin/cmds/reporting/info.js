@@ -18,6 +18,10 @@ exports.builder = function builder(yargs) {
   }).option('o', {
     alias: 'output',
     describe: i18n.t('reporting.info.options.output'),
+  }).option('n', {
+    alias: 'ndjson',
+    describe: i18n.t('reporting.list.options.ndjson'),
+    type: 'boolean',
   });
 };
 exports.handler = async function handler(argv) {
@@ -57,7 +61,11 @@ exports.handler = async function handler(argv) {
     }
 
     if (!dashboard) {
-      console.log(i18n.t('reporting.info.dashboardNotFound', { reportingId: reporting[i].id }));
+      console.log(i18n.t('reporting.info.dashboardNotFound', {
+        dashboard: reporting[i].dashboardId,
+        space: reporting[i].space,
+        reportingId: reporting[i].id,
+      }));
     }
 
     let history;
@@ -100,13 +108,32 @@ exports.handler = async function handler(argv) {
   const fileName = `reporting_info_${currentDate}`;
 
   if (!argv.output) {
+    if (argv.ndjson) {
+      report.forEach((r) => console.log(JSON.stringify(r)));
+      process.exit(0);
+    }
+
     console.log(JSON.stringify(report, null, 2));
+    process.exit(0);
   }
 
   if (argv.output) {
+    const outputPath = path.resolve(argv.output, `${fileName}`);
+    if (argv.ndjson) {
+      try {
+        report.forEach((r) => fs.appendFileSync(path.resolve(argv.output, `${fileName}.njson`), `${JSON.stringify(r)}\r\n`));
+      } catch (error) {
+        console.error(error);
+        process.exit(1);
+      }
+
+      console.log(i18n.t('reporting.info.exported', { dest: path.resolve(argv.output, `${fileName}.njson`) }));
+      process.exit(0);
+    }
+
     try {
-      await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), report, { spaces: 2 });
-      console.log(i18n.t('reporting.info.exported', { dest: path.resolve(argv.output, `${fileName}.json`) }));
+      await fs.writeJson(path.resolve(`${outputPath}.json`), report, { spaces: 2 });
+      console.log(i18n.t('reporting.info.exported', { dest: path.resolve(`${outputPath}.json`) }));
     } catch (error) {
       console.log(error);
       process.exit(1);

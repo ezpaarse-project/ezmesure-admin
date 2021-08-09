@@ -28,7 +28,7 @@ $ ezmesure-admin institutions get --help
 | --- | --- | --- |
 | -a, --all | String | Export all institutions |
 | -j, --json | Boolean | Print result(s) in json |
-| --ndjson | Boolean | Print result(s) in ndjson |
+| -n, --ndjson | boolean | Output newline delimited JSON file |
 
 Example :
 

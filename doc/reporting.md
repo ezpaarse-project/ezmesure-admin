@@ -28,7 +28,7 @@ $ ezmesure-admin reporting list --help
 | -s, --status | Array | Reporting status: ongoing, completed, error |
 | -f, --frequencies | Array | Report frequency (weekly, monthly, quarterly, semi-annual, annual) |
 | -j, --json | Boolean | Print result(s) in json |
-| --ndjson | Boolean | Print result(s) in ndjson |
+| -n, --ndjson | boolean | Output newline delimited JSON file |
 
 Example :
 
@@ -54,6 +54,7 @@ $ ezmesure-admin reporting info --help
 | --- | --- | --- |
 | -s, --status | Array | Reporting status: ongoing, completed, error |
 | -o, --output | String | Output path |
+| --ndjson | boolean | Output newline delimited JSON file |
 
 Example :
 
