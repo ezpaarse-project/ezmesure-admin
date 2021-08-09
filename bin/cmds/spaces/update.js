@@ -4,27 +4,7 @@ const Joi = require('joi');
 
 const spaces = require('../../../lib/spaces');
 const it = require('./interactive/add');
-
-const kibanaFeatures = [
-  'discover',
-  'visualize',
-  'dashboard',
-  'dev_tools',
-  'advancedSettings',
-  'indexPatterns',
-  'savedObjectsManagement',
-  'graph',
-  'monitoring',
-  'ml',
-  'apm',
-  'maps',
-  'canvas',
-  'infrastructure',
-  'logs',
-  'siem',
-  'uptime',
-  'ezreporting',
-];
+const kibanaFeatures = require('../../../lib/app/kibana');
 
 exports.command = 'update <name>';
 exports.desc = i18n.t('spaces.update.description');

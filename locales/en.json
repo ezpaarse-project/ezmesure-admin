@@ -267,7 +267,7 @@
 		}
 	},
 	"reporting": {
-		"description": "Manage reporting tasks <command>: list, report, delete",
+		"description": "Manage reporting tasks <command>: list, info, delete",
 		"noTasksFound": "No reporting task(s) found",
 		"noTaskSelected": "No tasks selected",
 		"deleted": "tasks [{{taskName}}] delete successfully",

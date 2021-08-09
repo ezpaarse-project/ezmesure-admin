@@ -2,6 +2,7 @@ const { i18n } = global;
 
 const rolesLib = require('../../../lib/roles');
 const spacesLib = require('../../../lib/spaces');
+const kibanaFeatures = require('../../../lib/app/kibana');
 
 exports.command = 'update <role>';
 exports.desc = i18n.t('roles.update.description');
@@ -42,6 +43,8 @@ exports.handler = async function handler(argv) {
   }
 
   // Spaces management
+  // Adding a space relies on deleting a space in the role
+  // when it exists to add it again with the right parameters.
   let spacesToAdd = Array.isArray(spaceAdd) ? spaceAdd : [spaceAdd];
   spacesToAdd = spacesToAdd.filter((x) => x).map((space) => space?.split(':'));
 
@@ -56,12 +59,15 @@ exports.handler = async function handler(argv) {
     ...spacesNamesToAdd,
   ];
 
+  // Remove space
   role.kibana = role?.kibana?.map((spaceRights) => {
     // eslint-disable-next-line max-len
     spaceRights.spaces = spaceRights?.spaces?.filter((space) => !spacesNamesToRemove?.includes(space));
     return spaceRights;
   }).filter(({ spaces }) => spaces?.length > 0);
 
+  // Add space
+  // Check if space exists
   for (let i = 0; i < spacesNamesToAdd.length; i += 1) {
     try {
       await spacesLib.findById(spacesNamesToAdd[i]);
@@ -72,13 +78,39 @@ exports.handler = async function handler(argv) {
   }
 
   spacesToAdd?.forEach(([spaceName, spacePrivileges]) => {
-    role?.kibana?.push({
+    const spaceRights = {
       base: [spacePrivileges],
+      feature: {},
       spaces: [spaceName],
-    });
+    };
+
+    const customSpacePrivlieges = spacePrivileges?.split(',')
+      .map((x) => x.trim())
+      .filter((x) => x)
+      .filter((x) => !(x === 'all' || x === 'read'))
+      .map((privileges) => privileges?.split('-')
+        .map((x) => x.trim())
+        .filter((x) => x)
+        .slice(0, 2));
+
+    if (customSpacePrivlieges.length) {
+      customSpacePrivlieges.forEach(([feature, featureRights]) => {
+        if (kibanaFeatures.includes(featureRights)) {
+          spaceRights.feature[feature] = [featureRights];
+        } else {
+          console.error(`Kibana [${feature}] feature dose not exist.`);
+          process.exit(1);
+        }
+      });
+      spaceRights.base = [];
+    }
+
+    role?.kibana?.push(spaceRights);
   });
 
   // Indices management
+  // Adding an index relies on deleting an index in the role
+  // when it exists to add it again with the right parameters.
   let indicesToAdd = Array.isArray(indexAdd) ? indexAdd : [indexAdd];
   indicesToAdd = indicesToAdd.filter((x) => x).map((space) => space?.split(':'));
 
@@ -93,19 +125,25 @@ exports.handler = async function handler(argv) {
     ...indicesNamesToAdd,
   ];
 
-  if (indicesNamesToRemove?.length) {
-    role.elasticsearch.indices = role?.elasticsearch?.indices?.map((indicesRights) => {
-      // eslint-disable-next-line max-len
-      indicesRights.names = indicesRights?.names?.filter((index) => !indicesNamesToRemove?.includes(index));
-      return indicesRights;
-    }).filter(({ names }) => names?.length > 0);
-  }
+  // Remove index
+  role.elasticsearch.indices = role?.elasticsearch?.indices?.map((indicesRights) => {
+    // eslint-disable-next-line max-len
+    indicesRights.names = indicesRights?.names?.filter((index) => !indicesNamesToRemove?.includes(index));
+    return indicesRights;
+  }).filter(({ names }) => names?.length > 0);
 
+  // Add index
   indicesToAdd?.forEach(([indexName, indexPrivileges]) => {
     role.elasticsearch.indices.push({
       names: [indexName],
       privileges: indexPrivileges.split(','),
     });
+  });
+
+  Object.keys(role).forEach((key) => {
+    if (key.startsWith('_')) {
+      delete role[key];
+    }
   });
 
   try {
@@ -114,4 +152,6 @@ exports.handler = async function handler(argv) {
     console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
     process.exit(1);
   }
+
+  console.log(`role [${argv.role}] updated successfully`);
 };

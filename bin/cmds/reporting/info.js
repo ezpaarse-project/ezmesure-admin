@@ -9,7 +9,7 @@ const reportingLib = require('../../../lib/reporting');
 const dashboardLib = require('../../../lib/dashboards');
 
 exports.command = 'info';
-exports.desc = i18n.t('reporting.info');
+exports.desc = i18n.t('reporting.info.description');
 exports.builder = function builder(yargs) {
   return yargs.option('s', {
     alias: 'status',

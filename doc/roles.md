@@ -14,6 +14,7 @@ $ ezmesure-admin roles --help
 | [delete](#delete) [roles...] | Delete role(s) |
 | [edit](#edit) [role] | Edit role |
 | [get](#get) <role> | Get and display role(s) informations |
+| [update](#update) <role> | Update role informations |
 
 ## Commands details
 
@@ -55,21 +56,6 @@ $ ezmesure-admin roles delete newRole
 role [newRole] deleted succefully
 ```
 
-### edit
-
-#### Usage
-```bash
-$ ezmesure-admin roles edit --help
-```
-
-Example :
-
-```bash
-$ ezmesure-admin roles edit newRole
-
-role [newRole] edited succefully
-```
-
 ### get
 
 #### Usage
@@ -95,4 +81,144 @@ $ ezmesure-admin roles get apm_system
 ║ apm_system                  │ Names:                                                                                 │ Space:                      ║
 ║                             │ Privileges:                                                                            │ Privileges:                 ║
 ╚═════════════════════════════╧════════════════════════════════════════════════════════════════════════════════════════╧═════════════════════════════╝
+```
+
+### update
+
+#### Usage
+```bash
+$ ezmesure-admin roles update --help
+```
+
+#### Options
+| Name | Type | Description |
+| --- | --- | --- |
+| --space-add | String | Add space with privileges |
+| --space-remove | String | Remove space(s) |
+| --index-add | String | Add index with privileges |
+| --index-remove | String | Remove index(ces) |
+
+> :warning: ``--space-add`` or ``--index-add`` adds a new space/index but is also used to update space and index privileges.
+<br>
+The update does not add the new privileges to the old ones, so remember to put them back when you use the command if you need to keep them.
+
+Examples :
+
+##### Add space(s)
+
+```bash
+$ ezmesure-admin roles update myRole --space-add <spaceName>:<privileges>
+```
+
+| Privileges |
+| --- |
+| all |
+| read |
+| custo |
+
+```bash
+$ ezmesure-admin roles update myRole --space-add my-space:all
+
+role [myRole] updated successfully
+```
+
+If you want to use custom privileges, the name of the feature kibana and the privileges on the feature are separated by a dash, the syntax is as follows
+
+```bash
+$ ezmesure-admin roles update myRole --space-add my-space:<feature>-<privileges>
+```
+
+#### Features
+
+<ul>
+  <li>discover</li>
+  <li>visualize</li>
+  <li>dashboard</li>
+  <li>dev_tools</li>
+  <li>advancedSettings</li>
+  <li>indexPatterns</li>
+  <li>savedObjectsManagement</li>
+  <li>graph</li>
+  <li>monitoring</li>
+  <li>ml</li>
+  <li>apm</li>
+  <li>maps</li>
+  <li>canvas</li>
+  <li>infrastructure</li>
+  <li>logs</li>
+  <li>siem</li>
+  <li>uptime</li>
+  <li>ezreporting</li>
+  <li>discover</li>
+  <li>visualize</li>
+  <li>dashboard</li>
+  <li>dev_tools</li>
+  <li>advancedSettings</li>
+  <li>indexPatterns</li>
+  <li>savedObjectsManagement</li>
+  <li>graph</li>
+  <li>monitoring</li>
+  <li>ml</li>
+  <li>apm</li>
+  <li>maps</li>
+  <li>canvas</li>
+  <li>infrastructure</li>
+  <li>logs</li>
+  <li>siem</li>
+  <li>uptime</li>
+  <li>ezreporting</li>
+</ul>
+
+#### Example
+
+```bash
+$ ezmesure-admin roles update myRole --space-add my-space:discover-all
+
+role [myRole] updated successfully
+```
+
+The Kibana feature privileges are separated by a comma, as follows
+
+```bash
+$ ezmesure-admin roles update myRole --space-add my-space:discover-all,dashboard:read
+
+role [myRole] updated successfully
+```
+
+##### Remove space(s)
+
+> Spaces must be separated by a comma.
+
+```bash
+$ ezmesure-admin roles update myRole --space-remove my-space,my-other-space
+
+role [myRole] updated successfully
+```
+
+##### Remove index(ces)
+
+> Indices must be separated by a comma.
+
+```bash
+$ ezmesure-admin roles update myRole --index-remove my-index,my-other-index
+
+role [myRole] updated successfully
+```
+
+##### Add index(ces)
+
+```bash
+$ ezmesure-admin roles update myRole --index-add <indexName>:<privileges>
+```
+
+| Privileges |
+| --- |
+| all |
+| read |
+| custom<br><ul><li>``create``</li><li>``create_index``</li><li>``delete``</li><li>``delete_index``</li><li>``index``</li><li>``manage``</li><li>``manage_follow_index``</li><li>``manage_ilm``</li><li>``manage_leader_index``</li><li>``monitor``</li><li>``read_cross_cluster``</li><li>``view_index_metadata``</li><li>``write``</li></ul> |
+
+```bash
+$ ezmesure-admin roles update myRole --index-add my-index:all
+
+role [myRole] updated successfully
 ```

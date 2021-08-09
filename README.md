@@ -33,6 +33,7 @@ $ eza --help
 | Name | Description |
 | --- | --- |
 | [cluster](/doc/cluster.md) | Manage cluster |
+| [completion](/doc/completion.md) | Use auto completion |
 | [config](/doc/config.md) | Manage ezmesure-admin config |
 | [counter4](/doc/counter4.md) (deprecated) | Load counter4 files in Kibana | 
 | [counter5](/doc/counter5.md) | COUNTER5 commands | 
