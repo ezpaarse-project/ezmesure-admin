@@ -2,11 +2,18 @@ const { i18n } = global;
 
 const elasticLib = require('../../lib/cluster');
 const ezmesure = require('../../lib/app/ezmesure');
+const { config } = require('../../lib/app/config');
 
 exports.command = 'ping';
 exports.desc = i18n.t('ping.description');
 exports.builder = function builder() {};
-exports.handler = async function handler() {
+exports.handler = async function handler(argv) {
+  const { verbose } = argv;
+
+  if (verbose) {
+    console.log(`Attempt to ping from ${config.elastic.baseUrl}`);
+  }
+
   let elasticPing;
   try {
     elasticPing = await elasticLib.ping();
@@ -17,6 +24,10 @@ exports.handler = async function handler() {
 
   if (elasticPing) {
     console.log('ElasticSearch: OK');
+  }
+
+  if (verbose) {
+    console.log(`Attempt to ping from ${config.ezmesure.baseUrl}`);
   }
 
   let ezmesurePing;

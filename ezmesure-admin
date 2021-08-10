@@ -22,6 +22,12 @@ yargs.commandDir('bin/cmds')
     number: true,
     global: true,
   })
+  .option('v', {
+    alias: 'verbose',
+    describe: i18n.t('global.options.verbose'),
+    type: 'boolean',
+    global: true,
+  })
   .version('version', i18n.t('global.options.version'), `${name} version ${version}`)
   .demandCommand(1, 'You need at least one command before moving on')
   .help()

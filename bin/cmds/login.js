@@ -29,7 +29,9 @@ exports.handler = async function handler(argv) {
   const scope = scopes.local;
   const config = scope.config || {};
 
-  const { username, password, passwordStdin } = argv;
+  const {
+    username, password, passwordStdin, verbose,
+  } = argv;
 
   const credentials = { username, password };
 
@@ -73,6 +75,10 @@ exports.handler = async function handler(argv) {
     }
   }
 
+  if (verbose) {
+    console.log(`Login from ${config?.ezmesure?.baseUrl}`);
+  }
+
   let res;
   try {
     res = await ezmesure.post('/login/local', credentials);
@@ -82,14 +88,31 @@ exports.handler = async function handler(argv) {
     process.exit(1);
   }
 
+  if (verbose) {
+    console.log('API token recovery');
+  }
+
   const match = /^eztoken=([a-z0-9._\-\w]+)/i.exec(res.headers['set-cookie']);
   if (match && match[1]) {
     set(config, 'ezmesure.token', match[1]);
 
+    if (verbose) {
+      console.log('API token recovered');
+    }
+
     try {
+      if (verbose) {
+        console.log('Saving the API token');
+      }
+
       await fs.ensureFile(scope.location);
       await fs.writeFile(scope.location, JSON.stringify(config, null, 2));
     } catch (error) {
+      if (verbose) {
+        console.log('Failed to save the API token');
+      }
+
+      console.error(error);
       process.exit(1);
     }
 

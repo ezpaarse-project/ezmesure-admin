@@ -4,7 +4,13 @@ const { config } = require('../../lib/app/config');
 exports.command = 'profile';
 exports.desc = 'Displays the person who is connected to the command';
 exports.builder = function builder() {};
-exports.handler = async function handler() {
+exports.handler = async function handler(argv) {
+  const { verbose } = argv;
+
+  if (verbose) {
+    console.log(`Retrieving the ezMESURE profile from ${config.ezmesure.baseUrl}`);
+  }
+
   let profile;
   try {
     const { data } = await ezmesure.get('/profile');
