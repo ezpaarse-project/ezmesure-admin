@@ -60,13 +60,13 @@ exports.handler = async function handler(argv) {
       dashboard = dsh?.attributes?.title;
     }
 
-    if (!dashboard) {
-      console.log(i18n.t('reporting.info.dashboardNotFound', {
-        dashboard: reporting[i].dashboardId,
-        space: reporting[i].space,
-        reportingId: reporting[i].id,
-      }));
-    }
+    // if (!dashboard) {
+    //   dashboard = i18n.t('reporting.info.dashboardNotFound', {
+    //     dashboard: reporting[i].dashboardId,
+    //     space: reporting[i].space,
+    //     reportingId: reporting[i].id,
+    //   });
+    // }
 
     let history;
     try {
@@ -80,7 +80,7 @@ exports.handler = async function handler(argv) {
       console.log(i18n.t('reporting.info.noHistoryFor', { reportingId: reporting[i].id }));
     }
 
-    if (dashboard && history) {
+    if (history) {
       reporting[i] = {
         ...reporting[i],
         dashboard,
