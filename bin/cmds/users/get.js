@@ -3,6 +3,7 @@ const { i18n } = global;
 const { table } = require('table');
 
 const usersLib = require('../../../lib/users');
+const { config } = require('../../../lib/app/config');
 const it = require('./interactive/get');
 
 exports.command = 'get [users...]';
@@ -11,27 +12,56 @@ exports.builder = function builder(yargs) {
   return yargs.positional('users', {
     describe: i18n.t('users.get.options.users'),
     type: 'string',
-  }).option('it', {
-    alias: 'interactive',
-    describe: i18n.t('users.get.options.interactive'),
-    boolean: true,
-  }).option('j', {
-    alias: 'json',
-    describe: i18n.t('users.get.options.json'),
-    type: 'boolean',
-  }).option('n', {
-    alias: 'ndjson',
-    describe: i18n.t('users.get.options.ndjson'),
-    type: 'boolean',
-  });
+  })
+    .option('it', {
+      alias: 'interactive',
+      describe: i18n.t('users.get.options.interactive'),
+      boolean: true,
+    })
+    .option('f', {
+      alias: 'fields',
+      describe: i18n.t('users.get.options.fields'),
+      type: 'string',
+    })
+    .option('s', {
+      alias: 'size',
+      describe: i18n.t('users.get.options.size'),
+      type: 'number',
+    })
+    .option('a', {
+      alias: 'all',
+      describe: i18n.t('users.get.options.all'),
+      boolean: true,
+    })
+    .option('j', {
+      alias: 'json',
+      describe: i18n.t('users.get.options.json'),
+      type: 'boolean',
+    })
+    .option('n', {
+      alias: 'ndjson',
+      describe: i18n.t('users.get.options.ndjson'),
+      type: 'boolean',
+    });
 };
 exports.handler = async function handler(argv) {
-  let { users } = argv;
-  const { json, ndjson, interactive } = argv;
+  let { users, size } = argv;
+  const {
+    json, ndjson, interactive, verbose, fields, all,
+  } = argv;
+
+  if (all) { size = 10000; }
+
+  if (verbose) {
+    console.log(`* Retrieving users from ${config.ezmesure.baseUrl}`);
+  }
 
   let usersData;
   try {
-    const { data } = await usersLib.findAll();
+    const { data } = await usersLib.findAll({
+      size: size || 10,
+      fields: fields || 'full_name,username,roles,email',
+    });
     usersData = data;
   } catch (error) {
     console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
@@ -53,23 +83,21 @@ exports.handler = async function handler(argv) {
   }
 
   if (ndjson) {
+    if (verbose) {
+      console.log('* Export users to json format');
+    }
+
     usersData.forEach((user) => console.log(JSON.stringify(user)));
     process.exit(0);
   }
 
   if (json) {
+    if (verbose) {
+      console.log('* Export users to ndjson format');
+    }
+
     console.log(JSON.stringify(usersData, null, 2));
     process.exit(0);
-  }
-
-  for (let i = 0; i < usersData.length; i += 1) {
-    try {
-      const { data } = await usersLib.getByUsername(usersData[i].username);
-      usersData[i] = data[usersData[i].username];
-    } catch (error) {
-      // eslint-disable-next-line no-continue
-      continue;
-    }
   }
 
   const header = [i18n.t('users.username'), i18n.t('users.fullName'), i18n.t('users.email'), i18n.t('users.assignedRoles')];

@@ -40,7 +40,10 @@
 				"users": "User(s) name(s)",
 				"interactive":"Interactive mode",
 				"json": "Print result(s) in json",
-				"ndjson": "Print result(s) in ndjson"
+				"ndjson": "Print result(s) in ndjson",
+				"fields": "Fields we want to retrieve separated by a comma (full_name,username by default)",
+				"size": "Number of users to recover (default: 10)",
+				"all": "Retrieve all users"
 			},
 			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
 		},
