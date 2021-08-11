@@ -11,7 +11,7 @@ exports.handler = async function handler(argv) {
   const { verbose } = argv;
 
   if (verbose) {
-    console.log(`Attempt to ping from ${config.elastic.baseUrl}`);
+    console.log(`* Attempt to ping from ${config.elastic.baseUrl}`);
   }
 
   let elasticPing;
@@ -27,7 +27,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (verbose) {
-    console.log(`Attempt to ping from ${config.ezmesure.baseUrl}`);
+    console.log(`* Attempt to ping from ${config.ezmesure.baseUrl}`);
   }
 
   let ezmesurePing;

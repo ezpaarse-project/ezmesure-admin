@@ -76,7 +76,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (verbose) {
-    console.log(`Login from ${config?.ezmesure?.baseUrl}`);
+    console.log(`* Login from ${config?.ezmesure?.baseUrl}`);
   }
 
   let res;
@@ -89,7 +89,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (verbose) {
-    console.log('API token recovery');
+    console.log('* API token recovery');
   }
 
   const match = /^eztoken=([a-z0-9._\-\w]+)/i.exec(res.headers['set-cookie']);
@@ -97,19 +97,19 @@ exports.handler = async function handler(argv) {
     set(config, 'ezmesure.token', match[1]);
 
     if (verbose) {
-      console.log('API token recovered');
+      console.log('* API token recovered');
     }
 
     try {
       if (verbose) {
-        console.log('Saving the API token');
+        console.log('* Saving the API token');
       }
 
       await fs.ensureFile(scope.location);
       await fs.writeFile(scope.location, JSON.stringify(config, null, 2));
     } catch (error) {
       if (verbose) {
-        console.log('Failed to save the API token');
+        console.log('* Failed to save the API token');
       }
 
       console.error(error);

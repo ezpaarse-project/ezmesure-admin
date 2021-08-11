@@ -1,5 +1,6 @@
 const { i18n } = global;
 
+const { config } = require('../../../lib/app/config');
 const usersLib = require('../../../lib/users');
 
 exports.command = 'add <username> <password>';
@@ -41,7 +42,12 @@ exports.handler = async function handler(argv) {
     roles,
     enabled,
     fullName,
+    verbose,
   } = argv;
+
+  if (verbose) {
+    console.log(`* Creation of the user ${username}`);
+  }
 
   try {
     await usersLib.createOrUpdate(username, {
@@ -60,6 +66,10 @@ exports.handler = async function handler(argv) {
   } catch (error) {
     console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
     process.exit(1);
+  }
+
+  if (verbose) {
+    console.log(`* User ${username} created to ${config.ezmesure.baseUrl}`);
   }
 
   console.log(i18n.t('users.add.created', { username }));

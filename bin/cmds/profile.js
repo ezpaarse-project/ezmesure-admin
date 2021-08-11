@@ -8,7 +8,7 @@ exports.handler = async function handler(argv) {
   const { verbose } = argv;
 
   if (verbose) {
-    console.log(`Retrieving the ezMESURE profile from ${config.ezmesure.baseUrl}`);
+    console.log(`* Retrieving the ezMESURE profile from ${config.ezmesure.baseUrl}`);
   }
 
   let profile;

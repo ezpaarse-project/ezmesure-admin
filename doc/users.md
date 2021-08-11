@@ -28,8 +28,13 @@ $ ezmesure-admin users get [users...]
 | Name | Type | Description |
 | --- | --- | --- |
 | -i, --interactive | Boolean | Interactive mode |
+| -a, --all | Boolean | Retrieve all users |
+| -s, --size | Number | Number of users to recover (default: 10) |
+| -d, --fields | String | Fields we want to retrieve separated by a comma (full_name,username,email,roles by default) |
 | -j, --json | Boolean | Print result(s) in json |
 | -n, --ndjson | boolean | Output newline delimited JSON file |
+
+> :warning: The parameter ``fields`` is not used for display in table mode but for ``json`` and ``ndjson`` output, the information displayed in the table is ``username``, ``full_name``, ``email`` and ``roles``
 
 Example :
 ```bash
