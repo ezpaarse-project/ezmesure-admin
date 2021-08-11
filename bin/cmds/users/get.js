@@ -107,7 +107,7 @@ exports.handler = async function handler(argv) {
     username,
     fullName,
     email || '-',
-    roles.join(' '),
+    roles?.join(' '),
   ]));
 
   console.log(table([header, ...row]));
