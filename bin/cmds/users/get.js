@@ -60,7 +60,7 @@ exports.handler = async function handler(argv) {
   try {
     const { data } = await usersLib.findAll({
       size: size || 10,
-      fields: fields || 'full_name,username,roles,email',
+      source: fields || 'full_name,username,roles,email',
     });
     usersData = data;
   } catch (error) {
