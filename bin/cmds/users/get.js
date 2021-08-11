@@ -47,7 +47,7 @@ exports.builder = function builder(yargs) {
 exports.handler = async function handler(argv) {
   let { users, size } = argv;
   const {
-    json, ndjson, interactive, verbose, fields = 'full_name,username,roles,email', all,
+    json, ndjson, interactive, verbose, fields = 'full_name,username,roles,email,metadata', all,
   } = argv;
 
   if (all) { size = 10000; }
