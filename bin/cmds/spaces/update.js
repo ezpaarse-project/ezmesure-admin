@@ -53,7 +53,12 @@ exports.handler = async function handler(argv) {
     initials,
     interactive,
     features,
+    verbose,
   } = argv;
+
+  if (verbose) {
+    console.log(`* Validating fields that describe the space [${name}]`);
+  }
 
   const schema = Joi.object({
     id: Joi.string().trim(),
@@ -86,6 +91,10 @@ exports.handler = async function handler(argv) {
     space.description = spaceDescr;
     space.initials = spaceInitials;
     space.color = spaceColor;
+  }
+
+  if (verbose) {
+    console.log(`* Update space [${name}]`);
   }
 
   try {

@@ -3,6 +3,7 @@ const { i18n } = global;
 const { table } = require('table');
 const chalk = require('chalk');
 const spacesLib = require('../../../lib/spaces');
+const { config } = require('../../../lib/app/config');
 const it = require('./interactive/get');
 
 exports.command = 'get [spaces...]';
@@ -33,7 +34,13 @@ exports.builder = function builder(yargs) {
     });
 };
 exports.handler = async function handler(argv) {
+  const { verbose } = argv;
+
   let spaces = [];
+
+  if (verbose) {
+    console.log(`* Spaces retrieval [${spaces.join(',')}] from ${config.ezmesure.baseUrl}`);
+  }
 
   try {
     const { data } = await spacesLib.findAll();
@@ -61,6 +68,9 @@ exports.handler = async function handler(argv) {
   }
 
   for (let i = 0; i < spaces.length; i += 1) {
+    if (verbose) {
+      console.log(`* Get index-pattern for the space [${spaces[i].id}] from ${config.ezmesure.baseUrl}`);
+    }
     try {
       const { data } = await spacesLib.getIndexPatterns(spaces[i].id);
       if (data && data.length) {
@@ -73,13 +83,25 @@ exports.handler = async function handler(argv) {
   }
 
   if (argv && argv.ndjson) {
+    if (verbose) {
+      console.log('* Export space to ndjson format');
+    }
+
     spaces.forEach((space) => console.log(JSON.stringify(space)));
     process.exit(0);
   }
 
   if (argv && argv.json) {
+    if (verbose) {
+      console.log('* Export spaces to json format');
+    }
+
     console.log(JSON.stringify(spaces, null, 2));
     process.exit(0);
+  }
+
+  if (verbose) {
+    console.log('* Display spaces in graphical form in a table');
   }
 
   const header = [

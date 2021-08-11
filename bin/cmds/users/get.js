@@ -47,20 +47,20 @@ exports.builder = function builder(yargs) {
 exports.handler = async function handler(argv) {
   let { users, size } = argv;
   const {
-    json, ndjson, interactive, verbose, fields, all,
+    json, ndjson, interactive, verbose, fields = 'full_name,username,roles,email', all,
   } = argv;
 
   if (all) { size = 10000; }
 
   if (verbose) {
-    console.log(`* Retrieving users from ${config.ezmesure.baseUrl}`);
+    console.log(`* Retrieving (${size}) users (fields: ${fields}) from ${config.ezmesure.baseUrl}`);
   }
 
   let usersData;
   try {
     const { data } = await usersLib.findAll({
       size: size || 10,
-      source: fields || 'full_name,username,roles,email',
+      source: fields,
     });
     usersData = data;
   } catch (error) {
@@ -84,7 +84,7 @@ exports.handler = async function handler(argv) {
 
   if (ndjson) {
     if (verbose) {
-      console.log('* Export users to json format');
+      console.log('* Export users to ndjson format');
     }
 
     usersData.forEach((user) => console.log(JSON.stringify(user)));
@@ -93,11 +93,15 @@ exports.handler = async function handler(argv) {
 
   if (json) {
     if (verbose) {
-      console.log('* Export users to ndjson format');
+      console.log('* Export users to json format');
     }
 
     console.log(JSON.stringify(usersData, null, 2));
     process.exit(0);
+  }
+
+  if (verbose) {
+    console.log('* Display users in graphical form in a table');
   }
 
   const header = [i18n.t('users.username'), i18n.t('users.fullName'), i18n.t('users.email'), i18n.t('users.assignedRoles')];

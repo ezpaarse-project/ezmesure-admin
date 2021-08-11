@@ -6,6 +6,7 @@ const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 
 const spacesLib = require('../../../lib/spaces');
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'delete [spaces..]';
 exports.desc = i18n.t('spaces.delete.description');
@@ -17,6 +18,11 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   let { spaces } = argv;
+  const { verbose } = argv;
+
+  if (verbose) {
+    console.log(`* Spaces retrieval [${spaces.join(',')}] from ${config.ezmesure.baseUrl}`);
+  }
 
   if (!Array.isArray(spaces)) {
     let spacesList;
@@ -60,6 +66,10 @@ exports.handler = async function handler(argv) {
   }
 
   for (let i = 0; i < spaces.length; i += 1) {
+    if (verbose) {
+      console.log(`* Removal of space [${spaces[i]}] from ${config.ezmesure.baseUrl}`);
+    }
+
     try {
       const response = await spacesLib.delete(spaces[i]);
 

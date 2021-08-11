@@ -1,5 +1,6 @@
 const usersLib = require('../../../../lib/users');
 const rolesLib = require('../../../../lib/roles');
+const { config } = require('../../../../lib/app/config');
 const it = require('../interactive/get');
 
 const { i18n } = global;
@@ -22,7 +23,11 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   let { users } = argv;
-  const { roles, interactive } = argv;
+  const { roles, interactive, verbose } = argv;
+
+  if (verbose) {
+    console.log(`* Assigning roles [${roles?.join(',')}] to the user [${users?.join(',')}] from ${config.ezmesure.baseUrl}`);
+  }
 
   let usersSelected;
   try {
@@ -67,6 +72,10 @@ exports.handler = async function handler(argv) {
     try {
       const { data } = await usersLib.getByUsername(usersSelected[i].username);
       user = data[usersSelected[i].username];
+
+      if (verbose) {
+        console.log(`* Update roles for the user [${usersSelected[i].username}]`);
+      }
     } catch (error) {
       // eslint-disable-next-line no-continue
       continue;
