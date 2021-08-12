@@ -8,7 +8,7 @@ const institutionsLib = require('../../../lib/institutions');
 const spaces = require('../../../lib/spaces');
 const roles = require('../../../lib/roles');
 const { config } = require('../../../lib/app/config');
-const it = require('./interactive/export');
+const itMode = require('./interactive/export');
 
 exports.command = 'export [output]';
 exports.desc = i18n.t('institutions.export.description');
@@ -39,7 +39,7 @@ exports.handler = async function handler(argv) {
 
   if (!all) {
     try {
-      institutions = await it(institutions);
+      institutions = await itMode(institutions);
     } catch (error) {
       console.error(error);
     }

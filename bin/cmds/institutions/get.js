@@ -5,7 +5,7 @@ const chalk = require('chalk');
 
 const institutionsLib = require('../../../lib/institutions');
 const { config } = require('../../../lib/app/config');
-const it = require('./interactive/get');
+const itMode = require('./interactive/get');
 
 exports.command = 'get [institutions...]';
 exports.desc = i18n.t('institutions.get.description');
@@ -54,7 +54,7 @@ exports.handler = async function handler(argv) {
 
   if (!all && !institutions.length) {
     try {
-      institutionsData = await it(institutionsData);
+      institutionsData = await itMode(institutionsData);
     } catch (error) {
       console.error(error);
     }

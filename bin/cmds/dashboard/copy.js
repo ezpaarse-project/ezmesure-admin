@@ -4,7 +4,7 @@ const Joi = require('joi');
 
 const dashboards = require('../../../lib/dashboards');
 const { config } = require('../../../lib/app/config');
-const it = require('./interactive/copy');
+const itMode = require('./interactive/copy');
 
 exports.command = 'copy';
 exports.builder = function builder(yargs) {
@@ -106,7 +106,7 @@ exports.handler = async function handler(argv) {
   if (argv.interactive) {
     const {
       spaceId, dashboardsId, targetId, indexPattern,
-    } = await it();
+    } = await itMode();
 
     for (let i = 0; i < dashboardsId.length; i += 1) {
       if (verbose) {

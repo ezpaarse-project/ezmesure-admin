@@ -3,7 +3,7 @@ const { i18n } = global;
 const { table } = require('table');
 
 const usersLib = require('../../../lib/users');
-const it = require('./interactive/get');
+const itMode = require('./interactive/get');
 
 const { config } = require('../../../lib/app/config');
 
@@ -46,12 +46,14 @@ exports.builder = function builder(yargs) {
     });
 };
 exports.handler = async function handler(argv) {
-  const { users, size } = argv;
+  const { users } = argv;
+  let { size } = argv;
+
   const {
     json, ndjson, interactive, verbose, fields = 'full_name,username,roles,email,metadata', all,
   } = argv;
 
-  if (all) { size = 10; }
+  if (all) { size = 10000; }
 
   if (verbose) {
     console.log(`* Retrieving (${size}) users (fields: ${fields}) from ${config.ezmesure.baseUrl}`);
@@ -61,7 +63,7 @@ exports.handler = async function handler(argv) {
   if (!users.length) {
     try {
       const { data } = await usersLib.findAll({
-        size: size || 1000,
+        size: size || 10,
         source: fields,
       });
       usersData = data;
@@ -84,7 +86,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (interactive) {
-    usersData = await it(usersData);
+    usersData = await itMode(usersData);
   }
 
   if (!usersData) {

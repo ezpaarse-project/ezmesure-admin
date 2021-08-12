@@ -3,7 +3,7 @@ const { i18n } = global;
 const { table } = require('table');
 const rolesLib = require('../../../lib/roles');
 const { config } = require('../../../lib/app/config');
-const it = require('./interactive/get');
+const itMode = require('./interactive/get');
 
 exports.command = 'get [roles...]';
 exports.desc = i18n.t('roles.get.description');
@@ -55,7 +55,7 @@ exports.handler = async function handler(argv) {
 
   if (!argv.all && argv.it) {
     try {
-      roles = await it(roles);
+      roles = await itMode(roles);
     } catch (error) {
       console.error(error);
     }

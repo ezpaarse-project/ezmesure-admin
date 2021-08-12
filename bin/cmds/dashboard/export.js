@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const { format } = require('date-fns');
 
-const it = require('./interactive/export');
+const itMode = require('./interactive/export');
 const dashboards = require('../../../lib/dashboards');
 const { config } = require('../../../lib/app/config');
 
@@ -37,7 +37,7 @@ exports.handler = async function handler(argv) {
   let dashboardsSelected = dashboard;
 
   if (interactive) {
-    const { spaceId, dashboardsId } = await it();
+    const { spaceId, dashboardsId } = await itMode();
     selectedSpace = spaceId;
     dashboardsSelected = dashboardsId;
   }

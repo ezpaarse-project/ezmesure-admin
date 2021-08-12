@@ -4,7 +4,7 @@ const { table } = require('table');
 const chalk = require('chalk');
 const spacesLib = require('../../../lib/spaces');
 const { config } = require('../../../lib/app/config');
-const it = require('./interactive/get');
+const itMode = require('./interactive/get');
 
 exports.command = 'get [spaces...]';
 exports.desc = i18n.t('spaces.get.description');
@@ -56,7 +56,7 @@ exports.handler = async function handler(argv) {
 
   if (argv.it) {
     try {
-      spaces = await it(spaces);
+      spaces = await itMode(spaces);
     } catch (error) {
       console.error(error);
     }

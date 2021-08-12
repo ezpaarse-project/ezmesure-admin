@@ -3,7 +3,7 @@ const { i18n } = global;
 const Joi = require('joi');
 
 const spaces = require('../../../lib/spaces');
-const it = require('./interactive/add');
+const itMode = require('./interactive/add');
 const kibanaFeatures = require('../../../lib/app/kibana');
 
 exports.command = 'add <name>';
@@ -81,7 +81,7 @@ exports.handler = async function handler(argv) {
   };
 
   if (interactive) {
-    const { spaceDescr, spaceInitials, spaceColor } = await it();
+    const { spaceDescr, spaceInitials, spaceColor } = await itMode();
 
     space.description = spaceDescr;
     space.initials = spaceInitials;

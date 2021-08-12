@@ -5,7 +5,7 @@ const path = require('path');
 
 const dashboards = require('../../../lib/dashboards');
 const { config } = require('../../../lib/app/config');
-const it = require('./interactive/import');
+const itMode = require('./interactive/import');
 
 exports.command = 'import [space]';
 exports.desc = i18n.t('dashboard.import.description');
@@ -49,7 +49,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (interactive) {
-    const { spaceId } = await it();
+    const { spaceId } = await itMode();
     space = spaceId;
   }
 

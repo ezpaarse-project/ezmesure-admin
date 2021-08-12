@@ -44,7 +44,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (interactive) {
-    usersSelected = await it(usersSelected);
+    usersSelected = await itMode(usersSelected);
   }
 
   if (!usersSelected) {

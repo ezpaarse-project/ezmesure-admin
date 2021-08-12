@@ -2,7 +2,7 @@ const { i18n } = global;
 
 const rolesLib = require('../../../lib/roles');
 const { config } = require('../../../lib/app/config');
-const it = require('./interactive/get');
+const itMode = require('./interactive/get');
 
 exports.command = 'delete [roles...]';
 exports.desc = i18n.t('roles.delete.description');
@@ -38,7 +38,7 @@ exports.handler = async function handler(argv) {
 
   if (interactive) {
     try {
-      roles = await it(roles);
+      roles = await itMode(roles);
     } catch (error) {
       console.error(error);
       process.exit(1);
