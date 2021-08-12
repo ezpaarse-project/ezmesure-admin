@@ -1,6 +1,7 @@
 const { i18n } = global;
 
 const spacesLib = require('../../../lib/spaces');
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'add <space> <title> [timeFieldName]';
 exports.desc = i18n.t('indexPattern.add.description');
@@ -18,7 +19,13 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const { space, title, timeFieldName } = argv;
+  const {
+    space, title, timeFieldName, verbose,
+  } = argv;
+
+  if (verbose) {
+    console.log(`* Create index-pattern [${title}] for space [${space}] with datetime field [${timeFieldName}] from ${config.ezmesure.baseUrl}`);
+  }
 
   try {
     await spacesLib.addIndexPatterns(space, {
