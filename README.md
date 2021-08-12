@@ -25,6 +25,7 @@ $ eza --help
 | Name | Type | Description |
 | --- | --- | --- |
 | -t, --timeout | String | Request timeout in milliseconds |
+| -v, --verbose | Boolean | Make the operation more talkative |
 | --version | Boolean | Print the version number |
 | --help | Boolean | Show some help |
 

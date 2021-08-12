@@ -2,7 +2,7 @@
 	"global": {
 		"options": {
 			"timeout": "Request timeout in milliseconds",
-			"verbose": "",
+			"verbose": "Make the operation more talkative",
 			"version": "Print version information and quit"
 		}
 	},
