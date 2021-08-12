@@ -12,6 +12,7 @@ const { table } = require('table');
 
 const reportingLib = require('../../../lib/reporting');
 const dashboardLib = require('../../../lib/dashboards');
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'list [spaces...]';
 exports.desc = i18n.t('reporting.list.description');
@@ -36,9 +37,15 @@ exports.builder = function builder(yargs) {
 };
 
 exports.handler = async function handler(argv) {
+  const { verbose } = argv;
+
   let tasks;
 
   if (argv.frequencies && argv.frequencies.length) {
+    if (verbose) {
+      console.log(`* Retrieving reporting tasks by frenquencies [${argv.frequencies.join(',')}] from ${config.elastic.baseUrl}`);
+    }
+
     try {
       const { body } = await reportingLib.findByFrequency(argv.frequencies);
       if (body) { tasks = get(body, 'hits.hits'); }
@@ -49,6 +56,10 @@ exports.handler = async function handler(argv) {
   }
 
   if (!argv.frequencies || !argv.frequencies.length) {
+    if (verbose) {
+      console.log(`* Retrieving reporting tasks from ${config.elastic.baseUrl}`);
+    }
+
     try {
       const { body } = await reportingLib.findAll();
       if (body) { tasks = get(body, 'hits.hits'); }
@@ -74,6 +85,10 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < tasks.length; i += 1) {
     const task = tasks[i];
     if (!dashboards[task.space]) {
+      if (verbose) {
+        console.log(`* Retrieving dashboards from space [${task.space}] from ${config.ezmesure.baseUrl}`);
+      }
+
       try {
         const { data } = await dashboardLib.findAll(task.space);
         dashboards[task.space] = data || [];
@@ -89,13 +104,25 @@ exports.handler = async function handler(argv) {
   }
 
   if (argv.ndjson) {
+    if (verbose) {
+      console.log('* Display reporting tasks data in ndjson format');
+    }
+
     tasks.forEach((task) => console.log(JSON.stringify(task)));
     process.exit(0);
   }
 
   if (argv.json) {
+    if (verbose) {
+      console.log('* Display reporting tasks data in json format');
+    }
+
     console.log(JSON.stringify(tasks, null, 2));
     process.exit(0);
+  }
+
+  if (verbose) {
+    console.log('* Display reporting tasks in graphical form in a table');
   }
 
   const header = [

@@ -7,6 +7,7 @@ const { format } = require('date-fns');
 
 const reportingLib = require('../../../lib/reporting');
 const dashboardLib = require('../../../lib/dashboards');
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'info';
 exports.desc = i18n.t('reporting.info.description');
@@ -25,6 +26,12 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
+  const { verbose } = argv;
+
+  if (verbose) {
+    console.log(`* Retrieving reporting tasks from ${config.elastic.baseUrl}`);
+  }
+
   let reporting;
   try {
     const { body } = await reportingLib.findAll();
@@ -47,6 +54,10 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < reporting.length; i += 1) {
     let dashboard;
     if (!dashboards[reporting[i].space]) {
+      if (verbose) {
+        console.log(`* Retrieving dashboards from space [${reporting[i].space}] from ${config.ezmesure.baseUrl}`);
+      }
+
       try {
         const { data } = await dashboardLib.findAll(reporting[i].space);
         dashboards[reporting[i].space] = data || [];
@@ -60,13 +71,9 @@ exports.handler = async function handler(argv) {
       dashboard = dsh?.attributes?.title;
     }
 
-    // if (!dashboard) {
-    //   dashboard = i18n.t('reporting.info.dashboardNotFound', {
-    //     dashboard: reporting[i].dashboardId,
-    //     space: reporting[i].space,
-    //     reportingId: reporting[i].id,
-    //   });
-    // }
+    if (verbose) {
+      console.log(`* Retrieving reporting history form reporting [${reporting[i].id}] from space [${reporting[i].space}] from ${config.elastic.baseUrl}`);
+    }
 
     let history;
     try {
@@ -109,8 +116,16 @@ exports.handler = async function handler(argv) {
 
   if (!argv.output) {
     if (argv.ndjson) {
+      if (verbose) {
+        console.log('* Display reportings data in ndjson format');
+      }
+
       report.forEach((r) => console.log(JSON.stringify(r)));
       process.exit(0);
+    }
+
+    if (verbose) {
+      console.log('* Display reportings data in json format');
     }
 
     console.log(JSON.stringify(report, null, 2));
@@ -120,8 +135,12 @@ exports.handler = async function handler(argv) {
   if (argv.output) {
     const outputPath = path.resolve(argv.output, `${fileName}`);
     if (argv.ndjson) {
+      if (verbose) {
+        console.log('* Export reportings data in ndjson format');
+      }
+
       try {
-        report.forEach((r) => fs.appendFileSync(path.resolve(argv.output, `${fileName}.njson`), `${JSON.stringify(r)}\r\n`));
+        report.forEach((r) => fs.appendFileSync(path.resolve(argv.output, `${fileName}.ndjson`), `${JSON.stringify(r)}\r\n`));
       } catch (error) {
         console.error(error);
         process.exit(1);
@@ -129,6 +148,10 @@ exports.handler = async function handler(argv) {
 
       console.log(i18n.t('reporting.info.exported', { dest: path.resolve(argv.output, `${fileName}.njson`) }));
       process.exit(0);
+    }
+
+    if (verbose) {
+      console.log('* Export reportings data in json format');
     }
 
     try {

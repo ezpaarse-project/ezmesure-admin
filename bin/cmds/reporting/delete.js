@@ -4,6 +4,7 @@ const get = require('lodash.get');
 
 const reportingLib = require('../../../lib/reporting');
 const dashboardLib = require('../../../lib/dashboards');
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'delete [ids...]';
 exports.desc = i18n.t('reporting.delete.description');
@@ -17,9 +18,15 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
+  const { verbose } = argv;
+
   const dashboardsId = [
     ...argv.ids,
   ];
+
+  if (verbose) {
+    console.log(`* Retrieving reporting tasks from ${config.elastic.baseUrl}`);
+  }
 
   let tasks;
   try {
@@ -44,6 +51,10 @@ exports.handler = async function handler(argv) {
     for (let i = 0; i < tasks.length; i += 1) {
       const task = tasks[i];
       if (!dashboards[task?.space]) {
+        if (verbose) {
+          console.log(`* Retrieving dashboards from space [${task?.space}] from ${config.ezmesure.baseUrl}`);
+        }
+
         try {
           const { data } = await dashboardLib.findAll(task?.space);
           dashboards[task?.space] = data || [];
@@ -62,6 +73,10 @@ exports.handler = async function handler(argv) {
   }
 
   try {
+    if (verbose) {
+      console.log(`* Delete dashboards [${dashboardsId.join(',')}] from ${config.ezmesure.baseUrl}`);
+    }
+
     const res = await reportingLib.delete(dashboardsId);
     res?.body?.items?.forEach((result) => {
       if (result?.delete?.status === 200) {
