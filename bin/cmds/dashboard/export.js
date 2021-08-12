@@ -6,6 +6,7 @@ const { format } = require('date-fns');
 
 const it = require('./interactive/export');
 const dashboards = require('../../../lib/dashboards');
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'export [space]';
 exports.desc = i18n.t('dashboard.export.description');
@@ -28,7 +29,9 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const { space, dashboard, interactive } = argv;
+  const {
+    space, dashboard, interactive, verbose,
+  } = argv;
 
   let selectedSpace = space;
   let dashboardsSelected = dashboard;
@@ -42,6 +45,10 @@ exports.handler = async function handler(argv) {
   if (selectedSpace === 'default') { selectedSpace = undefined; }
 
   for (let i = 0; i < dashboardsSelected.length; i += 1) {
+    if (verbose) {
+      console.log(`* Export dashboard [${dashboardsSelected[i]}] from space [${selectedSpace}] from ${config.ezmesure.baseUrl}`);
+    }
+
     let dashboardData;
     try {
       const { data } = await dashboards.export({

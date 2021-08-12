@@ -22,7 +22,9 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const scope = scopes[argv.global ? 'global' : 'local'];
+  const { global } = argv;
+
+  const scope = scopes[global ? 'global' : 'local'];
   const editor = argv.editor || process.env.EDITOR || (/^win/.test(process.platform) ? 'notepad' : 'vi');
 
   if (!argv.interactive) {
@@ -44,13 +46,13 @@ exports.handler = async function handler(argv) {
         type: 'input',
         name: 'baseUrl',
         message: i18n.t('config.edit.baseUrl'),
-        initial: scope.config.baseUrl,
+        initial: scope.config.ezmesure.baseUrl,
       },
       {
         type: 'input',
         name: 'token',
         message: i18n.t('config.edit.token'),
-        initial: scope.config.token,
+        initial: scope.config.ezmesure.token,
       },
       {
         type: 'numeral',

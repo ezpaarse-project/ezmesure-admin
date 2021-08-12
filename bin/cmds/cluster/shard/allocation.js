@@ -1,6 +1,7 @@
 const { i18n } = global;
 
 const { setShardAllocation } = require('../../../../lib/cluster');
+const { config } = require('../../../../lib/app/config');
 
 exports.command = 'allocation <type>';
 exports.desc = i18n.t('cluster.shard.allocation.description');
@@ -13,7 +14,12 @@ exports.builder = function builder(yargs) {
 exports.handler = async function handler(argv) {
   const validValues = new Set(['primaries', 'new_primaries', 'all', 'none', 'null']);
 
+  const { verbose } = argv;
   let { type } = argv;
+
+  if (verbose) {
+    console.log(`* Check if type [${type}] is available`);
+  }
 
   if (!validValues.has(type)) {
     console.log().error(i18n.t('cluster.shard.allocation.invalidValue', { type, values: Array.from(validValues).join(', ') }));
@@ -22,6 +28,10 @@ exports.handler = async function handler(argv) {
 
   if (type === 'null') {
     type = null;
+  }
+
+  if (verbose) {
+    console.log(`* Set shard allocation [${type}] from ${config.elastic.baseUrl}`);
   }
 
   let response;

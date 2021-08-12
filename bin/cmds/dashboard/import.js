@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 
 const dashboards = require('../../../lib/dashboards');
+const { config } = require('../../../lib/app/config');
 const it = require('./interactive/import');
 
 exports.command = 'import [space]';
@@ -37,7 +38,7 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    files, overwrite, indexPattern, interactive,
+    files, overwrite, indexPattern, interactive, verbose,
   } = argv;
 
   let { space } = argv;
@@ -55,9 +56,15 @@ exports.handler = async function handler(argv) {
   if (space === 'default') { space = undefined; }
 
   for (let i = 0; i < files.length; i += 1) {
+    const filePath = path.resolve(files[i]);
+
+    if (verbose) {
+      console.log(`* Read dashboard file from ${filePath}`);
+    }
+
     let content;
     try {
-      content = await fs.readFile(path.resolve(files[i]), 'utf8');
+      content = await fs.readFile(filePath, 'utf8');
     } catch (err) {
       console.error(err);
       console.error(i18n.t('dashboard.import.cannotRead', { file: files[i] }), err);
@@ -66,12 +73,23 @@ exports.handler = async function handler(argv) {
     if (content) {
       let dashboard;
       try {
+        if (verbose) {
+          console.log(`* Parse dashboard data from ${filePath}`);
+        }
+
         dashboard = JSON.parse(content);
       } catch (e) {
         console.error(i18n.t('dashboard.import.cannotParse', { file: files[i] }), e);
       }
 
       if (dashboard) {
+        const dshData = dashboard.objects.filter(({ type }) => type === 'dashboard');
+        const title = dshData?.pop().attributes?.title;
+
+        if (verbose) {
+          console.log(`* Import dashboard [${title}] into space [${space}] with index-pattern [${indexPattern}] from ${config.ezmesure.baseUrl}`);
+        }
+
         try {
           await dashboards.import({
             space,
@@ -80,9 +98,7 @@ exports.handler = async function handler(argv) {
             force: overwrite,
           });
 
-          const dshData = dashboard.objects.filter(({ type }) => type === 'dashboard');
-
-          console.log(i18n.t('dashboard.import.imported', { title: dshData?.pop().attributes?.title }));
+          console.log(i18n.t('dashboard.import.imported', { title }));
         } catch (error) {
           if (error?.response?.data) {
             console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);

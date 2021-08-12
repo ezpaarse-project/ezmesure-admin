@@ -20,7 +20,9 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const scope = scopes[argv.global ? 'global' : 'local'];
+  const { global, key, verbose } = argv;
+
+  const scope = scopes[global ? 'global' : 'local'];
   const config = scope.config || {};
 
   let { value } = argv;
@@ -33,7 +35,11 @@ exports.handler = async function handler(argv) {
     value = Number.parseInt(value, 10);
   }
 
-  set(config, argv.key, value);
+  if (verbose) {
+    console.log(`* Set value [${value}] to key [${key}] in ${global ? 'global' : 'local'} config`);
+  }
+
+  set(config, key, value);
 
   await fs.ensureFile(scope.location);
   await fs.writeFile(scope.location, JSON.stringify(config, null, 2));

@@ -3,6 +3,7 @@ const { i18n } = global;
 const Joi = require('joi');
 
 const dashboards = require('../../../lib/dashboards');
+const { config } = require('../../../lib/app/config');
 const it = require('./interactive/copy');
 
 exports.command = 'copy';
@@ -39,6 +40,12 @@ exports.builder = function builder(yargs) {
     });
 };
 exports.handler = async function handler(argv) {
+  const { verbose } = argv;
+
+  if (verbose) {
+    console.log('* Validating required fields');
+  }
+
   const copy = async ({ source, target }) => {
     const schema = Joi.object({
       source: Joi.object({
@@ -62,6 +69,10 @@ exports.handler = async function handler(argv) {
     }
 
     try {
+      if (verbose) {
+        console.log(`* Copyy dashboard [${source.dashboard}] from space [${source.space}] to target space [${target.space}] with index-pattern [${target.indexPattern}] from ${config.ezmesure.baseUrl}`);
+      }
+
       await dashboards.copy({ source, target, force: argv.force });
     } catch (err) {
       if (err?.response?.data) {
@@ -98,6 +109,9 @@ exports.handler = async function handler(argv) {
     } = await it();
 
     for (let i = 0; i < dashboardsId.length; i += 1) {
+      if (verbose) {
+        console.log(`* Copyy dashboard [${spaceId}] from space [${dashboardsId[i]}] to target space [${targetId}] with index-pattern [${indexPattern}] from ${config.ezmesure.baseUrl}`);
+      }
       await copy({
         source: {
           space: spaceId,

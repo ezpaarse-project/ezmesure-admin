@@ -1,11 +1,18 @@
 const { i18n } = global;
 
 const { flush } = require('../../../lib/cluster');
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'flush';
 exports.desc = i18n.t('cluster.flush.description');
 exports.builder = {};
-exports.handler = async function handler() {
+exports.handler = async function handler(argv) {
+  const { verbose } = argv;
+
+  if (verbose) {
+    console.log(`* Display flush cluster from ${config.elastic.baseUrl}`);
+  }
+
   let response;
   try {
     const { body } = await flush();

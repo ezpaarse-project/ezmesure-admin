@@ -11,5 +11,11 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  console.log(config.get(argv.key, ''));
+  const { key, verbose } = argv;
+
+  if (verbose) {
+    console.log(`* Display value for config key [${key}]`);
+  }
+
+  console.log(config.get(key, ''));
 };

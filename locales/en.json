@@ -490,7 +490,7 @@
 			"baseUrl": "ezmESURE base API URL",
 			"token": "Authentication token",
 			"timeout": "Request timeout in milliseconds",
-			"whatDoYoutWant": "What do you want to set ?"
+			"whatDoYouWant": "What do you want to set ?"
 		}
 	},
 	"cluster": {

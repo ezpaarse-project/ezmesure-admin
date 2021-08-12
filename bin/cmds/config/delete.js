@@ -17,13 +17,21 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const scope = scopes[argv.global ? 'global' : 'local'];
+  const { key, global, verbose } = argv;
+
+  const scope = scopes[global ? 'global' : 'local'];
+
+  if (verbose) {
+    console.log(`* Remove config key [${key}] from ${global ? 'global' : 'local'} config`);
+  }
 
   if (!scope) { return; }
 
   const config = scope.config || {};
-  unset(config, argv.key);
+  unset(config, key);
 
   await fs.ensureFile(scope.location);
   await fs.writeFile(scope.location, JSON.stringify(config, null, 2));
+
+  console.log(`Config key [${key}] has been removed successfully`);
 };
