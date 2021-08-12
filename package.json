@@ -9,7 +9,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "mocha test",
+    "test": "jest --verbose ./tests",
     "lint": "eslint --ext .js .",
     "prepare": "husky install"
   },
@@ -54,6 +54,8 @@
     "eslint": "^7.31.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.23.4",
-    "husky": "^6.0.0"
+    "eslint-plugin-jest": "^24.4.0",
+    "husky": "^6.0.0",
+    "jest": "^27.0.6"
   }
 }
