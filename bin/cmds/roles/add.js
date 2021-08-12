@@ -1,6 +1,7 @@
 const { i18n } = global;
 
 const rolesLib = require('../../../lib/roles');
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'add <role>';
 exports.desc = i18n.t('roles.add.description');
@@ -32,8 +33,12 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    role, indexPattern, space, readOnly, privileges,
+    role, indexPattern, space, readOnly, privileges, verbose,
   } = argv;
+
+  if (verbose) {
+    console.log(`* Create or update role [${role}] with index-pattern [${indexPattern}] for space [${space}] from ${config.ezmesure.baseUrl}`);
+  }
 
   try {
     await rolesLib.createOrUpdate(role, {
@@ -58,6 +63,10 @@ exports.handler = async function handler(argv) {
   }
 
   if (readOnly) {
+    if (verbose) {
+      console.log(`* Create or update role [${role}_read_only] with index-pattern [${indexPattern}] for space [${space}] from ${config.ezmesure.baseUrl}`);
+    }
+
     try {
       await rolesLib.createOrUpdate(`${role}_read_only`, {
         elasticsearch: {

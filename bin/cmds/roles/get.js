@@ -2,6 +2,7 @@ const { i18n } = global;
 
 const { table } = require('table');
 const rolesLib = require('../../../lib/roles');
+const { config } = require('../../../lib/app/config');
 const it = require('./interactive/get');
 
 exports.command = 'get [roles...]';
@@ -32,7 +33,13 @@ exports.builder = function builder(yargs) {
     });
 };
 exports.handler = async function handler(argv) {
+  const { verbose } = argv;
+
   let roles = [];
+
+  if (verbose) {
+    console.log(`* Retrieving roles from ${config.ezmesure.baseUrl}`);
+  }
 
   try {
     const { data } = await rolesLib.findAll(true);
@@ -60,13 +67,25 @@ exports.handler = async function handler(argv) {
   }
 
   if (argv && argv.ndjson) {
+    if (verbose) {
+      console.log('* Display roles data in ndjson format');
+    }
+
     roles.forEach((role) => console.log(JSON.stringify(role)));
     process.exit(0);
   }
 
   if (argv && argv.json) {
+    if (verbose) {
+      console.log('* Display roles data in json format');
+    }
+
     console.log(JSON.stringify(roles, null, 2));
     process.exit(0);
+  }
+
+  if (verbose) {
+    console.log('* Display roles in graphical form in a table');
   }
 
   const header = [i18n.t('roles.role'), i18n.t('roles.indexes'), i18n.t('roles.spaces')];

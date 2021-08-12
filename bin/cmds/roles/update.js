@@ -3,6 +3,7 @@ const { i18n } = global;
 const rolesLib = require('../../../lib/roles');
 const spacesLib = require('../../../lib/spaces');
 const kibanaFeatures = require('../../../lib/app/kibana');
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'update <role>';
 exports.desc = i18n.t('roles.update.description');
@@ -30,8 +31,12 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    spaceRemove = '', spaceAdd, indexRemove = '', indexAdd,
+    spaceRemove = '', spaceAdd, indexRemove = '', indexAdd, verbose,
   } = argv;
+
+  if (verbose) {
+    console.log(`* Retrieving roles [${argv.role}] from ${config.ezmesure.baseUrl}`);
+  }
 
   let role;
   try {
@@ -145,6 +150,10 @@ exports.handler = async function handler(argv) {
       delete role[key];
     }
   });
+
+  if (verbose) {
+    console.log(`* Update role [${argv.role}] from ${config.ezmesure.baseUrl}`);
+  }
 
   try {
     await rolesLib.createOrUpdate(role.name, role);

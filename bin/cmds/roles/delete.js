@@ -1,6 +1,7 @@
 const { i18n } = global;
 
 const rolesLib = require('../../../lib/roles');
+const { config } = require('../../../lib/app/config');
 const it = require('./interactive/get');
 
 exports.command = 'delete [roles...]';
@@ -15,7 +16,11 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const { roles: rolesName, it: interactive } = argv;
+  const { roles: rolesName, it: interactive, verbose } = argv;
+
+  if (verbose) {
+    console.log(`* Retrieving roles from ${config.ezmesure.baseUrl}`);
+  }
 
   let roles;
   try {
@@ -47,6 +52,11 @@ exports.handler = async function handler(argv) {
 
   for (let i = 0; i < roles.length; i += 1) {
     const { name: role } = roles[i];
+
+    if (verbose) {
+      console.log(`* Delete role [${role}] from ${config.ezmesure.baseUrl}`);
+    }
+
     try {
       await rolesLib.delete(role);
     } catch (error) {
