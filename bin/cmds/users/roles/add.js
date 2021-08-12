@@ -1,7 +1,7 @@
 const usersLib = require('../../../../lib/users');
 const rolesLib = require('../../../../lib/roles');
 const { config } = require('../../../../lib/app/config');
-const it = require('../interactive/get');
+const itMode = require('../interactive/get');
 
 const { i18n } = global;
 
