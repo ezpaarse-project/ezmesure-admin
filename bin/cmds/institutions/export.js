@@ -7,6 +7,7 @@ const { format } = require('date-fns');
 const institutionsLib = require('../../../lib/institutions');
 const spaces = require('../../../lib/spaces');
 const roles = require('../../../lib/roles');
+const { config } = require('../../../lib/app/config');
 const it = require('./interactive/export');
 
 exports.command = 'export [output]';
@@ -21,7 +22,11 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const { output, all } = argv;
+  const { output, all, verbose } = argv;
+
+  if (verbose) {
+    console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
+  }
 
   let institutions;
   try {
@@ -49,6 +54,10 @@ exports.handler = async function handler(argv) {
     const { institution } = institutions[i];
 
     // Get space informations
+    if (verbose) {
+      console.log(`* Get space [${institution.space}] informations for institution [${institution.name}] from ${config.ezmesure.baseUrl}`);
+    }
+
     try {
       const { data } = await spaces.findById(institution.space);
       delete data.disabledFeatures;
@@ -58,6 +67,10 @@ exports.handler = async function handler(argv) {
     }
 
     // Get index-pattern informations
+    if (verbose) {
+      console.log(`* Get index-pattern informations for space [${institution.space}] for institution [${institution.name}] from ${config.ezmesure.baseUrl}`);
+    }
+
     try {
       const { data } = await spaces.getIndexPatterns(institution.space);
       institutions[i].indexPattern = data.map(({ attributes }) => attributes);
@@ -66,6 +79,10 @@ exports.handler = async function handler(argv) {
     }
 
     // Get roles informations
+    if (verbose) {
+      console.log(`* Get role [${institution.role}] for institution [${institution.name}] from ${config.ezmesure.baseUrl}`);
+    }
+
     institutions[i].roles = [];
     try {
       const { data } = await roles.findByName(institution.role);
@@ -80,6 +97,10 @@ exports.handler = async function handler(argv) {
       institutions[i].roles.push(role);
     } catch (error) {
       console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'roles (all)' }));
+    }
+
+    if (verbose) {
+      console.log(`* Get role [${institution.role}_read_only] for institution [${institution.name}] from ${config.ezmesure.baseUrl}`);
     }
 
     try {
@@ -98,6 +119,10 @@ exports.handler = async function handler(argv) {
     }
 
     // Get SUSHI informations
+    if (verbose) {
+      console.log(`* Get sushi informations for institution [${institution.name}] from ${config.ezmesure.baseUrl}`);
+    }
+
     try {
       const { data } = await institutionsLib.getSushi(institution.id);
       institutions[i].sushi = data.map(({ attributes }) => attributes);
@@ -110,6 +135,11 @@ exports.handler = async function handler(argv) {
     if (output) {
       const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
       const fileName = `export_${institutions[i].institution.name.toLowerCase()}_${currentDate}`;
+
+      if (verbose) {
+        console.log(`* Export file [${fileName}]`);
+      }
+
       try {
         await fs.writeJson(path.resolve(output, `${fileName}.json`), institutions[i], { spaces: 2 });
         console.log(i18n.t('institutions.export.exported', { name: institutions[i].institution.name.toLowerCase() }));
@@ -120,6 +150,10 @@ exports.handler = async function handler(argv) {
   }
 
   if (!output) {
+    if (verbose) {
+      console.log('* Display institutions data');
+    }
+
     console.log(institutions);
   }
 };

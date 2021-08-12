@@ -4,6 +4,7 @@ const institutions = require('../../../lib/institutions');
 const spaces = require('../../../lib/spaces');
 const indices = require('../../../lib/indices');
 const roles = require('../../../lib/roles');
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'import';
 exports.desc = i18n.t('institutions.import.description');
@@ -14,7 +15,7 @@ exports.builder = function builder(yargs) {
   }).array('files');
 };
 exports.handler = async function handler(argv) {
-  const { files } = argv;
+  const { files, verbose } = argv;
 
   if (!files) {
     console.log(i18n.t('institutions.import.sepecifyJSONFile'));
@@ -22,6 +23,10 @@ exports.handler = async function handler(argv) {
   }
 
   for (let i = 0; i < files.length; i += 1) {
+    if (verbose) {
+      console.log(`* Read and parse file [${files[i]}] content`);
+    }
+
     let content;
     try {
       // eslint-disable-next-line
@@ -31,6 +36,10 @@ exports.handler = async function handler(argv) {
     }
 
     const { name, space, indexPrefix } = content.institution;
+
+    if (verbose) {
+      console.log(`* Retrieving institution [${name}] data from ${config.ezmesure.baseUrl}`);
+    }
 
     let institution;
     try {
@@ -50,6 +59,10 @@ exports.handler = async function handler(argv) {
     // eslint-disable-next-line no-continue
     if (!institution) {
       // Create institution
+      if (verbose) {
+        console.log(`* Create institution [${name}] from ${config.ezmesure.baseUrl}`);
+      }
+
       try {
         const { data } = await institutions.create(content.institution);
         institution = data;
@@ -61,6 +74,10 @@ exports.handler = async function handler(argv) {
     }
 
     // Create space
+    if (verbose) {
+      console.log(`* Create institution [${name}] space [${space}] from ${config.ezmesure.baseUrl}`);
+    }
+
     try {
       await spaces.create({
         id: space,
@@ -72,6 +89,10 @@ exports.handler = async function handler(argv) {
     }
 
     // Create index
+    if (verbose) {
+      console.log(`* Create institution [${name}] index [${indexPrefix}] from ${config.ezmesure.baseUrl}`);
+    }
+
     try {
       await indices.create(indexPrefix);
       console.log(i18n.t('institutions.add.indexCreated', { index: indexPrefix }));
@@ -80,9 +101,13 @@ exports.handler = async function handler(argv) {
     }
 
     // Create index-patterns
-    for (let j = 0; j < content.indexPattern.length; j += 1) {
+    for (let j = 0; j < content?.indexPattern.length; j += 1) {
+      if (verbose) {
+        console.log(`* Create institution [${name}] index-pattern [${content?.indexPattern[j]}] from ${config.ezmesure.baseUrl}`);
+      }
+
       try {
-        await spaces.addIndexPatterns(space, content.indexPattern[j]);
+        await spaces.addIndexPatterns(space, content?.indexPattern[j]);
         console.log(i18n.t('institutions.add.indexPatternImported', { indexPattern: content.indexPattern[j].title }));
       } catch (err) {
         console.error(`[${i18n.t('institutions.add.importIndexPattern')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
@@ -91,6 +116,10 @@ exports.handler = async function handler(argv) {
 
     // Create roles
     for (let j = 0; j < content.roles.length; j += 1) {
+      if (verbose) {
+        console.log(`* Create institution [${name}] role [${content.roles[j].name}] from ${config.ezmesure.baseUrl}`);
+      }
+
       try {
         await roles.createOrUpdate(content.roles[j].name, content.roles[j]);
         console.log(i18n.t('institutions.add.roleImported'));
@@ -102,5 +131,9 @@ exports.handler = async function handler(argv) {
     }
 
     // Import SUSHI Data
+    // TODO : import sushi data
+    if (verbose) {
+      console.log(`* Import institution [${name}] sushi data from ${config.ezmesure.baseUrl}`);
+    }
   }
 };

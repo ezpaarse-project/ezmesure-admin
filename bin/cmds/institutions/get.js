@@ -4,6 +4,7 @@ const { table } = require('table');
 const chalk = require('chalk');
 
 const institutionsLib = require('../../../lib/institutions');
+const { config } = require('../../../lib/app/config');
 const it = require('./interactive/get');
 
 exports.command = 'get [institutions...]';
@@ -35,8 +36,12 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    institutions, all, json, ndjson,
+    institutions, all, json, ndjson, verbose,
   } = argv;
+
+  if (verbose) {
+    console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
+  }
 
   let institutionsData;
   try {
@@ -70,11 +75,19 @@ exports.handler = async function handler(argv) {
   }
 
   if (ndjson) {
+    if (verbose) {
+      console.log('* Export in ndjson format');
+    }
+
     institutionsData.forEach((data) => console.log(JSON.stringify(data)));
     process.exit(0);
   }
 
   if (json) {
+    if (verbose) {
+      console.log('* Export in json format');
+    }
+
     console.log(JSON.stringify(institutionsData, null, 2));
     process.exit(0);
   }
@@ -90,6 +103,10 @@ exports.handler = async function handler(argv) {
     i18n.t('institutions.role'),
     i18n.t('institutions.contact'),
   ];
+
+  if (verbose) {
+    console.log('* Display institutions in graphical form in a table');
+  }
 
   const row = institutionsData.map(({
     name, city, website, domains, auto, validated,

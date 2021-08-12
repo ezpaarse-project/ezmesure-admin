@@ -6,6 +6,7 @@ const indices = require('../../../lib/indices');
 const institutions = require('../../../lib/institutions');
 const roles = require('../../../lib/roles');
 const spaces = require('../../../lib/spaces');
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'add <name>';
 exports.desc = i18n.t('institutions.add.description');
@@ -39,10 +40,14 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    name, ezpaarse, ezmesure, reporting,
+    name, ezpaarse, ezmesure, reporting, verbose,
   } = argv;
 
   let { index, space } = argv;
+
+  if (verbose) {
+    console.log(`* Validating fields that describe institution [${name}]`);
+  }
 
   const schema = Joi.object({
     name: Joi.string().trim().required(),
@@ -65,6 +70,10 @@ exports.handler = async function handler(argv) {
   index = index.toLowerCase();
   space = space.toLowerCase();
 
+  if (verbose) {
+    console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
+  }
+
   let institution;
   try {
     const { data } = await institutions.findAll();
@@ -81,6 +90,10 @@ exports.handler = async function handler(argv) {
   }
 
   if (!institution) {
+    if (verbose) {
+      console.log(`* Create institution [${name}] from ${config.ezmesure.baseUrl}`);
+    }
+
     try {
       const { data } = await institutions.create({
         name,
@@ -102,6 +115,10 @@ exports.handler = async function handler(argv) {
   }
 
   try {
+    if (verbose) {
+      console.log(`* Validate institution [${name}] from ${config.ezmesure.baseUrl}`);
+    }
+
     await institutions.validate(institution.id, true);
     console.log(i18n.t('institutions.add.institutionValidated', { name }));
   } catch (err) {
@@ -109,6 +126,10 @@ exports.handler = async function handler(argv) {
   }
 
   try {
+    if (verbose) {
+      console.log(`* Create institution [${name}] space [${space}] from ${config.ezmesure.baseUrl}`);
+    }
+
     await spaces.create({
       id: space,
       name: space,
@@ -119,6 +140,10 @@ exports.handler = async function handler(argv) {
   }
 
   try {
+    if (verbose) {
+      console.log(`* Create institution [${name}] index [${index}] from ${config.ezmesure.baseUrl}`);
+    }
+
     await indices.create(index);
     console.log(i18n.t('institutions.add.indexCreated', { index }));
   } catch (err) {
@@ -126,6 +151,10 @@ exports.handler = async function handler(argv) {
   }
 
   try {
+    if (verbose) {
+      console.log(`* Create institution [${name}] index-pattern [${index}*] from ${config.ezmesure.baseUrl}`);
+    }
+
     await spaces.addIndexPatterns(space, {
       title: `${index}*`,
     });
@@ -135,6 +164,10 @@ exports.handler = async function handler(argv) {
   }
 
   // Create all privileges role
+  if (verbose) {
+    console.log(`* Create institution [${name}] role [${space}] from ${config.ezmesure.baseUrl}`);
+  }
+
   try {
     await roles.createOrUpdate(space, {
       elasticsearch: {
@@ -158,6 +191,10 @@ exports.handler = async function handler(argv) {
   }
 
   // Create read_only privileges role
+  if (verbose) {
+    console.log(`* Create institution [${name}] role [${space}_read_only] from ${config.ezmesure.baseUrl}`);
+  }
+
   try {
     await roles.createOrUpdate(`${space}_read_only`, {
       elasticsearch: {
