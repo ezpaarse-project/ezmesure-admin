@@ -9,6 +9,7 @@ const { v5: uuid5 } = require('uuid');
 const { table } = require('table');
 const cliProgress = require('cli-progress');
 const counterLib = require('../../lib/counter');
+const { config } = require('../../lib/app/config');
 
 exports.command = 'counter4 <files...>';
 exports.desc = i18n.t('counter4.description');
@@ -85,6 +86,8 @@ function checkJR1({
 }
 
 async function process4(results, argv, file) {
+  const { verbose } = argv;
+
   const packageName = argv.package;
   const publisherIndex = argv.depositor ? `${argv.depositor}-publisher` : 'publisher';
 
@@ -95,6 +98,10 @@ async function process4(results, argv, file) {
       errors.push(`[Error#${error.code}]: ${error.message} (${error.row}, ${error.index})`);
     }
     return Promise.reject(new Error(JSON.stringify(errors)));
+  }
+
+  if (verbose) {
+    console.log('* Check headers');
   }
 
   const JR1Header = results.data.slice(0, 9);
@@ -116,6 +123,10 @@ async function process4(results, argv, file) {
     endDate = `${endDate.substring(0, 4)}-${endDate.substring(4)}-01`;
   }
 
+  if (verbose) {
+    console.log('* Build JR1');
+  }
+
   const counterJR1 = {
     info: {
       type: trimQuotes(type.trim()),
@@ -134,10 +145,18 @@ async function process4(results, argv, file) {
   };
 
   try {
+    if (verbose) {
+      console.log('* Check if JR1 is valid');
+    }
+
     await checkJR1(counterJR1.info);
   } catch (error) {
     console.log(error.message);
     return Promise.reject(error);
+  }
+
+  if (verbose) {
+    console.log('* JR1 Enrichment');
   }
 
   let months = counterJR1.rows.headers.slice(10);
@@ -191,6 +210,10 @@ async function process4(results, argv, file) {
   const outputFile = path.join(path.dirname(file), `${basename}`);
 
   if (argv.ndjson) {
+    if (verbose) {
+      console.log('* Export in ndjson format');
+    }
+
     const writeStream = fs.createWriteStream(path.resolve(`${outputFile}.ndjson`));
     flatReport.forEach((report) => writeStream.write(`${JSON.stringify({ _id: report._id, ...report.doc })}\r\n`));
     writeStream.close();
@@ -198,11 +221,19 @@ async function process4(results, argv, file) {
   }
 
   if (argv.json) {
+    if (verbose) {
+      console.log('* Export in json format');
+    }
+
     await fs.writeJson(path.resolve(`${outputFile}.json`), flatReport.map(({ _id, doc }) => ({ _id, ...doc })), { spaces: 2 });
     console.log(i18n.t('counter4.writing', { file: chalk.bold(`${outputFile}.json`), count: chalk.bold(flatReport.length) }));
   }
 
   if (argv.bulk) {
+    if (verbose) {
+      console.log(`* Bulk insertion from ${config.elastic.baseUrl}`);
+    }
+
     return counterLib.bulkInsertIndex(publisherIndex, flatReport, packageName);
   }
 
@@ -210,7 +241,7 @@ async function process4(results, argv, file) {
 }
 
 exports.handler = async function handler(argv) {
-  const { files } = argv;
+  const { files, verbose } = argv;
 
   const progressBar = new cliProgress.SingleBar({
     format: `{bar} {percentage}% | {value}/{total} ${i18n.t('counter4.files')} | ${i18n.t('counter4.file')} : {file}`,
@@ -229,6 +260,10 @@ exports.handler = async function handler(argv) {
 
     let isCSV = true;
 
+    if (verbose) {
+      console.log(`* Check if file [${file}] is in CSV format`);
+    }
+
     if (path.extname(filePath) !== '.csv') {
       console.error(i18n.t('counter4.isNotCSV', { file }));
       isCSV = false;
@@ -236,6 +271,10 @@ exports.handler = async function handler(argv) {
 
     if (isCSV) {
       let fileExists = true;
+
+      if (verbose) {
+        console.log(`* Check if file [${file}] exists`);
+      }
 
       try {
         await fs.stat(filePath);
@@ -250,6 +289,10 @@ exports.handler = async function handler(argv) {
       }
 
       if (fileExists) {
+        if (verbose) {
+          console.log(`* Read file [${file}]`);
+        }
+
         try {
           const readStream = await fs.createReadStream(filePath);
           const result = new Promise((resolve) => {
@@ -270,6 +313,11 @@ exports.handler = async function handler(argv) {
   const processResults = [];
   for (let i = 0; i < filesContent.length; i += 1) {
     const fileContent = filesContent[i];
+
+    if (verbose) {
+      console.log('* Check if file is counter4 compliant');
+    }
+
     try {
       const res = await process4(fileContent.results, argv, fileContent.file);
       processResults.push({
@@ -325,6 +373,10 @@ exports.handler = async function handler(argv) {
       result.total,
     ]);
   });
+
+  if (verbose) {
+    console.log('* Display data in graphical form in a table');
+  }
 
   console.log(table([header, ...rows]));
   console.log(i18n.t('counter4.filesProcessed', { files: `${chalk.bold(processResults.length)} / ${chalk.bold(files.length)}` }));
