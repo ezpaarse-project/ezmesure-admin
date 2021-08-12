@@ -42,6 +42,7 @@ exports.handler = async function handler(argv) {
     roles,
     enabled,
     fullName,
+    email,
     verbose,
   } = argv;
 
@@ -54,6 +55,7 @@ exports.handler = async function handler(argv) {
       username,
       password,
       enabled,
+      email,
       roles: roles && roles.split(','),
       full_name: fullName,
       metadata: {

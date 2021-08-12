@@ -3,8 +3,9 @@ const { i18n } = global;
 const { table } = require('table');
 
 const usersLib = require('../../../lib/users');
-const { config } = require('../../../lib/app/config');
 const it = require('./interactive/get');
+
+const { config } = require('../../../lib/app/config');
 
 exports.command = 'get [users...]';
 exports.desc = i18n.t('users.get.description');
@@ -45,32 +46,41 @@ exports.builder = function builder(yargs) {
     });
 };
 exports.handler = async function handler(argv) {
-  let { users, size } = argv;
+  const { users, size } = argv;
   const {
     json, ndjson, interactive, verbose, fields = 'full_name,username,roles,email,metadata', all,
   } = argv;
 
-  if (all) { size = 10000; }
+  if (all) { size = 10; }
 
   if (verbose) {
     console.log(`* Retrieving (${size}) users (fields: ${fields}) from ${config.ezmesure.baseUrl}`);
   }
 
-  let usersData;
-  try {
-    const { data } = await usersLib.findAll({
-      size: size || 10,
-      source: fields,
-    });
-    usersData = data;
-  } catch (error) {
-    console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
-    process.exit(1);
+  let usersData = [];
+  if (!users.length) {
+    try {
+      const { data } = await usersLib.findAll({
+        size: size || 1000,
+        source: fields,
+      });
+      usersData = data;
+    } catch (error) {
+      console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      process.exit(1);
+    }
   }
 
   if (users.length) {
-    users = users.map((user) => user.toLowerCase());
-    usersData = usersData.filter(({ username }) => users.includes(username.toLowerCase()));
+    for (let i = 0; i < users.length; i += 1) {
+      try {
+        const { data } = await usersLib.getByUsername(users[i]);
+        usersData.push(data[users[i]]);
+      } catch (error) {
+        console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+        process.exit(1);
+      }
+    }
   }
 
   if (interactive) {
