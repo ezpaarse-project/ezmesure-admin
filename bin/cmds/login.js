@@ -92,7 +92,7 @@ exports.handler = async function handler(argv) {
     console.log('* API token recovery');
   }
 
-  const match = /^eztoken=([a-z0-9._\-\w]+)/i.exec(res.headers['set-cookie']);
+  const match = /^eztoken=([a-z0-9._\-\w]+)/i.exec(res?.headers['set-cookie']);
   if (match && match[1]) {
     set(config, 'ezmesure.token', match[1]);
 
