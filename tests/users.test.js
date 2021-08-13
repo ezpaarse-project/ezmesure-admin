@@ -1,6 +1,8 @@
 const exec = require('child_process').execFileSync;
 const path = require('path');
 
+const login = require('./login');
+
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
 const testUser = {
@@ -13,7 +15,9 @@ const testUser = {
 };
 
 describe('Users tests', () => {
-  test('create user', () => {
+  beforeEach(() => login());
+
+  test(`Create new user [${testUser.username}]`, () => {
     const res = exec(commandFile, [
       'users',
       'add',
@@ -32,7 +36,20 @@ describe('Users tests', () => {
     expect(res).toMatch(`user [${testUser.username}] created or updated`);
   });
 
-  test(`get ${testUser.username}`, () => {
+  test(`Add role [new_user] to user [${testUser.username}]`, () => {
+    const res = exec(commandFile, [
+      'users',
+      'roles',
+      'add',
+      testUser.username,
+      '--roles',
+      'new_user',
+    ]).toString();
+
+    expect(res).toMatch(`role(s) [new_user] added to user [${testUser.username}]`);
+  });
+
+  test(`Get user [${testUser.username}]`, () => {
     const res = exec(commandFile, ['users', 'get', testUser.username, '--json']);
 
     let user = res.toString();
@@ -40,7 +57,7 @@ describe('Users tests', () => {
     try {
       user = JSON.parse(user);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
 
     user = user.pop();
@@ -51,21 +68,21 @@ describe('Users tests', () => {
     expect(user.roles).toStrictEqual(testUser.roles);
   });
 
-  test('get all', () => {
-    const res = exec(commandFile, ['users', 'get', '--json']);
+  test('Get all users', () => {
+    const res = exec(commandFile, ['users', 'get', '--size', 1, '--json']);
 
     let users = res.toString();
 
     try {
       users = JSON.parse(users);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
 
     const fields = ['metadata', 'full_name', 'roles', 'email', 'username'];
 
+    expect(users.length).toBe(1);
     expect(Object.keys(users[0])).toEqual(fields);
     expect(Object.keys(users[0]).length).toEqual(fields.length);
-    expect(users.length).not.toBe(0);
   });
 });
