@@ -196,13 +196,6 @@
 			"spaceColor": "Enter space color (ex: #9C27B0)",
 			"updated": "space [{{space}}] updated successfully"
 		},
-		"delete": {
-			"description": "Delete space(s)",
-			"options": {
-				"spaces": "Space(s) name, case sensitive"
-			},
-			"removed": "space [{{space}}] removed successully"
-		},
 		"get": {
 			"description": "Display information for one space",
 			"id": "ID",
