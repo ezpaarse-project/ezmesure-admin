@@ -11,7 +11,6 @@ $ ezmesure-admin spaces --help
 | Name | Description |
 | --- | --- |
 | [add](#add) <space> | Create new space |
-| [delete](#delete) [spaces...] | Delete space(s) |
 | [get](#get) [spaces...] | Get and display space(s) informations |
 | [reporting](#reporting) <command> | Manage reporting |
 
@@ -35,18 +34,6 @@ $ ezmesure-admin spaces add --help
 Example :
 ```bash
 $ ezmesure-admin spaces add --color "#CCCCC" --description "My Space" --initials "ms"
-```
-
-### delete
-
-#### Usage
-```bash
-$ ezmesure-admin spaces delete --help
-```
-
-Example :
-```bash
-$ ezmesure-admin spaces delete mySpace
 ```
 
 ### get
