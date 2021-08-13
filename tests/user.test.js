@@ -11,13 +11,13 @@ describe('ezMESURE user tests', () => {
   test(`Login ezMESURE user [${EZMESURE_ADMIN_USERNAME}]`, () => {
     const res = login().toString();
 
-    expect(res).toContain('logged in successfully');
+    expect(res).toContain(`user [${EZMESURE_ADMIN_USERNAME}] logged in successfully`);
   });
 
   test('Get ezMESURE profile', () => {
     const res = exec(commandFile, ['profile']).toString();
 
-    expect(res).toContain('You are authenticated as');
+    expect(res).toContain(`You are authenticated as ${EZMESURE_ADMIN_USERNAME}`);
   });
 
   test('Logout ezMESURE user', () => {
