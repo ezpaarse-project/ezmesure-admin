@@ -71,15 +71,13 @@ exports.handler = async function handler(argv) {
     }
 
     try {
-      const response = await spacesLib.delete(spaces[i]);
-
-      if (response && response.status === 204) {
-        console.log(i18n.t('spaces.delete.removed', { space: spaces[i] }));
-      }
+      await spacesLib.delete(spaces[i]);
     } catch (error) {
       if (error && error?.response && error?.response?.data) {
         console.log(`[Error#${error.response.data.statusCode}] ${error.response.data.message}`);
       }
     }
+
+    console.log(i18n.t('spaces.delete.removed', { space: spaces[i] }));
   }
 };
