@@ -22,25 +22,34 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  let { users } = argv;
+  const { users } = argv;
   const { roles, interactive, verbose } = argv;
 
   if (verbose) {
-    console.log(`* Assigning roles [${roles?.join(',')}] to the user [${users?.join(',')}] from ${config.ezmesure.baseUrl}`);
+    console.log(`* Assigning roles [${roles?.join(',')}] to user(s) [${users?.join(',')}] from ${config.ezmesure.baseUrl}`);
   }
 
-  let usersSelected;
-  try {
-    const { data } = await usersLib.findAll();
-    usersSelected = data;
-  } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
-    process.exit(1);
+  let usersSelected = [];
+  if (!users.length) {
+    try {
+      const { data } = await usersLib.findAll();
+      usersSelected = data;
+    } catch (error) {
+      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      process.exit(1);
+    }
   }
 
   if (users.length) {
-    users = users.map((user) => user.toLowerCase());
-    usersSelected = usersSelected.filter(({ username }) => users.includes(username.toLowerCase()));
+    for (let i = 0; i < users.length; i += 1) {
+      try {
+        const { data } = await usersLib.getByUsername(users[i]);
+        usersSelected.push(data[users[i]]);
+      } catch (error) {
+        console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+        process.exit(1);
+      }
+    }
   }
 
   if (interactive) {
@@ -72,18 +81,18 @@ exports.handler = async function handler(argv) {
     try {
       const { data } = await usersLib.getByUsername(usersSelected[i].username);
       user = data[usersSelected[i].username];
-
-      if (verbose) {
-        console.log(`* Update roles for the user [${usersSelected[i].username}]`);
-      }
     } catch (error) {
       // eslint-disable-next-line no-continue
       continue;
     }
 
+    if (verbose) {
+      console.log(`* Update roles for the user [${usersSelected[i].username}]`);
+    }
+
     try {
       user.roles = Array.from(new Set([...rolesSelected, ...user.roles]));
-      await usersLib.update(user.username, user);
+      await usersLib.createOrUpdate(user.username, user);
       console.log(i18n.t('users.roles.add.added', {
         role: rolesSelected.join(', '),
         username: user.username,
