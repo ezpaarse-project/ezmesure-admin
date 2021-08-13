@@ -55,7 +55,7 @@ describe('Institutions tests', () => {
     expect(institutions[0].auto.report).toBeFalsy();
   });
 
-  test('Get five institutions', () => {
+  test('Get institutions', () => {
     const res = exec(commandFile, [
       'institutions',
       'get',
