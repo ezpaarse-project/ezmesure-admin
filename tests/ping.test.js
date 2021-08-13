@@ -1,7 +1,7 @@
 const exec = require('child_process').execFileSync;
 const path = require('path');
 
-const login = require('./login');
+const login = require('./utils/login');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 

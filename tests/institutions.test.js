@@ -1,15 +1,10 @@
 const exec = require('child_process').execFileSync;
 const path = require('path');
 
-const login = require('./login');
+const login = require('./utils/login');
+const { insitutionTest } = require('./utils/data');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
-
-const insitutionTest = {
-  name: 'Institution ezmesure-admin Unit Tests',
-  index: 'ezmesure-admin-unit-tests',
-  space: 'ezmesure-admin-unit-tests',
-};
 
 describe('Institutions tests', () => {
   beforeEach(() => login());
@@ -19,10 +14,8 @@ describe('Institutions tests', () => {
       'institutions',
       'add',
       insitutionTest.name,
-      '--index',
-      insitutionTest.index,
-      '--space',
-      insitutionTest.space,
+      '--index', insitutionTest.index,
+      '--space', insitutionTest.space,
     ]).toString();
 
     expect(res).toContain(`institution [${insitutionTest.name}] created`);

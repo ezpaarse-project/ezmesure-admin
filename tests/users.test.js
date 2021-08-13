@@ -1,56 +1,44 @@
 const exec = require('child_process').execFileSync;
 const path = require('path');
 
-const login = require('./login');
+const login = require('./utils/login');
+const { userTest } = require('./utils/data');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
-
-const testUser = {
-  full_name: 'ezmesure-admin unit tests',
-  username: 'ezmesure-admin-unit-tests',
-  password: 'ezmesure-admin-unit-tests',
-  email: 'ezmesure-admin@unit.tests.fr',
-  roles: ['new_user'],
-  enabled: true,
-};
 
 describe('Users tests', () => {
   beforeEach(() => login());
 
-  test(`Create new user [${testUser.username}]`, () => {
+  test(`Create new user [${userTest.username}]`, () => {
     const res = exec(commandFile, [
       'users',
       'add',
-      testUser.username,
-      testUser.password,
-      '--email',
-      testUser.email,
-      '--full-name',
-      testUser.full_name,
-      '--roles',
-      testUser.roles.join(','),
-      '--enabled',
-      testUser.enabled,
+      userTest.username,
+      userTest.password,
+      '--email', userTest.email,
+      '--full-name', userTest.full_name,
+      '--roles', userTest.roles.join(','),
+      '--enabled', userTest.enabled,
     ]).toString();
 
-    expect(res).toMatch(`user [${testUser.username}] created or updated`);
+    expect(res).toMatch(`user [${userTest.username}] created or updated`);
   });
 
-  test(`Add role [new_user] to user [${testUser.username}]`, () => {
+  test(`Add role [new_user] to user [${userTest.username}]`, () => {
     const res = exec(commandFile, [
       'users',
       'roles',
       'add',
-      testUser.username,
+      userTest.username,
       '--roles',
       'new_user',
     ]).toString();
 
-    expect(res).toMatch(`role(s) [new_user] added to user [${testUser.username}]`);
+    expect(res).toMatch(`role(s) [new_user] added to user [${userTest.username}]`);
   });
 
-  test(`Get user [${testUser.username}]`, () => {
-    const res = exec(commandFile, ['users', 'get', testUser.username, '--json']);
+  test(`Get user [${userTest.username}]`, () => {
+    const res = exec(commandFile, ['users', 'get', userTest.username, '--json']);
 
     let user = res.toString();
 
@@ -62,10 +50,10 @@ describe('Users tests', () => {
 
     user = user.pop();
 
-    expect(user.username).toMatch(testUser.username);
-    expect(user.email).toMatch(testUser.email);
-    expect(user.full_name).toMatch(testUser.full_name);
-    expect(user.roles).toStrictEqual(testUser.roles);
+    expect(user.username).toMatch(userTest.username);
+    expect(user.email).toMatch(userTest.email);
+    expect(user.full_name).toMatch(userTest.full_name);
+    expect(user.roles).toStrictEqual(userTest.roles);
   });
 
   test('Get all users', () => {
