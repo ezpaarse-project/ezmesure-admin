@@ -15,9 +15,10 @@ exports.userTest = {
 
 exports.spaceTest = {
   name: 'eza-ut-space',
-  indexPattern: 'eza-ut-index-pattern',
   color: '#c0392b',
   description: 'Space for eza unit tests',
   initials: 'UT',
   features: 'discover,dashboard',
+  index: 'eza-ut-index',
+  indexPattern: 'eza-ut-index*',
 };
