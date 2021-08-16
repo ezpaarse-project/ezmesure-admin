@@ -18,25 +18,33 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const { global: seeGlobal, local: seeLocal } = argv;
+  const { global: seeGlobal, local: seeLocal, verbose } = argv;
 
   const { global, local } = scopes;
 
   if (!seeLocal && !seeGlobal) {
-    console.log('[Configuration]');
+    if (verbose) {
+      console.log('* [Configuration]');
+    }
     console.log(JSON.stringify(merge(global?.config, local?.config), null, 2));
-    console.log(`[Local] : ${local?.location}`);
-    console.log(`[Global] : ${global?.location}`);
+    if (verbose) {
+      console.log(`* [Local] : ${local?.location}`);
+      console.log(`* [Global] : ${global?.location}`);
+    }
     process.exit(0);
   }
 
   if (seeLocal) {
-    console.log(`\n[${i18n.t('config.view.local')}] (${local?.location})`);
+    if (verbose) {
+      console.log(`\n* [${i18n.t('config.view.local')}] (${local?.location})`);
+    }
     console.log(JSON.stringify(local?.config || {}, null, 2));
   }
 
   if (seeGlobal) {
-    console.log(`\n[${i18n.t('config.view.global')}] (${global?.location})`);
+    if (verbose) {
+      console.log(`\n* [${i18n.t('config.view.global')}] (${global?.location})`);
+    }
     console.log(JSON.stringify(global?.config || {}, null, 2));
   }
 };
