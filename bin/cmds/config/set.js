@@ -36,11 +36,16 @@ exports.handler = async function handler(argv) {
   }
 
   if (verbose) {
-    console.log(`* Set value [${value}] to key [${key}] in ${global ? 'global' : 'local'} config`);
+    console.log(`* Set value [${value}] to key [${key}] in ${global ? 'global' : 'local'} configuration`);
   }
 
   set(config, key, value);
 
-  await fs.ensureFile(scope.location);
-  await fs.writeFile(scope.location, JSON.stringify(config, null, 2));
+  try {
+    await fs.ensureFile(scope.location);
+    await fs.writeFile(scope.location, JSON.stringify(config, null, 2));
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
 };
