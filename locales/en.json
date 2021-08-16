@@ -227,7 +227,7 @@
 			"description": "Create new role",
 			"options": {
 				"role": "Role name, case sensitive",
-				"indexPatten": "Index-pattern name (e.g: my-index, m-y-index*)",
+				"indexPattern": "Index-pattern name (e.g: my-index, m-y-index*)",
 				"space": "Space name, case sensitive",
 				"privileges": "Privileges (all or read)",
 				"readOnly": "Create role with read privileges and _read_only suffix"

@@ -12,7 +12,7 @@ exports.builder = function builder(yargs) {
   })
     .option('i', {
       alias: 'index-pattern',
-      describe: i18n.t('roles.add.options.indexPatten'),
+      describe: i18n.t('roles.add.options.indexPattern'),
       type: 'string',
     })
     .option('s', {
