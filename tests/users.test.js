@@ -9,7 +9,7 @@ const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 describe('Users tests', () => {
   beforeEach(() => login());
 
-  test(`Create new user [${userTest.username}]`, () => {
+  it(`Create new user [${userTest.username}]`, () => {
     const res = exec(commandFile, [
       'users',
       'add',
@@ -24,7 +24,7 @@ describe('Users tests', () => {
     expect(res).toMatch(`user [${userTest.username}] created or updated`);
   });
 
-  test(`Add role [new_user] to user [${userTest.username}]`, () => {
+  it(`Add role [new_user] to user [${userTest.username}]`, () => {
     const res = exec(commandFile, [
       'users',
       'roles',
@@ -37,7 +37,7 @@ describe('Users tests', () => {
     expect(res).toMatch(`role(s) [new_user] added to user [${userTest.username}]`);
   });
 
-  test(`Get user [${userTest.username}]`, () => {
+  it(`Get user [${userTest.username}]`, () => {
     const res = exec(commandFile, ['users', 'get', userTest.username, '--json']);
 
     let user = res.toString();
@@ -50,13 +50,13 @@ describe('Users tests', () => {
 
     user = user.pop();
 
-    expect(user.username).toMatch(userTest.username);
-    expect(user.email).toMatch(userTest.email);
-    expect(user.full_name).toMatch(userTest.full_name);
+    expect(user).toHaveProperty('username', userTest.username);
+    expect(user).toHaveProperty('email', userTest.email);
+    expect(user).toHaveProperty('full_name', userTest.full_name);
     expect(user.roles).toStrictEqual(userTest.roles);
   });
 
-  test('Get all users', () => {
+  it('Get all users', () => {
     const res = exec(commandFile, ['users', 'get', '--size', 1, '--json']);
 
     let users = res.toString();

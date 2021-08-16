@@ -9,7 +9,7 @@ const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 describe('Institutions tests', () => {
   beforeEach(() => login());
 
-  test(`Create institution [${insitutionTest.name}]`, () => {
+  it(`Create institution [${insitutionTest.name}]`, () => {
     const res = exec(commandFile, [
       'institutions',
       'add',
@@ -27,7 +27,7 @@ describe('Institutions tests', () => {
     expect(res).toContain(`role [${insitutionTest.space}_read_only] created or updated`);
   });
 
-  test(`Get institution [${insitutionTest.name}]`, () => {
+  it(`Get institution [${insitutionTest.name}]`, () => {
     const res = exec(commandFile, ['institutions', 'get', insitutionTest.name, '--json']);
 
     let institutions = res.toString();
@@ -38,17 +38,17 @@ describe('Institutions tests', () => {
       console.error(error);
     }
 
-    expect(institutions[0].name).toStrictEqual(insitutionTest.name);
-    expect(institutions[0].indexPrefix).toStrictEqual(insitutionTest.index);
-    expect(institutions[0].space).toStrictEqual(insitutionTest.space);
-    expect(institutions[0].role).toStrictEqual(insitutionTest.space);
+    expect(institutions[0]).toHaveProperty('name', insitutionTest.name);
+    expect(institutions[0]).toHaveProperty('indexPrefix', insitutionTest.index);
+    expect(institutions[0]).toHaveProperty('space', insitutionTest.space);
+    expect(institutions[0]).toHaveProperty('role', insitutionTest.space);
     expect(institutions[0].validated).not.toBeFalsy();
     expect(institutions[0].auto.ezpaarse).toBeFalsy();
     expect(institutions[0].auto.ezmesure).toBeFalsy();
     expect(institutions[0].auto.report).toBeFalsy();
   });
 
-  test('Get institutions', () => {
+  it('Get institutions', () => {
     const res = exec(commandFile, [
       'institutions',
       'get',
@@ -68,7 +68,7 @@ describe('Institutions tests', () => {
     expect(institutions.length).toBeGreaterThan(0);
   });
 
-  test('Refresh institutions', () => {
+  it('Refresh institutions', () => {
     const res = exec(commandFile, ['institutions', 'refresh']).toString();
 
     expect(res).toContain('Institutions are refreshed');

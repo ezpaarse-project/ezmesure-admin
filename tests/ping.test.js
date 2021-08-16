@@ -5,14 +5,16 @@ const login = require('./utils/login');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
-beforeEach(() => login());
+describe('Ping tests', () => {
+  beforeEach(() => login());
 
-test('ping', () => {
-  const res = exec(commandFile, ['ping']).toString();
+  test('ping', () => {
+    const res = exec(commandFile, ['ping']).toString();
 
-  const ping = res.split('\n')
-    .map((x) => x.replace(/\n|\r/g, ''))
-    .filter((x) => x);
+    const ping = res.split('\n')
+      .map((x) => x.replace(/\n|\r/g, ''))
+      .filter((x) => x);
 
-  expect(ping).toEqual(['ElasticSearch: OK', 'ezMESURE: OK']);
+    expect(ping).toEqual(['ElasticSearch: OK', 'ezMESURE: OK']);
+  });
 });
