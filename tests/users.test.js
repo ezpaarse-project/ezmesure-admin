@@ -2,58 +2,58 @@ const exec = require('child_process').execFileSync;
 const path = require('path');
 
 const login = require('./utils/login');
-const { userTest } = require('./utils/data');
+const { user } = require('./utils/data');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
 describe('Users tests', () => {
   beforeEach(() => login());
 
-  it(`Create new user [${userTest.username}]`, () => {
+  it(`Create new user [${user.username}]`, () => {
     const res = exec(commandFile, [
       'users',
       'add',
-      userTest.username,
-      userTest.password,
-      '--email', userTest.email,
-      '--full-name', userTest.full_name,
-      '--roles', userTest.roles.join(','),
-      '--enabled', userTest.enabled,
+      user.username,
+      user.password,
+      '--email', user.email,
+      '--full-name', user.full_name,
+      '--roles', user.roles.join(','),
+      '--enabled', user.enabled,
     ]).toString();
 
-    expect(res).toMatch(`user [${userTest.username}] created or updated`);
+    expect(res).toMatch(`user [${user.username}] created or updated`);
   });
 
-  it(`Add role [new_user] to user [${userTest.username}]`, () => {
+  it(`Add role [new_user] to user [${user.username}]`, () => {
     const res = exec(commandFile, [
       'users',
       'roles',
       'add',
-      userTest.username,
+      user.username,
       '--roles',
       'new_user',
     ]).toString();
 
-    expect(res).toMatch(`role(s) [new_user] added to user [${userTest.username}]`);
+    expect(res).toMatch(`role(s) [new_user] added to user [${user.username}]`);
   });
 
-  it(`Get user [${userTest.username}]`, () => {
-    const res = exec(commandFile, ['users', 'get', userTest.username, '--json']);
+  it(`Get user [${user.username}]`, () => {
+    const res = exec(commandFile, ['users', 'get', user.username, '--json']);
 
-    let user = res.toString();
+    let userData = res.toString();
 
     try {
-      user = JSON.parse(user);
+      userData = JSON.parse(userData);
     } catch (error) {
       console.error(error);
     }
 
-    user = user.pop();
+    userData = userData.pop();
 
-    expect(user).toHaveProperty('username', userTest.username);
-    expect(user).toHaveProperty('email', userTest.email);
-    expect(user).toHaveProperty('full_name', userTest.full_name);
-    expect(user.roles).toStrictEqual(userTest.roles);
+    expect(userData).toHaveProperty('username', user.username);
+    expect(userData).toHaveProperty('email', user.email);
+    expect(userData).toHaveProperty('full_name', user.full_name);
+    expect(userData.roles).toStrictEqual(user.roles);
   });
 
   it('Get all users', () => {

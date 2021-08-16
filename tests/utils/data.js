@@ -1,10 +1,10 @@
-exports.insitutionTest = {
+const insitution = {
   name: 'eza UT',
   index: 'eza-ut-institution',
   space: 'eza-ut-institution',
 };
 
-exports.userTest = {
+const user = {
   full_name: 'eza UT',
   username: 'eza-ut',
   password: 'eza-ut',
@@ -13,7 +13,7 @@ exports.userTest = {
   enabled: true,
 };
 
-exports.spaceTest = {
+const space = {
   name: 'eza-ut-space',
   color: '#c0392b',
   description: 'Space for eza unit tests',
@@ -21,4 +21,18 @@ exports.spaceTest = {
   features: 'discover,dashboard',
   index: 'eza-ut-index',
   indexPattern: 'eza-ut-index*',
+};
+
+const role = {
+  name: 'eza-role-ut',
+  indexPattern: space.indexPattern,
+  space: space.name,
+  privileges: 'read',
+};
+
+module.exports = {
+  insitution,
+  user,
+  space,
+  role,
 };

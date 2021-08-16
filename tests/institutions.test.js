@@ -2,33 +2,33 @@ const exec = require('child_process').execFileSync;
 const path = require('path');
 
 const login = require('./utils/login');
-const { insitutionTest } = require('./utils/data');
+const { insitution } = require('./utils/data');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
 describe('Institutions tests', () => {
   beforeEach(() => login());
 
-  it(`Create institution [${insitutionTest.name}]`, () => {
+  it(`Create institution [${insitution.name}]`, () => {
     const res = exec(commandFile, [
       'institutions',
       'add',
-      insitutionTest.name,
-      '--index', insitutionTest.index,
-      '--space', insitutionTest.space,
+      insitution.name,
+      '--index', insitution.index,
+      '--space', insitution.space,
     ]).toString();
 
-    expect(res).toContain(`institution [${insitutionTest.name}] created`);
-    expect(res).toContain(`institution [${insitutionTest.name}] validated`);
-    expect(res).toContain(`space [${insitutionTest.space}] created`);
-    expect(res).toContain(`index [${insitutionTest.index}] created`);
-    expect(res).toContain(`index-pattern [${insitutionTest.index}] created`);
-    expect(res).toContain(`role [${insitutionTest.space}] created or updated`);
-    expect(res).toContain(`role [${insitutionTest.space}_read_only] created or updated`);
+    expect(res).toContain(`institution [${insitution.name}] created`);
+    expect(res).toContain(`institution [${insitution.name}] validated`);
+    expect(res).toContain(`space [${insitution.space}] created`);
+    expect(res).toContain(`index [${insitution.index}] created`);
+    expect(res).toContain(`index-pattern [${insitution.index}] created`);
+    expect(res).toContain(`role [${insitution.space}] created or updated`);
+    expect(res).toContain(`role [${insitution.space}_read_only] created or updated`);
   });
 
-  it(`Get institution [${insitutionTest.name}]`, () => {
-    const res = exec(commandFile, ['institutions', 'get', insitutionTest.name, '--json']);
+  it(`Get institution [${insitution.name}]`, () => {
+    const res = exec(commandFile, ['institutions', 'get', insitution.name, '--json']);
 
     let institutions = res.toString();
 
@@ -38,10 +38,10 @@ describe('Institutions tests', () => {
       console.error(error);
     }
 
-    expect(institutions[0]).toHaveProperty('name', insitutionTest.name);
-    expect(institutions[0]).toHaveProperty('indexPrefix', insitutionTest.index);
-    expect(institutions[0]).toHaveProperty('space', insitutionTest.space);
-    expect(institutions[0]).toHaveProperty('role', insitutionTest.space);
+    expect(institutions[0]).toHaveProperty('name', insitution.name);
+    expect(institutions[0]).toHaveProperty('indexPrefix', insitution.index);
+    expect(institutions[0]).toHaveProperty('space', insitution.space);
+    expect(institutions[0]).toHaveProperty('role', insitution.space);
     expect(institutions[0].validated).not.toBeFalsy();
     expect(institutions[0].auto.ezpaarse).toBeFalsy();
     expect(institutions[0].auto.ezmesure).toBeFalsy();
