@@ -1,0 +1,53 @@
+{
+  "version": "7.4.2",
+  "objects": [
+    {
+      "id": "homepage",
+      "type": "dashboard",
+      "updated_at": "2021-07-23T08:44:00.534Z",
+      "version": "WzEyMTMsMl0=",
+      "attributes": {
+        "description": "",
+        "hits": 0,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
+        },
+        "optionsJSON": "{\"hidePanelTitles\":false,\"useMargins\":true}",
+        "panelsJSON": "[{\"embeddableConfig\":{},\"gridData\":{\"x\":0,\"y\":0,\"w\":27,\"h\":46,\"i\":\"1\"},\"panelIndex\":\"1\",\"version\":\"7.3.0\",\"panelRefName\":\"panel_0\"}]",
+        "timeRestore": false,
+        "title": "homepage",
+        "version": 1
+      },
+      "references": [
+        {
+          "id": "81ae3bb0-f4b8-11e9-8b7a-69da0849c3ed",
+          "name": "panel_0",
+          "type": "visualization"
+        }
+      ],
+      "migrationVersion": {
+        "dashboard": "7.3.0"
+      }
+    },
+    {
+      "id": "81ae3bb0-f4b8-11e9-8b7a-69da0849c3ed",
+      "type": "visualization",
+      "updated_at": "2021-07-23T08:44:00.534Z",
+      "version": "WzEyMTQsMl0=",
+      "attributes": {
+        "description": "",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+        },
+        "title": "HomePage",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "visState": "{\"title\":\"HomePage\",\"type\":\"markdown\",\"params\":{\"markdown\":\"![ezMESURE](https://raw.githubusercontent.com/ezpaarse-project/ezpaarse-project.github.io/master/ezmesure/static/images/logo-ezMESURE-350.png)\\n## Bienvenue sur ezMESURE\\nVous êtes dans l'espace de bienvenue, probablement parce que vous venez tout juste de vous déclarer dans ezMESURE\\n\\nVous pouvez : \\n  -  [vérifier si votre organisme est déjà partenaire](https://ezmesure.couperin.org/partners) .\\n\\n![ezMESURE partenaires 2019](https://raw.githubusercontent.com/ezpaarse-project/ezpaarse-project.github.io/master/ezmesure/static/images/ezmesure%20page%20partenaires%202019.jpg)\\n\\n\\n Si c'est le cas, contactez le correspondant documentaire de votre organisme pour qu'il demande la mise à jour de vos droits.\\n  - Sinon, [initier un nouveau partenariat](https://blog.ezpaarse.org/2017/11/correspondants-ezmesure-votre-nouveau-role/)\\n\\nVous avez reçu par mail un identifiant de connexion et un mot de passe. Vous pouvez consulter et modifier ces informations en vous [connectant à votre page profil](https://ezmesure.couperin.org/myspace#tab-kibana)\\n\\nVous n'avez probablement encore accès à aucune donnée mais vous pouvez accéder à\\n[un tableau de bord exemple](https://ezmesure.couperin.org/kibana/s/bienvenue/goto/d77246059d7911659cef41283cbbeee5) pour illustrer ce que vous visualiserez une fois vos données déposées et vos droits mis à jour.\\n\\n![ezMESURE tb bienvenu](https://raw.githubusercontent.com/ezpaarse-project/ezpaarse-project.github.io/master/ezmesure/static/images/ezmesure%20tb%20bienvenu.jpg)\\n\\n \\n\\nToutes les informations sont disponibles à partir de la [page d'accueil ezPAARSE-ezMESURE](https://www.ezpaarse.org/)\\n\\nL'équipe ezTEAM.\",\"fontSize\":12,\"openLinksInNewTab\":true},\"aggs\":[]}"
+      },
+      "references": [],
+      "migrationVersion": {
+        "visualization": "7.4.2"
+      }
+    }
+  ]
+}
