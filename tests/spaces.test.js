@@ -1,12 +1,13 @@
 const exec = require('child_process').execFileSync;
 const path = require('path');
+const fs = require('fs-extra');
 
 const login = require('./utils/login');
 const { space } = require('./utils/data');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
-describe('ezMESURE user tests', () => {
+describe('ezMESURE spaces tests', () => {
   beforeEach(() => login());
 
   it(`Create space [${space.name}]`, () => {
@@ -46,10 +47,10 @@ describe('ezMESURE user tests', () => {
       console.error(error);
     }
 
-    expect(spaces[0].name).toMatch(space.name);
-    expect(spaces[0].color).toMatch(space.color);
-    expect(spaces[0].description).toMatch(space.description);
-    expect(spaces[0].initials).toMatch(space.initials);
+    expect(spaces[0]).toHaveProperty('name', space.name);
+    expect(spaces[0]).toHaveProperty('color', space.color);
+    expect(spaces[0]).toHaveProperty('description', space.description);
+    expect(spaces[0]).toHaveProperty('initials', space.initials);
     expect(spaces[0].indexPatterns).toContain(space.indexPattern);
   });
 
@@ -70,10 +71,45 @@ describe('ezMESURE user tests', () => {
       console.error(error);
     }
 
-    expect(spaces[0].name).toMatch(space.name);
-    expect(spaces[0].color).toMatch(space.color);
-    expect(spaces[0].description).toMatch(space.description);
-    expect(spaces[0].initials).toMatch('TU');
+    expect(spaces[0]).toHaveProperty('name', space.name);
+    expect(spaces[0]).toHaveProperty('color', space.color);
+    expect(spaces[0]).toHaveProperty('description', space.description);
+    expect(spaces[0]).toHaveProperty('initials', 'TU');
+    expect(spaces[0]).toHaveProperty('indexPatterns');
     expect(spaces[0].indexPatterns).toContain(space.indexPattern);
+  });
+
+  it(`Import dashboard into space [${space.name}]`, () => {
+    const res = exec(commandFile, [
+      'dashboard',
+      'import',
+      space.name,
+      '--index-pattern',
+      space.indexPattern,
+      '--files',
+      path.resolve(process.cwd(), 'tests', 'utils', 'dashboard.json'),
+    ]).toString();
+
+    expect(res).toContain('Dashboard imported');
+  });
+
+  it(`Export dashboard from space [${space.name}]`, () => {
+    const res = exec(commandFile, [
+      'dashboard',
+      'export',
+      space.name,
+      '--dashboard',
+      'homepage',
+      '--output',
+      path.resolve(process.cwd(), 'tests', 'utils'),
+    ]).toString();
+
+    const filePath = res.substring(res.indexOf('(') + 1, res.indexOf(')'));
+    const fileExists = fs.existsSync(path.resolve(filePath));
+
+    expect(fileExists).toBeTruthy();
+    expect(res).toContain('exported successfully');
+
+    fs.unlinkSync(filePath);
   });
 });
