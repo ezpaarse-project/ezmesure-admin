@@ -62,7 +62,7 @@ exports.handler = async function handler(argv) {
   let usersData = [];
   if (!users.length) {
     try {
-      const { data } = await usersLib.findAll({
+      const { data } = await usersLib.getAll({
         size: size || 10,
         source: fields,
       });

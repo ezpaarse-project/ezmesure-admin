@@ -32,7 +32,7 @@ exports.handler = async function handler(argv) {
   let usersSelected = [];
   if (!users.length) {
     try {
-      const { data } = await usersLib.findAll();
+      const { data } = await usersLib.getAll();
       usersSelected = data;
     } catch (error) {
       console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);

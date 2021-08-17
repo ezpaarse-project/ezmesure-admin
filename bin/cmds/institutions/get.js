@@ -45,7 +45,7 @@ exports.handler = async function handler(argv) {
 
   let institutionsData;
   try {
-    const { data } = await institutionsLib.findAll();
+    const { data } = await institutionsLib.getAll();
     institutionsData = data;
   } catch (error) {
     console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);

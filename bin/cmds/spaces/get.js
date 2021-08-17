@@ -43,7 +43,7 @@ exports.handler = async function handler(argv) {
   }
 
   try {
-    const { data } = await spacesLib.findAll();
+    const { data } = await spacesLib.getAll();
     spaces = data;
   } catch (error) {
     console.error(error);

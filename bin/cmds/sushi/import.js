@@ -5,7 +5,7 @@ const path = require('path');
 const get = require('lodash.get');
 
 const { importSushi } = require('../../../lib/sushi');
-const { getInstitution } = require('../../../lib/institutions');
+const institutionsLib = require('../../../lib/institutions');
 
 exports.command = 'import [institution]';
 exports.desc = i18n.t('sushi.import.description');
@@ -30,7 +30,7 @@ exports.handler = async function handler(argv) {
   let institutionId;
   if (argv.institution) {
     try {
-      const { body } = await getInstitution(argv.institution);
+      const { body } = await institutionsLib.getOne(argv.institution);
       if (body) { institutionId = get(body, 'hits.hits[0]._id'); }
     } catch (error) {
       console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: argv.institution }));

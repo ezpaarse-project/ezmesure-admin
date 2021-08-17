@@ -30,7 +30,7 @@ exports.handler = async function handler(argv) {
 
   let institutions;
   try {
-    const { data } = await institutionsLib.findAll();
+    const { data } = await institutionsLib.getAll();
     institutions = data.map((institution) => ({ institution }));
   } catch (error) {
     console.error(error);

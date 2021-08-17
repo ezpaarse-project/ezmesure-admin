@@ -47,7 +47,7 @@ exports.handler = async function handler(argv) {
 
     let institutionData;
     try {
-      const { data } = await institutions.findAll();
+      const { data } = await institutions.getAll();
       institutionData = data
         .filter((el) => el.name === institution.name)
         .pop();

@@ -7,8 +7,8 @@ const autocomplete = require('inquirer-autocomplete-prompt');
 inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 inquirer.registerPrompt('autocomplete', autocomplete);
 
-const { getSushi, deleteSushi } = require('../../../lib/sushi');
-const { getAll } = require('../../../lib/institutions');
+const sushiLib = require('../../../lib/sushi');
+const institutionsLib = require('../../../lib/institutions');
 
 exports.command = 'delete';
 exports.desc = i18n.t('sushi.delete.description');
@@ -16,7 +16,7 @@ exports.builder = function builder() {};
 exports.handler = async function handler() {
   let institutions;
   try {
-    const { data } = await getAll();
+    const { data } = await institutionsLib.getAll();
     if (data) { institutions = data; }
   } catch (error) {
     console.error(error);
@@ -47,7 +47,7 @@ exports.handler = async function handler() {
 
   let sushi;
   try {
-    const { data } = await getSushi(institutionId);
+    const { data } = await institutionsLib.getSushi(institutionId);
     if (data) { sushi = data; }
   } catch (err) {
     console.error(err);
@@ -77,7 +77,7 @@ exports.handler = async function handler() {
   }
 
   try {
-    await deleteSushi(vendorsSelected);
+    await sushiLib.delete(vendorsSelected);
   } catch (err) {
     console.error(err);
     process.exit(1);

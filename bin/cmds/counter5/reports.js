@@ -8,8 +8,8 @@ const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 
 inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 
-const { getAll } = require('../../../lib/institutions');
-const { getSushi, sushiTest } = require('../../../lib/sushi');
+const institutionsLib = require('../../../lib/institutions');
+const { sushiTest } = require('../../../lib/sushi');
 
 exports.command = 'reports check [institutions...]';
 exports.desc = i18n.t('counter5.report.description');
@@ -77,7 +77,7 @@ exports.handler = async function handler(argv) {
   let institutions;
 
   try {
-    const { data } = await getAll();
+    const { data } = await institutionsLib.getAll();
     institutions = data;
   } catch (error) {
     console.error(error);
@@ -146,7 +146,7 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < institutions.length; i += 1) {
     let credentials;
     try {
-      const { data } = await getSushi(institutions[i].id);
+      const { data } = await institutionsLib.getSushi(institutions[i].id);
       if (data) { credentials = data; }
     } catch (err) {
       console.error(`institution [${institutions[i].name}] no sushi found`);

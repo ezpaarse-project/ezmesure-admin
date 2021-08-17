@@ -5,21 +5,21 @@ const path = require('path');
 const fs = require('fs-extra');
 const Papa = require('papaparse');
 const { format } = require('date-fns');
-const { getAll, getInstitution } = require('../../../lib/institutions');
-const { getSushi, sushiTest } = require('../../../lib/sushi');
+const institutionsLib = require('../../../lib/institutions');
+const { sushiTest } = require('../../../lib/sushi');
 
 exports.command = 'info [institution]';
 exports.desc = i18n.t('sushi.info.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('institution', {
-    describe: i18n.t('sushi.info.option.institution'),
+    describe: i18n.t('sushi.info.options.institution'),
     type: 'string',
   }).option('e', {
     alias: 'export',
-    describe: i18n.t('sushi.info.option.export'),
+    describe: i18n.t('sushi.info.options.export'),
   }).option('o', {
     alias: 'output',
-    describe: i18n.t('sushi.info.option.output'),
+    describe: i18n.t('sushi.info.options.output'),
   });
 };
 exports.handler = async function handler(argv) {
@@ -30,7 +30,7 @@ exports.handler = async function handler(argv) {
   if (argv.institution) {
     let institution;
     try {
-      const { body } = await getInstitution(argv.institution);
+      const { body } = await institutionsLib.getOne(argv.institution);
       if (body) { institution = get(body, 'hits.hits[0]'); }
     } catch (error) {
       console.error(error);
@@ -50,7 +50,7 @@ exports.handler = async function handler(argv) {
   if (!argv.institution) {
     let institutionsData;
     try {
-      const { data } = await getAll();
+      const { data } = await institutionsLib.getAll();
       if (data) { institutionsData = data; }
     } catch (error) {
       console.error(error);
@@ -69,7 +69,7 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < institutions.length; i += 1) {
     try {
       const { id, name } = institutions[i];
-      const { data } = await getSushi(id);
+      const { data } = await institutionsLib.getSushi(id);
 
       const success = [];
       const failed = [];

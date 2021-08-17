@@ -11,7 +11,7 @@ inquirer.registerPrompt('autocomplete', autocomplete);
 module.exports = async function it() {
   let spaces;
   try {
-    const { data } = await spacesLib.findAll();
+    const { data } = await spacesLib.getAll();
     spaces = data;
   } catch (error) {
     console.error(error);

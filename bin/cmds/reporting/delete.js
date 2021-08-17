@@ -30,7 +30,7 @@ exports.handler = async function handler(argv) {
 
   let tasks;
   try {
-    const { body } = await reportingLib.findAll();
+    const { body } = await reportingLib.getAll();
     if (body) { tasks = get(body, 'hits.hits'); }
   } catch (error) {
     console.log(i18n.t('reporting.noTasksFound'));
@@ -56,7 +56,7 @@ exports.handler = async function handler(argv) {
         }
 
         try {
-          const { data } = await dashboardLib.findAll(task?.space);
+          const { data } = await dashboardLib.getAll(task?.space);
           dashboards[task?.space] = data || [];
         } catch (error) {
           console.error(i18n.t('reporting.cannotGetDashboards', { space: task?.space }));

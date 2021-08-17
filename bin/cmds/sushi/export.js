@@ -12,8 +12,7 @@ const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 
 inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 
-const { getInstitutions } = require('../../../lib/institutions');
-const { getSushi } = require('../../../lib/sushi');
+const institutionsLib = require('../../../lib/institutions');
 
 exports.command = 'export [institutions...]';
 exports.desc = i18n.t('sushi.export.description');
@@ -43,7 +42,7 @@ exports.handler = async function handler(argv) {
 
   let institutions;
   try {
-    const { body } = await getInstitutions();
+    const { body } = await institutionsLib.getAll();
     if (body) { institutions = get(body, 'hits.hits'); }
   } catch (error) {
     console.error(error);
@@ -102,7 +101,7 @@ exports.handler = async function handler(argv) {
     let sushi = [];
 
     try {
-      const { data } = await getSushi(institutions[i].id);
+      const { data } = await institutionsLib.getSushi(institutions[i].id);
       sushi = data;
     } catch (error) {
       console.error(error);

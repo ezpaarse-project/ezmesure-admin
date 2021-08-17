@@ -15,7 +15,7 @@ inquirer.registerPrompt('autocomplete', autocomplete);
 module.exports = async function it() {
   let spaces;
   try {
-    const { data } = await spacesLib.findAll();
+    const { data } = await spacesLib.getAll();
     spaces = data;
   } catch (error) {
     console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
@@ -43,7 +43,7 @@ module.exports = async function it() {
 
   let dashboards;
   try {
-    const { data } = await dashboardLib.findAll(spaceId);
+    const { data } = await dashboardLib.getAll(spaceId);
     dashboards = data;
   } catch (error) {
     console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);

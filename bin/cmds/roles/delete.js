@@ -24,7 +24,7 @@ exports.handler = async function handler(argv) {
 
   let roles;
   try {
-    const { data } = await rolesLib.findAll(true);
+    const { data } = await rolesLib.getAll(true);
     roles = data;
   } catch (error) {
     console.error(error);

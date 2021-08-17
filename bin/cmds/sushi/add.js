@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const inquirer = require('inquirer');
 const autocomplete = require('inquirer-autocomplete-prompt');
-const { getAll } = require('../../../lib/institutions');
+const institutionsLib = require('../../../lib/institutions');
 const { addSushi } = require('../../../lib/sushi');
 
 inquirer.registerPrompt('autocomplete', autocomplete);
@@ -63,7 +63,7 @@ exports.handler = async function handler(argv) {
 
   let institutions;
   try {
-    const { data } = await getAll();
+    const { data } = await institutionsLib.getAll();
     institutions = data;
   } catch (error) {
     console.error(i18n.t('institutions.institutionsNotFound'));

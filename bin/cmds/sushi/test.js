@@ -16,8 +16,8 @@ const chalk = require('chalk');
 
 const get = require('lodash.get');
 
-const { getSushi, sushiTest } = require('../../../lib/sushi');
-const { getAll, getInstitution } = require('../../../lib/institutions');
+const { sushiTest } = require('../../../lib/sushi');
+const institutionsLib = require('../../../lib/institutions');
 
 exports.command = 'test [institution]';
 exports.desc = i18n.t('sushi.test.description');
@@ -53,7 +53,7 @@ exports.handler = async function handler(argv) {
 
   if (argv.institution) {
     try {
-      const { body } = await getInstitution(argv.institution);
+      const { body } = await institutionsLib.getOne(argv.institution);
       if (body) {
         const data = get(body, 'hits.hits[0]');
         const institution = {
@@ -77,7 +77,7 @@ exports.handler = async function handler(argv) {
 
   if (!argv.institution) {
     try {
-      const { data } = await getAll();
+      const { data } = await institutionsLib.getAll();
       if (data) { institutions = data; }
     } catch (error) {
       console.error(error);
@@ -120,7 +120,7 @@ exports.handler = async function handler(argv) {
 
   if (!argv.all) {
     try {
-      const { data } = await getSushi(institutionsId);
+      const { data } = await institutionsLib.getSushi(institutionsId);
       if (data) {
         sushi = data;
         credentials = sushi;
@@ -158,7 +158,7 @@ exports.handler = async function handler(argv) {
   if (argv.all) {
     for (let i = 0; i < institutionsId.length; i += 1) {
       try {
-        const { data } = await getSushi(institutionsId[i]);
+        const { data } = await institutionsLib.getSushi(institutionsId[i]);
         if (data) {
           sushi = [...sushi, ...data];
           credentials = [...credentials, ...data];
