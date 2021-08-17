@@ -8,11 +8,7 @@ const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 const { EZMESURE_ADMIN_USERNAME } = process.env;
 
 describe('ezMESURE user tests', () => {
-  it(`Login ezMESURE user [${EZMESURE_ADMIN_USERNAME}]`, () => {
-    const res = login().toString();
-
-    expect(res).toContain(`user [${EZMESURE_ADMIN_USERNAME}] logged in successfully`);
-  });
+  beforeEach(() => login());
 
   it('Get ezMESURE profile', () => {
     const res = exec(commandFile, ['profile']).toString();
