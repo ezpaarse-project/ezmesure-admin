@@ -1,6 +1,8 @@
 const exec = require('child_process').execFileSync;
 const path = require('path');
 
+const institutionData = require('./utils/institution.json');
+
 const login = require('./utils/login');
 const { insitution } = require('./utils/data');
 
@@ -72,5 +74,37 @@ describe('Institutions tests', () => {
     const res = exec(commandFile, ['institutions', 'refresh']).toString();
 
     expect(res).toContain('Institutions are refreshed');
+  });
+
+  it('Export institutions', () => {
+    const res = exec(commandFile, [
+      'institutions',
+      'export',
+      '--all',
+    ]);
+
+    let institutions = res.toString();
+
+    try {
+      institutions = JSON.parse(institutions);
+    } catch (error) {
+      console.error(error);
+    }
+
+    expect(institutions.length).not.toBe(0);
+  });
+
+  it(`Import institution [${institutionData.institution.name}]`, () => {
+    const res = exec(commandFile, [
+      'institutions',
+      'import',
+      '--files',
+      path.resolve(process.cwd(), 'tests', 'utils', 'institution.json'),
+    ]).toString();
+
+    expect(res).toContain(`institution [${institutionData.institution.name}] imported`);
+    expect(res).toContain(`space [${institutionData.space.name}] imported`);
+    expect(res).toContain(`index [${institutionData.institution.indexPrefix}] imported`);
+    expect(res).toContain(`index-pattern [${institutionData.indexPattern[0].title}] imported`);
   });
 });

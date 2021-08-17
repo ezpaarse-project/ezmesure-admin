@@ -63,7 +63,10 @@ exports.handler = async function handler(argv) {
       delete data.disabledFeatures;
       institutions[i].space = data;
     } catch (error) {
-      console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'space' }));
+      institutions[i].space = null;
+      if (verbose) {
+        console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'space' }));
+      }
     }
 
     // Get index-pattern informations
@@ -75,7 +78,10 @@ exports.handler = async function handler(argv) {
       const { data } = await spaces.getIndexPatterns(institution.space);
       institutions[i].indexPattern = data.map(({ attributes }) => attributes);
     } catch (error) {
-      console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'index-pattern' }));
+      institutions[i].indexPattern = null;
+      if (verbose) {
+        console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'index-pattern' }));
+      }
     }
 
     // Get roles informations
@@ -96,7 +102,9 @@ exports.handler = async function handler(argv) {
       };
       institutions[i].roles.push(role);
     } catch (error) {
-      console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'roles (all)' }));
+      if (verbose) {
+        console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'roles (all)' }));
+      }
     }
 
     if (verbose) {
@@ -115,7 +123,9 @@ exports.handler = async function handler(argv) {
       };
       institutions[i].roles.push(role);
     } catch (error) {
-      console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'roles (read only)' }));
+      if (verbose) {
+        console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'roles (read only)' }));
+      }
     }
 
     // Get SUSHI informations
@@ -127,7 +137,10 @@ exports.handler = async function handler(argv) {
       const { data } = await institutionsLib.getSushi(institution.id);
       institutions[i].sushi = data.map(({ attributes }) => attributes);
     } catch (error) {
-      console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'sushi' }));
+      institutions[i].sushi = [];
+      if (verbose) {
+        console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'sushi' }));
+      }
     }
 
     delete institution.id;
@@ -154,6 +167,6 @@ exports.handler = async function handler(argv) {
       console.log('* Display institutions data');
     }
 
-    console.log(institutions);
+    console.log(JSON.stringify(institutions, null, 2));
   }
 };

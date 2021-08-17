@@ -1,5 +1,7 @@
 const { i18n } = global;
 
+const path = require('path');
+
 const institutions = require('../../../lib/institutions');
 const spaces = require('../../../lib/spaces');
 const indices = require('../../../lib/indices');
@@ -30,52 +32,54 @@ exports.handler = async function handler(argv) {
     let content;
     try {
       // eslint-disable-next-line
-      content = require(files[i]);
+      content = require(path.resolve(files[i]));
     } catch (error) {
-      console.error(i18n.t('cannotReadFile', { file: files[i] }));
-    }
-
-    const { name, space, indexPrefix } = content.institution;
-
-    if (verbose) {
-      console.log(`* Retrieving institution [${name}] data from ${config.ezmesure.baseUrl}`);
-    }
-
-    let institution;
-    try {
-      const { data } = await institutions.findAll();
-      institution = data
-        .filter((el) => el.name === name)
-        .pop();
-    } catch (err) {
-      console.error(`[${i18n.t('institutions.add.getInstitutions')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      console.log(error);
+      console.error(i18n.t('institutions.import.cannotReadFile', { file: files[i] }));
       process.exit(1);
     }
 
-    if (institution) {
-      console.log(i18n.t('institutions.import.institutionAlreadyExists', { name }));
+    const { institution, space } = content;
+
+    if (verbose) {
+      console.log(`* Retrieving institution [${institution.name}] data from ${config.ezmesure.baseUrl}`);
+    }
+
+    let institutionData;
+    try {
+      const { data } = await institutions.findAll();
+      institutionData = data
+        .filter((el) => el.name === institution.name)
+        .pop();
+    } catch (err) {
+      console.error(`[Find institutions][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      process.exit(1);
+    }
+
+    if (institutionData) {
+      console.log(i18n.t('institutions.import.institutionAlreadyExists', { name: institution.name }));
     }
 
     // eslint-disable-next-line no-continue
-    if (!institution) {
+    if (!institutionData) {
       // Create institution
       if (verbose) {
-        console.log(`* Create institution [${name}] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create institution [${institution.name}] from ${config.ezmesure.baseUrl}`);
       }
 
       try {
         const { data } = await institutions.create(content.institution);
-        institution = data;
-        console.log(i18n.t('institutions.add.institutionImported', { name }));
+        institutionData = data;
+        console.log(i18n.t('institutions.import.institutionImported', { name: institution.name }));
       } catch (err) {
-        console.error(`[${i18n.t('institutions.add.importInstitution')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+        console.error(`[Import institution][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
         process.exit(1);
       }
     }
 
     // Create space
     if (verbose) {
-      console.log(`* Create institution [${name}] space [${space}] from ${config.ezmesure.baseUrl}`);
+      console.log(`* Create institution [${institution.name}] space [${space.name}] from ${config.ezmesure.baseUrl}`);
     }
 
     try {
@@ -83,57 +87,56 @@ exports.handler = async function handler(argv) {
         id: space,
         name: space,
       });
-      console.log(i18n.t('institutions.add.institutionImported', { space }));
+      console.log(i18n.t('institutions.import.spaceImported', { space: space.name }));
     } catch (err) {
-      console.error(`[${i18n.t('institutions.add.importSpace')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      console.error(`[Import space][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
     }
 
     // Create index
     if (verbose) {
-      console.log(`* Create institution [${name}] index [${indexPrefix}] from ${config.ezmesure.baseUrl}`);
+      console.log(`* Create institution [${institution.name}] index [${institution.indexPrefix}] from ${config.ezmesure.baseUrl}`);
     }
 
     try {
-      await indices.create(indexPrefix);
-      console.log(i18n.t('institutions.add.indexCreated', { index: indexPrefix }));
+      await indices.create(institution.indexPrefix);
+      console.log(i18n.t('institutions.import.indexCreated', { index: institution.indexPrefix }));
     } catch (err) {
-      console.error(`[${i18n.t('institutions.add.importIndex')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      console.error(`[Import index][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
     }
 
     // Create index-patterns
     for (let j = 0; j < content?.indexPattern.length; j += 1) {
       if (verbose) {
-        console.log(`* Create institution [${name}] index-pattern [${content?.indexPattern[j]}] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create institution [${institution.name}] index-pattern [${content?.indexPattern[j]}] from ${config.ezmesure.baseUrl}`);
       }
 
       try {
         await spaces.addIndexPatterns(space, content?.indexPattern[j]);
-        console.log(i18n.t('institutions.add.indexPatternImported', { indexPattern: content.indexPattern[j].title }));
+        console.log(i18n.t('institutions.import.indexPatternImported', { indexPattern: content.indexPattern[j].title }));
       } catch (err) {
-        console.error(`[${i18n.t('institutions.add.importIndexPattern')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+        console.error(`[Import index-pattern][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
       }
     }
 
     // Create roles
     for (let j = 0; j < content.roles.length; j += 1) {
       if (verbose) {
-        console.log(`* Create institution [${name}] role [${content.roles[j].name}] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create institution [${institution.name}] role [${content.roles[j].name}] from ${config.ezmesure.baseUrl}`);
       }
 
       try {
         await roles.createOrUpdate(content.roles[j].name, content.roles[j]);
-        console.log(i18n.t('institutions.add.roleImported'));
-        console.log(`roles [${space}] imported (created or updated).`);
+        console.log(`roles [${space.name}] imported (created or updated).`);
       } catch (err) {
         console.error(err);
-        console.error(`[${i18n.t('institutions.add.importRole')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+        console.error(`[Import role][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
       }
     }
 
     // Import SUSHI Data
     // TODO : import sushi data
     if (verbose) {
-      console.log(`* Import institution [${name}] sushi data from ${config.ezmesure.baseUrl}`);
+      console.log(`* Import institution [${institution.name}] sushi data from ${config.ezmesure.baseUrl}`);
     }
   }
 };

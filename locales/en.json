@@ -343,6 +343,7 @@
 			"getInstitutions": "Get institutions",
 			"institutionCreated": "institution [{{name}}] created",
 			"createInstitution": "Create institution",
+			"importInstitution": "Iimport institution",
 			"institutionValidated": "institution [{{name}}] validated",
 			"validate": "Validate",
 			"spaceCreated": "space [{{space}}] created",
