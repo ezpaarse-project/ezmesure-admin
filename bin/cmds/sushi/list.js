@@ -1,16 +1,9 @@
 const { i18n } = global;
 
-const inquirer = require('inquirer');
-const checkboxPlus = require('inquirer-checkbox-plus-prompt');
-const autocomplete = require('inquirer-autocomplete-prompt');
-
-inquirer.registerPrompt('checkbox-plus', checkboxPlus);
-inquirer.registerPrompt('autocomplete', autocomplete);
-
 const { table } = require('table');
 
-const sushiLib = require('../../../lib/sushi');
 const institutionsLib = require('../../../lib/institutions');
+const itMode = require('./interactive/list');
 
 exports.command = 'list';
 exports.desc = i18n.t('sushi.list.description');
@@ -30,7 +23,7 @@ exports.handler = async function handler(argv) {
 
   let institutions;
   try {
-    const { data } = await institutionsLib.findAll();
+    const { data } = await institutionsLib.getAll();
     if (data) { institutions = data; }
   } catch (error) {
     console.error(error);
@@ -41,50 +34,18 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  const { institutionSelected } = await inquirer.prompt([{
-    type: 'autocomplete',
-    pageSize: 20,
-    name: 'institutionSelected',
-    message: i18n.t('institutions.institutionsSelect'),
-    searchable: true,
-    highlight: true,
-    source: (answersSoFar, input) => new Promise((resolve) => {
-      input = input ? input.toLowerCase() : '';
-
-      const result = institutions
-        .map(({ name, id }) => ({ name, value: id }))
-        .filter(({ name }) => name.toLowerCase().includes(input));
-
-      resolve(result);
-    }),
-  }]);
+  const { institutionSelected } = await itMode.selectInstitutions(institutions);
 
   let sushi;
   try {
-    const { data } = await sushiLib.getSushi(institutionSelected);
+    const { data } = await institutionsLib.getSushi(institutionSelected);
     if (data) { sushi = data; }
   } catch (err) {
     console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
     process.exit(0);
   }
 
-  const { vendorsSelected } = await inquirer.prompt([{
-    type: 'checkbox-plus',
-    pageSize: 20,
-    name: 'vendorsSelected',
-    message: i18n.t('sushi.vendorCheckbox'),
-    searchable: true,
-    highlight: true,
-    source: (answersSoFar, input) => new Promise((resolve) => {
-      input = input || '';
-
-      const result = sushi
-        .map(({ vendor, id }) => ({ name: vendor, value: id }))
-        .filter(({ name }) => name.toLowerCase().includes(input));
-
-      resolve(result);
-    }),
-  }]);
+  const { vendorsSelected } = await itMode.selectVendors(sushi);
 
   const selectedSushi = sushi.filter(({ id }) => vendorsSelected.includes(id));
 
