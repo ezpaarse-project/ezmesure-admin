@@ -98,8 +98,6 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  console.log(selectedSushi);
-
   const header = [
     i18n.t('sushi.list.package'),
     i18n.t('sushi.list.vendor'),
