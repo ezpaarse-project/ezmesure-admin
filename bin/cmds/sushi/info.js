@@ -23,7 +23,7 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const exportFormat = argv.export ? argv.export.toLowerCase() : 'json';
+  const exportFormat = (argv.export || 'json').toLowerCase();
 
   let institutions;
 
