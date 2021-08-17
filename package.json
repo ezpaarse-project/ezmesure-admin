@@ -9,7 +9,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose ./tests",
+    "test": "cross-env NODE_ENV=test jest --verbose --coverage ./tests",
     "lint": "eslint --ext .js .",
     "prepare": "husky install"
   },
@@ -51,6 +51,7 @@
     "yargs": "^16.2.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "eslint": "^7.31.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.23.4",
