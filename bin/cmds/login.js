@@ -4,6 +4,7 @@ const readline = require('readline');
 const inquirer = require('inquirer');
 const fs = require('fs-extra');
 const set = require('lodash.set');
+const get = require('lodash.get');
 const stream = require('stream');
 
 const ezmesure = require('../../lib/app/ezmesure');
@@ -90,6 +91,11 @@ exports.handler = async function handler(argv) {
 
   if (verbose) {
     console.log('* API token recovery');
+  }
+
+  if (!get(res.headers, 'set-cookie')) {
+    console.error('ezMESURE Token not found');
+    process.exit(1);
   }
 
   const match = /^eztoken=([a-z0-9._\-\w]+)/i.exec(res?.headers['set-cookie']);
