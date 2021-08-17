@@ -51,7 +51,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (!argv.all && argv.spaces.length) {
-    spaces = spaces.filter(({ id }) => argv.spaces.includes(id));
+    spaces = spaces?.filter(({ id }) => argv.spaces.includes(id));
   }
 
   if (argv.it) {
