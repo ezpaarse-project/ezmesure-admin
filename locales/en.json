@@ -114,7 +114,7 @@
 		"info": {
 			"description": "Get SUSHI informations",
 			"options": {
-				"institution": "Institution name, case sensitive",
+				"institutions": "Institution(s) name(s), case sensitive",
 				"export": "Export format (json, csv)",
 				"output": "Output path"
 			},

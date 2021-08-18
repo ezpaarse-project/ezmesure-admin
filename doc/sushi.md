@@ -116,7 +116,6 @@ $ ezmesure-admin sushi info --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
-| --token | String | ezMESURE token |
 | -e, --export | String | Export format (json, csv) |
 | -o, --output | String | Output path |
 
@@ -141,7 +140,6 @@ $ ezmesure-admin sushi list --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
-| --token | String | ezMESURE token |
 
 Example :
 ```bash
@@ -173,7 +171,6 @@ $ ezmesure-admin sushi test --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
-| --token | String | ezMESURE token |
 | -a, --all | Boolean | Test all platforms for once institution |
 | -j, --json | Boolean | Print result(s) in json |
 | -n, --ndjson | boolean | Output newline delimited JSON file |

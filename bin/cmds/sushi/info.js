@@ -7,12 +7,13 @@ const { format } = require('date-fns');
 const institutionsLib = require('../../../lib/institutions');
 const { sushiTest } = require('../../../lib/sushi');
 const itMode = require('./interactive/info');
+const { config } = require('../../../lib/app/config');
 
-exports.command = 'info [institution]';
+exports.command = 'info [institutions...]';
 exports.desc = i18n.t('sushi.info.description');
 exports.builder = function builder(yargs) {
-  return yargs.positional('institution', {
-    describe: i18n.t('sushi.info.options.institution'),
+  return yargs.positional('institutions', {
+    describe: i18n.t('sushi.info.options.institutions'),
     type: 'string',
   }).option('e', {
     alias: 'export',
@@ -23,7 +24,13 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
+  const { verbose } = argv;
+
   const exportFormat = (argv.export || 'json').toLowerCase();
+
+  if (verbose) {
+    console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
+  }
 
   let institutions;
   try {
@@ -38,15 +45,26 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  const { institutionsSelected } = await itMode.selectInstitutions(institutions);
+  if (argv.institutions) {
+    institutions = institutions.filter(({ name }) => argv.institutions.includes(name));
+  }
 
-  institutions = institutions.filter(({ id }) => institutionsSelected.includes(id));
+  if (!argv.institutions) {
+    const { institutionsSelected } = await itMode.selectInstitutions(institutions);
+
+    institutions = institutions.filter(({ id }) => institutionsSelected.includes(id));
+  }
 
   const report = [];
 
   for (let i = 0; i < institutions.length; i += 1) {
     try {
       const { id, name } = institutions[i];
+
+      if (verbose) {
+        console.log(`* Retrieving SUSHI information for institution [${name}] from ${config.ezmesure.baseUrl}`);
+      }
+
       const { data } = await institutionsLib.getSushi(id);
 
       const success = [];
@@ -88,12 +106,19 @@ exports.handler = async function handler(argv) {
 
   if (exportFormat === 'json') {
     if (!argv.output) {
+      if (verbose) {
+        console.log('* Export in json format');
+      }
       console.log(JSON.stringify(report, null, 2));
     }
 
     if (argv.output) {
+      const filePath = path.resolve(argv.output, `${fileName}.json`);
       try {
-        await fs.writeJson(path.resolve(argv.output, `${fileName}.json`), report, { spaces: 2 });
+        if (verbose) {
+          console.log(`* Export JSON file [${filePath}]`);
+        }
+        await fs.writeJson(filePath, report, { spaces: 2 });
       } catch (error) {
         console.log(error);
         process.exit(1);
@@ -130,12 +155,19 @@ exports.handler = async function handler(argv) {
     const csv = Papa.unparse({ fields, data });
 
     if (!argv.output) {
+      if (verbose) {
+        console.log('* Export in CSV format');
+      }
       console.log(csv);
     }
 
     if (argv.output) {
       try {
-        await fs.writeFile(path.resolve(argv.output, `${fileName}.csv`), csv);
+        const csvPath = path.resolve(argv.output, `${fileName}.csv`);
+        if (verbose) {
+          console.log(`* Export CSV file [${csvPath}]`);
+        }
+        await fs.writeFile(csvPath, csv);
       } catch (error) {
         console.log(error);
         process.exit(1);
