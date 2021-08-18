@@ -9,6 +9,7 @@ const stream = require('stream');
 
 const ezmesure = require('../../lib/app/ezmesure');
 const scopes = require('../../lib/app/config').getScopes();
+const kibana = require('../../lib/app/kibana');
 
 exports.command = 'login';
 exports.desc = i18n.t('login.description');
@@ -74,6 +75,11 @@ exports.handler = async function handler(argv) {
     for await (const line of rl) {
       credentials.password = line;
     }
+  }
+
+  if (kibana.reservedUsers.includes(credentials.username)) {
+    console.error(`You cannot authenticate with a reserved user [${credentials.username}]`);
+    process.exit(1);
   }
 
   if (verbose) {
