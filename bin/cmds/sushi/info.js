@@ -1,12 +1,12 @@
 const { i18n } = global;
 
-const get = require('lodash.get');
 const path = require('path');
 const fs = require('fs-extra');
 const Papa = require('papaparse');
 const { format } = require('date-fns');
 const institutionsLib = require('../../../lib/institutions');
 const { sushiTest } = require('../../../lib/sushi');
+const itMode = require('./interactive/info');
 
 exports.command = 'info [institution]';
 exports.desc = i18n.t('sushi.info.description');
@@ -26,43 +26,21 @@ exports.handler = async function handler(argv) {
   const exportFormat = (argv.export || 'json').toLowerCase();
 
   let institutions;
-
-  if (argv.institution) {
-    let institution;
-    try {
-      const { body } = await institutionsLib.getOne(argv.institution);
-      if (body) { institution = get(body, 'hits.hits[0]'); }
-    } catch (error) {
-      console.error(error);
-    }
-
-    if (!institution) {
-      console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: argv.institution }));
-      process.exit(0);
-    }
-
-    institutions = [{
-      id: get(institution, '_source.institution.id'),
-      name: argv.institution,
-    }];
+  try {
+    const { data } = await institutionsLib.getAll();
+    if (data) { institutions = data; }
+  } catch (error) {
+    console.error(error);
   }
 
-  if (!argv.institution) {
-    let institutionsData;
-    try {
-      const { data } = await institutionsLib.getAll();
-      if (data) { institutionsData = data; }
-    } catch (error) {
-      console.error(error);
-    }
-
-    if (!institutionsData) {
-      console.log(i18n.t('institutions.institutionsNotFound'));
-      process.exit(0);
-    }
-
-    institutions = institutionsData.map(({ id, name }) => ({ id, name }));
+  if (!institutions) {
+    console.log(i18n.t('institutions.institutionsNotFound'));
+    process.exit(0);
   }
+
+  const { institutionsSelected } = await itMode.selectInstitutions(institutions);
+
+  institutions = institutions.filter(({ id }) => institutionsSelected.includes(id));
 
   const report = [];
 

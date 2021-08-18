@@ -2,6 +2,7 @@ const { i18n } = global;
 
 const { table } = require('table');
 
+const { config } = require('../../../lib/app/config');
 const institutionsLib = require('../../../lib/institutions');
 const itMode = require('./interactive/list');
 
@@ -19,7 +20,11 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const { json, ndjson } = argv;
+  const { json, ndjson, verbose } = argv;
+
+  if (verbose) {
+    console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
+  }
 
   let institutions;
   try {
@@ -36,9 +41,15 @@ exports.handler = async function handler(argv) {
 
   const { institutionSelected } = await itMode.selectInstitutions(institutions);
 
+  const currentInstitution = institutions.find(({ id }) => id === institutionSelected);
+
+  if (verbose) {
+    console.log(`* Retrieving SUSHI information for institution [${currentInstitution.name}] from ${config.ezmesure.baseUrl}`);
+  }
+
   let sushi;
   try {
-    const { data } = await institutionsLib.getSushi(institutionSelected);
+    const { data } = await institutionsLib.getSushi(currentInstitution.id);
     if (data) { sushi = data; }
   } catch (err) {
     console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
