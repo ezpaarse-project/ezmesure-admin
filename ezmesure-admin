@@ -13,7 +13,7 @@ const i18n = new I18n({
 });
 global.i18n = i18n;
 
-config.loadEnv(process.argv);
+config.loadEnv();
 
 yargs.commandDir('bin/cmds')
   .strictCommands()
