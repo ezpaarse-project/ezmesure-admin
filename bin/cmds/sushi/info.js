@@ -142,6 +142,8 @@ exports.handler = async function handler(argv) {
       process.exit(1);
     }
 
+    console.log(`File saved in json : ${filePath}`);
+
     process.exit(0);
   }
 
@@ -159,6 +161,7 @@ exports.handler = async function handler(argv) {
       console.log(`* Export ndjson file [${filePath}]`);
     }
     report.forEach((r) => fs.appendFileSync(filePath, `${JSON.stringify(r)}\r\n`));
+    console.log(`File saved in ndjson : ${filePath}`);
     process.exit(0);
   }
 
@@ -204,11 +207,12 @@ exports.handler = async function handler(argv) {
         console.log(`* Export CSV file [${csvPath}]`);
       }
       await fs.writeFile(csvPath, parsedCSV);
+
+      console.log(`File saved CSV ndjson : ${csvPath}`);
     } catch (error) {
       console.log(error);
       process.exit(1);
     }
-
     process.exit(0);
   }
 };
