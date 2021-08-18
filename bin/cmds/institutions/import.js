@@ -68,7 +68,11 @@ exports.handler = async function handler(argv) {
       }
 
       try {
-        const { data } = await institutions.create(content.institution);
+        const { data } = await institutions.create({
+          ...content.institution,
+          role: space.name,
+          space: space.name,
+        });
         institutionData = data;
         console.log(i18n.t('institutions.import.institutionImported', { name: institution.name }));
       } catch (err) {
