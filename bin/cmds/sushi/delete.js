@@ -9,11 +9,19 @@ inquirer.registerPrompt('autocomplete', autocomplete);
 
 const sushiLib = require('../../../lib/sushi');
 const institutionsLib = require('../../../lib/institutions');
+const { config } = require('../../../lib/app/config');
+const itMode = require('./interactive/list');
 
 exports.command = 'delete';
 exports.desc = i18n.t('sushi.delete.description');
 exports.builder = function builder() {};
-exports.handler = async function handler() {
+exports.handler = async function handler(argv) {
+  const { verbose } = argv;
+
+  if (verbose) {
+    console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
+  }
+
   let institutions;
   try {
     const { data } = await institutionsLib.getAll();
@@ -27,49 +35,18 @@ exports.handler = async function handler() {
     process.exit(0);
   }
 
-  const institutionsName = institutions.map(({ name }) => name);
-  const { institutionSelected } = await inquirer.prompt([{
-    type: 'autocomplete',
-    pageSize: 20,
-    name: 'institutionSelected',
-    message: i18n.t('institutions.institutionsSelect'),
-    searchable: true,
-    highlight: true,
-    source: (answersSoFar, input) => new Promise((resolve) => {
-      input = input ? input.toLowerCase() : '';
-
-      resolve(institutionsName.filter((indice) => indice.toLowerCase().includes(input)));
-    }),
-  }]);
-
-  const { id: institutionId } = institutions
-    .find(({ name }) => name.toLowerCase() === institutionSelected.toLowerCase());
+  const { institutionSelected } = await itMode.selectInstitutions(institutions);
+  const institution = institutions.find(({ id }) => id === institutionSelected);
 
   let sushi;
   try {
-    const { data } = await institutionsLib.getSushi(institutionId);
+    const { data } = await institutionsLib.getSushi(institutionSelected);
     if (data) { sushi = data; }
   } catch (err) {
     console.error(err);
   }
 
-  const { vendorsSelected } = await inquirer.prompt([{
-    type: 'checkbox-plus',
-    pageSize: 20,
-    name: 'vendorsSelected',
-    message: i18n.t('suhsi.vendorCheckbox'),
-    searchable: true,
-    highlight: true,
-    source: (answersSoFar, input) => new Promise((resolve) => {
-      input = input || '';
-
-      const result = sushi
-        .map(({ vendor, id }) => ({ name: vendor, value: id }))
-        .filter(({ name }) => name.toLowerCase().includes(input));
-
-      resolve(result);
-    }),
-  }]);
+  const { vendorsSelected } = await itMode.selectVendors(sushi);
 
   if (!vendorsSelected) {
     console.log(i18n.t('sushi.noCredentialsFound'));
@@ -77,6 +54,9 @@ exports.handler = async function handler() {
   }
 
   try {
+    if (verbose) {
+      console.log(`* Remove SUSHI information for institution [${institution.name}] from ${config.ezmesure.baseUrl}`);
+    }
     await sushiLib.delete(vendorsSelected);
   } catch (err) {
     console.error(err);
