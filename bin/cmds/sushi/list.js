@@ -6,7 +6,7 @@ const { config } = require('../../../lib/app/config');
 const institutionsLib = require('../../../lib/institutions');
 const itMode = require('./interactive/list');
 
-exports.command = 'list';
+exports.command = 'list [institutions...]';
 exports.desc = i18n.t('sushi.list.description');
 exports.builder = function builder(yargs) {
   return yargs.option('j', {
@@ -20,7 +20,9 @@ exports.builder = function builder(yargs) {
   });
 };
 exports.handler = async function handler(argv) {
-  const { json, ndjson, verbose } = argv;
+  const {
+    json, ndjson, verbose,
+  } = argv;
 
   if (verbose) {
     console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
@@ -39,34 +41,34 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  const { institutionSelected } = await itMode.selectInstitutions(institutions);
+  const institutionsSelected = institutions;
 
-  const currentInstitution = institutions.find(({ id }) => id === institutionSelected);
+  const sushiData = [];
 
-  if (verbose) {
-    console.log(`* Retrieving SUSHI information for institution [${currentInstitution.name}] from ${config.ezmesure.baseUrl}`);
+  for (let i = 0; i < institutionsSelected.length; i += 1) {
+    if (verbose) {
+      console.log(`* Retrieving SUSHI information for institution [${institutionsSelected[i].name}] from ${config.ezmesure.baseUrl}`);
+    }
+
+    try {
+      const { data } = await institutionsLib.getSushi(institutionsSelected[i].id);
+      sushiData.push({
+        institution: institutionsSelected[i].name,
+        sushi: data,
+      });
+    } catch (err) {
+      console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      process.exit(0);
+    }
   }
-
-  let sushi;
-  try {
-    const { data } = await institutionsLib.getSushi(currentInstitution.id);
-    if (data) { sushi = data; }
-  } catch (err) {
-    console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
-    process.exit(0);
-  }
-
-  const { vendorsSelected } = await itMode.selectVendors(sushi);
-
-  const selectedSushi = sushi.filter(({ id }) => vendorsSelected.includes(id));
 
   if (ndjson) {
-    selectedSushi.forEach((el) => console.log(JSON.stringify(el)));
+    sushiData.forEach((el) => console.log(JSON.stringify(el)));
     process.exit(0);
   }
 
   if (json) {
-    console.log(JSON.stringify(selectedSushi, null, 2));
+    console.log(JSON.stringify(sushiData, null, 2));
     process.exit(0);
   }
 
@@ -79,7 +81,7 @@ exports.handler = async function handler(argv) {
     i18n.t('sushi.list.apiKey'),
     i18n.t('sushi.list.comment'),
   ];
-  const lines = selectedSushi.map((platform) => ([
+  const lines = sushiData.map((platform) => ([
     platform.package,
     platform.vendor,
     platform.sushiUrl,

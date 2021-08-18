@@ -25,6 +25,7 @@ $ ezmesure-admin dashboard export --help
 | Name | Type | Description |
 | --- | --- | --- |
 | -a, --all | Boolean | Export all dashboards |
+| --it, --interactive | Boolean | Interactive mode |
 | -o, --output | String | Output path |
 
 ```bash
@@ -57,4 +58,29 @@ $ ezmesure-admin dashboard export org-template -o ~/Documents/exports # with spa
  ◯ my dashboard
 
 dashboard [default:dashboard:49aff500-9133-11eb-b738-8bb313f943aa] exported successfully
+```
+
+### export
+
+#### Usage
+```bash
+$ ezmesure-admin dashboard export --help
+```
+
+#### Options
+| Name | Type | Description |
+| --- | --- | --- |
+| -i, --index-pattern | String | Index pattern name |
+| -o, --overwrite | Boolean | Overwrite conflicts |
+| --it, --interactive | Boolean | Interactive mode |
+| -f, --files | Boolean | Files path |
+
+```bash
+$ ezmesure-admin dashboard import [space]
+```
+
+Examples :
+
+```bash
+$ ezmesure-admin dashboard import mySpace --index-pattern myIndex --files ~/Documents/exports
 ```

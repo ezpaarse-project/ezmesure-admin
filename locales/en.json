@@ -61,21 +61,13 @@
 		}
 	},
 	"sushi": {
-		"description": "Manage sushi <command>: add, delete, list, info, test, export, import",
+		"description": "Manage sushi <command>: delete, list, info, export, import",
 		"noCredentialsFound": "No sushi credentials found",
 		"noDataFound": "No sushi data found",
 		"cannotReadFile": "Cannot read file {{file}}",
 		"cannotParse": "Cannot parse {{file}}",
 		"vendorCheckbox": "Sushi vendor (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"noCredentialsFoundFor": "There are no sushi credentials for this institution ({{institution}})",
-		"add": {
-			"description": "Create new sushi credentials",
-			"options": {
-				"filesPath": "Files path"
-			},
-			"nCredentialsFound": "{{count}} credentials found",
-			"insertionCompleted": "Insertion successfully completed"
-		},
 		"delete": {
 			"description": "Delete sushi credentials",
 			"removed": "Data removed successfully"
@@ -116,7 +108,8 @@
 			"options": {
 				"institutions": "Institution(s) name(s), case sensitive",
 				"export": "Export format (json, csv)",
-				"output": "Output path"
+				"output": "Output path",
+				"interactive": "Interactive mode"
 			},
 			"institution": "Institution",
 			"package": "Package",
@@ -130,6 +123,7 @@
 		"list": {
 			"description": "List SUSHI credentials of institution",
 			"options": {
+				"all": "List all platforms for all institutions",
 				"json": "Print result(s) in json",
 				"ndjson": "Print result(s) in ndjson"
 			},
@@ -140,24 +134,6 @@
 			"requestorId": "requestorId",
 			"apiKey": "apiKey",
 			"comment": "comment"
-		},
-		"test": {
-			"description": "Test SUSHI credentials for one or more institutions",
-			"options": {
-				"institution": "Institution name, case sensitive",
-				"all": "Test all platforms for one institution",
-				"json": "Print result(s) in json",
-				"ndjson": "Print result(s) in ndjson",
-				"output": "Output path"
-			},
-			"institution": "institution",
-			"vendor": "vendor",
-			"package": "package",
-			"status": "status",
-			"duration": "duration (ms)",
-			"message": "message",
-			"endpoint": "endpoint",
-			"reports": "reports"
 		}
 	},
 	"spaces":	{

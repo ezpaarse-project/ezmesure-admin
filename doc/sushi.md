@@ -10,32 +10,13 @@ $ ezmesure-admin sushi --help
 
 | Name | Description |
 | --- | --- |
-| [add](#add) | Create new sushi |
 | [delete](#delete) | Delete a shushi |
 | [export](#export) [institutions...] | Export sushi data |
 | [import](#import) [institution] | Import sushi(s) |
 | [info](#info) [institution] | Get SUSHI informations |
 | [list](#list) | List SUSHI informations of institutions |
-| [test](#test) [institution] | Test SUSHI informations of institutions |
 
 ## Commands details
-
-### add
-
-#### Usage
-```bash
-$ ezmesure-admin sushi add --help
-```
-
-#### Options
-| Name | Type | Description |
-| --- | --- | --- |
-| -f, --file | String | Files path (json) |
-
-Example :
-```bash
-$ ezmesure-admin sushi add ~/Documents/sushi/*.json
-```
 
 ### delete
 
@@ -159,39 +140,4 @@ $ ezmesure-admin sushi list
 ╟───────────┼───────── ┼─────────────────────────────┼─────────────┼─────────────┼────────────────────────────────────────────┼─────────╢
 ║ MyPackage │ MyVendor │ https://my-package/endpoint │ SW_8854000  │             │ myvendor::11097a7fadc5faf1b2f054d62e0bd31e │         ║
 ╚═══════════╧══════════╧═════════════════════════════╧═════════════╧═════════════╧════════════════════════════════════════════╧═════════╝
-```
-
-### test
-
-#### Usage
-```bash
-$ ezmesure-admin sushi test --help
-```
-
-#### Options
-| Name | Type | Description |
-| --- | --- | --- |
-| -a, --all | Boolean | Test all platforms for once institution |
-| -j, --json | Boolean | Print result(s) in json |
-| -n, --ndjson | boolean | Output newline delimited JSON file |
-| -o, --output | Boolean | Output path |
-
-Example :
-```bash
-$ ezmesure-admin sushi test
-
-? Institutions (enter: select institution) (Use arrow keys or type to search)
-❯ Institution one
-  Institution two
-  Institution three
-
-? Sushi vendor (space to select item) 
-❯◯ Sushi vendor one
- ◯ Sushi vendor two
-
-╔══════════╤════════════╤══════════╤═══════════════╤══════════════╤═════════════════════════════╤══════════════╗
-║ vendor   │ package    │ status   │ duration (ms) │ message      │ endpoint                    │ reports      ║
-╟──────────┼────────────┼──────────┼───────────────┼──────────────┼─────────────────────────────┼──────────────╢
-║ MyVendor │ MyPackage  │ success  │ 692           │              │ https://my-package/endpoint │ TR_J1, TR_J2 ║
-╚══════════╧════════════╧══════════╧═══════════════╧══════════════╧═════════════════════════════╧══════════════╝
 ```

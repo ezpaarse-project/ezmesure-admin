@@ -14,17 +14,21 @@ exports.desc = i18n.t('sushi.info.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('institutions', {
     describe: i18n.t('sushi.info.options.institutions'),
-    type: 'string',
+    type: 'array',
   }).option('e', {
     alias: 'export',
     describe: i18n.t('sushi.info.options.export'),
   }).option('o', {
     alias: 'output',
     describe: i18n.t('sushi.info.options.output'),
+  }).option('it', {
+    alias: 'interactive',
+    describe: i18n.t('sushi.info.options.interactive'),
+    type: 'boolean',
   });
 };
 exports.handler = async function handler(argv) {
-  const { verbose } = argv;
+  const { verbose, interactive } = argv;
 
   const exportFormat = (argv.export || 'json').toLowerCase();
 
@@ -45,11 +49,11 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  if (argv.institutions) {
+  if (argv?.institutions?.length) {
     institutions = institutions.filter(({ name }) => argv.institutions.includes(name));
   }
 
-  if (!argv.institutions) {
+  if (!argv?.institutions?.length && interactive) {
     const { institutionsSelected } = await itMode.selectInstitutions(institutions);
 
     institutions = institutions.filter(({ id }) => institutionsSelected.includes(id));
