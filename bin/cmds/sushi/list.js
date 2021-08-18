@@ -110,16 +110,7 @@ exports.handler = async function handler(argv) {
       let row = [el.institution];
 
       if (argv.all && !el.sushi.length) {
-        row = [
-          ...row,
-          '-',
-          '-',
-          '-',
-          '-',
-          '-',
-          '-',
-          '-',
-        ];
+        row = [...row, '-', '-', '-', '-', '-', '-', '-'];
       }
 
       el?.sushi?.forEach((platform) => {
