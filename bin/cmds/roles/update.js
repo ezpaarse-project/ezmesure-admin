@@ -2,7 +2,7 @@ const { i18n } = global;
 
 const rolesLib = require('../../../lib/roles');
 const spacesLib = require('../../../lib/spaces');
-const kibanaFeatures = require('../../../lib/app/kibana');
+const kibana = require('../../../lib/app/kibana');
 const { config } = require('../../../lib/app/config');
 
 exports.command = 'update <role>';
@@ -100,7 +100,7 @@ exports.handler = async function handler(argv) {
 
     if (customSpacePrivlieges.length) {
       customSpacePrivlieges.forEach(([feature, featureRights]) => {
-        if (kibanaFeatures.includes(featureRights)) {
+        if (kibana.features.includes(featureRights)) {
           spaceRights.feature[feature] = [featureRights];
         } else {
           console.error(`Kibana [${feature}] feature dose not exist.`);

@@ -4,7 +4,7 @@ const Joi = require('joi');
 
 const spaces = require('../../../lib/spaces');
 const itMode = require('./interactive/add');
-const kibanaFeatures = require('../../../lib/app/kibana');
+const kibana = require('../../../lib/app/kibana');
 
 exports.command = 'add <name>';
 exports.desc = i18n.t('spaces.add.description');
@@ -77,7 +77,7 @@ exports.handler = async function handler(argv) {
     color,
     description: description || 'homepage',
     initials,
-    disabledFeatures: features && kibanaFeatures.filter((feature) => !features.includes(feature)),
+    disabledFeatures: features && kibana.features.filter((feature) => !features.includes(feature)),
   };
 
   if (interactive) {
