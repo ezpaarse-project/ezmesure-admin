@@ -32,28 +32,58 @@
   ],
   "roles": [
     {
-      "elasticsearch": {
-        "indices": [
+      "name": "eza-ut-space_read_only",
+      "role": {
+        "elasticsearch": {
+          "indices": [
+            {
+              "names": [
+                "eza-ut-index*"
+              ],
+              "privileges": [
+                "read"
+              ]
+            }
+          ]
+        },
+        "kibana": [
           {
-            "names": [
-              "eza-ut-indexc*"
-            ],
-            "privileges": [
+            "base": [
               "read"
+            ],
+            "spaces": [
+              "eza-ut-space"
             ]
           }
         ]
-      },
-      "kibana": [
-        {
-          "base": [
-            "read"
-          ],
-          "spaces": [
-            "eza-ut-space"
+      }
+    },
+    {
+      "name": "eza-ut-space",
+      "role": {
+        "elasticsearch": {
+          "indices": [
+            {
+              "names": [
+                "eza-ut-index*"
+              ],
+              "privileges": [
+                "all"
+              ]
+            }
           ]
-        }
-      ]
+        },
+        "kibana": [
+          {
+            "base": [
+              "all"
+            ],
+            "spaces": [
+              "eza-ut-space"
+            ]
+          }
+        ]
+      }
     }
   ],
   "sushi": []
