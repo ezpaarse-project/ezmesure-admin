@@ -123,10 +123,12 @@
 		"list": {
 			"description": "List SUSHI credentials of institution",
 			"options": {
-				"all": "List all platforms for all institutions",
+				"all": "List all",
 				"json": "Print result(s) in json",
-				"ndjson": "Print result(s) in ndjson"
+				"ndjson": "Print result(s) in ndjson",
+				"interactive": "Interactive mode"
 			},
+			"institution": "institution",
 			"package": "package",
 			"vendor": "vendor",
 			"endpoint": "endpoint",

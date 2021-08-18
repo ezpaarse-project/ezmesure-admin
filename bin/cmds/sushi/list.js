@@ -4,7 +4,7 @@ const { table } = require('table');
 
 const { config } = require('../../../lib/app/config');
 const institutionsLib = require('../../../lib/institutions');
-const itMode = require('./interactive/list');
+const itMode = require('./interactive/info');
 
 exports.command = 'list [institutions...]';
 exports.desc = i18n.t('sushi.list.description');
@@ -16,6 +16,14 @@ exports.builder = function builder(yargs) {
   }).option('n', {
     alias: 'ndjson',
     describe: i18n.t('sushi.list.options.ndjson'),
+    type: 'boolean',
+  }).option('it', {
+    alias: 'interactive',
+    describe: i18n.t('sushi.list.options.interactive'),
+    type: 'boolean',
+  }).option('a', {
+    alias: 'all',
+    describe: i18n.t('sushi.list.options.all'),
     type: 'boolean',
   });
 };
@@ -41,9 +49,19 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
+  if (argv?.institutions?.length) {
+    institutions = institutions.filter(({ name }) => argv.institutions.includes(name));
+  }
+
+  if (!argv?.institutions?.length && argv.interactive) {
+    const { institutionsSelected } = await itMode.selectInstitutions(institutions);
+
+    institutions = institutions.filter(({ id }) => institutionsSelected.includes(id));
+  }
+
   const institutionsSelected = institutions;
 
-  const sushiData = [];
+  let sushiData = [];
 
   for (let i = 0; i < institutionsSelected.length; i += 1) {
     if (verbose) {
@@ -62,6 +80,10 @@ exports.handler = async function handler(argv) {
     }
   }
 
+  if (!argv.all) {
+    sushiData = sushiData.filter((x) => x.sushi.length);
+  }
+
   if (ndjson) {
     sushiData.forEach((el) => console.log(JSON.stringify(el)));
     process.exit(0);
@@ -73,6 +95,7 @@ exports.handler = async function handler(argv) {
   }
 
   const header = [
+    i18n.t('sushi.list.institution'),
     i18n.t('sushi.list.package'),
     i18n.t('sushi.list.vendor'),
     i18n.t('sushi.list.endpoint'),
@@ -81,14 +104,35 @@ exports.handler = async function handler(argv) {
     i18n.t('sushi.list.apiKey'),
     i18n.t('sushi.list.comment'),
   ];
-  const lines = sushiData.map((platform) => ([
-    platform.package,
-    platform.vendor,
-    platform.sushiUrl,
-    platform.customerId,
-    platform.requestorId,
-    platform.apiKey,
-    platform.comment,
-  ]));
+
+  const lines = sushiData.sort((a, b) => b.sushi.length - a.sushi.length)
+    .map((el) => {
+      let row = [el.institution];
+
+      if (argv.all && !el.sushi.length) {
+        row = [
+          ...row,
+          '-',
+          '-',
+          '-',
+          '-',
+          '-',
+          '-',
+          '-',
+        ];
+      }
+
+      el?.sushi?.forEach((platform) => {
+        row.push(platform.package);
+        row.push(platform.vendor);
+        row.push(platform.sushiUrl);
+        row.push(platform.customerId);
+        row.push(platform.requestorId);
+        row.push(platform.apiKey);
+        row.push(platform.comment);
+      });
+
+      return row;
+    });
   console.log(table([header, ...lines]));
 };
