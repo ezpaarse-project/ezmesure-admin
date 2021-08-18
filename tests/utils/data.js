@@ -1,4 +1,4 @@
-const insitution = {
+const institution = {
   name: 'eza UT',
   index: 'eza-ut-institution',
   space: 'eza-ut-institution',
@@ -31,7 +31,7 @@ const role = {
 };
 
 module.exports = {
-  insitution,
+  institution,
   user,
   space,
   role,
