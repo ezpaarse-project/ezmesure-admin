@@ -83,10 +83,7 @@ exports.handler = async function handler(argv) {
     }
 
     try {
-      await spaces.create({
-        id: space,
-        name: space,
-      });
+      await spaces.create(space);
       console.log(i18n.t('institutions.import.spaceImported', { space: space.name }));
     } catch (err) {
       console.error(`[Import space][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
@@ -107,11 +104,14 @@ exports.handler = async function handler(argv) {
     // Create index-patterns
     for (let j = 0; j < content?.indexPattern.length; j += 1) {
       if (verbose) {
-        console.log(`* Create institution [${institution.name}] index-pattern [${content?.indexPattern[j]}] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create institution [${institution.name}] index-pattern [${content?.indexPattern[j].title}] from ${config.ezmesure.baseUrl}`);
       }
 
       try {
-        await spaces.addIndexPatterns(space, content?.indexPattern[j]);
+        await spaces.addIndexPatterns(space.name, {
+          title: content?.indexPattern[j].title,
+          timeFieldName: content?.indexPattern[j].timeFieldName,
+        });
         console.log(i18n.t('institutions.import.indexPatternImported', { indexPattern: content.indexPattern[j].title }));
       } catch (err) {
         console.error(`[Import index-pattern][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
@@ -121,11 +121,11 @@ exports.handler = async function handler(argv) {
     // Create roles
     for (let j = 0; j < content.roles.length; j += 1) {
       if (verbose) {
-        console.log(`* Create institution [${institution.name}] role [${content.roles[j].name}] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create institution [${institution.name}] roles [${content.roles[j].name}] from ${config.ezmesure.baseUrl}`);
       }
 
       try {
-        await roles.createOrUpdate(content.roles[j].name, content.roles[j]);
+        await roles.createOrUpdate(content.roles[j].name, content.roles[j].role);
         console.log(`roles [${space.name}] imported (created or updated).`);
       } catch (err) {
         console.error(err);

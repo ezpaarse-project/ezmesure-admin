@@ -95,12 +95,15 @@ exports.handler = async function handler(argv) {
       const role = {
         elasticsearch: {
           indices: data.elasticsearch.indices
-            .map(({ names, privileges }) => ({ names, privileges })),
+            .map(({ name, privileges }) => ({ name, privileges })),
         },
         kibana: data.kibana
           .map((kbn) => ({ base: kbn.base, spaces: kbn.spaces })),
       };
-      institutions[i].roles.push(role);
+      institutions[i].roles.push({
+        name: institution.role,
+        role,
+      });
     } catch (error) {
       if (verbose) {
         console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'roles (all)' }));
@@ -121,7 +124,10 @@ exports.handler = async function handler(argv) {
         kibana: data.kibana
           .map((kbn) => ({ base: kbn.base, spaces: kbn.spaces })),
       };
-      institutions[i].roles.push(role);
+      institutions[i].roles.push({
+        name: `${institution.role}_read_only`,
+        role,
+      });
     } catch (error) {
       if (verbose) {
         console.error(i18n.t('institutions.export.cannotGetField', { institutionName: institution.name, field: 'roles (read only)' }));
