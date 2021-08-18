@@ -15,22 +15,36 @@ exports.builder = function builder(yargs) {
   return yargs.positional('institutions', {
     describe: i18n.t('sushi.info.options.institutions'),
     type: 'array',
-  }).option('e', {
-    alias: 'export',
-    describe: i18n.t('sushi.info.options.export'),
-  }).option('o', {
-    alias: 'output',
-    describe: i18n.t('sushi.info.options.output'),
-  }).option('it', {
-    alias: 'interactive',
-    describe: i18n.t('sushi.info.options.interactive'),
-    type: 'boolean',
-  });
+  })
+    .option('j', {
+      alias: 'json',
+      describe: i18n.t('sushi.info.options.json'),
+      type: 'boolean',
+    })
+    .option('n', {
+      alias: 'ndjson',
+      describe: i18n.t('sushi.info.options.ndjson'),
+      type: 'boolean',
+    })
+    .option('c', {
+      alias: 'csv',
+      describe: i18n.t('sushi.info.options.csv'),
+      type: 'boolean',
+    })
+    .option('o', {
+      alias: 'output',
+      describe: i18n.t('sushi.info.options.output'),
+    })
+    .option('it', {
+      alias: 'interactive',
+      describe: i18n.t('sushi.info.options.interactive'),
+      type: 'boolean',
+    });
 };
 exports.handler = async function handler(argv) {
-  const { verbose, interactive } = argv;
-
-  const exportFormat = (argv.export || 'json').toLowerCase();
+  const {
+    verbose, interactive, json, ndjson, csv,
+  } = argv;
 
   if (verbose) {
     console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
@@ -108,29 +122,47 @@ exports.handler = async function handler(argv) {
   const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
   const fileName = `sushi_info_${currentDate}`;
 
-  if (exportFormat === 'json') {
+  if (json) {
     if (!argv.output) {
       if (verbose) {
         console.log('* Export in json format');
       }
       console.log(JSON.stringify(report, null, 2));
+      process.exit(0);
     }
 
-    if (argv.output) {
-      const filePath = path.resolve(argv.output, `${fileName}.json`);
-      try {
-        if (verbose) {
-          console.log(`* Export JSON file [${filePath}]`);
-        }
-        await fs.writeJson(filePath, report, { spaces: 2 });
-      } catch (error) {
-        console.log(error);
-        process.exit(1);
+    const filePath = path.resolve(argv.output, `${fileName}.json`);
+    try {
+      if (verbose) {
+        console.log(`* Export JSON file [${filePath}]`);
       }
+      await fs.writeJson(filePath, report, { spaces: 2 });
+    } catch (error) {
+      console.log(error);
+      process.exit(1);
     }
+
+    process.exit(0);
   }
 
-  if (exportFormat === 'csv') {
+  if (ndjson) {
+    if (!argv.output) {
+      if (verbose) {
+        console.log('* Export in ndjson format');
+      }
+      report.forEach((r) => console.log(JSON.stringify(r)));
+      process.exit(0);
+    }
+
+    const filePath = path.resolve(argv.output, `${fileName}.ndjson`);
+    if (verbose) {
+      console.log(`* Export ndjson file [${filePath}]`);
+    }
+    report.forEach((r) => fs.appendFileSync(filePath, `${JSON.stringify(r)}\r\n`));
+    process.exit(0);
+  }
+
+  if (csv) {
     const fields = [
       i18n.t('sushi.info.institution'),
       i18n.t('sushi.info.package'),
@@ -156,26 +188,27 @@ exports.handler = async function handler(argv) {
         data.push([name, packageName, vendor, status, error, took, sushiUrl, '']);
       });
     });
-    const csv = Papa.unparse({ fields, data });
+    const parsedCSV = Papa.unparse({ fields, data });
 
     if (!argv.output) {
       if (verbose) {
         console.log('* Export in CSV format');
       }
-      console.log(csv);
+      console.log(parsedCSV);
+      process.exit(0);
     }
 
-    if (argv.output) {
-      try {
-        const csvPath = path.resolve(argv.output, `${fileName}.csv`);
-        if (verbose) {
-          console.log(`* Export CSV file [${csvPath}]`);
-        }
-        await fs.writeFile(csvPath, csv);
-      } catch (error) {
-        console.log(error);
-        process.exit(1);
+    try {
+      const csvPath = path.resolve(argv.output, `${fileName}.csv`);
+      if (verbose) {
+        console.log(`* Export CSV file [${csvPath}]`);
       }
+      await fs.writeFile(csvPath, parsedCSV);
+    } catch (error) {
+      console.log(error);
+      process.exit(1);
     }
+
+    process.exit(0);
   }
 };

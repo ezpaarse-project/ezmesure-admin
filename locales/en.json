@@ -107,7 +107,9 @@
 			"description": "Get SUSHI informations",
 			"options": {
 				"institutions": "Institution(s) name(s), case sensitive",
-				"export": "Export format (json, csv)",
+				"json":"Print result(s) in json",
+				"ndjson":"Print result(s) in ndjson",
+				"csv":"Print result(s) in csv",
 				"output": "Output path",
 				"interactive": "Interactive mode"
 			},
