@@ -105,25 +105,26 @@ exports.handler = async function handler(argv) {
     i18n.t('sushi.list.comment'),
   ];
 
-  const lines = sushiData.sort((a, b) => b.sushi.length - a.sushi.length)
-    .map((el) => {
-      let row = [el.institution];
-
+  const lines = [];
+  sushiData.sort((a, b) => b.sushi.length - a.sushi.length)
+    .forEach((el) => {
       if (argv.all && !el.sushi.length) {
-        row = [...row, '-', '-', '-', '-', '-', '-', '-'];
+        lines.push([el.institution, '', '', '', '', '', '', '']);
       }
 
       el?.sushi?.forEach((platform) => {
-        row.push(platform.package);
-        row.push(platform.vendor);
-        row.push(platform.sushiUrl);
-        row.push(platform.customerId);
-        row.push(platform.requestorId);
-        row.push(platform.apiKey);
-        row.push(platform.comment);
+        lines.push([
+          el.institution || '',
+          platform.package || '',
+          platform.vendor || '',
+          platform.sushiUrl || '',
+          platform.customerId || '',
+          platform.requestorId || '',
+          platform.apiKey || '',
+          platform.comment || '',
+        ]);
       });
-
-      return row;
     });
+
   console.log(table([header, ...lines]));
 };
