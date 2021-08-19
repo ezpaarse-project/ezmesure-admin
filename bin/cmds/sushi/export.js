@@ -5,8 +5,6 @@ const fs = require('fs-extra');
 const Papa = require('papaparse');
 const { format } = require('date-fns');
 
-const get = require('lodash.get');
-
 const inquirer = require('inquirer');
 const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 
@@ -42,8 +40,8 @@ exports.handler = async function handler(argv) {
 
   let institutions;
   try {
-    const { body } = await institutionsLib.getAll();
-    if (body) { institutions = get(body, 'hits.hits'); }
+    const { data } = await institutionsLib.getAll();
+    institutions = data;
   } catch (error) {
     console.error(error);
     process.exit(1);

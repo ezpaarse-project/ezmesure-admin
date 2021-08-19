@@ -98,7 +98,8 @@
 			"description": "Import sushi credentials",
 			"options": {
 				"filesPath": "Files path",
-				"institution": "Institution name, case sensitive"
+				"institution": "Institution name, case sensitive",
+				"interactive": "Interactive mode"
 			},
 			"cannotReadFile": "Cannot read file {{file}}",
 			"imported": "Imported successfully"

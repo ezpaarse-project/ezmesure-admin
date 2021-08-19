@@ -43,7 +43,7 @@ exports.handler = async function handler(argv) {
     const { data } = await institutionsLib.getSushi(institutionSelected);
     if (data) { sushi = data; }
   } catch (err) {
-    console.error(err);
+    console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
   }
 
   const { vendorsSelected } = await itMode.selectVendors(sushi);
@@ -59,7 +59,7 @@ exports.handler = async function handler(argv) {
     }
     await sushiLib.delete(vendorsSelected);
   } catch (err) {
-    console.error(err);
+    console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
     process.exit(1);
   }
 

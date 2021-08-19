@@ -55,7 +55,7 @@ exports.handler = async function handler(argv) {
     const { data } = await institutionsLib.getAll();
     if (data) { institutions = data; }
   } catch (error) {
-    console.error(error);
+    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
   }
 
   if (!institutions) {
@@ -115,7 +115,7 @@ exports.handler = async function handler(argv) {
         failed,
       });
     } catch (err) {
-      console.error(err);
+      console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
     }
   }
 
