@@ -50,7 +50,8 @@ exports.handler = async function handler(argv) {
   }
 
   if (argv?.institutions?.length) {
-    institutions = institutions.filter(({ name }) => argv.institutions.includes(name));
+    institutions = institutions
+      .filter(({ id, name }) => argv.institutions.includes(name) || argv.institutions.includes(id));
   }
 
   if (!argv?.institutions?.length && argv.interactive) {

@@ -66,7 +66,8 @@ exports.handler = async function handler(argv) {
   }
 
   if (institutions.length && !all) {
-    institutionsData = institutionsData.filter(({ name }) => institutions.includes(name));
+    institutionsData = institutionsData
+      .filter(({ id, name }) => institutions.includes(name) || institutions.includes(id));
 
     if (!institutionsData.length) {
       console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: institutions.join(', ') }));

@@ -66,7 +66,9 @@ exports.handler = async function handler(argv) {
 
   if (argv.institutions && argv.institutions.length) {
     const institutionsList = argv.institutions.map((i) => i.toLowerCase());
-    institutions = institutions.filter(({ name }) => institutionsList.includes(name.toLowerCase()));
+    institutions = institutions
+      // eslint-disable-next-line max-len
+      .filter(({ id, name }) => institutionsList.includes(name.toLowerCase()) || institutionsList.includes(id));
   }
 
   if (interactive) {
