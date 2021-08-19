@@ -111,7 +111,8 @@
 				"ndjson":"Print result(s) in ndjson",
 				"csv":"Print result(s) in csv",
 				"output": "Output path",
-				"interactive": "Interactive mode"
+				"interactive": "Interactive mode",
+				"all": "List all"
 			},
 			"institution": "Institution",
 			"package": "Package",

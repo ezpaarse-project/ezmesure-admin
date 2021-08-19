@@ -16,11 +16,6 @@ exports.builder = function builder(yargs) {
     describe: i18n.t('sushi.info.options.institutions'),
     type: 'array',
   })
-    .option('j', {
-      alias: 'json',
-      describe: i18n.t('sushi.info.options.json'),
-      type: 'boolean',
-    })
     .option('n', {
       alias: 'ndjson',
       describe: i18n.t('sushi.info.options.ndjson'),
@@ -39,11 +34,16 @@ exports.builder = function builder(yargs) {
       alias: 'interactive',
       describe: i18n.t('sushi.info.options.interactive'),
       type: 'boolean',
+    })
+    .option('a', {
+      alias: 'all',
+      describe: i18n.t('sushi.info.options.all'),
+      type: 'boolean',
     });
 };
 exports.handler = async function handler(argv) {
   const {
-    verbose, interactive, json, ndjson, csv,
+    verbose, interactive, ndjson, csv,
   } = argv;
 
   if (verbose) {
@@ -73,7 +73,7 @@ exports.handler = async function handler(argv) {
     institutions = institutions.filter(({ id }) => institutionsSelected.includes(id));
   }
 
-  const report = [];
+  let report = [];
 
   for (let i = 0; i < institutions.length; i += 1) {
     try {
@@ -119,33 +119,12 @@ exports.handler = async function handler(argv) {
     }
   }
 
+  if (!argv.all) {
+    report = report.filter((x) => x.credentials > 0);
+  }
+
   const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
   const fileName = `sushi_info_${currentDate}`;
-
-  if (json) {
-    if (!argv.output) {
-      if (verbose) {
-        console.log('* Export in json format');
-      }
-      console.log(JSON.stringify(report, null, 2));
-      process.exit(0);
-    }
-
-    const filePath = path.resolve(argv.output, `${fileName}.json`);
-    try {
-      if (verbose) {
-        console.log(`* Export JSON file [${filePath}]`);
-      }
-      await fs.writeJson(filePath, report, { spaces: 2 });
-    } catch (error) {
-      console.log(error);
-      process.exit(1);
-    }
-
-    console.log(`File saved in json : ${filePath}`);
-
-    process.exit(0);
-  }
 
   if (ndjson) {
     if (!argv.output) {
@@ -215,4 +194,27 @@ exports.handler = async function handler(argv) {
     }
     process.exit(0);
   }
+
+  if (!argv.output) {
+    if (verbose) {
+      console.log('* Export in json format');
+    }
+    console.log(JSON.stringify(report, null, 2));
+    process.exit(0);
+  }
+
+  const filePath = path.resolve(argv.output, `${fileName}.json`);
+  try {
+    if (verbose) {
+      console.log(`* Export JSON file [${filePath}]`);
+    }
+    await fs.writeJson(filePath, report, { spaces: 2 });
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+
+  console.log(`File saved in json : ${filePath}`);
+
+  process.exit(0);
 };

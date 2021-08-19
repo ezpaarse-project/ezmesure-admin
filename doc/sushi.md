@@ -97,9 +97,10 @@ $ ezmesure-admin sushi info --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
-| -j, --json | Boolean | "Print result(s) in json |
-| -c, --ndjson | Boolean | "Print result(s) in ndjson |
-| -c, --csv | Boolean | "Print result(s) in csv |
+| -j, --json | Boolean | Print result(s) in json |
+| -c, --ndjson | Boolean | Print result(s) in ndjson |
+| -c, --csv | Boolean | Print result(s) in csv |
+| -a, --all | Boolean | List all |
 | -o, --output | String | Output path |
 
 Example :
