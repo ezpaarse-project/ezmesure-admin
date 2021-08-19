@@ -76,11 +76,12 @@
 			"description": "Export sushi credentials",
 			"options": {
 				"institutions": "Institution name, case sensitive",
-				"output": "Output type (json or csv)",
-				"all": "Export all sushi data for all institutions",
-				"destination": "Destination path"
+				"output": "Destination path",
+				"ndjson": "Print result(s) in ndjson",
+				"csv": "Print result(s) in csv",
+				"interactive": "Interactive mode"
 			},
-			"exported": "Sushi exported successfully: {{file}}",
+			"exported": "Sushi exported successfully for institution [{{institution}}] ({{file}})",
 			"id": "id",
 			"vendor": "vendor",
 			"sushiUrl": "sushiUrl",

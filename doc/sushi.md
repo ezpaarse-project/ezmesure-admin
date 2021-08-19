@@ -54,18 +54,11 @@ $ ezmesure-admin sushi export --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
-| -o, --output | String | Output type : json or csv |
-| -a, --all | Boolean | Export all sushi data for all institutions |
-| -d, --destination | String | Destination path |
+
 
 Example :
 ```bash
-$ ezmesure-admin sushi export -o json ~/Documents/sushi/exports
-
-? Institutions : 
-❯◯ Institution one
- ◯ Institution two
- ◯ Institution three
+$ ezmesure-admin sushi export myInstitution --output ~/Documents/sushi/exports
 
 Sushi exported successfully, ~/Documents/sushi/exports/export_sushi_my-institution_2021_04_20_13_35_35.json
 ```

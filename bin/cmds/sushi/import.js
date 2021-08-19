@@ -2,6 +2,7 @@ const { i18n } = global;
 
 const fs = require('fs-extra');
 const path = require('path');
+const readline = require('readline');
 
 const sushiLib = require('../../../lib/sushi');
 const institutionsLib = require('../../../lib/institutions');
@@ -44,6 +45,7 @@ exports.handler = async function handler(argv) {
     if (data) { institutions = data; }
   } catch (error) {
     console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    process.exit(1);
   }
 
   if (!institutions) {
@@ -86,6 +88,21 @@ exports.handler = async function handler(argv) {
 
     if (verbose) {
       console.log(`* Parse file [${files[i]}]`);
+    }
+
+    const ext = path.extname(files[i]).substr(1);
+    if (ext === 'ndjson') {
+      const rl = readline.createInterface({
+        input: fs.createReadStream(files[i]),
+        crlfDelay: Infinity,
+      });
+
+      // eslint-disable-next-line no-restricted-syntax
+      for await (const line of rl) {
+        sushiCredentials.push(JSON.parse(line));
+      }
+      // eslint-disable-next-line no-continue
+      continue;
     }
 
     try {
