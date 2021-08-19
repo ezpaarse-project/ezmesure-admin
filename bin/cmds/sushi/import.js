@@ -114,6 +114,7 @@ exports.handler = async function handler(argv) {
 
     try {
       await sushiLib.add(sushiCredentials[i]);
+      console.log(`SUSHI credentials [${sushiCredentials[i].vendor}] for institution [${currentInstitution.name}] imported`);
     } catch (error) {
       console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
     }
