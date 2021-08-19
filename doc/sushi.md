@@ -84,7 +84,7 @@ $ ezmesure-admin sushi import --help
 
 Example :
 ```bash
-$ ezmesure-admin sushi import -o json ~/Documents/sushi/imports/*.json
+$ ezmesure-admin sushi import myInstitution --files ~/Documents/sushi/imports/*.json
 ```
 
 ### info
