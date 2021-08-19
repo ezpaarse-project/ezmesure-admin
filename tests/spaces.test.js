@@ -87,7 +87,7 @@ describe('ezMESURE spaces tests', () => {
       '--index-pattern',
       space.indexPattern,
       '--files',
-      path.resolve(process.cwd(), 'tests', 'utils', 'dashboard.json'),
+      path.resolve(process.cwd(), 'tests', 'utils', 'data', 'dashboard.json'),
     ]).toString();
 
     expect(res).toContain('Dashboard imported');
