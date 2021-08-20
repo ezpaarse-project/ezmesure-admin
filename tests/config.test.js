@@ -9,7 +9,7 @@ describe('Configuation tests', () => {
   beforeEach(() => login());
 
   it('Set locally key:value', () => {
-    const res = exec(commandFile, ['config', 'set', 'unitTest', true]).toString();
+    const res = exec(commandFile, ['config', 'set', 'locally', 'local']).toString();
 
     expect(res).toBe('');
   });
@@ -23,7 +23,7 @@ describe('Configuation tests', () => {
       console.error(error);
     }
 
-    expect(res).toHaveProperty('unitTest', true);
+    expect(res).toHaveProperty('locally', 'local');
   });
 
   it('Set globally key:value', () => {
@@ -45,11 +45,11 @@ describe('Configuation tests', () => {
   });
 
   it('Delete local and global key from configuration', () => {
-    const local = exec(commandFile, ['config', 'delete', 'unitTest']).toString();
-    expect(local).toContain('Config key [unitTest] has been removed successfully');
+    const local = exec(commandFile, ['config', 'delete', 'locally']).toString();
+    expect(local).toContain('Config key [locally] has been removed successfully');
 
-    const global = exec(commandFile, ['config', 'delete', '--global', 'unitTest']).toString();
-    expect(global).toContain('Config key [unitTest] has been removed successfully');
+    const global = exec(commandFile, ['config', 'delete', '--global', 'globaly']).toString();
+    expect(global).toContain('Config key [globaly] has been removed successfully');
   });
 
   it('Get merged configuration', () => {
@@ -61,6 +61,7 @@ describe('Configuation tests', () => {
       console.error(error);
     }
 
-    expect(res).not.toHaveProperty('unitTest');
+    expect(res).toHaveProperty('elastic');
+    expect(res).toHaveProperty('ezmesure');
   });
 });

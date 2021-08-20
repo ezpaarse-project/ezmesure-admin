@@ -66,6 +66,7 @@ To use the command in development mode simply use it as follows: ``./ezmesure-ad
 
 Set ``EZMESURE_ADMIN_USERNAME`` and ``EZMESURE_ADMIN_PASSWORD`` envrionment variables.
 
+> You need configure ``elastic`` and ``ezmesure`` config before use.
 > The user cannot be a reserved user (ex: elastic, ...). He must have ``superuser'' rights to perform the tests
 > It can be the default user created at the initialization of ezMESURE using the same environment variables.
 
