@@ -62,6 +62,17 @@ $ npm install
 
 To use the command in development mode simply use it as follows: ``./ezmesure-admin <command>``
 
+## Tests
+
+Set ``EZMESURE_ADMIN_USERNAME`` and ``EZMESURE_ADMIN_PASSWORD`` envrionment variables.
+
+> The user cannot be a reserved user (ex: elastic, ...). He must have ``superuser'' rights to perform the tests
+> It can be the default user created at the initialization of ezMESURE using the same environment variables.
+
+```bash
+$ npm run test
+```
+
 ## i18n
 
 1. In ``ezmesure-admin`` file, add your locale in ``locales`` array.
