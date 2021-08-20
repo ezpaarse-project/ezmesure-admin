@@ -8,6 +8,8 @@ const login = require('./utils/login');
 const { institution } = require('./utils/data');
 const institutionsLib = require('../lib/institutions');
 const rolesLib = require('../lib/roles');
+const spacesLib = require('../lib/spaces');
+const indicesLib = require('../lib/indices');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
@@ -227,38 +229,36 @@ describe('Institutions tests', () => {
   });
 
   it('Remove institutions and roles associated', async () => {
-    expect.assertions(2);
+    // First institution
+    let res = await spacesLib.delete(institution.space);
+    expect(res.status).toBe(204);
 
-    try {
-      await institutionsLib.delete(institutionsIds[0]);
-    } catch (error) {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
-    }
-    try {
-      await rolesLib.delete(institution.space);
-    } catch (error) {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
-    }
-    try {
-      await rolesLib.delete(`${institution.space}_read_only`);
-    } catch (error) {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
-    }
+    res = await institutionsLib.delete(institutionsIds[0]);
+    expect(res.status).toBe(204);
 
-    try {
-      await institutionsLib.delete(institutionsIds[1]);
-    } catch (error) {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
-    }
-    try {
-      await rolesLib.delete(institutionData.space.name);
-    } catch (error) {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
-    }
-    try {
-      await rolesLib.delete(`${institutionData.space.name}_read_only`);
-    } catch (error) {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
-    }
+    res = await rolesLib.delete(institution.space);
+    expect(res.status).toBe(204);
+
+    res = await rolesLib.delete(`${institution.space}_read_only`);
+    expect(res.status).toBe(204);
+
+    res = await indicesLib.delete(institution.index);
+    expect(res.status).toBe(204);
+
+    // Second institution
+    res = await spacesLib.delete(institutionData.space.name);
+    expect(res.status).toBe(204);
+
+    res = await institutionsLib.delete(institutionsIds[1]);
+    expect(res.status).toBe(204);
+
+    res = await rolesLib.delete(institutionData.space.name);
+    expect(res.status).toBe(204);
+
+    res = await rolesLib.delete(`${institutionData.space.name}_read_only`);
+    expect(res.status).toBe(204);
+
+    res = await indicesLib.delete(institutionData.institution.indexPrefix);
+    expect(res.status).toBe(204);
   });
 });

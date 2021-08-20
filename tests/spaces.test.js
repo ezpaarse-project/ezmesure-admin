@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 
 const login = require('./utils/login');
 const { space } = require('./utils/data');
+const spacesLib = require('../lib/spaces');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
@@ -111,5 +112,10 @@ describe('ezMESURE spaces tests', () => {
     expect(res).toContain('exported successfully');
 
     fs.unlinkSync(filePath);
+  });
+
+  it(`Delete space [${space.name}]`, async () => {
+    const { status } = await spacesLib.delete(space.name);
+    expect(status).toBe(204);
   });
 });

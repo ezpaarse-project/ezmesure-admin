@@ -3,6 +3,7 @@ const path = require('path');
 
 const login = require('./utils/login');
 const { user } = require('./utils/data');
+const usersLib = require('../lib/users');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
@@ -69,8 +70,13 @@ describe('Users tests', () => {
 
     const fields = ['metadata', 'full_name', 'roles', 'email', 'username'];
 
-    expect(users.length).toBe(1);
+    expect(users.length).not.toBe(0);
     expect(Object.keys(users[0])).toEqual(fields);
     expect(Object.keys(users[0]).length).toEqual(fields.length);
+  });
+
+  it(`Delete user [${user.username}]`, async () => {
+    const res = await usersLib.delete(user.username);
+    expect(res.status).toBe(204);
   });
 });
