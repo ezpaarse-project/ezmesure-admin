@@ -1,12 +1,5 @@
 const { i18n } = global;
 
-const inquirer = require('inquirer');
-const checkboxPlus = require('inquirer-checkbox-plus-prompt');
-const autocomplete = require('inquirer-autocomplete-prompt');
-
-inquirer.registerPrompt('checkbox-plus', checkboxPlus);
-inquirer.registerPrompt('autocomplete', autocomplete);
-
 const sushiLib = require('../../../lib/sushi');
 const institutionsLib = require('../../../lib/institutions');
 const { config } = require('../../../lib/app/config');
