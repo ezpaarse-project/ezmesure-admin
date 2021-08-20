@@ -1,13 +1,13 @@
 const institution = {
-  name: 'eza UT',
+  name: 'eza ut institution',
   index: 'eza-ut-institution',
   space: 'eza-ut-institution',
 };
 
 const user = {
-  full_name: 'eza UT',
-  username: 'eza-ut',
-  password: 'eza-ut',
+  full_name: 'eza ut user',
+  username: 'eza-ut-user',
+  password: 'eza-ut-user',
   email: 'eza@unit.tests.fr',
   roles: ['new_user'],
   enabled: true,
