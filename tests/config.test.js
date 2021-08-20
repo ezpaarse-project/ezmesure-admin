@@ -27,7 +27,7 @@ describe('Configuation tests', () => {
   });
 
   it('Set globally key:value', () => {
-    const res = exec(commandFile, ['config', 'set', '--global', 'unitTest.globaly', 'global']).toString();
+    const res = exec(commandFile, ['config', 'set', '--global', 'globaly', 'global']).toString();
 
     expect(res).toBe('');
   });
@@ -41,7 +41,7 @@ describe('Configuation tests', () => {
       console.error(error);
     }
 
-    expect(res).toHaveProperty('unitTest.globaly', 'global');
+    expect(res).toHaveProperty('globaly', 'global');
   });
 
   it('Delete local and global key from configuration', () => {

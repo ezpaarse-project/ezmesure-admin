@@ -9,7 +9,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest --verbose ./tests",
+    "test": "cross-env NODE_ENV=test jest --verbose=true ./tests",
     "lint": "eslint --ext .js .",
     "prepare": "husky install"
   },

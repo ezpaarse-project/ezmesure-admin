@@ -70,8 +70,8 @@ describe('Users tests', () => {
 
     const fields = ['metadata', 'full_name', 'roles', 'email', 'username'];
 
-    expect(users.length).not.toBe(0);
-    expect(Object.keys(users[0])).toEqual(fields);
+    expect(users.length).toBe(1);
+    expect(Object.keys(users[0])).toEqual(expect.arrayContaining(fields));
     expect(Object.keys(users[0]).length).toEqual(fields.length);
   });
 
