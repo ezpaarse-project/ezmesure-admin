@@ -581,7 +581,7 @@
 		"add": {
 			"description": "Create index",
 			"options": {
-				"name": "Indice name"
+				"index": "Indice name"
 			},
 			"created": "index [{{index}}] created successfully"
 		}
