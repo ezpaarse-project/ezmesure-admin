@@ -13,11 +13,13 @@ module.exports = () => {
   expect(EZMESURE_ADMIN_USERNAME).toBeDefined();
   expect(EZMESURE_ADMIN_PASSWORD).toBeDefined();
 
-  exec(commandFile, [
+  const res = exec(commandFile, [
     'login',
     '--username',
     EZMESURE_ADMIN_USERNAME,
     '--password',
     EZMESURE_ADMIN_PASSWORD,
-  ]);
+  ]).toString();
+
+  expect(res).toContain(`user [${EZMESURE_ADMIN_USERNAME}] logged in successfully`);
 };

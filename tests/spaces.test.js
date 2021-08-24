@@ -3,15 +3,25 @@ const path = require('path');
 const fs = require('fs-extra');
 
 const login = require('./utils/login');
-const { space } = require('./utils/data');
 const spacesLib = require('../lib/spaces');
+const indicesLib = require('../lib/indices');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
-describe('ezMESURE spaces tests', () => {
-  beforeEach(() => login());
+const space = {
+  name: 'eza-ut-space',
+  color: '#c0392b',
+  description: 'ezmesure-admin Unit Tests',
+  initials: 'UT',
+  features: 'discover,dashboard',
+  index: 'eza-ut-space',
+  indexPattern: 'eza-ut-space*',
+};
 
-  it(`Create space [${space.name}]`, () => {
+describe('ezMESURE spaces tests', () => {
+  beforeAll(() => login());
+
+  it(`#1 Create space [${space.name}]`, () => {
     const res = exec(commandFile, [
       'spaces',
       'add',
@@ -25,19 +35,19 @@ describe('ezMESURE spaces tests', () => {
     expect(res).toContain(`space [${space.name}] created successfully`);
   });
 
-  it(`Create index [${space.index}]`, () => {
+  it(`#2 Create index [${space.index}]`, () => {
     const res = exec(commandFile, ['indices', 'add', space.index]).toString();
 
     expect(res).toContain(`index [${space.index}] created successfully`);
   });
 
-  it(`Create index-pattern [${space.indexPattern}]`, () => {
+  it(`#3 Create index-pattern [${space.indexPattern}]`, () => {
     const res = exec(commandFile, ['index-pattern', 'add', space.name, space.indexPattern]).toString();
 
     expect(res).toContain(`index-pattern [${space.indexPattern}] created in space [${space.name}]`);
   });
 
-  it(`Get space [${space.name}]`, () => {
+  it(`#4 Get space [${space.name}]`, () => {
     const res = exec(commandFile, ['spaces', 'get', space.name, '--json']);
 
     let spaces = res.toString();
@@ -55,13 +65,13 @@ describe('ezMESURE spaces tests', () => {
     expect(spaces[0].indexPatterns).toContain(space.indexPattern);
   });
 
-  it(`Update space [${space.name}] change initials [${space.initials} -> TU]`, () => {
+  it(`#5 Update space [${space.name}] change initials [${space.initials} -> TU]`, () => {
     const res = exec(commandFile, ['spaces', 'update', space.name, '--initials', 'TU']).toString();
 
     expect(res).toContain(`space [${space.name}] updated successfully`);
   });
 
-  it(`Get space [${space.name}] after initials was changed`, () => {
+  it(`#6 Get space [${space.name}] after initials was changed`, () => {
     const res = exec(commandFile, ['spaces', 'get', space.name, '--json']);
 
     let spaces = res.toString();
@@ -80,7 +90,7 @@ describe('ezMESURE spaces tests', () => {
     expect(spaces[0].indexPatterns).toContain(space.indexPattern);
   });
 
-  it(`Import dashboard into space [${space.name}]`, () => {
+  it(`#7 Import dashboard into space [${space.name}]`, () => {
     const res = exec(commandFile, [
       'dashboard',
       'import',
@@ -94,7 +104,7 @@ describe('ezMESURE spaces tests', () => {
     expect(res).toContain('Dashboard imported');
   });
 
-  it(`Export dashboard from space [${space.name}]`, () => {
+  it(`#8 Export dashboard from space [${space.name}]`, () => {
     const res = exec(commandFile, [
       'dashboard',
       'export',
@@ -114,8 +124,13 @@ describe('ezMESURE spaces tests', () => {
     fs.unlinkSync(filePath);
   });
 
-  it(`Delete space [${space.name}]`, async () => {
-    const { status } = await spacesLib.delete(space.name);
-    expect(status).toBe(204);
+  it('#9 Delete data', async () => {
+    // Delete space after tests
+    let res = await spacesLib.delete(space.name);
+    expect(res).toHaveProperty('status', 204);
+
+    // Delete indices
+    res = await indicesLib.delete(space.index);
+    expect(res).toHaveProperty('status', 204);
   });
 });

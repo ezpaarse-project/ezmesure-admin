@@ -20,8 +20,8 @@
     "hidePartner": false
   },
   "space": {
-    "id": "eza-ut-space",
-    "name": "eza-ut-space"
+    "id": "eza-ut-institution-space",
+    "name": "eza-ut-institution-space"
   },
   "indexPattern": [
     {
@@ -32,7 +32,7 @@
   ],
   "roles": [
     {
-      "name": "eza-ut-space_read_only",
+      "name": "eza-ut-institution-space_read_only",
       "role": {
         "elasticsearch": {
           "indices": [
@@ -52,14 +52,14 @@
               "read"
             ],
             "spaces": [
-              "eza-ut-space"
+              "eza-ut-institution-space"
             ]
           }
         ]
       }
     },
     {
-      "name": "eza-ut-space",
+      "name": "eza-ut-institution-space",
       "role": {
         "elasticsearch": {
           "indices": [
@@ -79,7 +79,7 @@
               "all"
             ],
             "spaces": [
-              "eza-ut-space"
+              "eza-ut-institution-space"
             ]
           }
         ]

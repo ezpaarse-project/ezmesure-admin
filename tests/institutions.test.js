@@ -5,7 +5,6 @@ const fs = require('fs-extra');
 const institutionData = require('./utils/data/institution.json');
 
 const login = require('./utils/login');
-const { institution } = require('./utils/data');
 const institutionsLib = require('../lib/institutions');
 const rolesLib = require('../lib/roles');
 const spacesLib = require('../lib/spaces');
@@ -15,10 +14,16 @@ const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
 const institutionsIds = [];
 
-describe('Institutions tests', () => {
-  beforeEach(() => login());
+const institution = {
+  name: 'ezmesure-admin institution',
+  index: 'eza-ut-institution',
+  space: 'eza-ut-institution',
+};
 
-  it(`Create institution [${institution.name}]`, () => {
+describe('institutions tests', () => {
+  beforeAll(() => login());
+
+  it(`#1 Create institution [${institution.name}]`, () => {
     const res = exec(commandFile, [
       'institutions',
       'add',
@@ -36,7 +41,7 @@ describe('Institutions tests', () => {
     expect(res).toContain(`role [${institution.space}_read_only] created or updated`);
   });
 
-  it(`Get institution [${institution.name}]`, () => {
+  it(`#2 Get institution [${institution.name}]`, () => {
     const res = exec(commandFile, ['institutions', 'get', institution.name, '--json']);
 
     let institutions = res.toString();
@@ -49,6 +54,9 @@ describe('Institutions tests', () => {
 
     institutionsIds.push(institutions[0].id);
 
+    expect(Array.isArray(institutions)).toBeTruthy();
+    expect(institutions).toHaveLength(1);
+    expect(institutions[0]).toHaveProperty('id');
     expect(institutions[0]).toHaveProperty('name', institution.name);
     expect(institutions[0]).toHaveProperty('indexPrefix', institution.index);
     expect(institutions[0]).toHaveProperty('space', institution.space);
@@ -59,7 +67,7 @@ describe('Institutions tests', () => {
     expect(institutions[0].auto.report).toBeFalsy();
   });
 
-  it('Get institutions', () => {
+  it('#3 Get institutions', () => {
     const res = exec(commandFile, [
       'institutions',
       'get',
@@ -75,17 +83,17 @@ describe('Institutions tests', () => {
       console.error(error);
     }
 
-    expect(institutions).not.toBeNull();
+    expect(Array.isArray(institutions)).toBeTruthy();
     expect(institutions.length).toBeGreaterThan(0);
   });
 
-  it('Refresh institutions', () => {
+  it('#4 Refresh institutions', () => {
     const res = exec(commandFile, ['institutions', 'refresh']).toString();
 
     expect(res).toContain('Institutions are refreshed');
   });
 
-  it('Export institutions', () => {
+  it('#5 Export institutions', () => {
     const res = exec(commandFile, [
       'institutions',
       'export',
@@ -100,10 +108,11 @@ describe('Institutions tests', () => {
       console.error(error);
     }
 
-    expect(institutions.length).not.toBe(0);
+    expect(Array.isArray(institutions)).toBeTruthy();
+    expect(institutions.length).toBeGreaterThan(0);
   });
 
-  it(`Import institution [${institutionData.institution.name}]`, () => {
+  it(`#6 Import institution [${institutionData.institution.name}]`, () => {
     const res = exec(commandFile, [
       'institutions',
       'import',
@@ -115,9 +124,10 @@ describe('Institutions tests', () => {
     expect(res).toContain(`space [${institutionData.space.name}] imported`);
     expect(res).toContain(`index [${institutionData.institution.indexPrefix}] imported`);
     expect(res).toContain(`index-pattern [${institutionData.indexPattern[0].title}] imported`);
+    expect(res).toBeDefined();
   });
 
-  it(`Get institution [${institutionData.institution.name}]`, () => {
+  it(`#7 Get institution [${institutionData.institution.name}]`, () => {
     const res = exec(commandFile, ['institutions', 'get', institutionData.institution.name, '--json']);
 
     let institutions = res.toString();
@@ -130,6 +140,8 @@ describe('Institutions tests', () => {
 
     institutionsIds.push(institutions[0].id);
 
+    expect(Array.isArray(institutions)).toBeTruthy();
+    expect(institutions).toHaveLength(1);
     expect(institutions[0]).toHaveProperty('name', institutionData.institution.name);
     expect(institutions[0]).toHaveProperty('indexPrefix', institutionData.institution.indexPrefix);
     expect(institutions[0]).toHaveProperty('space', institutionData.space.name);
@@ -140,7 +152,7 @@ describe('Institutions tests', () => {
     expect(institutions[0].auto.report).toBeFalsy();
   });
 
-  it(`Import SUSHI credentials for institution [${institutionData.institution.name}]`, () => {
+  it(`#8 Import SUSHI credentials for institution [${institutionData.institution.name}]`, () => {
     const res = exec(commandFile, [
       'sushi',
       'import',
@@ -151,7 +163,7 @@ describe('Institutions tests', () => {
     expect(res).toContain(`SUSHI credentials [Springer Nature] for institution [${institutionData.institution.name}] imported`);
   });
 
-  it(`Export SUSHI credentials for institution [${institutionData.institution.name}]`, () => {
+  it(`#9 Export SUSHI credentials for institution [${institutionData.institution.name}]`, () => {
     const res = exec(commandFile, [
       'sushi',
       'export',
@@ -171,7 +183,7 @@ describe('Institutions tests', () => {
     expect(res).toContain(`Sushi exported successfully for institution [${institutionData.institution.name}]`);
   });
 
-  it(`List SUSHI credentials for institution [${institutionData.institution.name}]`, () => {
+  it(`#10 List SUSHI credentials for institution [${institutionData.institution.name}]`, () => {
     const res = exec(commandFile, [
       'sushi',
       'list',
@@ -187,11 +199,11 @@ describe('Institutions tests', () => {
       console.error(error);
     }
 
-    expect(credentials.length).not.toBe(0);
-    expect(credentials.length).toBe(1);
+    expect(Array.isArray(credentials)).toBeTruthy();
+    expect(credentials).toHaveLength(1);
   });
 
-  it(`Info SUSHI credentials for institution [${institutionData.institution.name}]`, () => {
+  it(`#11 Info SUSHI credentials for institution [${institutionData.institution.name}]`, () => {
     const res = exec(commandFile, [
       'sushi',
       'info',
@@ -207,12 +219,13 @@ describe('Institutions tests', () => {
       console.error(error);
     }
 
-    expect(credentials.length).not.toBe(0);
+    expect(Array.isArray(credentials)).toBeTruthy();
+    expect(credentials).not.toHaveLength(0);
     expect(credentials[0]).toHaveProperty('name', institutionData.institution.name);
     expect(credentials[0]).toHaveProperty('success');
-    expect(credentials[0].success.length).toBe(1);
+    expect(credentials[0].success).toHaveLength(1);
     expect(credentials[0].success[0]).toHaveProperty('status', 'success');
-    expect(credentials[0].success[0].reports).toEqual(expect.arrayContaining([
+    expect(credentials[0].success[0].reports).toStrictEqual(expect.arrayContaining([
       'TR_J2',
       'DR_D1',
       'TR_B2',
@@ -228,37 +241,38 @@ describe('Institutions tests', () => {
     ]));
   });
 
-  it('Remove institutions and roles associated', async () => {
-    // First institution
+  it('#12 Delete all', async () => {
+    // Delete first institution after tests
     let res = await spacesLib.delete(institution.space);
-    expect(res.status).toBe(204);
+    expect(res).toHaveProperty('status', 204);
 
     res = await institutionsLib.delete(institutionsIds[0]);
-    expect(res.status).toBe(204);
+    expect(res).toHaveProperty('status', 204);
 
     res = await rolesLib.delete(institution.space);
-    expect(res.status).toBe(204);
+    expect(res).toHaveProperty('status', 204);
 
     res = await rolesLib.delete(`${institution.space}_read_only`);
-    expect(res.status).toBe(204);
+    expect(res).toHaveProperty('status', 204);
 
     res = await indicesLib.delete(institution.index);
-    expect(res.status).toBe(204);
 
-    // Second institution
+    // Delete first institution after tests
+    expect(res).toHaveProperty('status', 204);
+
     res = await spacesLib.delete(institutionData.space.name);
-    expect(res.status).toBe(204);
+    expect(res).toHaveProperty('status', 204);
 
     res = await institutionsLib.delete(institutionsIds[1]);
-    expect(res.status).toBe(204);
+    expect(res).toHaveProperty('status', 204);
 
     res = await rolesLib.delete(institutionData.space.name);
-    expect(res.status).toBe(204);
+    expect(res).toHaveProperty('status', 204);
 
     res = await rolesLib.delete(`${institutionData.space.name}_read_only`);
-    expect(res.status).toBe(204);
+    expect(res).toHaveProperty('status', 204);
 
     res = await indicesLib.delete(institutionData.institution.indexPrefix);
-    expect(res.status).toBe(204);
+    expect(res).toHaveProperty('status', 204);
   });
 });

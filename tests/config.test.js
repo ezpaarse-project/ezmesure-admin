@@ -5,16 +5,17 @@ const login = require('./utils/login');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
-describe('Configuation tests', () => {
-  beforeEach(() => login());
+describe('configuation tests', () => {
+  beforeAll(() => login());
 
-  it('Set locally key:value', () => {
+  it('#1 Set locally key:value', () => {
     const res = exec(commandFile, ['config', 'set', 'locally', 'local']).toString();
 
+    expect(res).toBeDefined();
     expect(res).toBe('');
   });
 
-  it('Get local configuration', () => {
+  it('#2 Get local configuration', () => {
     let res = exec(commandFile, ['config', 'view', '--local']).toString();
 
     try {
@@ -23,16 +24,17 @@ describe('Configuation tests', () => {
       console.error(error);
     }
 
+    expect(res).toBeDefined();
     expect(res).toHaveProperty('locally', 'local');
   });
 
-  it('Set globally key:value', () => {
+  it('#3 Set globally key:value', () => {
     const res = exec(commandFile, ['config', 'set', '--global', 'globaly', 'global']).toString();
 
     expect(res).toBe('');
   });
 
-  it('Get global configuration', () => {
+  it('#4 Get global configuration', () => {
     let res = exec(commandFile, ['config', 'view', '--global']).toString();
 
     try {
@@ -44,7 +46,7 @@ describe('Configuation tests', () => {
     expect(res).toHaveProperty('globaly', 'global');
   });
 
-  it('Delete local and global key from configuration', () => {
+  it('#5 Delete local and global key from configuration', () => {
     const local = exec(commandFile, ['config', 'delete', 'locally']).toString();
     expect(local).toContain('Config key [locally] has been removed successfully');
 
@@ -52,7 +54,7 @@ describe('Configuation tests', () => {
     expect(global).toContain('Config key [globaly] has been removed successfully');
   });
 
-  it('Get merged configuration', () => {
+  it('#6 Get merged configuration', () => {
     let res = exec(commandFile, ['config', 'view']).toString();
 
     try {

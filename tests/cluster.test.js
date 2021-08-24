@@ -5,10 +5,10 @@ const login = require('./utils/login');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
-describe('Cluster tests', () => {
-  beforeEach(() => login());
+describe('cluster tests', () => {
+  beforeAll(() => login());
 
-  it('Get ElasticSearch cluster settings', () => {
+  it('#1 Get ElasticSearch cluster settings', () => {
     const res = exec(commandFile, ['cluster', 'settings']).toString();
 
     let settings = res.toString();

@@ -2,15 +2,23 @@ const exec = require('child_process').execFileSync;
 const path = require('path');
 
 const login = require('./utils/login');
-const { user } = require('./utils/data');
 const usersLib = require('../lib/users');
 
 const commandFile = path.resolve(process.cwd(), 'ezmesure-admin');
 
-describe('Users tests', () => {
-  beforeEach(() => login());
+const user = {
+  full_name: 'eza ut user',
+  username: 'eza-ut-user',
+  password: 'eza-ut-user',
+  email: 'eza@unit.tests.fr',
+  roles: ['new_user'],
+  enabled: true,
+};
 
-  it(`Create new user [${user.username}]`, () => {
+describe('users tests', () => {
+  beforeAll(() => login());
+
+  it(`#1 Create new user [${user.username}]`, () => {
     const res = exec(commandFile, [
       'users',
       'add',
@@ -25,7 +33,7 @@ describe('Users tests', () => {
     expect(res).toMatch(`user [${user.username}] created or updated`);
   });
 
-  it(`Add role [new_user] to user [${user.username}]`, () => {
+  it(`#2 Add role [new_user] to user [${user.username}]`, () => {
     const res = exec(commandFile, [
       'users',
       'roles',
@@ -38,7 +46,7 @@ describe('Users tests', () => {
     expect(res).toMatch(`role(s) [new_user] added to user [${user.username}]`);
   });
 
-  it(`Get user [${user.username}]`, () => {
+  it(`#3 Get user [${user.username}]`, () => {
     const res = exec(commandFile, ['users', 'get', user.username, '--json']);
 
     let userData = res.toString();
@@ -57,7 +65,7 @@ describe('Users tests', () => {
     expect(userData.roles).toStrictEqual(user.roles);
   });
 
-  it('Get all users', () => {
+  it('#4 Get all users', () => {
     const res = exec(commandFile, ['users', 'get', '--size', 1, '--json']);
 
     let users = res.toString();
@@ -70,13 +78,14 @@ describe('Users tests', () => {
 
     const fields = ['metadata', 'full_name', 'roles', 'email', 'username'];
 
-    expect(users.length).toBe(1);
-    expect(Object.keys(users[0])).toEqual(expect.arrayContaining(fields));
-    expect(Object.keys(users[0]).length).toEqual(fields.length);
+    expect(users).toHaveLength(1);
+    expect(Object.keys(users[0])).toStrictEqual(expect.arrayContaining(fields));
+    expect(Object.keys(users[0])).toHaveLength(fields.length);
   });
 
-  it(`Delete user [${user.username}]`, async () => {
+  afterAll(async () => {
+    // Delete user after tests
     const res = await usersLib.delete(user.username);
-    expect(res.status).toBe(204);
+    expect(res).toHaveProperty('status', 204);
   });
 });
