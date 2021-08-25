@@ -83,7 +83,7 @@ describe('users tests', () => {
     expect(Object.keys(users[0])).toHaveLength(fields.length);
   });
 
-  afterAll(async () => {
+  it('Delete data', async () => {
     // Delete user after tests
     const res = await usersLib.delete(user.username);
     expect(res).toHaveProperty('status', 204);
