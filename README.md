@@ -9,7 +9,7 @@
 ## Install
 
 ```sh
-$ npm i @ezpaarse-project/ezmesure-admin
+$ npm i -g @ezpaarse-project/ezmesure-admin
 ```
 
 ## Usage
