@@ -1,8 +1,5 @@
 const { i18n } = global;
-
-const merge = require('lodash.merge');
-
-const scopes = require('../../../lib/app/config').getScopes();
+const { config, getScopes } = require('../../../lib/app/config');
 
 exports.command = 'view';
 exports.desc = i18n.t('config.view.description');
@@ -20,13 +17,13 @@ exports.builder = function builder(yargs) {
 exports.handler = async function handler(argv) {
   const { global: seeGlobal, local: seeLocal, verbose } = argv;
 
-  const { global, local } = scopes;
+  const { global, local } = getScopes();
 
   if (!seeLocal && !seeGlobal) {
     if (verbose) {
       console.log('* [Configuration]');
     }
-    console.log(JSON.stringify(merge(global?.config, local?.config), null, 2));
+    console.log(JSON.stringify(config, null, 2));
     if (verbose) {
       console.log(`* [Local] : ${local?.location}`);
       console.log(`* [Global] : ${global?.location}`);
