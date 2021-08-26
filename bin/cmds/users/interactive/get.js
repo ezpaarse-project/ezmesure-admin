@@ -18,9 +18,8 @@ module.exports = async function it(users) {
         const result = users
           .map(({ full_name: name, username }) => ({ name, value: username }))
           .filter(({ name }) => (
-            name.toLowerCase().includes(input.toLowerCase())
+            name?.toLowerCase().includes(input?.toLowerCase())
           ));
-
         resolve(result);
       }),
     },
