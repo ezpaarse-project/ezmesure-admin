@@ -44,6 +44,11 @@ exports.handler = async function handler(argv) {
 
   if (selectedSpace === 'default') { selectedSpace = undefined; }
 
+  if (!dashboardsSelected) {
+    console.log('No dashboard(s) selected');
+    process.exit(0);
+  }
+
   for (let i = 0; i < dashboardsSelected.length; i += 1) {
     if (verbose) {
       console.log(`* Export dashboard [${dashboardsSelected[i]}] from space [${selectedSpace}] from ${config.ezmesure.baseUrl}`);
