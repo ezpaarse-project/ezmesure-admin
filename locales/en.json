@@ -76,7 +76,7 @@
 			"description": "Export sushi credentials",
 			"options": {
 				"institutions": "Institution name, case sensitive",
-				"output": "Destination path",
+				"output": "Export directory",
 				"ndjson": "Print result(s) in ndjson",
 				"csv": "Print result(s) in csv",
 				"interactive": "Interactive mode"
