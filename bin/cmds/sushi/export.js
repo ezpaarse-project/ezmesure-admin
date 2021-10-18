@@ -46,6 +46,8 @@ exports.handler = async function handler(argv) {
     process.exit(1);
   }
 
+  await fs.ensureDir(path.resolve(output));
+
   if (verbose) {
     console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
   }
