@@ -13,11 +13,11 @@ exports.command = 'export <output> [institutions...]';
 exports.desc = i18n.t('sushi.export.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('institutions', {
-    descibe: i18n.t('sushi.export.options.institutions'),
+    describe: i18n.t('sushi.export.options.institutions'),
     type: 'string',
   })
     .positional('output', {
-      descibe: i18n.t('sushi.export.options.output'),
+      describe: i18n.t('sushi.export.options.output'),
       type: 'string',
     })
     .option('n', {
