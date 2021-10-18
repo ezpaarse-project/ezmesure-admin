@@ -74,10 +74,11 @@ $ ezmesure-admin sushi import --help
 | Name | Type | Description |
 | --- | --- | --- |
 | -f, --files | String | Files path |
+| -o, --overwrite | String | Overwrite conflicts |
 
 Example :
 ```bash
-$ ezmesure-admin sushi import myInstitution --files ~/Documents/sushi/imports/*.json
+$ ezmesure-admin sushi import institutionName --files ~/Documents/sushi/imports/*.json
 ```
 
 ### info
