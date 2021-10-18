@@ -97,7 +97,7 @@ exports.handler = async function handler(argv) {
     }
 
     const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
-    const fileName = `sushi_export_${institutions[i].name}_${currentDate}`;
+    const fileName = `sushi_export_${institutions[i].name.replace(/\s/g, '_')}_${currentDate}`;
     const filePath = path.resolve(argv.output, `${fileName}`);
 
     if (ndjson) {
