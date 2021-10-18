@@ -100,10 +100,17 @@
 			"options": {
 				"filesPath": "Files path",
 				"institution": "Institution name, case sensitive",
-				"interactive": "Interactive mode"
+				"interactive": "Interactive mode",
+				"overwrite": "Overwrite conflicts"
 			},
 			"cannotReadFile": "Cannot read file {{file}}",
-			"imported": "Imported successfully"
+			"imported": "Imported successfully",
+			"itemCreated": "[Imported] {{vendor}}",
+			"itemConflict": "[Conflict] {{vendor}}",
+			"itemError": "[Error][{{vendor}}] {{message}}",
+			"nbImported": "{{n}} imported",
+			"nbConflicts": "{{n}} conflicts",
+			"nbErrors": "{{n}} errors"
 		},
 		"info": {
 			"description": "Get SUSHI informations",
@@ -290,11 +297,13 @@
 			"notFound": "task [{{taskId}}] not found"
 		}
 	},
+	"institution": {
+		"notFound": "Institution [{{id}}] not found"
+	},
 	"institutions": {
 		"description": "Manage institutions <command>: add, delete, refresh, get, export, import",
 		"institutionsCheckbox": "Institutions (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"institutionsSelect": "Institutions (Use arrow keys or begin typing to search, press <enter> to submit)",
-		"institutionsNotFound": "Institutions not found",
 		"institutionsNamesNotFound": "institution(s) [{{institutions}}] not found",
 		"validated": "Validated",
 		"notVaidated": "Not validated",
