@@ -62,7 +62,7 @@ exports.handler = async function handler(argv) {
         const { data } = await dashboardLib.getAll(reporting[i].space);
         dashboards[reporting[i].space] = data || [];
       } catch (error) {
-        console.error(i18n.t('reporting.list.cannotGetDashboards', { space: reporting[i].space }));
+        console.error(i18n.t('reporting.cannotGetDashboards', { space: reporting[i].space }));
       }
     }
 
