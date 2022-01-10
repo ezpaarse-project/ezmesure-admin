@@ -47,7 +47,7 @@ exports.handler = async function handler(argv) {
     console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
   }
 
-  if (!institutions) {
+  if (!Array.isArray(institutions) || institutions.length === 0) {
     console.log(i18n.t('institutions.institutionsNotFound'));
     process.exit(0);
   }
