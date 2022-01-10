@@ -9,23 +9,32 @@ const itMode = require('./interactive/info');
 exports.command = 'list [institutionIds...]';
 exports.desc = i18n.t('sushi.list.description');
 exports.builder = function builder(yargs) {
-  return yargs.option('j', {
-    alias: 'json',
-    describe: i18n.t('sushi.list.options.json'),
-    type: 'boolean',
-  }).option('n', {
-    alias: 'ndjson',
-    describe: i18n.t('sushi.list.options.ndjson'),
-    type: 'boolean',
-  }).option('it', {
-    alias: 'interactive',
-    describe: i18n.t('sushi.list.options.interactive'),
-    type: 'boolean',
-  }).option('a', {
-    alias: 'all',
-    describe: i18n.t('sushi.list.options.all'),
-    type: 'boolean',
-  });
+  return yargs
+    .option('j', {
+      alias: 'json',
+      describe: i18n.t('sushi.list.options.json'),
+      type: 'boolean',
+    })
+    .option('n', {
+      alias: 'ndjson',
+      describe: i18n.t('sushi.list.options.ndjson'),
+      type: 'boolean',
+    })
+    .option('it', {
+      alias: 'interactive',
+      describe: i18n.t('sushi.list.options.interactive'),
+      type: 'boolean',
+    })
+    .option('a', {
+      alias: 'all',
+      describe: i18n.t('sushi.list.options.all'),
+      type: 'boolean',
+    })
+    .option('c', {
+      alias: 'connection',
+      describe: i18n.t('sushi.list.options.connection'),
+      choices: ['working', 'faulty', 'untested'],
+    });
 };
 exports.handler = async function handler(argv) {
   const {
@@ -75,7 +84,10 @@ exports.handler = async function handler(argv) {
     }
 
     try {
-      const { data } = await institutionsLib.getSushi(institutionsSelected[i].id);
+      const { data } = await institutionsLib.getSushi(
+        institutionsSelected[i].id,
+        { connection: argv.connection },
+      );
       sushiData.push({
         institution: institutionName,
         sushi: data,

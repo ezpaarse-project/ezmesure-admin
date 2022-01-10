@@ -138,7 +138,8 @@
 				"all": "List all",
 				"json": "Print result(s) in json",
 				"ndjson": "Print result(s) in ndjson",
-				"interactive": "Interactive mode"
+				"interactive": "Interactive mode",
+				"connection": "Only list items with a given connection state"
 			},
 			"institution": "institution",
 			"package": "package",
