@@ -6,7 +6,7 @@ const { config } = require('../../../lib/app/config');
 const institutionsLib = require('../../../lib/institutions');
 const itMode = require('./interactive/info');
 
-exports.command = 'list [institutions...]';
+exports.command = 'list [institutionIds...]';
 exports.desc = i18n.t('sushi.list.description');
 exports.builder = function builder(yargs) {
   return yargs.option('j', {
@@ -29,7 +29,10 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    json, ndjson, verbose,
+    json,
+    ndjson,
+    verbose,
+    institutionIds,
   } = argv;
 
   if (verbose) {
@@ -49,12 +52,12 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  if (argv?.institutions?.length) {
+  if (Array.isArray(institutionIds) && institutionIds?.length > 0) {
     institutions = institutions
-      .filter(({ id, name }) => argv.institutions.includes(name) || argv.institutions.includes(id));
+      .filter(({ id, name }) => institutionIds.includes(name) || institutionIds.includes(id));
   }
 
-  if (!argv?.institutions?.length && argv.interactive) {
+  if (!institutionIds?.length && argv.interactive) {
     const { institutionsSelected } = await itMode.selectInstitutions(institutions);
 
     institutions = institutions.filter(({ id }) => institutionsSelected.includes(id));
