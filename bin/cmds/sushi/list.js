@@ -68,14 +68,16 @@ exports.handler = async function handler(argv) {
   let sushiData = [];
 
   for (let i = 0; i < institutionsSelected.length; i += 1) {
+    const { name: institutionName } = institutionsSelected[i];
+
     if (verbose) {
-      console.log(`* Retrieving SUSHI information for institution [${institutionsSelected[i].name}] from ${config.ezmesure.baseUrl}`);
+      console.log(`* Retrieving SUSHI information for institution [${institutionName}] from ${config.ezmesure.baseUrl}`);
     }
 
     try {
       const { data } = await institutionsLib.getSushi(institutionsSelected[i].id);
       sushiData.push({
-        institution: institutionsSelected[i].name,
+        institution: institutionName,
         sushi: data,
       });
     } catch (err) {
@@ -89,7 +91,11 @@ exports.handler = async function handler(argv) {
   }
 
   if (ndjson) {
-    sushiData.forEach((el) => console.log(JSON.stringify(el)));
+    sushiData.forEach(({ institution, sushi }) => {
+      sushi.forEach((item) => console.log(
+        JSON.stringify({ ...item, institution }),
+      ));
+    });
     process.exit(0);
   }
 
