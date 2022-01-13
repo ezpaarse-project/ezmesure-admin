@@ -60,6 +60,22 @@
 			"created": "user [{{username}}] created or updated"
 		}
 	},
+	"tasks": {
+		"description": "Manage tasks <command>: get",
+		"notFound": "Task not found",
+		"get": {
+			"description": "Get one task",
+			"id": "ID",
+			"type": "Type",
+			"status": "Status",
+			"runningTime": "Running time",
+			"createdAt": "Created at",
+			"options": {
+				"taskId": "Task identifier",
+				"json": "Print result(s) as JSON"
+			}
+		}
+	},
 	"sushi": {
 		"description": "Manage sushi <command>: delete, list, info, export, import",
 		"noCredentialsFound": "No sushi credentials found",
