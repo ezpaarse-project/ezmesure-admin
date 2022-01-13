@@ -1,5 +1,7 @@
 {
 	"global": {
+		"yes": "Yes",
+		"no": "No",
 		"options": {
 			"timeout": "Request timeout in milliseconds",
 			"verbose": "Make the operation more talkative",
@@ -77,7 +79,7 @@
 		}
 	},
 	"sushi": {
-		"description": "Manage sushi <command>: delete, list, info, export, import",
+		"description": "Manage sushi <command>: delete, list, info, export, import, get-platforms",
 		"noCredentialsFound": "No sushi credentials found",
 		"noDataFound": "No sushi data found",
 		"cannotReadFile": "Cannot read file {{file}}",
@@ -87,6 +89,24 @@
 		"delete": {
 			"description": "Delete sushi credentials",
 			"removed": "Data removed successfully"
+		},
+		"getPlatforms": {
+			"description": "Get the list of known SUSHI endpoints",
+			"unknownFields": "Unknown fields: {{fields}}",
+			"options": {
+				"fields": "Fields that should be displayed in the table, separated by commas",
+				"json": "Print result(s) in json",
+				"ndjson": "Print result(s) in ndjson"
+			},
+			"fields": {
+				"vendor": "Vendor",
+				"sushiUrl": "Endpoint URL",
+				"customerId": "Customer ID",
+				"requestorId": "Requestor ID",
+				"apiKey": "API key",
+				"description": "Description",
+				"companies": "Companies"
+			}
 		},
 		"export": {
 			"description": "Export sushi credentials",
