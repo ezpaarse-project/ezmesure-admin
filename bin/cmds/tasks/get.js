@@ -30,7 +30,7 @@ const toDuration = (str) => {
   return '';
 };
 
-exports.command = 'get <taskId>';
+exports.command = 'get <taskIds...>';
 exports.desc = i18n.t('tasks.get.description');
 exports.builder = function builder(yargs) {
   return yargs
@@ -45,17 +45,17 @@ exports.builder = function builder(yargs) {
     });
 };
 exports.handler = async function handler(argv) {
-  const { verbose, taskId } = argv;
+  const { verbose, taskIds } = argv;
 
-  let task = null;
+  let tasks = null;
 
   if (verbose) {
-    console.log(`* Task retrieval [${taskId}] from ${config.ezmesure.baseUrl}`);
+    console.log(`* Task retrieval [${taskIds}] from ${config.ezmesure.baseUrl}`);
   }
 
   try {
-    const { data } = await tasksLib.findById(taskId);
-    task = data;
+    const { data } = await tasksLib.getAll({ id: taskIds.join(',') });
+    tasks = data;
   } catch (error) {
     const errorMessage = error?.response?.data?.error;
     const status = error?.response?.status;
@@ -66,9 +66,18 @@ exports.handler = async function handler(argv) {
     process.exit(1);
   }
 
-  if (!task) {
+  if (!Array.isArray(tasks)) {
     console.error(i18n.t('tasks.notFound'));
     process.exit(1);
+  }
+
+  if (argv.ndjson) {
+    if (verbose) {
+      console.log('* Export tasks to ndjson format');
+    }
+
+    tasks.forEach((task) => console.log(JSON.stringify(task)));
+    process.exit(0);
   }
 
   if (argv.json) {
@@ -76,7 +85,7 @@ exports.handler = async function handler(argv) {
       console.log('* Export task to json format');
     }
 
-    console.log(JSON.stringify(task, null, 2));
+    console.log(JSON.stringify(tasks, null, 2));
     process.exit(0);
   }
 
@@ -92,15 +101,17 @@ exports.handler = async function handler(argv) {
     i18n.t('tasks.get.createdAt'),
   ];
 
-  const createdAt = parseDate(task.createdAt);
+  const lines = tasks.map((task) => {
+    const createdAt = parseDate(task.createdAt);
 
-  const line = [
-    task.id || '',
-    task.type || '',
-    coloredStatus(task.status),
-    toDuration(task.runningTime),
-    dateIsValid(createdAt) ? formatDate(createdAt, 'Pp') : '',
-  ];
+    return [
+      task.id || '',
+      task.type || '',
+      coloredStatus(task.status),
+      toDuration(task.runningTime),
+      dateIsValid(createdAt) ? formatDate(createdAt, 'Pp') : '',
+    ];
+  });
 
-  console.log(table([header, line]));
+  console.log(table([header, ...lines]));
 };
