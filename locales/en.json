@@ -63,8 +63,20 @@
 		}
 	},
 	"tasks": {
-		"description": "Manage tasks <command>: get",
+		"description": "Manage tasks <command>: get, list",
+		"noTasks": "No tasks found",
 		"notFound": "Task not found",
+		"list": {
+			"description": "List tasks",
+			"options": {
+				"status": "Filter tasks by status (comma-separated list)",
+				"type": "Filter tasks by type (comma-separated list)",
+				"sushiId": "Filter tasks by SUSHI ID (comma-separated list)",
+				"institutionId": "Filter tasks by institution ID (comma-separated list)",
+				"ndjson": "Print result(s) in ndjson",
+				"json": "Print result(s) in json"
+			}
+		},
 		"get": {
 			"description": "Get one task",
 			"id": "ID",
