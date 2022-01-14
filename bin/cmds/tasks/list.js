@@ -119,7 +119,6 @@ exports.handler = async function handler(argv) {
     i18n.t('tasks.get.status'),
     i18n.t('tasks.get.runningTime'),
     i18n.t('tasks.get.createdAt'),
-    i18n.t('tasks.get.steps'),
   ];
 
   const lines = tasks.map((task) => {
