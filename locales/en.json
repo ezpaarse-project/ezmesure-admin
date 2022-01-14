@@ -204,6 +204,8 @@
 				"json": "Print result(s) in json",
 				"ndjson": "Print result(s) in ndjson",
 				"sushiIds": "Identifiers of the SUSHI credentials taht should be harvested",
+				"fromInstitution": "Harvest all SUSHI items belonging to the given institution",
+				"allowFaulty": "Allow faulty or untested SUSHI endpoints to be harvested (to be used with --from-institution)",
 				"from": "Beginning of the period to harvest",
 				"to": "End of the period to harvest",
 				"target": "Index where the data should be inserted",

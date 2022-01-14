@@ -4,6 +4,7 @@ const { table } = require('table');
 const chalk = require('chalk');
 
 const sushiLib = require('../../../lib/sushi');
+const institutionsLib = require('../../../lib/institutions');
 const { config } = require('../../../lib/app/config');
 
 const coloredStatus = (status = '') => {
@@ -14,7 +15,7 @@ const coloredStatus = (status = '') => {
   return chalk.white(status);
 };
 
-exports.command = 'harvest <sushiIds...>';
+exports.command = 'harvest [sushiIds...]';
 exports.desc = i18n.t('sushi.harvest.description');
 exports.builder = function builder(yargs) {
   return yargs
@@ -23,14 +24,25 @@ exports.builder = function builder(yargs) {
       type: 'string',
     })
     .option('from', {
+      type: 'string',
       describe: i18n.t('sushi.harvest.options.from'),
     })
     .option('to', {
+      type: 'string',
       describe: i18n.t('sushi.harvest.options.to'),
     })
     .option('t', {
       alias: 'target',
+      type: 'string',
       describe: i18n.t('sushi.harvest.options.target'),
+    })
+    .option('from-institution', {
+      type: 'string',
+      describe: i18n.t('sushi.harvest.options.fromInstitution'),
+    })
+    .option('allow-faulty', {
+      type: 'boolean',
+      describe: i18n.t('sushi.harvest.options.allowFaulty'),
     })
     .option('json', {
       describe: i18n.t('sushi.harvest.options.json'),
@@ -50,13 +62,45 @@ exports.handler = async function handler(argv) {
     target,
     from: beginDate,
     to: endDate,
-    sushiIds,
     cache,
     verbose,
+    fromInstitution,
+    allowFaulty,
     $0: scriptName,
   } = argv;
 
+  let { sushiIds } = argv;
+
   const results = [];
+
+  if (fromInstitution) {
+    console.log(`* Fetch SUSHI credentials of institution [${fromInstitution}] from ${config.ezmesure.baseUrl}`);
+
+    try {
+      const { data } = await institutionsLib.getSushi(fromInstitution);
+      if (Array.isArray(data)) {
+        sushiIds = data
+          .filter((item) => {
+            if (item?.connection?.success !== true && !allowFaulty) {
+              return false;
+            }
+            return item.id;
+          })
+          .map((item) => item?.id);
+      }
+    } catch (e) {
+      const errorMessage = e?.response?.data?.error;
+      const status = e?.response?.status;
+      const statusMessage = e?.response?.statusMessage;
+
+      console.error(`[${status}] ${errorMessage || statusMessage || e.message}`);
+      process.exit(1);
+    }
+  }
+
+  if (verbose) {
+    console.log(`* Harvesting SUSHI credentials from ${config.ezmesure.baseUrl}`);
+  }
 
   for (let i = 0; i < sushiIds.length; i += 1) {
     const sushiId = sushiIds[i];
@@ -64,14 +108,10 @@ exports.handler = async function handler(argv) {
     let error;
 
     if (verbose) {
-      console.log(`* Harvesting SUSHI credentials from ${config.ezmesure.baseUrl}`);
+      console.log(`* Starting harvest for [${sushiId}]`);
     }
 
     try {
-      if (verbose) {
-        console.log(`* Starting harvest for [${sushiId}]`);
-      }
-
       const { data } = await sushiLib.harvest(sushiId, {
         target,
         beginDate,
