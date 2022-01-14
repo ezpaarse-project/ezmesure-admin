@@ -62,10 +62,6 @@ exports.builder = function builder(yargs) {
       alias: 'ndjson',
       describe: i18n.t('tasks.list.options.ndjson'),
       type: 'boolean',
-    })
-    .option('it', {
-      describe: i18n.t('tasks.list.options.interactive'),
-      boolean: true,
     });
 };
 exports.handler = async function handler(argv) {
