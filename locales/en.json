@@ -2,6 +2,7 @@
 	"global": {
 		"yes": "Yes",
 		"no": "No",
+		"unknownFields": "Unknown fields: {{fields}}",
 		"options": {
 			"timeout": "Request timeout in milliseconds",
 			"verbose": "Make the operation more talkative",
@@ -104,7 +105,6 @@
 		},
 		"getPlatforms": {
 			"description": "Get the list of known SUSHI endpoints",
-			"unknownFields": "Unknown fields: {{fields}}",
 			"options": {
 				"fields": "Fields that should be displayed in the table, separated by commas",
 				"json": "Print result(s) in json",
@@ -189,14 +189,17 @@
 				"interactive": "Interactive mode",
 				"connection": "Only list items with a given connection state"
 			},
-			"institution": "institution",
-			"package": "package",
-			"vendor": "vendor",
-			"endpoint": "endpoint",
-			"customerId": "customerId",
-			"requestorId": "requestorId",
-			"apiKey": "apiKey",
-			"comment": "comment"
+			"fields": {
+				"id": "SUSHI ID",
+				"institution": "Institution",
+				"package": "Package",
+				"vendor": "Vendor",
+				"endpoint": "Endpoint",
+				"customerId": "Customer ID",
+				"requestorId": "Requestor ID",
+				"apiKey": "API key",
+				"comment": "Comment"
+			}
 		},
 		"harvest": {
 			"description": "Harvest SUSHI reports",

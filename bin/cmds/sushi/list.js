@@ -44,6 +44,40 @@ exports.handler = async function handler(argv) {
     institutionIds,
   } = argv;
 
+  const availableFields = [
+    'id',
+    'institution',
+    'package',
+    'vendor',
+    'endpoint',
+    'customerId',
+    'requestorId',
+    'apiKey',
+    'comment',
+  ];
+
+  let fields = [];
+
+  if (argv.fields) {
+    fields = argv.fields.split(',').map((field) => field.trim());
+
+    const unknownFields = fields.filter((field) => !availableFields.includes(field));
+
+    if (unknownFields.length > 0) {
+      console.error(i18n.t('global.unknownFields', { fields: unknownFields.join(',') }));
+      process.exit(1);
+    }
+  }
+
+  if (fields.length === 0) {
+    fields = [
+      'id',
+      'institution',
+      'vendor',
+      'package',
+    ];
+  }
+
   if (verbose) {
     console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
   }
@@ -116,37 +150,12 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  const header = [
-    i18n.t('sushi.list.institution'),
-    i18n.t('sushi.list.package'),
-    i18n.t('sushi.list.vendor'),
-    i18n.t('sushi.list.endpoint'),
-    i18n.t('sushi.list.customerId'),
-    i18n.t('sushi.list.requestorId'),
-    i18n.t('sushi.list.apiKey'),
-    i18n.t('sushi.list.comment'),
-  ];
+  const header = fields.map((field) => i18n.t(`sushi.list.fields.${field}`));
 
-  const lines = [];
-  sushiData.sort((a, b) => b.sushi.length - a.sushi.length)
-    .forEach((el) => {
-      if (argv.all && !el.sushi.length) {
-        lines.push([el.institution, '', '', '', '', '', '', '']);
-      }
-
-      el?.sushi?.forEach((platform) => {
-        lines.push([
-          el.institution || '',
-          platform.package || '',
-          platform.vendor || '',
-          platform.sushiUrl || '',
-          platform.customerId || '',
-          platform.requestorId || '',
-          platform.apiKey || '',
-          platform.comment || '',
-        ]);
-      });
-    });
+  const lines = sushiData
+    .sort((a, b) => (a?.sushi?.length < b?.sushi?.length ? 1 : -1))
+    .flatMap(({ institution, sushi }) => sushi.map((s) => ({ institution, ...s })))
+    .map((sushi) => fields.map((field) => (sushi[field] || '')));
 
   console.log(table([header, ...lines]));
 };

@@ -47,7 +47,7 @@ exports.handler = async function handler(argv) {
     const unknownFields = fields.filter((field) => !availableFields.includes(field));
 
     if (unknownFields.length > 0) {
-      console.error(i18n.t('sushi.getPlatforms.unknownFields', { fields: unknownFields.join(',') }));
+      console.error(i18n.t('global.unknownFields', { fields: unknownFields.join(',') }));
       process.exit(1);
     }
   }
