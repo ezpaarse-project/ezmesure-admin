@@ -91,6 +91,12 @@
 			}
 		}
 	},
+	"generate": {
+		"description": "Generate things <command>: sushi-matrix",
+		"sushiMatrix": {
+			"description": "Generate a summary of SUSHI items by institution and vendor"
+		}
+	},
 	"sushi": {
 		"description": "Manage sushi <command>: delete, list, info, export, import, get-platforms",
 		"noCredentialsFound": "No sushi credentials found",
