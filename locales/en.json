@@ -3,6 +3,8 @@
 		"yes": "Yes",
 		"no": "No",
 		"unknownFields": "Unknown fields: {{fields}}",
+		"fileNotFound": "File not found: {{file}}",
+		"invalidJsonFile": "Invalid JSON file: {{file}}",
 		"options": {
 			"timeout": "Request timeout in milliseconds",
 			"verbose": "Make the operation more talkative",
@@ -227,6 +229,34 @@
 			"taskId": "Task ID",
 			"status": "Status",
 			"message": "Message"
+		},
+		"fixEndpoints": {
+			"description": "Fix SUSHI items with missing or incorrect endpoint association",
+			"options": {
+				"fromFiles": "Use export files instead of fetching SUSHI items from the API",
+				"output": "Write resulting SUSHI items into a file instead of updating them using the API"
+			},
+			"sushiInvalidResponse": "Failed to fetch SUSHI credentials : invalid response",
+			"endpointInvalidResponse": "Failed to fetch SUSHI endpoints : invalid response",
+			"allSushiAssociated": "All SUSHI credentials are associated to an endpoint",
+			"nbIssuesDetected": "{{total}} issues detected ({{unfixable}} require a manual intervention). Proceed ?",
+			"unexistingEndpoint": "[{{label}}] is associated to an unexisting endpoint",
+			"notAssociatedToEndpoint": "[{{label}}] is not associated to an endpoint",
+			"selectEndpoint": "Select the enpoint to associate",
+			"foundExactMatch": "An endpoint matching the vendor name has been found",
+			"foundMultiple": "There are multiple endpoints matching the vendor name, please choose",
+			"associatedToEndpoint": "[{{sushi}}] has been associated to endpoint [{{endpoint}}]",
+			"createEndpoint": "[No results] Create an endpoint",
+			"ignoreSushiItem": "[No results] Ignore this SUSHI item",
+			"enterEndpointVendor": "Enter endpoint vendor name",
+			"enterEndpointUrl": "Enter endpoint URL",
+			"requireCustomerId": "Does it require a customer ID ?",
+			"requireRequestorId": "Does it require a requestor ID ?",
+			"requireApiKey": "Does it require an API key ?",
+			"isSushiCompliant": "Is it SUSHI compliant ?",
+			"validated": "Should this endpoint appear as validated ?",
+			"endpointCreated": "Endpoint [{{label}}] has been created",
+			"noMoreIssues": "There are no more issues to be fixed"
 		}
 	},
 	"spaces":	{
