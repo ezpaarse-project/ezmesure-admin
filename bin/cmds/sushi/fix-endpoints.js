@@ -143,6 +143,7 @@ exports.handler = async function handler(argv) {
 
   const sortByVendor = (a, b) => (a?.vendor?.toLowerCase?.() < b?.vendor?.toLowerCase?.() ? -1 : 1);
   endpoints.sort(sortByVendor);
+  sushiItems.sort(sortByVendor);
 
   const endpointsById = new Map(endpoints.map((endpoint) => [endpoint.id, endpoint]));
   const endpointsByVendor = new Map();
