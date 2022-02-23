@@ -46,6 +46,10 @@ exports.handler = async function handler(argv) {
     }
   }
 
+  if (output) {
+    await fs.ensureDir(path.resolve(output));
+  }
+
   if (!institutions.length) {
     console.log(i18n.t('institutions.export.noInstitutionsSelected'));
     process.exit(0);
