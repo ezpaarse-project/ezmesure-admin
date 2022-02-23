@@ -19,6 +19,7 @@ exports.builder = function builder(yargs) {
   }).option('a', {
     alias: 'all',
     describe: i18n.t('institutions.export.options.all'),
+    type: 'boolean',
   });
 };
 exports.handler = async function handler(argv) {
