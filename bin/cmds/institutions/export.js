@@ -142,7 +142,7 @@ exports.handler = async function handler(argv) {
 
     try {
       const { data } = await institutionsLib.getSushi(institution.id);
-      institutions[i].sushi = data.map(({ attributes }) => attributes);
+      institutions[i].sushi = data;
     } catch (error) {
       institutions[i].sushi = [];
       if (verbose) {
