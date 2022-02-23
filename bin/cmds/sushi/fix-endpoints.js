@@ -185,7 +185,7 @@ exports.handler = async function handler(argv) {
   const badSushiItems = [...fixableIssues, ...unfixableIssues];
 
   for (let i = 0; i < badSushiItems.length; i += 1) {
-    console.log();
+    console.log(`\n[${i + 1} / ${badSushiItems.length}]`);
 
     const sushiItem = badSushiItems[i];
     const endpointId = sushiItem?.endpointId;
