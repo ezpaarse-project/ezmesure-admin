@@ -158,7 +158,7 @@ exports.handler = async function handler(argv) {
 
     if (output) {
       const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
-      const fileName = `export_${institutions[i].institution.name.toLowerCase()}_${currentDate}`;
+      const fileName = `export_${institution.name.toLowerCase().replace(/\s/g, '_')}_${currentDate}`;
 
       if (verbose) {
         console.log(`* Export file [${fileName}]`);
@@ -166,7 +166,7 @@ exports.handler = async function handler(argv) {
 
       try {
         await fs.writeJson(path.resolve(output, `${fileName}.json`), institutions[i], { spaces: 2 });
-        console.log(i18n.t('institutions.export.exported', { name: institutions[i].institution.name.toLowerCase() }));
+        console.log(i18n.t('institutions.export.exported', { name: institution.name.toLowerCase() }));
       } catch (error) {
         console.log(error);
       }
