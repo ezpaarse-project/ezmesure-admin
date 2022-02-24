@@ -183,6 +183,7 @@ exports.handler = async function handler(argv) {
 
   // We put fixable issues first so that we can address all of them first
   const badSushiItems = [...fixableIssues, ...unfixableIssues];
+  const choices = new Map();
 
   for (let i = 0; i < badSushiItems.length; i += 1) {
     console.log(`\n[${i + 1} / ${badSushiItems.length}]`);
@@ -196,6 +197,10 @@ exports.handler = async function handler(argv) {
       console.log(i18n.t('sushi.fixEndpoints.unexistingEndpoint', { label: chalk.blue(sushiLabel) }));
     } else {
       console.log(i18n.t('sushi.fixEndpoints.notAssociatedToEndpoint', { label: chalk.blue(sushiLabel) }));
+    }
+
+    if (sushiItem?.vendor) {
+      endpoint = choices.get(sushiItem.vendor.toLowerCase());
     }
 
     // Find an endpoint that match the vendor name
@@ -227,6 +232,14 @@ exports.handler = async function handler(argv) {
         console.log(i18n.t('sushi.fixEndpoints.endpointCreated', { label: chalk.blue(endpoint?.vendor || endpoint?.id) }));
       } else {
         endpoint = endpointsById.get(selectedId);
+      }
+
+      if (endpoint && sushiItem?.vendor) {
+        const remember = await itMode.confirm(i18n.t('sushi.fixEndpoints.rememberChoice'));
+
+        if (remember) {
+          choices.set(sushiItem.vendor.toLowerCase(), endpoint);
+        }
       }
     }
 
