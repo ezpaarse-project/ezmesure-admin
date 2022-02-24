@@ -199,6 +199,16 @@ exports.handler = async function handler(argv) {
       console.log(i18n.t('sushi.fixEndpoints.notAssociatedToEndpoint', { label: chalk.blue(sushiLabel) }));
     }
 
+    if (sushiItem?.sushiUrl) {
+      console.log(i18n.t('sushi.fixEndpoints.sushiUrl', { url: chalk.yellow(sushiItem?.sushiUrl) }));
+    }
+    if (sushiItem?.params?.length) {
+      const params = sushiItem.params
+        .map((param) => `[${param?.name || ''} = ${param?.value || ''}]`)
+        .join(' ');
+      console.log(i18n.t('sushi.fixEndpoints.sushiParams', { params: chalk.yellow(params) }));
+    }
+
     if (sushiItem?.vendor) {
       endpoint = choices.get(sushiItem.vendor.toLowerCase());
     }

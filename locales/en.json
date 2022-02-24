@@ -257,7 +257,9 @@
 			"validated": "Should this endpoint appear as validated ?",
 			"endpointCreated": "Endpoint [{{label}}] has been created",
 			"noMoreIssues": "There are no more issues to be fixed",
-			"rememberChoice": "Use this endpoint for all credentials with this vendor name ?"
+			"rememberChoice": "Use this endpoint for all credentials with this vendor name ?",
+			"sushiUrl": "URL: {{url}}",
+			"sushiParams": "Parameters: {{params}}"
 		}
 	},
 	"spaces":	{
