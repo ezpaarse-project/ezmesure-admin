@@ -168,7 +168,12 @@ exports.handler = async function handler(argv) {
   if (nbCreated > 0) {
     console.log();
     console.log(i18n.t('sushi.harvest.runFollowingCommand'));
-    console.log(`${scriptName} tasks get ${taskIds.join(' ')}`);
+
+    if (fromInstitution) {
+      console.log(`${scriptName} tasks list -i ${fromInstitution} -c params.sushiId`);
+    } else {
+      console.log(`${scriptName} tasks get ${taskIds.join(' ')}`);
+    }
   }
 
   process.exit(0);
