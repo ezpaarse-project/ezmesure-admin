@@ -28,6 +28,14 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('institutions.get.options.json'),
       type: 'boolean',
     })
+    .option('no-validated', {
+      describe: i18n.t('institutions.get.options.validate'),
+      type: 'boolean',
+    })
+    .option('validated', {
+      describe: i18n.t('institutions.get.options.validate'),
+      type: 'boolean',
+    })
     .option('n', {
       alias: 'ndjson',
       describe: i18n.t('institutions.get.options.ndjson'),
@@ -36,7 +44,7 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    institutions, all, json, ndjson, verbose,
+    institutions, all, json, validated, ndjson, verbose,
   } = argv;
 
   if (verbose) {
@@ -52,7 +60,15 @@ exports.handler = async function handler(argv) {
     process.exit(1);
   }
 
-  if (!all && !institutions.length) {
+  if (validated === false) {
+    institutionsData = institutionsData.filter((e) => e.validated === false);
+  }
+
+  if (validated === true) {
+    institutionsData = institutionsData.filter((e) => e.validated === true);
+  }
+
+  if (!all && !institutions.length && validated !== false && validated !== true) {
     try {
       institutionsData = await itMode(institutionsData);
     } catch (error) {
@@ -68,7 +84,6 @@ exports.handler = async function handler(argv) {
   if (institutions.length && !all) {
     institutionsData = institutionsData
       .filter(({ id, name }) => institutions.includes(name) || institutions.includes(id));
-
     if (!institutionsData.length) {
       console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: institutions.join(', ') }));
       process.exit(0);
@@ -110,7 +125,7 @@ exports.handler = async function handler(argv) {
   }
 
   const row = institutionsData.map(({
-    name, city, website, domains, auto, validated,
+    name, city, website, domains, auto, validate,
     indexPrefix, role, docContactName, techContactName,
   }) => ([
     name,
@@ -122,7 +137,7 @@ exports.handler = async function handler(argv) {
       chalk.hex(auto.ezmesure ? '#78e08f' : '#e55039').bold('ezMESURE'),
       chalk.hex(auto.report ? '#78e08f' : '#e55039').bold('Reporting'),
     ].join('\n'),
-    validated ? chalk.hex('#78e08f').bold(i18n.t('institutions.get.validated')) : chalk.hex('#e55039').bold(i18n.t('institutions.get.notValidated')),
+    validate ? chalk.hex('#78e08f').bold(i18n.t('institutions.get.validated')) : chalk.hex('#e55039').bold(i18n.t('institutions.get.notValidated')),
     indexPrefix || '',
     role || '',
     [`${i18n.t('institutions.get.doc')} : ${docContactName || '-'}`, `${i18n.t('institutions.get.tech')} : ${techContactName || '-'}`].join('\n'),
