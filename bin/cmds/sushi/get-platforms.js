@@ -36,7 +36,7 @@ exports.handler = async function handler(argv) {
     'requestorId',
     'apiKey',
     'description',
-    'companies',
+    'technicalProvider',
   ];
 
   let fields = availableFields.slice();

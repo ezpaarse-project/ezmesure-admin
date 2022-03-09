@@ -126,7 +126,7 @@
 				"requestorId": "Requestor ID",
 				"apiKey": "API key",
 				"description": "Description",
-				"companies": "Companies"
+				"technicalProvider": "Technical provider"
 			}
 		},
 		"export": {
@@ -221,8 +221,10 @@
 				"from": "Beginning of the period to harvest",
 				"to": "End of the period to harvest",
 				"target": "Index where the data should be inserted",
-				"noCache": "Download the report again, even if it's been already downloaded"
+				"noCache": "Download the report again, even if it's been already downloaded",
+				"interactive": "Interactive mode"
 			},
+			"selectInstitution": "Select an institution",
 			"xFailedTasks": "{{n}} harvest task(s) failed to be created",
 			"xTasksCreated": "{{n}} harvest task(s) created",
 			"runFollowingCommand": "Run the following command in order to follow the created tasks:",
