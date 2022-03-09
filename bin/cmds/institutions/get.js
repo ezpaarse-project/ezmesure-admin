@@ -32,10 +32,6 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('institutions.get.options.validate'),
       type: 'boolean',
     })
-    .option('validated', {
-      describe: i18n.t('institutions.get.options.validate'),
-      type: 'boolean',
-    })
     .option('n', {
       alias: 'ndjson',
       describe: i18n.t('institutions.get.options.ndjson'),
@@ -60,20 +56,16 @@ exports.handler = async function handler(argv) {
     process.exit(1);
   }
 
-  if (validated === false) {
-    institutionsData = institutionsData.filter((e) => e.validated === false);
-  }
-
-  if (validated === true) {
-    institutionsData = institutionsData.filter((e) => e.validated === true);
-  }
-
-  if (!all && !institutions.length && validated !== false && validated !== true) {
+  if (!all && !institutions.length && validated !== false) {
     try {
       institutionsData = await itMode(institutionsData);
     } catch (error) {
       console.error(error);
     }
+  }
+
+  if (validated === false) {
+    institutionsData = institutionsData.filter((e) => e.validated === false);
   }
 
   if (!institutionsData) {

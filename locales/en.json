@@ -444,9 +444,11 @@
 		"institutionsSelect": "Institutions (Use arrow keys or begin typing to search, press <enter> to submit)",
 		"institutionsNamesNotFound": "institution(s) [{{institutions}}] not found",
 		"validated": "Validated",
-		"notVaidated": "Not validated",
+		"notValidated": "Not validated",
 		"doc": "Doc",
 		"tech": "Tech",
+    "docContact": "Doc contact",
+		"techContact": "Tech contact",
 		"name": "Name",
 		"city": "City",
 		"website": "Website",
@@ -454,6 +456,11 @@
 		"auto": "Auto",
 		"validate": "Validate",
 		"indexPrefix": "Index Prefix",
+    "correspondant": "Correspondant",
+    "space": "Space",
+    "notSparsed": "Not sparsed",
+    "roleInElastic": "Role in elastic",
+    "spaceInElastic": "Space in elastic",
 		"role": "Role",
 		"contact": "Contact",
 		"refresh": {
@@ -485,6 +492,9 @@
 			"roleCreated": "role [{{roleName}}] created or updated",
 			"createRole": "Create role"
 		},
+    "check": {
+      "description": "check institutions with rules"
+    },
 		"export": {
 			"description": "Export institution(s)",
 			"options": {
