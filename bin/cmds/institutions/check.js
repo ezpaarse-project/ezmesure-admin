@@ -14,7 +14,10 @@ const itMode = require('./interactive/get');
 exports.command = 'check [institutions...]';
 exports.desc = i18n.t('institutions.check.description');
 exports.builder = function builder(yargs) {
-  return yargs.option('it', {
+  return yargs.positional('institutions', {
+    describe: i18n.t('institutions.get.options.institutions'),
+    type: 'string',
+  }).option('it', {
     describe: i18n.t('institutions.get.options.interactive'),
     boolean: true,
   })
@@ -43,6 +46,8 @@ exports.handler = async function handler(argv) {
   const {
     institutions, all, json, ndjson, csv, verbose,
   } = argv;
+
+  console.log(institutions);
 
   if (verbose) {
     console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
@@ -74,7 +79,7 @@ exports.handler = async function handler(argv) {
     institutionsData = institutionsData
       .filter(({ id, name }) => institutions.includes(name) || institutions.includes(id));
     if (!institutionsData.length) {
-      console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: institutions.join(', ') }));
+      console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: institutions?.join(', ') }));
       process.exit(0);
     }
   }
