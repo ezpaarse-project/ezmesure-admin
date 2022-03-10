@@ -2,6 +2,7 @@
 const { i18n } = global;
 
 const { table } = require('table');
+const Papa = require('papaparse');
 const chalk = require('chalk');
 
 const institutionsLib = require('../../../lib/institutions');
@@ -31,11 +32,16 @@ exports.builder = function builder(yargs) {
       alias: 'ndjson',
       describe: i18n.t('institutions.get.options.ndjson'),
       type: 'boolean',
+    })
+    .option('c', {
+      alias: 'csv',
+      describe: i18n.t('institutions.get.options.csv'),
+      type: 'boolean',
     });
 };
 exports.handler = async function handler(argv) {
   const {
-    institutions, all, json, ndjson, verbose,
+    institutions, all, json, ndjson, csv, verbose,
   } = argv;
 
   if (verbose) {
@@ -51,7 +57,7 @@ exports.handler = async function handler(argv) {
     process.exit(1);
   }
 
-  if (!all && !institutions.length) {
+  if (!all && !institutions?.length) {
     try {
       institutionsData = await itMode(institutionsData);
     } catch (error) {
@@ -64,7 +70,7 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  if (institutions.length) {
+  if (institutions?.length) {
     institutionsData = institutionsData
       .filter(({ id, name }) => institutions.includes(name) || institutions.includes(id));
     if (!institutionsData.length) {
@@ -135,6 +141,17 @@ exports.handler = async function handler(argv) {
     }
 
     console.log(JSON.stringify(institutionsData, null, 2));
+    process.exit(0);
+  }
+
+  if (csv) {
+    if (verbose) {
+      console.log('* Export in csv format');
+    }
+
+    const csvData = Papa.unparse(institutionsData);
+
+    console.log(csvData);
     process.exit(0);
   }
 
