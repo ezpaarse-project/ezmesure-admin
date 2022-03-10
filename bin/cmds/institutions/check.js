@@ -47,8 +47,6 @@ exports.handler = async function handler(argv) {
     institutions, all, json, ndjson, csv, verbose,
   } = argv;
 
-  console.log(institutions);
-
   if (verbose) {
     console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
   }
@@ -90,40 +88,74 @@ exports.handler = async function handler(argv) {
     const checkInstitution = {
       name: institution.name,
       validated: institution.validated,
-      docContact: true,
-      techContact: true,
-      indexPrefix: true,
-      role: true,
-      space: true,
-      notSparsed: true,
-      roleInElastic: true,
-      spaceInElastic: true,
+      roleInElastic: false,
     };
-    if (institution.docContactName === '') checkInstitution.docContact = false;
-    if (institution.techContactName === '') checkInstitution.techContact = false;
-    if (!institution.indexPrefix) checkInstitution.indexPrefix = false;
-    if (!institution.role) checkInstitution.role = false;
-    if (!institution.space) checkInstitution.space = false;
+
+    if (!institution.docContactName) {
+      checkInstitution.docContact = false;
+    } else {
+      checkInstitution.docContact = institution.docContactName;
+    }
+
+    if (!institution.techContactName) {
+      checkInstitution.techContact = false;
+    } else {
+      checkInstitution.techContact = institution.techContactName;
+    }
+
+    if (!institution.indexPrefix) {
+      checkInstitution.indexPrefix = false;
+    } else {
+      checkInstitution.indexPrefix = institution.indexPrefix;
+    }
+
+    if (!institution.role) {
+      checkInstitution.role = false;
+    } else {
+      checkInstitution.role = institution.role;
+    }
+
+    if (!institution.space) {
+      checkInstitution.space = false;
+    } else {
+      checkInstitution.space = institution.space;
+    }
 
     if (!((new Set([institution.indexPrefix, institution.role, institution.space])).size === 1)) {
       checkInstitution.notSparsed = false;
+    } else {
+      checkInstitution.notSparsed = true;
     }
 
+    const roles = [];
     if (institution.role) {
       try {
         await rolesLib.findByName(institution.role);
-        await rolesLib.findByName(`${institution.role}_read_only`);
+        roles.push(institution.role);
       } catch (err) {
-        checkInstitution.roleInElastic = false;
+        //
       }
+      try {
+        await rolesLib.findByName(`${institution.role}_read_only`);
+        roles.push(`${institution.role}_read_only`);
+      } catch (err) {
+        //
+      }
+    }
+
+    if (roles.length >= 1) {
+      checkInstitution.roleInElastic = roles;
     }
 
     if (institution.space) {
       try {
         await spacesLib.findById(institution.space);
+        checkInstitution.spaceInElastic = institution.space;
       } catch (err) {
         checkInstitution.spaceInElastic = false;
       }
+    } else {
+      checkInstitution.spaceInElastic = false;
     }
 
     checkInstitutions.push(checkInstitution);
@@ -197,7 +229,7 @@ exports.handler = async function handler(argv) {
     role ? chalk.hex('#78e08f').bold(role) : chalk.hex('#e55039').bold(role),
     space ? chalk.hex('#78e08f').bold(space) : chalk.hex('#e55039').bold(space),
     notSparsed ? chalk.hex('#78e08f').bold(notSparsed) : chalk.hex('#e55039').bold(notSparsed),
-    roleInElastic ? chalk.hex('#78e08f').bold(roleInElastic) : chalk.hex('#e55039').bold(roleInElastic),
+    roleInElastic ? chalk.hex(roleInElastic?.length === 2 ? '#78e08f' : '#e55039').bold(roleInElastic?.join(',')) : chalk.hex('#e55039').bold(false),
     spaceInElastic ? chalk.hex('#78e08f').bold(spaceInElastic) : chalk.hex('#e55039').bold(spaceInElastic),
   ]));
 
