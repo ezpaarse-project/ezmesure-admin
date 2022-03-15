@@ -4,6 +4,7 @@ const { table } = require('table');
 const chalk = require('chalk');
 
 const sushiLib = require('../../../lib/sushi');
+const endpointsLib = require('../../../lib/endpoints');
 const institutionsLib = require('../../../lib/institutions');
 const { config } = require('../../../lib/app/config');
 
@@ -40,6 +41,10 @@ exports.builder = function builder(yargs) {
       type: 'string',
       describe: i18n.t('sushi.harvest.options.fromInstitution'),
     })
+    .option('with-tags', {
+      type: 'string',
+      describe: i18n.t('sushi.harvest.options.withTags'),
+    })
     .option('allow-faulty', {
       type: 'boolean',
       describe: i18n.t('sushi.harvest.options.allowFaulty'),
@@ -65,6 +70,7 @@ exports.handler = async function handler(argv) {
     cache,
     verbose,
     fromInstitution,
+    withTags,
     allowFaulty,
     $0: scriptName,
   } = argv;
@@ -72,6 +78,32 @@ exports.handler = async function handler(argv) {
   let { sushiIds } = argv;
 
   const results = [];
+  let endpointIds;
+
+  if (withTags) {
+    const tags = withTags
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter((x) => x)
+      .join(',');
+
+    console.log(`* Fetch SUSHI endpoints having tags [${tags}] from ${config.ezmesure.baseUrl}`);
+
+    try {
+      const { data: endpoints } = await endpointsLib.getAll({ tags });
+
+      if (Array.isArray(endpoints)) {
+        endpointIds = new Set(endpoints.map((e) => e?.id));
+      }
+    } catch (e) {
+      const errorMessage = e?.response?.data?.error;
+      const status = e?.response?.status;
+      const statusMessage = e?.response?.statusMessage;
+
+      console.error(`[${status}] ${errorMessage || statusMessage || e.message}`);
+      process.exit(1);
+    }
+  }
 
   if (fromInstitution) {
     console.log(`* Fetch SUSHI credentials of institution [${fromInstitution}] from ${config.ezmesure.baseUrl}`);
@@ -82,6 +114,9 @@ exports.handler = async function handler(argv) {
         sushiIds = data
           .filter((item) => {
             if (item?.connection?.success !== true && !allowFaulty) {
+              return false;
+            }
+            if (endpointIds && !endpointIds.has(item.endpointId)) {
               return false;
             }
             return item.id;

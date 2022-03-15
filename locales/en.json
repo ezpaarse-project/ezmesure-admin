@@ -217,6 +217,7 @@
 				"ndjson": "Print result(s) in ndjson",
 				"sushiIds": "Identifiers of the SUSHI credentials taht should be harvested",
 				"fromInstitution": "Harvest all SUSHI items belonging to the given institution",
+				"withTags": "Harvest SUSHI items whose endpoint has specific tags (comma-separated, to be used with --from-institution)",
 				"allowFaulty": "Allow faulty or untested SUSHI endpoints to be harvested (to be used with --from-institution)",
 				"from": "Beginning of the period to harvest",
 				"to": "End of the period to harvest",
