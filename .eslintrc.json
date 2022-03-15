@@ -24,6 +24,7 @@
     "no-await-in-loop": "off",
     "no-underscore-dangle": "off",
     "no-param-reassign": "off",
-    "no-unsafe-optional-chaining": "off"
+    "no-unsafe-optional-chaining": "off",
+    "no-restricted-syntax" : "off"
   }
 }
