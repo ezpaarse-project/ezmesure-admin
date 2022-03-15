@@ -19,6 +19,7 @@
 		"fullName": "Full name",
 		"email": "Email",
 		"assignedRoles": "Roles",
+    "assignedSpaces": "Spaces",
 		"reserved": "reserved",
 		"userUpdated": "user [{{user}}] updated successfully",
 		"roles": {
@@ -47,6 +48,19 @@
 				"json": "Print result(s) in json",
 				"ndjson": "Print result(s) in ndjson",
 				"fields": "Fields we want to retrieve separated by a comma (full_name,username by default)",
+				"size": "Number of users to recover (default: 10)",
+				"all": "Retrieve all users"
+			},
+			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
+		},
+    "check": {
+			"description": "Check one or more users",
+			"options": {
+				"users": "User(s) name(s)",
+				"interactive":"Interactive mode",
+        "csv": "Print result(s) in csv",
+				"json": "Print result(s) in json",
+				"ndjson": "Print result(s) in ndjson",
 				"size": "Number of users to recover (default: 10)",
 				"all": "Retrieve all users"
 			},
@@ -458,7 +472,6 @@
 		"indexPrefix": "Index Prefix",
     "correspondant": "Correspondant",
     "space": "Space",
-    "notSparsed": "Not sparsed",
     "roleInElastic": "Role in elastic",
     "spaceInElastic": "Space in elastic",
 		"role": "Role",
@@ -492,9 +505,6 @@
 			"roleCreated": "role [{{roleName}}] created or updated",
 			"createRole": "Create role"
 		},
-    "check": {
-      "description": "check institutions with rules"
-    },
 		"export": {
 			"description": "Export institution(s)",
 			"options": {
@@ -519,6 +529,17 @@
 			"doc": "Doc contact",
 			"tech": "Tech contact"
 		},
+    "check": {
+      "description": "check institutions with rules",
+      "options": {
+				"institutions": "Institution(s) name, case sensitive",
+				"all": "Export all institutions",
+				"json": "Print result(s) in json",
+        "csv": "Print result(s) in csv",
+				"ndjson": "Print result(s) in ndjson",
+				"interactive": "Interactive mode"
+			}
+    },
 		"import": {
 			"description": "Import institution(s)",
 			"sepecifyJSONFile": "Please sepecify JSON files path",
