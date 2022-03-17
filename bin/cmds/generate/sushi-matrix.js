@@ -2,8 +2,8 @@ const { i18n } = global;
 
 const Papa = require('papaparse');
 
-const sushiLib = require('../../../lib/sushi');
 const institutionsLib = require('../../../lib/institutions');
+const endpointsLib = require('../../../lib/endpoints');
 
 exports.command = 'sushi-matrix';
 exports.desc = i18n.t('generate.sushiMatrix.description');
@@ -11,8 +11,8 @@ exports.builder = function builder(yargs) {
   return yargs;
 };
 exports.handler = async function handler() {
-  let sushiPlatforms;
   let institutions;
+  let endpoints;
 
   const HEADER_LINE = 0;
   const TOTAL_LINE = 1;
@@ -31,7 +31,7 @@ exports.handler = async function handler() {
 
   try {
     institutions = await institutionsLib.getAll().then((res) => res?.data);
-    sushiPlatforms = await sushiLib.getPlatforms().then((res) => res?.data);
+    endpoints = await endpointsLib.getAll().then((res) => res?.data);
   } catch (e) {
     const errorMessage = e?.response?.data?.error;
     const status = e?.response?.status;
@@ -41,7 +41,13 @@ exports.handler = async function handler() {
     process.exit(1);
   }
 
-  const platformsByVendor = new Map();
+  const credentialsByEndpointId = new Map(
+    endpoints.map((endpoint) => [endpoint.id, { endpoint, items: [] }]),
+  );
+  credentialsByEndpointId.set(
+    'endpoint_not_found',
+    { endpoint: { vendor: 'endpoint_not_found' }, items: [] },
+  );
 
   for (let institutionIndex = 0; institutionIndex < institutions.length; institutionIndex += 1) {
     const institution = institutions[institutionIndex];
@@ -65,14 +71,11 @@ exports.handler = async function handler() {
     }
 
     sushiItems.forEach((sushiItem) => {
-      const vendor = sushiItem?.vendor?.toLowerCase?.();
-      if (!vendor) { return; }
+      const endpointId = sushiItem?.endpointId;
 
-      if (!platformsByVendor.has(vendor)) {
-        platformsByVendor.set(vendor, { name: sushiItem.vendor, items: [] });
-      }
-
-      const { items } = platformsByVendor.get(vendor);
+      const { items } = (
+        credentialsByEndpointId.get(endpointId) || credentialsByEndpointId.get('endpoint_not_found')
+      );
 
       if (!items[institutionIndex]) {
         items[institutionIndex] = { working: 0, faulty: 0, untested: 0 };
@@ -99,18 +102,9 @@ exports.handler = async function handler() {
     lines[UNTESTED_LINE][institutionIndex + 1] = total.untested;
   }
 
-  sushiPlatforms.forEach((platform) => {
-    const vendor = platform.name?.toLowerCase?.();
-    if (!vendor) { return; }
-
-    if (!platformsByVendor.has(vendor)) {
-      platformsByVendor.set(vendor, { name: platform.name, items: [] });
-    }
-  });
-
-  const vendorLines = Array.from(platformsByVendor.values())
-    .sort((a, b) => (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1))
-    .map(({ name, items }) => {
+  const vendorLines = Array.from(credentialsByEndpointId.values())
+    .sort((a, b) => (a.endpoint.vendor.toLowerCase() < b.endpoint.vendor.toLowerCase() ? -1 : 1))
+    .map(({ endpoint, items }) => {
       const columns = items.map((item) => {
         const { working = 0, faulty = 0, untested = 0 } = item || {};
 
@@ -126,7 +120,7 @@ exports.handler = async function handler() {
         return '';
       });
 
-      return [name, ...columns];
+      return [endpoint.vendor, ...columns];
     });
 
   console.log(Papa.unparse([...lines, ...vendorLines]));
