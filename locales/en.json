@@ -98,6 +98,9 @@
 		"description": "Generate things <command>: sushi-matrix",
 		"sushiMatrix": {
 			"description": "Generate a summary of SUSHI items by institution and vendor"
+		},
+		"harvestMatrix": {
+			"description": "Generate a summary of the latest harvest tasks for all SUSHI items"
 		}
 	},
 	"sushi": {
