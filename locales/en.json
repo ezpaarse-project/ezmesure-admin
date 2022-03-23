@@ -323,7 +323,7 @@
 		"auto": "Auto",
 		"validate": "Validate",
 		"indexPrefix": "Index Prefix",
-    "correspondant": "Correspondant",
+    "correspondent": "correspondent",
     "space": "Space",
     "roleInElastic": "Role in elastic",
     "spaceInElastic": "Space in elastic",
