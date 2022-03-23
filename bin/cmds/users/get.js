@@ -32,9 +32,9 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('users.get.options.size'),
       type: 'number',
     })
-    .option('only-correspondant', {
-      alias: 'only-correspondant',
-      describe: i18n.t('users.get.options.onlyCorrespondant'),
+    .option('only-correspondent', {
+      alias: 'only-correspondent',
+      describe: i18n.t('users.get.options.onlyCorrespondent'),
       boolean: true,
     })
     .option('a', {
@@ -62,7 +62,7 @@ exports.handler = async function handler(argv) {
   const { users } = argv;
   let { size } = argv;
 
-  const onlyCorrespondant = argv['only-correspondant'];
+  const onlyCorrespondent = argv['only-correspondent'];
 
   const {
     json, ndjson, csv, interactive, verbose, all, filter,
@@ -100,7 +100,7 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  if (onlyCorrespondant) {
+  if (onlyCorrespondent) {
     usersData = usersData.filter((user) => {
       if (user?.roles?.includes('tech_contact') || user?.roles?.includes('doc_contact')) {
         return user;
