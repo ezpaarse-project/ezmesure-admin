@@ -24,6 +24,11 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('sushi.harvest.options.sushiIds'),
       type: 'string',
     })
+    .option('all', {
+      alias: 'a',
+      type: 'boolean',
+      describe: i18n.t('sushi.harvest.options.all'),
+    })
     .option('from', {
       type: 'string',
       describe: i18n.t('sushi.harvest.options.from'),
@@ -64,6 +69,7 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
+    all,
     target,
     from: beginDate,
     to: endDate,
@@ -105,11 +111,16 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  if (fromInstitution) {
-    console.log(`* Fetch SUSHI credentials of institution [${fromInstitution}] from ${config.ezmesure.baseUrl}`);
+  if (all || fromInstitution) {
+    if (all) {
+      console.log(`* Fetch all SUSHI credentials from ${config.ezmesure.baseUrl}`);
+    } else {
+      console.log(`* Fetch SUSHI credentials of institution [${fromInstitution}] from ${config.ezmesure.baseUrl}`);
+    }
 
     try {
-      const { data } = await institutionsLib.getSushi(fromInstitution);
+      const { data } = await (all ? sushiLib.getAll() : institutionsLib.getSushi(fromInstitution));
+
       if (Array.isArray(data)) {
         sushiIds = data
           .filter((item) => {
@@ -204,7 +215,9 @@ exports.handler = async function handler(argv) {
     console.log();
     console.log(i18n.t('sushi.harvest.runFollowingCommand'));
 
-    if (fromInstitution) {
+    if (all) {
+      console.log(`${scriptName} tasks list -c params.sushiId`);
+    } else if (fromInstitution) {
       console.log(`${scriptName} tasks list -i ${fromInstitution} -c params.sushiId`);
     } else {
       console.log(`${scriptName} tasks get ${taskIds.join(' ')}`);
