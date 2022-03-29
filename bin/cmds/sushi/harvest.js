@@ -2,7 +2,12 @@ const { i18n } = global;
 
 const { table } = require('table');
 const chalk = require('chalk');
+const formatDate = require('date-fns/format');
+const subMonths = require('date-fns/subMonths');
+const parseDate = require('date-fns/parse');
+const isValidDate = require('date-fns/isValid');
 
+const itMode = require('./interactive/harvest');
 const sushiLib = require('../../../lib/sushi');
 const endpointsLib = require('../../../lib/endpoints');
 const institutionsLib = require('../../../lib/institutions');
@@ -16,13 +21,22 @@ const coloredStatus = (status = '') => {
   return chalk.white(status);
 };
 
-exports.command = 'harvest [sushiIds...]';
+const handleApiError = (e) => {
+  const errorMessage = e?.response?.data?.error;
+  const status = e?.response?.status;
+  const statusMessage = e?.response?.statusMessage;
+
+  console.error(`[${status}] ${errorMessage || statusMessage || e.message}`);
+};
+
+exports.command = 'harvest';
 exports.desc = i18n.t('sushi.harvest.description');
 exports.builder = function builder(yargs) {
   return yargs
-    .positional('sushiIds', {
-      describe: i18n.t('sushi.harvest.options.sushiIds'),
-      type: 'string',
+    .option('interactive', {
+      alias: 'it',
+      type: 'boolean',
+      describe: i18n.t('sushi.harvest.options.interactive'),
     })
     .option('all', {
       alias: 'a',
@@ -42,13 +56,20 @@ exports.builder = function builder(yargs) {
       type: 'string',
       describe: i18n.t('sushi.harvest.options.target'),
     })
-    .option('from-institution', {
-      type: 'string',
-      describe: i18n.t('sushi.harvest.options.fromInstitution'),
+    .option('sushiId', {
+      alias: 's',
+      type: 'array',
+      describe: i18n.t('sushi.harvest.options.sushiId'),
     })
-    .option('with-tags', {
-      type: 'string',
-      describe: i18n.t('sushi.harvest.options.withTags'),
+    .option('institutionId', {
+      alias: 'i',
+      type: 'array',
+      describe: i18n.t('sushi.harvest.options.institutionId'),
+    })
+    .option('endpointId', {
+      alias: 'e',
+      type: 'array',
+      describe: i18n.t('sushi.harvest.options.endpointId'),
     })
     .option('allow-faulty', {
       type: 'boolean',
@@ -69,92 +90,171 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
+    interactive,
     all,
     target,
-    from: beginDate,
-    to: endDate,
     cache,
     verbose,
-    fromInstitution,
-    withTags,
     allowFaulty,
     $0: scriptName,
   } = argv;
 
-  let { sushiIds } = argv;
+  let {
+    from: beginDate,
+    to: endDate,
+    sushiId: sushiIds,
+    institutionId: institutionIds,
+    endpointId: endpointIds,
+  } = argv;
+
+  if (!Array.isArray(institutionIds)) { institutionIds = []; }
+  if (!Array.isArray(endpointIds)) { endpointIds = []; }
+  if (!Array.isArray(sushiIds)) { sushiIds = []; }
 
   const results = [];
-  let endpointIds;
 
-  if (withTags) {
-    const tags = withTags
-      .split(',')
-      .map((tag) => tag.trim())
-      .filter((x) => x)
-      .join(',');
+  if (interactive) {
+    const harvestAllInstitutions = await itMode.confirm(i18n.t('sushi.harvest.harvestAllInstitutions'), false);
 
-    console.log(`* Fetch SUSHI endpoints having tags [${tags}] from ${config.ezmesure.baseUrl}`);
-
-    try {
-      const { data: endpoints } = await endpointsLib.getAll({ tags });
-
-      if (Array.isArray(endpoints)) {
-        endpointIds = new Set(endpoints.map((e) => e?.id));
+    if (!harvestAllInstitutions) {
+      if (verbose) {
+        console.log(`* Fetch institutions from ${config.ezmesure.baseUrl}`);
       }
-    } catch (e) {
-      const errorMessage = e?.response?.data?.error;
-      const status = e?.response?.status;
-      const statusMessage = e?.response?.statusMessage;
+      let allInstitutions;
 
-      console.error(`[${status}] ${errorMessage || statusMessage || e.message}`);
-      process.exit(1);
+      try {
+        ({ data: allInstitutions } = await institutionsLib.getAll());
+      } catch (e) {
+        handleApiError(e);
+        process.exit(1);
+      }
+
+      institutionIds = await itMode.selectMultiple(
+        i18n.t('sushi.harvest.selectInstitutions'),
+        Array.from(allInstitutions).map((i) => ({ name: i.name, value: i.id })),
+      );
+    }
+
+    const harvestAllEndpoints = await itMode.confirm(i18n.t('sushi.harvest.harvestAllEndpoints'), false);
+
+    if (!harvestAllEndpoints) {
+      if (verbose) {
+        console.log(`* Fetch SUSHI endpoints from ${config.ezmesure.baseUrl}`);
+      }
+      let allEndpoints;
+
+      try {
+        ({ data: allEndpoints } = await endpointsLib.getAll());
+      } catch (e) {
+        handleApiError(e);
+        process.exit(1);
+      }
+
+      endpointIds = await itMode.selectMultiple(
+        i18n.t('sushi.harvest.selectEndpoints'),
+        allEndpoints.map((endpoint) => {
+          const { tags, id: value } = endpoint;
+          let name = endpoint.vendor || '';
+
+          if (Array.isArray(tags) && tags.length > 0) {
+            const tagsSuffix = `(tags: ${tags.join(', ')})`;
+            name = `${name} ${chalk.grey(tagsSuffix)}`;
+          }
+          return { name, value };
+        }),
+      );
     }
   }
 
-  if (all || fromInstitution) {
-    if (all) {
-      console.log(`* Fetch all SUSHI credentials from ${config.ezmesure.baseUrl}`);
-    } else {
-      console.log(`* Fetch SUSHI credentials of institution [${fromInstitution}] from ${config.ezmesure.baseUrl}`);
-    }
+  if (verbose) {
+    console.log(`* Fetch SUSHI credentials from ${config.ezmesure.baseUrl}`);
+  }
 
-    try {
-      const { data } = await (all ? sushiLib.getAll() : institutionsLib.getSushi(fromInstitution));
+  const hasFilters = (institutionIds.length + endpointIds.length + sushiIds.length) > 0;
 
-      if (Array.isArray(data)) {
-        sushiIds = data
-          .filter((item) => {
-            if (item?.connection?.success !== true && !allowFaulty) {
-              return false;
-            }
-            if (endpointIds && !endpointIds.has(item.endpointId)) {
-              return false;
-            }
-            return item.id;
-          })
-          .map((item) => item?.id);
+  if (!hasFilters && !all) {
+    console.error(i18n.t('sushi.harvest.noFilter'));
+    console.error(i18n.t('sushi.harvest.pleaseSetAllFlag'));
+    process.exit(1);
+  }
+
+  const params = {};
+  let sushiItems;
+
+  if (institutionIds.length > 0) {
+    params.institutionId = institutionIds.join(',');
+  }
+  if (endpointIds.length > 0) {
+    params.endpointId = endpointIds.join(',');
+  }
+  if (sushiIds.length > 0) {
+    params.id = sushiIds.join(',');
+  }
+  if (!allowFaulty) {
+    params.connection = 'working';
+  }
+
+  try {
+    ({ data: sushiItems } = await sushiLib.getAll(params));
+  } catch (e) {
+    handleApiError(e);
+    process.exit(1);
+  }
+
+  if (interactive) {
+    sushiItems = await itMode.selectMultiple(
+      i18n.t('sushi.harvest.selectSushiCredentials'),
+      sushiItems.map((sushi) => {
+        const packageName = chalk.grey(`[${sushi.package}]`);
+        let statusIcon = chalk.grey('?');
+
+        if (sushi?.connection?.success === true) {
+          statusIcon = chalk.green('✓');
+        } else if (sushi?.connection?.success === false) {
+          statusIcon = chalk.red('✕');
+        }
+
+        return {
+          name: `${statusIcon} ${sushi.vendor} ${packageName}`,
+          value: sushi,
+        };
+      }),
+      sushiItems,
+    );
+
+    const validateDate = (input) => {
+      if (isValidDate(parseDate(input, 'yyyy-MM', new Date()))) {
+        return true;
       }
-    } catch (e) {
-      const errorMessage = e?.response?.data?.error;
-      const status = e?.response?.status;
-      const statusMessage = e?.response?.statusMessage;
+      return i18n.t('sushi.harvest.invalidDate');
+    };
 
-      console.error(`[${status}] ${errorMessage || statusMessage || e.message}`);
-      process.exit(1);
-    }
+    const lastMonth = formatDate(subMonths(new Date(), 1), 'yyyy-MM');
+
+    beginDate = await itMode.input({
+      message: 'Harvest from (yyyy-MM)',
+      default: beginDate || lastMonth,
+      validate: validateDate,
+    });
+    endDate = await itMode.input({
+      message: 'Harvest to (yyyy-MM)',
+      default: endDate || lastMonth,
+      validate: validateDate,
+    });
   }
 
   if (verbose) {
     console.log(`* Harvesting SUSHI credentials from ${config.ezmesure.baseUrl}`);
   }
 
-  for (let i = 0; i < sushiIds.length; i += 1) {
-    const sushiId = sushiIds[i];
+  for (let i = 0; i < sushiItems.length; i += 1) {
+    const sushiItem = sushiItems[i];
+    const sushiId = sushiItem?.id;
     let task;
     let error;
 
     if (verbose) {
-      console.log(`* Starting harvest for [${sushiId}]`);
+      console.log(`* Starting harvest for [${sushiItem.vendor}][${sushiId}]`);
     }
 
     try {
@@ -166,11 +266,7 @@ exports.handler = async function handler(argv) {
       });
       task = data;
     } catch (e) {
-      const errorMessage = e?.response?.data?.error;
-      const status = e?.response?.status;
-      const statusMessage = e?.response?.statusMessage;
-
-      error = `[${status}] ${errorMessage || statusMessage || e.message}`;
+      handleApiError(e);
     }
 
     results.push({ sushiId, task, error });
@@ -215,13 +311,13 @@ exports.handler = async function handler(argv) {
     console.log();
     console.log(i18n.t('sushi.harvest.runFollowingCommand'));
 
-    if (all) {
-      console.log(`${scriptName} tasks list -c params.sushiId`);
-    } else if (fromInstitution) {
-      console.log(`${scriptName} tasks list -i ${fromInstitution} -c params.sushiId`);
-    } else {
-      console.log(`${scriptName} tasks get ${taskIds.join(' ')}`);
-    }
+    let listCmd = `${scriptName} tasks list -c params.sushiId`;
+
+    if (institutionIds.length > 0) { listCmd += ` -i ${institutionIds.join(',')}`; }
+    if (endpointIds.length > 0) { listCmd += ` -e ${endpointIds.join(',')}`; }
+    if (sushiIds.length > 0) { listCmd += ` -s ${sushiIds.join(',')}`; }
+
+    console.log(listCmd);
   }
 
   process.exit(0);
