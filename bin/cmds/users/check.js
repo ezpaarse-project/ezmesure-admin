@@ -6,7 +6,7 @@ const chalk = require('chalk');
 
 const usersLib = require('../../../lib/users');
 const rolesLib = require('../../../lib/roles');
-const institutionsLib = require('../../../lib/institutions');
+// const institutionsLib = require('../../../lib/institutions');
 const itMode = require('./interactive/get');
 
 exports.command = 'check [users...]';
@@ -139,12 +139,12 @@ exports.handler = async function handler(argv) {
       } catch (err) {
         //
       }
-      if (role?.data?.name !== 'superuser' && role?.data?.name !== 'bienvenue') {
-        console.log(role?.data?.name);
-      }
-      const tt = await institutionsLib.getOne('self');
-      console.log(tt.data);
       // TODO get institutions with roleName
+      // if (role?.data?.name !== 'superuser' && role?.data?.name !== 'bienvenue') {
+      //   console.log(role?.data?.name);
+      // }
+      // const tt = await institutionsLib.getOne('self');
+      // console.log(tt.data);
     }
 
     if (spaces.length >= 1) {
