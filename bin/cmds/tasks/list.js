@@ -53,6 +53,11 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('tasks.list.options.institutionId'),
       type: 'string',
     })
+    .option('e', {
+      alias: 'endpointId',
+      describe: i18n.t('tasks.list.options.endpointId'),
+      type: 'string',
+    })
     .option('c', {
       alias: 'collapse',
       describe: i18n.t('tasks.list.options.collapse'),
@@ -78,6 +83,7 @@ exports.handler = async function handler(argv) {
   if (argv.type) { params.type = argv.type; }
   if (argv.sushiId) { params.sushiId = argv.sushiId; }
   if (argv.institutionId) { params.institutionId = argv.institutionId; }
+  if (argv.endpointId) { params.endpointId = argv.endpointId; }
   if (argv.collapse) { params.collapse = argv.collapse; }
 
   try {

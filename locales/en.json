@@ -76,6 +76,7 @@
 				"type": "Filter tasks by type (comma-separated list)",
 				"sushiId": "Filter tasks by SUSHI ID (comma-separated list)",
 				"institutionId": "Filter tasks by institution ID (comma-separated list)",
+				"endpointId": "Filter tasks by SUSHI endpoint ID (comma-separated list)",
 				"collapse": "Return only one task for each distinct value of the given field",
 				"ndjson": "Print result(s) in ndjson",
 				"json": "Print result(s) in json"
