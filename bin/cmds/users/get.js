@@ -52,6 +52,11 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('users.get.options.ndjson'),
       type: 'boolean',
     })
+    .option('t', {
+      alias: 'txt',
+      describe: i18n.t('users.get.options.txt'),
+      type: 'boolean',
+    })
     .option('c', {
       alias: 'csv',
       describe: i18n.t('institutions.check.options.csv'),
@@ -65,7 +70,7 @@ exports.handler = async function handler(argv) {
   const onlyCorrespondent = argv['only-correspondent'];
 
   const {
-    json, ndjson, csv, interactive, verbose, all, filter,
+    json, ndjson, csv, txt, interactive, verbose, all, filter,
   } = argv;
 
   if (all) { size = 10000; }
@@ -124,6 +129,15 @@ exports.handler = async function handler(argv) {
     });
 
     usersData = filters;
+  }
+
+  if (txt && filter === 'email') {
+    if (verbose) {
+      console.log('* Export users to txt format');
+    }
+    usersData = usersData.map((user) => user.email).join(';');
+    console.log(usersData);
+    process.exit(0);
   }
 
   if (interactive) {
