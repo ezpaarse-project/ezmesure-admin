@@ -83,7 +83,7 @@ exports.handler = async function handler(argv) {
 
   const checkInstitutions = [];
 
-  for await (const institution of institutionsData) {
+  for (const institution of institutionsData) {
     const checkInstitution = {
       name: institution.name,
       validated: institution.validated,
