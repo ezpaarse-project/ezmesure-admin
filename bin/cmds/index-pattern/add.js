@@ -27,15 +27,19 @@ exports.handler = async function handler(argv) {
     console.log(`* Create index-pattern [${title}] for space [${space}] with datetime field [${timeFieldName}] from ${config.ezmesure.baseUrl}`);
   }
 
+  let patternId;
+
   try {
-    await spacesLib.addIndexPatterns(space, {
+    const { data } = await spacesLib.addIndexPatterns(space, {
       title,
       timeFieldName,
     });
+
+    patternId = data?.id;
   } catch (error) {
     console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
     process.exit(1);
   }
 
-  console.log(i18n.t('indexPattern.add.created', { space, title }));
+  console.log(i18n.t('indexPattern.add.created', { space, title, id: patternId }));
 };

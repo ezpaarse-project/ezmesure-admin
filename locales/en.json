@@ -710,7 +710,7 @@
 				"title": "Index-pattern name",
 				"timeFieldName": "Time field name (default: datetime)"
 			},
-			"created": "index-pattern [{{title}}] created in space [{{space}}]"
+			"created": "index-pattern [{{title}}] created in space [{{space}}] with ID [{{id}}]"
 		}
 	},
 	"indices": {
