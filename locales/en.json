@@ -706,6 +706,7 @@
 		"add": {
 			"description": "Create index-pattern",
 			"options": {
+				"json": "Print result(s) in json",
 				"space": "Space name, case sensitive",
 				"title": "Index-pattern name",
 				"timeFieldName": "Time field name (default: datetime)"
