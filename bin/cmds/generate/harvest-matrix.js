@@ -7,9 +7,21 @@ const tasksLib = require('../../../lib/tasks');
 exports.command = 'harvest-matrix';
 exports.desc = i18n.t('generate.harvestMatrix.description');
 exports.builder = function builder(yargs) {
-  return yargs;
+  return yargs
+    .option('package', {
+      describe: i18n.t('generate.harvestMatrix.options.package'),
+      type: 'boolean',
+    })
+    .option('errors', {
+      describe: i18n.t('generate.harvestMatrix.options.errors'),
+      type: 'boolean',
+    });
 };
-exports.handler = async function handler() {
+exports.handler = async function handler(argv) {
+  const {
+    package: showPackage,
+    errors: showErrors,
+  } = argv;
   let tasks;
 
   try {
@@ -32,10 +44,17 @@ exports.handler = async function handler() {
     const validationStep = steps.find((step) => step?.label === 'validation');
     const insertStep = steps.find((step) => step?.label === 'insert');
 
-    return [
+    let columns = [
       params.institutionName,
       params.endpointVendor,
+    ];
 
+    if (showPackage) {
+      columns.push(params?.sushiPackage || '');
+    }
+
+    columns = [
+      ...columns,
       Number.isInteger(task?.runningTime) ? task.runningTime : '',
       Number.isInteger(downloadStep?.took) ? downloadStep.took : '',
       Number.isInteger(validationStep?.took) ? validationStep.took : '',
@@ -45,6 +64,19 @@ exports.handler = async function handler() {
       Number.isInteger(result?.updated) ? result.updated : '',
       Number.isInteger(result?.failed) ? result.failed : '',
     ];
+
+    if (showErrors) {
+      const logs = Array.isArray(task?.logs) ? task.logs : [];
+
+      columns.push(
+        logs
+          .filter((log) => (log?.message && log?.type === 'error'))
+          .map((log) => log.message)
+          .join(' | '),
+      );
+    }
+
+    return columns;
   });
 
   console.log(Papa.unparse(lines));

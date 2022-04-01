@@ -101,7 +101,11 @@
 			"description": "Generate a summary of SUSHI items by institution and vendor"
 		},
 		"harvestMatrix": {
-			"description": "Generate a summary of the latest harvest tasks for all SUSHI items"
+			"description": "Generate a summary of the latest harvest tasks for all SUSHI items",
+			"options": {
+				"package": "Add a column for the SUSHI Package",
+				"errors": "Add a column for harvest errors"
+			}
 		}
 	},
 	"sushi": {
