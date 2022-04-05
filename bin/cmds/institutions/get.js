@@ -32,6 +32,10 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('institutions.get.options.noValidated'),
       type: 'boolean',
     })
+    .option('no-contact', {
+      describe: i18n.t('institutions.get.options.noContact'),
+      type: 'boolean',
+    })
     .option('n', {
       alias: 'ndjson',
       describe: i18n.t('institutions.get.options.ndjson'),
@@ -40,7 +44,7 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    institutions, all, json, validated, ndjson, verbose,
+    institutions, all, json, validated, contact, ndjson, verbose,
   } = argv;
 
   if (verbose) {
@@ -66,6 +70,10 @@ exports.handler = async function handler(argv) {
 
   if (validated === false) {
     institutionsData = institutionsData.filter((e) => e.validated === false);
+  }
+
+  if (contact === false) {
+    institutionsData = institutionsData.filter((e) => !e.docContactName && !e.techContactName);
   }
 
   if (!institutionsData) {
