@@ -29,7 +29,7 @@ exports.builder = function builder(yargs) {
       type: 'boolean',
     })
     .option('no-validated', {
-      describe: i18n.t('institutions.get.options.validate'),
+      describe: i18n.t('institutions.get.options.noValidated'),
       type: 'boolean',
     })
     .option('n', {

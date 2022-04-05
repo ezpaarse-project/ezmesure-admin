@@ -48,6 +48,9 @@
 				"interactive":"Interactive mode",
 				"json": "Print result(s) in json",
 				"ndjson": "Print result(s) in ndjson",
+        "csv": "Print result(s) in csv",
+        "txt": "Print result(s) in txt",
+        "onlyCorrespondent": "Filter by correspondents",
 				"fields": "Fields we want to retrieve separated by a comma (full_name,username by default)",
 				"size": "Number of users to recover (default: 10)",
 				"all": "Retrieve all users"
@@ -477,6 +480,9 @@
     "spaceInElastic": "Space in elastic",
 		"role": "Role",
 		"contact": "Contact",
+    "ezpaarse": "Ezpaarse",
+    "ezmesure": "Ezmesure",
+    "report": "Reporting",
 		"refresh": {
 			"description": "Refresh dynamic institution fields (contacts, number of ECs).",
 			"refreshed": "Institutions are refreshed"
@@ -520,6 +526,7 @@
 			"description": "Get institution(s) informations",
 			"options": {
 				"institutions": "Institution(s) name, case sensitive",
+        "noValidated": "Filter by not validated",
 				"all": "Export all institutions",
 				"json": "Print result(s) in json",
 				"ndjson": "Print result(s) in ndjson",
