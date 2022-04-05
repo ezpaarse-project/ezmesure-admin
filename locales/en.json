@@ -18,6 +18,7 @@
 		"username": "Username",
 		"fullName": "Full name",
 		"email": "Email",
+    "institution": "Institution",
 		"assignedRoles": "Roles",
     "assignedSpaces": "Spaces",
 		"reserved": "reserved",

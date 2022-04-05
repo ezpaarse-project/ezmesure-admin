@@ -6,7 +6,6 @@ const chalk = require('chalk');
 
 const usersLib = require('../../../lib/users');
 const rolesLib = require('../../../lib/roles');
-// const institutionsLib = require('../../../lib/institutions');
 const itMode = require('./interactive/get');
 
 exports.command = 'check [users...]';
@@ -43,7 +42,7 @@ exports.builder = function builder(yargs) {
     })
     .option('c', {
       alias: 'csv',
-      describe: i18n.t('institutions.check.options.csv'),
+      describe: i18n.t('users.check.options.csv'),
       type: 'boolean',
     });
 };
@@ -69,9 +68,7 @@ exports.handler = async function handler(argv) {
       console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
       process.exit(1);
     }
-  }
-
-  if (users.length) {
+  } else {
     for (let i = 0; i < users.length; i += 1) {
       try {
         const { data } = await usersLib.getByUsername(users[i]);
@@ -81,6 +78,16 @@ exports.handler = async function handler(argv) {
         process.exit(1);
       }
     }
+  }
+
+  let allRoles;
+
+  try {
+    const { data } = await rolesLib.getAll();
+    allRoles = data;
+  } catch (error) {
+    console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    process.exit(1);
   }
 
   if (interactive) {
@@ -94,57 +101,42 @@ exports.handler = async function handler(argv) {
 
   const checkUsers = [];
 
-  for await (const user of usersData) {
+  for (const user of usersData) {
     const checkUser = {
-      username: '',
-      fullName: '',
-      email: '',
-      roles: [],
+      username: user.username || false,
+      fullName: user.full_name || false,
+      email: user.email || false,
+      roles: user.roles || false,
       spaces: [],
+      institution: false,
     };
-
-    if (!user.username) {
-      checkUser.username = false;
-    } else {
-      checkUser.username = user.username;
-    }
-
-    if (!user.full_name) {
-      checkUser.fullName = false;
-    } else {
-      checkUser.fullName = user.full_name;
-    }
-
-    if (!user.email) {
-      checkUser.email = false;
-    } else {
-      checkUser.email = user.email;
-    }
-
-    if (!user.roles) {
-      checkUser.roles = false;
-    } else {
-      checkUser.roles = user.roles;
-    }
 
     let spaces = [];
 
-    for await (const roleName of user.roles) {
-      let role;
-      try {
-        role = await rolesLib.findByName(roleName);
-        let space = role?.data?.kibana[0]?.spaces;
-        space = space.filter((e) => e !== undefined);
-        spaces = spaces.concat(space);
-      } catch (err) {
-        //
+    for (const roleName of user.roles) {
+      const role = allRoles.find((e) => e.name === roleName);
+      if (role) {
+        let space = role?.kibana[0]?.spaces;
+        if (space) {
+          space = space.filter((e) => e !== undefined);
+          spaces = spaces.concat(space);
+        }
       }
-      // TODO get institutions with roleName
-      // if (role?.data?.name !== 'superuser' && role?.data?.name !== 'bienvenue') {
-      //   console.log(role?.data?.name);
-      // }
-      // const tt = await institutionsLib.getOne('self');
-      // console.log(tt.data);
+    }
+
+    let institution;
+
+    try {
+      institution = await usersLib.getInstitutionByUsername(checkUser.username);
+    } catch (error) {
+      if (error.response.status !== 404) {
+        console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+        process.exit(1);
+      }
+    }
+
+    if (institution) {
+      checkUser.institution = institution?.data?.name;
     }
 
     if (spaces.length >= 1) {
@@ -191,6 +183,7 @@ exports.handler = async function handler(argv) {
     i18n.t('users.email'),
     i18n.t('users.assignedRoles'),
     i18n.t('users.assignedSpaces'),
+    i18n.t('users.institution'),
   ];
 
   if (verbose) {
@@ -203,6 +196,7 @@ exports.handler = async function handler(argv) {
     email,
     roles,
     spaces,
+    institution,
   }) => ([
     username,
     fullName ? chalk.hex('#78e08f').bold(fullName) : chalk.hex('#e55039').bold(fullName),
@@ -216,6 +210,7 @@ exports.handler = async function handler(argv) {
       chalk.hex('#3498DB').bold(spaces?.includes('bienvenue') ? 'bienvenue' : ''),
       chalk.hex('#78e08f').bold(spaces?.filter((r) => r !== 'bienvenue').join(',')),
     ].filter((x) => x).join(',') || chalk.hex('#e55039').bold(false),
+    institution ? chalk.hex('#78e08f').bold(institution) : chalk.hex('#e55039').bold(institution),
   ]));
 
   console.log(table([header, ...row]));
