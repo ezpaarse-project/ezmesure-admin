@@ -91,37 +91,12 @@ exports.handler = async function handler(argv) {
       ezpaarse: institution.auto.ezpaarse,
       ezmesure: institution.auto.ezmesure,
       report: institution.auto.report,
+      docContact: institution.docContactName || false,
+      techContactName: institution.techContactName || false,
+      indexPrefix: institution.indexPrefix || false,
+      role: institution.role || false,
+      space: institution.space || false,
     };
-
-    if (!institution.docContactName) {
-      checkInstitution.docContact = false;
-    } else {
-      checkInstitution.docContact = institution.docContactName;
-    }
-
-    if (!institution.techContactName) {
-      checkInstitution.techContact = false;
-    } else {
-      checkInstitution.techContact = institution.techContactName;
-    }
-
-    if (!institution.indexPrefix) {
-      checkInstitution.indexPrefix = false;
-    } else {
-      checkInstitution.indexPrefix = institution.indexPrefix;
-    }
-
-    if (!institution.role) {
-      checkInstitution.role = false;
-    } else {
-      checkInstitution.role = institution.role;
-    }
-
-    if (!institution.space) {
-      checkInstitution.space = false;
-    } else {
-      checkInstitution.space = institution.space;
-    }
 
     const roles = [];
     if (institution.role) {

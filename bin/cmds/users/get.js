@@ -33,7 +33,6 @@ exports.builder = function builder(yargs) {
       type: 'number',
     })
     .option('only-correspondent', {
-      alias: 'only-correspondent',
       describe: i18n.t('users.get.options.onlyCorrespondent'),
       boolean: true,
     })
