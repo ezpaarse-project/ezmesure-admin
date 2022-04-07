@@ -72,6 +72,7 @@
 		"list": {
 			"description": "List tasks",
 			"options": {
+				"harvestId": "Filter tasks by harvest ID (comma-separated list)",
 				"status": "Filter tasks by status (comma-separated list)",
 				"type": "Filter tasks by type (comma-separated list)",
 				"sushiId": "Filter tasks by SUSHI ID (comma-separated list)",
