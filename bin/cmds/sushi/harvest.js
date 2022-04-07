@@ -1,6 +1,7 @@
 const { i18n } = global;
 
 const { table } = require('table');
+const { v4: uuidv4 } = require('uuid');
 const chalk = require('chalk');
 const formatDate = require('date-fns/format');
 const subMonths = require('date-fns/subMonths');
@@ -56,6 +57,11 @@ exports.builder = function builder(yargs) {
       type: 'string',
       describe: i18n.t('sushi.harvest.options.target'),
     })
+    .option('harvestId', {
+      alias: 'hid',
+      type: 'string',
+      describe: i18n.t('sushi.harvest.options.harvestId'),
+    })
     .option('sushiId', {
       alias: 's',
       type: 'array',
@@ -105,6 +111,7 @@ exports.handler = async function handler(argv) {
     sushiId: sushiIds,
     institutionId: institutionIds,
     endpointId: endpointIds,
+    harvestId,
   } = argv;
 
   if (!Array.isArray(institutionIds)) { institutionIds = []; }
@@ -243,6 +250,17 @@ exports.handler = async function handler(argv) {
     });
   }
 
+  if (interactive) {
+    harvestId = await itMode.input({
+      message: i18n.t('sushi.harvest.harvestId'),
+      default: harvestId,
+    });
+  }
+
+  if (!harvestId?.trim?.()) {
+    harvestId = uuidv4();
+  }
+
   if (verbose) {
     console.log(`* Harvesting SUSHI credentials from ${config.ezmesure.baseUrl}`);
   }
@@ -263,6 +281,7 @@ exports.handler = async function handler(argv) {
         beginDate,
         endDate,
         forceDownload: cache === false,
+        harvestId,
       });
       task = data;
     } catch (e) {
@@ -310,14 +329,7 @@ exports.handler = async function handler(argv) {
   if (nbCreated > 0) {
     console.log();
     console.log(i18n.t('sushi.harvest.runFollowingCommand'));
-
-    let listCmd = `${scriptName} tasks list -c params.sushiId`;
-
-    if (institutionIds.length > 0) { listCmd += ` -i ${institutionIds.join(',')}`; }
-    if (endpointIds.length > 0) { listCmd += ` -e ${endpointIds.join(',')}`; }
-    if (sushiIds.length > 0) { listCmd += ` -s ${sushiIds.join(',')}`; }
-
-    console.log(listCmd);
+    console.log(`${scriptName} tasks list --harvestId ${harvestId}`);
   }
 
   process.exit(0);
