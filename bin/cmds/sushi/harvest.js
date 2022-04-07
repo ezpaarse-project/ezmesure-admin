@@ -57,6 +57,11 @@ exports.builder = function builder(yargs) {
       type: 'string',
       describe: i18n.t('sushi.harvest.options.target'),
     })
+    .option('reportType', {
+      alias: 'rt',
+      type: 'string',
+      describe: i18n.t('sushi.harvest.options.reportType'),
+    })
     .option('harvestId', {
       alias: 'hid',
       type: 'string',
@@ -112,6 +117,7 @@ exports.handler = async function handler(argv) {
     institutionId: institutionIds,
     endpointId: endpointIds,
     harvestId,
+    reportType,
   } = argv;
 
   if (!Array.isArray(institutionIds)) { institutionIds = []; }
@@ -121,6 +127,13 @@ exports.handler = async function handler(argv) {
   const results = [];
 
   if (interactive) {
+    reportType = await itMode.list(i18n.t('sushi.harvest.selectReportType'), [
+      { name: 'Title Report', value: 'tr' },
+      { name: 'Item Report', value: 'ir' },
+      { name: 'Platform Report', value: 'pr' },
+      { name: 'Database Report', value: 'dr' },
+    ]);
+
     const harvestAllInstitutions = await itMode.confirm(i18n.t('sushi.harvest.harvestAllInstitutions'), false);
 
     if (!harvestAllInstitutions) {
@@ -282,6 +295,7 @@ exports.handler = async function handler(argv) {
         endDate,
         forceDownload: cache === false,
         harvestId,
+        reportType,
       });
       task = data;
     } catch (e) {

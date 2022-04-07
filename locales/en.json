@@ -233,11 +233,13 @@
 				"from": "Beginning of the period to harvest",
 				"to": "End of the period to harvest",
 				"target": "Index where the data should be inserted",
+				"reportType": "The report type that should be harvested (tr, dr, pr, ir)",
 				"noCache": "Download the report again, even if it's been already downloaded",
 				"interactive": "Interactive mode"
 			},
 			"harvestAllInstitutions": "Harvest for all institutions ?",
 			"harvestAllEndpoints": "Harvest for all endpoints ?",
+			"selectReportType": "Which report type should be harvested ?",
 			"selectInstitutions": "Select institutions",
 			"selectEndpoints": "Select endpoints",
 			"selectSushiCredentials": "Select SUSHI credentials to harvest",
