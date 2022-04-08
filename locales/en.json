@@ -230,6 +230,7 @@
 				"institutionId": "One or more institution IDs. Harvest SUSHI items that belong to the given institutions.",
 				"endpointId": "One or more endpoint IDs. Harvest SUSHI items that uses the given endpoints.",
 				"allowFaulty": "Allow faulty or untested SUSHI endpoints to be harvested",
+				"ignoreValidation": "Ignore report validation. Validation errors remains visible in task logs.",
 				"from": "Beginning of the period to harvest",
 				"to": "End of the period to harvest",
 				"target": "Index where the data should be inserted",

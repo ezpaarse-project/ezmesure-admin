@@ -86,6 +86,10 @@ exports.builder = function builder(yargs) {
       type: 'boolean',
       describe: i18n.t('sushi.harvest.options.allowFaulty'),
     })
+    .option('ignore-validation', {
+      type: 'boolean',
+      describe: i18n.t('sushi.harvest.options.ignoreValidation'),
+    })
     .option('json', {
       describe: i18n.t('sushi.harvest.options.json'),
       type: 'boolean',
@@ -107,6 +111,7 @@ exports.handler = async function handler(argv) {
     cache,
     verbose,
     allowFaulty,
+    ignoreValidation,
     $0: scriptName,
   } = argv;
 
@@ -296,6 +301,7 @@ exports.handler = async function handler(argv) {
         forceDownload: cache === false,
         harvestId,
         reportType,
+        ignoreValidation,
       });
       task = data;
     } catch (e) {
