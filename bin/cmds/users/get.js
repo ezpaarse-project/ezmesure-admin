@@ -1,6 +1,9 @@
+/* eslint-disable array-callback-return */
+/* eslint-disable consistent-return */
 const { i18n } = global;
 
 const { table } = require('table');
+const Papa = require('papaparse');
 
 const usersLib = require('../../../lib/users');
 const itMode = require('./interactive/get');
@@ -20,14 +23,18 @@ exports.builder = function builder(yargs) {
       boolean: true,
     })
     .option('f', {
-      alias: 'fields',
-      describe: i18n.t('users.get.options.fields'),
-      type: 'string',
+      alias: 'filter',
+      describe: i18n.t('users.get.options.filter'),
+      type: 'array',
     })
     .option('s', {
       alias: 'size',
       describe: i18n.t('users.get.options.size'),
       type: 'number',
+    })
+    .option('only-correspondent', {
+      describe: i18n.t('users.get.options.onlyCorrespondent'),
+      boolean: true,
     })
     .option('a', {
       alias: 'all',
@@ -43,20 +50,31 @@ exports.builder = function builder(yargs) {
       alias: 'ndjson',
       describe: i18n.t('users.get.options.ndjson'),
       type: 'boolean',
+    })
+    .option('email-list', {
+      describe: i18n.t('users.get.options.emailList'),
+      type: 'boolean',
+    })
+    .option('c', {
+      alias: 'csv',
+      describe: i18n.t('institutions.check.options.csv'),
+      type: 'boolean',
     });
 };
 exports.handler = async function handler(argv) {
   const { users } = argv;
   let { size } = argv;
 
+  const onlyCorrespondent = argv['only-correspondent'];
+
   const {
-    json, ndjson, interactive, verbose, fields = 'full_name,username,roles,email,metadata', all,
+    json, ndjson, csv, emailList, interactive, verbose, all, filter,
   } = argv;
 
   if (all) { size = 10000; }
 
   if (verbose) {
-    console.log(`* Retrieving (${size}) users (fields: ${fields}) from ${config.ezmesure.baseUrl}`);
+    console.log(`* Retrieving (${size}) users from ${config.ezmesure.baseUrl}`);
   }
 
   let usersData = [];
@@ -64,7 +82,7 @@ exports.handler = async function handler(argv) {
     try {
       const { data } = await usersLib.getAll({
         size: size || 10,
-        source: fields,
+        source: '*',
       });
       usersData = data;
     } catch (error) {
@@ -83,6 +101,35 @@ exports.handler = async function handler(argv) {
         process.exit(1);
       }
     }
+  }
+
+  if (onlyCorrespondent) {
+    usersData = usersData.filter((user) => {
+      if (user?.roles?.includes('tech_contact') || user?.roles?.includes('doc_contact')) {
+        return user;
+      }
+    });
+  }
+
+  if (Array.isArray(filter) && filter.length > 0) {
+    const filters = usersData.map((user) => {
+      const obj = {};
+      filter.forEach((field) => {
+        obj[field] = user[field];
+      });
+      return obj;
+    });
+
+    usersData = filters;
+  }
+
+  if (emailList) {
+    if (verbose) {
+      console.log('* Export users to txt format');
+    }
+    usersData = usersData.map((user) => user.email).filter((x) => x).join(';');
+    console.log(usersData);
+    process.exit(0);
   }
 
   if (interactive) {
@@ -112,12 +159,23 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
+  if (csv) {
+    if (verbose) {
+      console.log('* Export in csv format');
+    }
+
+    const csvData = Papa.unparse(usersData);
+
+    console.log(csvData);
+    process.exit(0);
+  }
+
   if (verbose) {
     console.log('* Display users in graphical form in a table');
   }
 
   const header = [i18n.t('users.username'), i18n.t('users.fullName'), i18n.t('users.email'), i18n.t('users.assignedRoles')];
-  const row = usersData.map(({
+  const rows = usersData.map(({
     username, full_name: fullName, email, roles,
   }) => ([
     username,
@@ -126,5 +184,5 @@ exports.handler = async function handler(argv) {
     roles?.join(' '),
   ]));
 
-  console.log(table([header, ...row]));
+  console.log(table([header, ...rows]));
 };

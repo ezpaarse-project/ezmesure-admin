@@ -13,7 +13,9 @@
 		"username": "Username",
 		"fullName": "Full name",
 		"email": "Email",
+    "institution": "Institution",
 		"assignedRoles": "Roles",
+    "assignedSpaces": "Spaces",
 		"reserved": "reserved",
 		"userUpdated": "user [{{user}}] updated successfully",
 		"roles": {
@@ -41,9 +43,24 @@
 				"interactive":"Interactive mode",
 				"json": "Print result(s) in json",
 				"ndjson": "Print result(s) in ndjson",
+        "csv": "Print result(s) in csv",
+        "emailList": "Print list of emails",
+        "onlyCorrespondent": "Filter by correspondents",
+        "noContact": "Filter by no contact",
 				"fields": "Fields we want to retrieve separated by a comma (full_name,username by default)",
 				"size": "Number of users to recover (default: 10)",
 				"all": "Retrieve all users"
+			},
+			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
+		},
+    "check": {
+			"description": "Check one or more users",
+			"options": {
+				"users": "User(s) name(s)",
+				"interactive":"Interactive mode",
+        "csv": "Print result(s) in csv",
+				"json": "Print result(s) in json",
+				"ndjson": "Print result(s) in ndjson"
 			},
 			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
 		},
@@ -297,9 +314,11 @@
 		"institutionsNotFound": "Institutions not found",
 		"institutionsNamesNotFound": "institution(s) [{{institutions}}] not found",
 		"validated": "Validated",
-		"notVaidated": "Not validated",
+		"notValidated": "Not validated",
 		"doc": "Doc",
 		"tech": "Tech",
+    "docContact": "Doc contact",
+		"techContact": "Tech contact",
 		"name": "Name",
 		"city": "City",
 		"website": "Website",
@@ -307,8 +326,15 @@
 		"auto": "Auto",
 		"validate": "Validate",
 		"indexPrefix": "Index Prefix",
+    "correspondent": "correspondent",
+    "space": "Space",
+    "roleInElastic": "Role in elastic",
+    "spaceInElastic": "Space in elastic",
 		"role": "Role",
 		"contact": "Contact",
+    "ezpaarse": "Ezpaarse",
+    "ezmesure": "Ezmesure",
+    "report": "Reporting",
 		"refresh": {
 			"description": "Refresh dynamic institution fields (contacts, number of ECs).",
 			"refreshed": "Institutions are refreshed"
@@ -352,6 +378,7 @@
 			"description": "Get institution(s) informations",
 			"options": {
 				"institutions": "Institution(s) name, case sensitive",
+        "noValidated": "Filter by not validated",
 				"all": "Export all institutions",
 				"json": "Print result(s) in json",
 				"ndjson": "Print result(s) in ndjson",
@@ -362,6 +389,16 @@
 			"doc": "Doc contact",
 			"tech": "Tech contact"
 		},
+    "check": {
+      "description": "check institutions with rules",
+      "options": {
+				"institutions": "Institution(s) name, case sensitive",
+				"json": "Print result(s) in json",
+        "csv": "Print result(s) in csv",
+				"ndjson": "Print result(s) in ndjson",
+				"interactive": "Interactive mode"
+			}
+    },
 		"import": {
 			"description": "Import institution(s)",
 			"sepecifyJSONFile": "Please sepecify JSON files path",
