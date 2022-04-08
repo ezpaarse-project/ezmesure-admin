@@ -25,7 +25,7 @@ exports.builder = function builder(yargs) {
     .option('f', {
       alias: 'filter',
       describe: i18n.t('users.get.options.filter'),
-      type: 'string',
+      type: 'array',
     })
     .option('s', {
       alias: 'size',
@@ -51,9 +51,8 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('users.get.options.ndjson'),
       type: 'boolean',
     })
-    .option('t', {
-      alias: 'txt',
-      describe: i18n.t('users.get.options.txt'),
+    .option('email-list', {
+      describe: i18n.t('users.get.options.emailList'),
       type: 'boolean',
     })
     .option('c', {
@@ -69,7 +68,7 @@ exports.handler = async function handler(argv) {
   const onlyCorrespondent = argv['only-correspondent'];
 
   const {
-    json, ndjson, csv, txt, interactive, verbose, all, filter,
+    json, ndjson, csv, emailList, interactive, verbose, all, filter,
   } = argv;
 
   if (all) { size = 10000; }
@@ -112,29 +111,23 @@ exports.handler = async function handler(argv) {
     });
   }
 
-  if (filter) {
-    // TODO check patern filter
-
-    const filters = [];
-
-    usersData.forEach((user) => {
-      const filtered = Object.keys(user)
-        .filter((key) => filter.includes(key))
-        .reduce((obj, key) => {
-          obj[key] = user[key];
-          return obj;
-        }, {});
-      filters.push(filtered);
+  if (Array.isArray(filter) && filter.length > 0) {
+    const filters = usersData.map((user) => {
+      const obj = {};
+      filter.forEach((field) => {
+        obj[field] = user[field];
+      });
+      return obj;
     });
 
     usersData = filters;
   }
 
-  if (txt && filter === 'email') {
+  if (emailList) {
     if (verbose) {
       console.log('* Export users to txt format');
     }
-    usersData = usersData.map((user) => user.email).join(';');
+    usersData = usersData.map((user) => user.email).filter((x) => x).join(';');
     console.log(usersData);
     process.exit(0);
   }
