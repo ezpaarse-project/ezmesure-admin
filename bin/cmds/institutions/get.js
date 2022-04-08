@@ -15,6 +15,7 @@ exports.builder = function builder(yargs) {
     type: 'string',
   })
     .option('it', {
+      alias: 'interactive',
       describe: i18n.t('institutions.get.options.interactive'),
       boolean: true,
     })
@@ -44,7 +45,14 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    institutions, all, json, validated, contact, ndjson, verbose,
+    institutions,
+    all,
+    json,
+    validated,
+    contact,
+    ndjson,
+    verbose,
+    interactive,
   } = argv;
 
   if (verbose) {
@@ -60,7 +68,7 @@ exports.handler = async function handler(argv) {
     process.exit(1);
   }
 
-  if (!all && !institutions.length && validated !== false) {
+  if (interactive) {
     try {
       institutionsData = await itMode(institutionsData);
     } catch (error) {
@@ -68,12 +76,15 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  if (validated === false) {
-    institutionsData = institutionsData.filter((e) => e.validated === false);
+  if (typeof validated === 'boolean') {
+    institutionsData = institutionsData.filter((e) => e.validated === validated);
   }
 
-  if (contact === false) {
-    institutionsData = institutionsData.filter((e) => !e.docContactName && !e.techContactName);
+  if (typeof contact === 'boolean') {
+    institutionsData = institutionsData.filter((e) => {
+      const hasContact = e.docContactName || e.techContactName;
+      return contact ? hasContact : !hasContact;
+    });
   }
 
   if (!institutionsData) {
@@ -124,6 +135,9 @@ exports.handler = async function handler(argv) {
     console.log('* Display institutions in graphical form in a table');
   }
 
+  const red = chalk.hex('#e55039').bold;
+  const green = chalk.hex('#78e08f').bold;
+
   const row = institutionsData.map(({
     name, city, website, domains, auto, validate,
     indexPrefix, role, docContactName, techContactName,
@@ -133,14 +147,14 @@ exports.handler = async function handler(argv) {
     website || '',
     (domains && domains.join(', ')) || '',
     [
-      chalk.hex(auto.ezpaarse ? '#78e08f' : '#e55039').bold('ezPAARSE'),
-      chalk.hex(auto.ezmesure ? '#78e08f' : '#e55039').bold('ezMESURE'),
-      chalk.hex(auto.report ? '#78e08f' : '#e55039').bold('Reporting'),
+      (auto.ezpaarse ? green : red)('ezPAARSE'),
+      (auto.ezmesure ? green : red)('ezMESURE'),
+      (auto.report ? green : red)('reporting'),
     ].join('\n'),
-    validate ? chalk.hex('#78e08f').bold(i18n.t('institutions.get.validated')) : chalk.hex('#e55039').bold(i18n.t('institutions.get.notValidated')),
+    validate ? green(i18n.t('institutions.get.validated')) : red(i18n.t('institutions.get.notValidated')),
     indexPrefix || '',
     role || '',
-    [`${i18n.t('institutions.get.doc')} : ${docContactName || '-'}`, `${i18n.t('institutions.get.tech')} : ${techContactName || '-'}`].join('\n'),
+    [`${i18n.t('institutions.get.doc')} : ${docContactName || red('n/a')}`, `${i18n.t('institutions.get.tech')} : ${techContactName || red('n/a')}`].join('\n'),
   ]));
 
   console.log(table([header, ...row]));

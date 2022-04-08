@@ -65,9 +65,7 @@
 				"interactive":"Interactive mode",
         "csv": "Print result(s) in csv",
 				"json": "Print result(s) in json",
-				"ndjson": "Print result(s) in ndjson",
-				"size": "Number of users to recover (default: 10)",
-				"all": "Retrieve all users"
+				"ndjson": "Print result(s) in ndjson"
 			},
 			"checkboxLabel": "Users (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)"
 		},
@@ -542,7 +540,6 @@
       "description": "check institutions with rules",
       "options": {
 				"institutions": "Institution(s) name, case sensitive",
-				"all": "Export all institutions",
 				"json": "Print result(s) in json",
         "csv": "Print result(s) in csv",
 				"ndjson": "Print result(s) in ndjson",

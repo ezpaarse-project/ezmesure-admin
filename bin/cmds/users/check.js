@@ -20,16 +20,6 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('users.check.options.interactive'),
       boolean: true,
     })
-    .option('s', {
-      alias: 'size',
-      describe: i18n.t('users.check.options.size'),
-      type: 'number',
-    })
-    .option('a', {
-      alias: 'all',
-      describe: i18n.t('users.check.options.all'),
-      boolean: true,
-    })
     .option('j', {
       alias: 'json',
       describe: i18n.t('users.check.options.json'),
@@ -48,19 +38,16 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const { users } = argv;
-  let { size } = argv;
 
   const {
-    json, ndjson, csv, interactive, verbose, all,
+    json, ndjson, csv, interactive, verbose,
   } = argv;
-
-  if (all) { size = 10000; }
 
   let usersData = [];
   if (!users.length) {
     try {
       const { data } = await usersLib.getAll({
-        size: size || 10,
+        size: 10000,
         source: 'full_name,username,roles,email,metadata',
       });
       usersData = data;
@@ -83,8 +70,7 @@ exports.handler = async function handler(argv) {
   let allRoles;
 
   try {
-    const { data } = await rolesLib.getAll();
-    allRoles = data;
+    ({ data: allRoles } = await rolesLib.getAll());
   } catch (error) {
     console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
     process.exit(1);
@@ -190,7 +176,12 @@ exports.handler = async function handler(argv) {
     console.log('* Display users in graphical form in a table');
   }
 
-  const row = checkUsers.map(({
+  const red = chalk.hex('#e55039').bold;
+  const green = chalk.hex('#78e08f').bold;
+  const blue = chalk.hex('#3498DB').bold;
+  const yellow = chalk.hex('#F4D03F').bold;
+
+  const rows = checkUsers.map(({
     username,
     fullName,
     email,
@@ -199,19 +190,19 @@ exports.handler = async function handler(argv) {
     institution,
   }) => ([
     username,
-    fullName ? chalk.hex('#78e08f').bold(fullName) : chalk.hex('#e55039').bold(fullName),
-    email ? chalk.hex('#78e08f').bold(email) : chalk.hex('#e55039').bold(email),
+    fullName ? green(fullName) : red(fullName),
+    email ? green(email) : red(email),
     [
-      chalk.hex('#3498DB').bold(roles?.includes('new_user') ? 'new_user' : ''),
-      chalk.hex('#F4D03F').bold(roles?.includes('superuser') ? 'superuser' : ''),
-      chalk.hex('#78e08f').bold(roles?.filter((r) => r !== 'superuser' && r !== 'new_user').join(',')),
-    ].filter((x) => x).join(',') || chalk.hex('#e55039').bold(false),
+      blue(roles?.includes('new_user') ? 'new_user' : ''),
+      yellow(roles?.includes('superuser') ? 'superuser' : ''),
+      ...roles?.filter((r) => r !== 'superuser' && r !== 'new_user').map((role) => green(role)),
+    ].filter((x) => x).join(',') || red(false),
     [
-      chalk.hex('#3498DB').bold(spaces?.includes('bienvenue') ? 'bienvenue' : ''),
-      chalk.hex('#78e08f').bold(spaces?.filter((r) => r !== 'bienvenue').join(',')),
-    ].filter((x) => x).join(',') || chalk.hex('#e55039').bold(false),
-    institution ? chalk.hex('#78e08f').bold(institution) : chalk.hex('#e55039').bold(institution),
+      blue(spaces?.includes('bienvenue') ? 'bienvenue' : ''),
+      ...spaces?.filter((r) => r !== 'bienvenue').map((space) => green(space)),
+    ].filter((x) => x).join(',') || red(false),
+    institution ? green(institution) : red(institution),
   ]));
 
-  console.log(table([header, ...row]));
+  console.log(table([header, ...rows]));
 };

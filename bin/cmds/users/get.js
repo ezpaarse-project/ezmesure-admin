@@ -175,7 +175,7 @@ exports.handler = async function handler(argv) {
   }
 
   const header = [i18n.t('users.username'), i18n.t('users.fullName'), i18n.t('users.email'), i18n.t('users.assignedRoles')];
-  const row = usersData.map(({
+  const rows = usersData.map(({
     username, full_name: fullName, email, roles,
   }) => ([
     username,
@@ -184,5 +184,5 @@ exports.handler = async function handler(argv) {
     roles?.join(' '),
   ]));
 
-  console.log(table([header, ...row]));
+  console.log(table([header, ...rows]));
 };
