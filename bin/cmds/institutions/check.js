@@ -20,11 +20,6 @@ exports.builder = function builder(yargs) {
     describe: i18n.t('institutions.check.options.interactive'),
     boolean: true,
   })
-    .option('a', {
-      alias: 'all',
-      describe: i18n.t('institutions.check.options.all'),
-      type: 'boolean',
-    })
     .option('j', {
       alias: 'json',
       describe: i18n.t('institutions.check.options.json'),
@@ -43,7 +38,7 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    institutions, all, json, ndjson, csv, verbose,
+    institutions, json, ndjson, csv, verbose, it,
   } = argv;
 
   if (verbose) {
@@ -59,7 +54,7 @@ exports.handler = async function handler(argv) {
     process.exit(1);
   }
 
-  if (!all && !institutions?.length) {
+  if (it) {
     try {
       institutionsData = await itMode(institutionsData);
     } catch (error) {
@@ -81,6 +76,24 @@ exports.handler = async function handler(argv) {
     }
   }
 
+  let allRoles;
+
+  try {
+    ({ data: allRoles } = await rolesLib.getAll());
+  } catch (error) {
+    console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    process.exit(1);
+  }
+
+  let allSpaces;
+
+  try {
+    ({ data: allSpaces } = await spacesLib.getAll());
+  } catch (error) {
+    console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    process.exit(1);
+  }
+
   const checkInstitutions = [];
 
   for (const institution of institutionsData) {
@@ -92,26 +105,18 @@ exports.handler = async function handler(argv) {
       ezmesure: institution.auto.ezmesure,
       report: institution.auto.report,
       docContact: institution.docContactName || false,
-      techContactName: institution.techContactName || false,
+      techContact: institution.techContactName || false,
       indexPrefix: institution.indexPrefix || false,
       role: institution.role || false,
       space: institution.space || false,
     };
 
-    const roles = [];
+    let roles = [];
+
     if (institution.role) {
-      try {
-        await rolesLib.findByName(institution.role);
-        roles.push(institution.role);
-      } catch (err) {
-        //
-      }
-      try {
-        await rolesLib.findByName(`${institution.role}_read_only`);
-        roles.push(`${institution.role}_read_only`);
-      } catch (err) {
-        //
-      }
+      roles = allRoles
+        .filter((e) => e.name === institution.role || e.name === `${institution.role}_read_only`)
+        .map((role) => role?.name);
     }
 
     if (roles.length >= 1) {
@@ -119,14 +124,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (institution.space) {
-      try {
-        await spacesLib.findById(institution.space);
-        checkInstitution.spaceInElastic = institution.space;
-      } catch (err) {
-        checkInstitution.spaceInElastic = false;
-      }
-    } else {
-      checkInstitution.spaceInElastic = false;
+      checkInstitution.spaceInElastic = allSpaces.find((e) => e.id === institution.space)?.id;
     }
 
     checkInstitutions.push(checkInstitution);
@@ -182,6 +180,10 @@ exports.handler = async function handler(argv) {
     console.log('* Display institutions in graphical form in a table');
   }
 
+  const red = chalk.hex('#e55039').bold;
+  const green = chalk.hex('#78e08f').bold;
+  const yellow = chalk.yellow.bold;
+
   const row = checkInstitutions.map(({
     name,
     validated,
@@ -195,20 +197,25 @@ exports.handler = async function handler(argv) {
     ezpaarse,
     ezmesure,
     report,
-  }) => ([
-    name,
-    validated ? chalk.hex('#78e08f').bold(validated) : chalk.hex('#e55039').bold(validated),
-    docContact ? chalk.hex('#78e08f').bold(docContact) : chalk.hex('#e55039').bold(docContact),
-    techContact ? chalk.hex('#78e08f').bold(techContact) : chalk.hex('#e55039').bold(techContact),
-    indexPrefix ? chalk.hex('#78e08f').bold(indexPrefix) : chalk.hex('#e55039').bold(indexPrefix),
-    role ? chalk.hex('#78e08f').bold(role) : chalk.hex('#e55039').bold(role),
-    space ? chalk.hex('#78e08f').bold(space) : chalk.hex('#e55039').bold(space),
-    roleInElastic ? chalk.hex(roleInElastic?.length === 2 ? '#78e08f' : '#e55039').bold(roleInElastic?.join(',')) : chalk.hex('#e55039').bold(false),
-    spaceInElastic ? chalk.hex('#78e08f').bold(spaceInElastic) : chalk.hex('#e55039').bold(spaceInElastic),
-    ezpaarse ? chalk.hex('#78e08f').bold(ezpaarse) : chalk.hex('#e55039').bold(ezpaarse),
-    ezmesure ? chalk.hex('#78e08f').bold(ezmesure) : chalk.hex('#e55039').bold(ezmesure),
-    report ? chalk.hex('#78e08f').bold(report) : chalk.hex('#e55039').bold(report),
-  ]));
+  }) => {
+    const hasRoles = roleInElastic?.length > 0;
+    const roleColor = roleInElastic?.length >= 2 ? green : yellow;
+
+    return [
+      name,
+      validated ? green(validated) : red(validated),
+      docContact ? green(docContact) : red(docContact),
+      techContact ? green(techContact) : red(techContact),
+      indexPrefix ? green(indexPrefix) : red(indexPrefix),
+      role ? green(role) : red(role),
+      space ? green(space) : red(space),
+      hasRoles ? roleColor(roleInElastic) : red('n/a'),
+      spaceInElastic ? green(spaceInElastic) : red('n/a'),
+      ezpaarse ? green(ezpaarse) : red(ezpaarse),
+      ezmesure ? green(ezmesure) : red(ezmesure),
+      report ? green(report) : red(report),
+    ];
+  });
 
   console.log(table([header, ...row]));
 };
