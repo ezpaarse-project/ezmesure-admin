@@ -44,7 +44,7 @@
 				"json": "Print result(s) in json",
 				"ndjson": "Print result(s) in ndjson",
         "csv": "Print result(s) in csv",
-        "txt": "Print result(s) in txt",
+        "emailList": "Print list of emails",
         "onlyCorrespondent": "Filter by correspondents",
         "noContact": "Filter by no contact",
 				"fields": "Fields we want to retrieve separated by a comma (full_name,username by default)",
