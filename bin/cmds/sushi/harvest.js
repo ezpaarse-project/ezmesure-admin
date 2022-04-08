@@ -244,7 +244,7 @@ exports.handler = async function handler(argv) {
           value: sushi,
         };
       }),
-      sushiItems,
+      sushiItems.filter((sushi) => sushi?.connection?.success === true),
     );
 
     const validateDate = (input) => {
