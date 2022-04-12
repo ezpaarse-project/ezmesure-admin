@@ -12,6 +12,10 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('generate.harvestMatrix.options.package'),
       type: 'boolean',
     })
+    .option('harvestId', {
+      describe: i18n.t('generate.harvestMatrix.options.harvestId'),
+      type: 'boolean',
+    })
     .option('errors', {
       describe: i18n.t('generate.harvestMatrix.options.errors'),
       type: 'boolean',
@@ -21,6 +25,7 @@ exports.handler = async function handler(argv) {
   const {
     package: showPackage,
     errors: showErrors,
+    harvestId: showHarvestId,
   } = argv;
   let tasks;
 
@@ -51,6 +56,10 @@ exports.handler = async function handler(argv) {
 
     if (showPackage) {
       columns.push(params?.sushiPackage || '');
+    }
+
+    if (showHarvestId) {
+      columns.push(params?.harvestId || '');
     }
 
     columns = [

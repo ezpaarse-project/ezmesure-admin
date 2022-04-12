@@ -122,6 +122,7 @@
 			"description": "Generate a summary of the latest harvest tasks for all SUSHI items",
 			"options": {
 				"package": "Add a column for the SUSHI Package",
+				"harvestId": "Add a column for the harvest ID",
 				"errors": "Add a column for harvest errors"
 			}
 		}
