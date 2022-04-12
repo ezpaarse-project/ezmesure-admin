@@ -22,12 +22,12 @@ const coloredStatus = (status = '') => {
   return chalk.white(status);
 };
 
-const handleApiError = (e) => {
+const formatApiError = (e) => {
   const errorMessage = e?.response?.data?.error;
   const status = e?.response?.status;
   const statusMessage = e?.response?.statusMessage;
 
-  console.error(`[${status}] ${errorMessage || statusMessage || e.message}`);
+  return `[${status}] ${errorMessage || statusMessage || e.message}`;
 };
 
 exports.command = 'harvest';
@@ -150,7 +150,7 @@ exports.handler = async function handler(argv) {
       try {
         ({ data: allInstitutions } = await institutionsLib.getAll());
       } catch (e) {
-        handleApiError(e);
+        console.error(formatApiError(e));
         process.exit(1);
       }
 
@@ -171,7 +171,7 @@ exports.handler = async function handler(argv) {
       try {
         ({ data: allEndpoints } = await endpointsLib.getAll());
       } catch (e) {
-        handleApiError(e);
+        console.error(formatApiError(e));
         process.exit(1);
       }
 
@@ -222,7 +222,7 @@ exports.handler = async function handler(argv) {
   try {
     ({ data: sushiItems } = await sushiLib.getAll(params));
   } catch (e) {
-    handleApiError(e);
+    console.error(formatApiError(e));
     process.exit(1);
   }
 
@@ -305,7 +305,7 @@ exports.handler = async function handler(argv) {
       });
       task = data;
     } catch (e) {
-      handleApiError(e);
+      error = formatApiError(e);
     }
 
     results.push({ sushiId, task, error });
