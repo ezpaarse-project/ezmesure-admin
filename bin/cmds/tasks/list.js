@@ -43,6 +43,10 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('tasks.list.options.type'),
       type: 'string',
     })
+    .option('id', {
+      type: 'string',
+      describe: i18n.t('tasks.list.options.id'),
+    })
     .option('harvestId', {
       alias: 'hid',
       type: 'string',
@@ -86,6 +90,7 @@ exports.handler = async function handler(argv) {
 
   if (argv.status) { params.status = argv.status; }
   if (argv.type) { params.type = argv.type; }
+  if (argv.id) { params.id = argv.id; }
   if (argv.harvestId) { params.harvestId = argv.harvestId; }
   if (argv.sushiId) { params.sushiId = argv.sushiId; }
   if (argv.institutionId) { params.institutionId = argv.institutionId; }
