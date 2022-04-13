@@ -6,31 +6,77 @@ const { config } = require('../../../lib/app/config');
 const institutionsLib = require('../../../lib/institutions');
 const itMode = require('./interactive/info');
 
-exports.command = 'list [institutions...]';
+exports.command = 'list [institutionIds...]';
 exports.desc = i18n.t('sushi.list.description');
 exports.builder = function builder(yargs) {
-  return yargs.option('j', {
-    alias: 'json',
-    describe: i18n.t('sushi.list.options.json'),
-    type: 'boolean',
-  }).option('n', {
-    alias: 'ndjson',
-    describe: i18n.t('sushi.list.options.ndjson'),
-    type: 'boolean',
-  }).option('it', {
-    alias: 'interactive',
-    describe: i18n.t('sushi.list.options.interactive'),
-    type: 'boolean',
-  }).option('a', {
-    alias: 'all',
-    describe: i18n.t('sushi.list.options.all'),
-    type: 'boolean',
-  });
+  return yargs
+    .option('j', {
+      alias: 'json',
+      describe: i18n.t('sushi.list.options.json'),
+      type: 'boolean',
+    })
+    .option('n', {
+      alias: 'ndjson',
+      describe: i18n.t('sushi.list.options.ndjson'),
+      type: 'boolean',
+    })
+    .option('it', {
+      alias: 'interactive',
+      describe: i18n.t('sushi.list.options.interactive'),
+      type: 'boolean',
+    })
+    .option('a', {
+      alias: 'all',
+      describe: i18n.t('sushi.list.options.all'),
+      type: 'boolean',
+    })
+    .option('c', {
+      alias: 'connection',
+      describe: i18n.t('sushi.list.options.connection'),
+      choices: ['working', 'faulty', 'untested'],
+    });
 };
 exports.handler = async function handler(argv) {
   const {
-    json, ndjson, verbose,
+    json,
+    ndjson,
+    verbose,
+    institutionIds,
   } = argv;
+
+  const availableFields = [
+    'id',
+    'institution',
+    'package',
+    'vendor',
+    'endpoint',
+    'customerId',
+    'requestorId',
+    'apiKey',
+    'comment',
+  ];
+
+  let fields = [];
+
+  if (argv.fields) {
+    fields = argv.fields.split(',').map((field) => field.trim());
+
+    const unknownFields = fields.filter((field) => !availableFields.includes(field));
+
+    if (unknownFields.length > 0) {
+      console.error(i18n.t('global.unknownFields', { fields: unknownFields.join(',') }));
+      process.exit(1);
+    }
+  }
+
+  if (fields.length === 0) {
+    fields = [
+      'id',
+      'institution',
+      'vendor',
+      'package',
+    ];
+  }
 
   if (verbose) {
     console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
@@ -44,17 +90,17 @@ exports.handler = async function handler(argv) {
     console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
   }
 
-  if (!institutions) {
+  if (!Array.isArray(institutions) || institutions.length === 0) {
     console.log(i18n.t('institutions.institutionsNotFound'));
     process.exit(0);
   }
 
-  if (argv?.institutions?.length) {
+  if (Array.isArray(institutionIds) && institutionIds?.length > 0) {
     institutions = institutions
-      .filter(({ id, name }) => argv.institutions.includes(name) || argv.institutions.includes(id));
+      .filter(({ id, name }) => institutionIds.includes(name) || institutionIds.includes(id));
   }
 
-  if (!argv?.institutions?.length && argv.interactive) {
+  if (!institutionIds?.length && argv.interactive) {
     const { institutionsSelected } = await itMode.selectInstitutions(institutions);
 
     institutions = institutions.filter(({ id }) => institutionsSelected.includes(id));
@@ -65,14 +111,19 @@ exports.handler = async function handler(argv) {
   let sushiData = [];
 
   for (let i = 0; i < institutionsSelected.length; i += 1) {
+    const { name: institutionName } = institutionsSelected[i];
+
     if (verbose) {
-      console.log(`* Retrieving SUSHI information for institution [${institutionsSelected[i].name}] from ${config.ezmesure.baseUrl}`);
+      console.log(`* Retrieving SUSHI information for institution [${institutionName}] from ${config.ezmesure.baseUrl}`);
     }
 
     try {
-      const { data } = await institutionsLib.getSushi(institutionsSelected[i].id);
+      const { data } = await institutionsLib.getSushi(
+        institutionsSelected[i].id,
+        { connection: argv.connection },
+      );
       sushiData.push({
-        institution: institutionsSelected[i].name,
+        institution: institutionName,
         sushi: data,
       });
     } catch (err) {
@@ -86,7 +137,11 @@ exports.handler = async function handler(argv) {
   }
 
   if (ndjson) {
-    sushiData.forEach((el) => console.log(JSON.stringify(el)));
+    sushiData.forEach(({ institution, sushi }) => {
+      sushi.forEach((item) => console.log(
+        JSON.stringify({ ...item, institution }),
+      ));
+    });
     process.exit(0);
   }
 
@@ -95,37 +150,12 @@ exports.handler = async function handler(argv) {
     process.exit(0);
   }
 
-  const header = [
-    i18n.t('sushi.list.institution'),
-    i18n.t('sushi.list.package'),
-    i18n.t('sushi.list.vendor'),
-    i18n.t('sushi.list.endpoint'),
-    i18n.t('sushi.list.customerId'),
-    i18n.t('sushi.list.requestorId'),
-    i18n.t('sushi.list.apiKey'),
-    i18n.t('sushi.list.comment'),
-  ];
+  const header = fields.map((field) => i18n.t(`sushi.list.fields.${field}`));
 
-  const lines = [];
-  sushiData.sort((a, b) => b.sushi.length - a.sushi.length)
-    .forEach((el) => {
-      if (argv.all && !el.sushi.length) {
-        lines.push([el.institution, '', '', '', '', '', '', '']);
-      }
-
-      el?.sushi?.forEach((platform) => {
-        lines.push([
-          el.institution || '',
-          platform.package || '',
-          platform.vendor || '',
-          platform.sushiUrl || '',
-          platform.customerId || '',
-          platform.requestorId || '',
-          platform.apiKey || '',
-          platform.comment || '',
-        ]);
-      });
-    });
+  const lines = sushiData
+    .sort((a, b) => (a?.sushi?.length < b?.sushi?.length ? 1 : -1))
+    .flatMap(({ institution, sushi }) => sushi.map((s) => ({ institution, ...s })))
+    .map((sushi) => fields.map((field) => (sushi[field] || '')));
 
   console.log(table([header, ...lines]));
 };

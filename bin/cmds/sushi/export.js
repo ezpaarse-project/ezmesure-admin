@@ -13,11 +13,11 @@ exports.command = 'export <output> [institutions...]';
 exports.desc = i18n.t('sushi.export.description');
 exports.builder = function builder(yargs) {
   return yargs.positional('institutions', {
-    descibe: i18n.t('sushi.export.options.institutions'),
+    describe: i18n.t('sushi.export.options.institutions'),
     type: 'string',
   })
     .positional('output', {
-      descibe: i18n.t('sushi.export.options.output'),
+      describe: i18n.t('sushi.export.options.output'),
       type: 'string',
     })
     .option('n', {
@@ -45,6 +45,8 @@ exports.handler = async function handler(argv) {
     console.error('Please specify an output path');
     process.exit(1);
   }
+
+  await fs.ensureDir(path.resolve(output));
 
   if (verbose) {
     console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
@@ -97,7 +99,7 @@ exports.handler = async function handler(argv) {
     }
 
     const currentDate = format(new Date(), 'yyyy_MM_dd_H_m_s');
-    const fileName = `sushi_export_${institutions[i].name}_${currentDate}`;
+    const fileName = `sushi_export_${institutions[i].name.replace(/\s/g, '_')}_${currentDate}`;
     const filePath = path.resolve(argv.output, `${fileName}`);
 
     if (ndjson) {

@@ -1,5 +1,10 @@
 {
 	"global": {
+		"yes": "Yes",
+		"no": "No",
+		"unknownFields": "Unknown fields: {{fields}}",
+		"fileNotFound": "File not found: {{file}}",
+		"invalidJsonFile": "Invalid JSON file: {{file}}",
 		"options": {
 			"timeout": "Request timeout in milliseconds",
 			"verbose": "Make the operation more talkative",
@@ -77,8 +82,54 @@
 			"created": "user [{{username}}] created or updated"
 		}
 	},
+	"tasks": {
+		"description": "Manage tasks <command>: get, list",
+		"noTasks": "No tasks found",
+		"notFound": "Task not found",
+		"list": {
+			"description": "List tasks",
+			"options": {
+				"id": "Filter tasks by ID (comma-separated list)",
+				"harvestId": "Filter tasks by harvest ID (comma-separated list)",
+				"status": "Filter tasks by status (comma-separated list)",
+				"type": "Filter tasks by type (comma-separated list)",
+				"sushiId": "Filter tasks by SUSHI ID (comma-separated list)",
+				"institutionId": "Filter tasks by institution ID (comma-separated list)",
+				"endpointId": "Filter tasks by SUSHI endpoint ID (comma-separated list)",
+				"collapse": "Return only one task for each distinct value of the given field",
+				"ndjson": "Print result(s) in ndjson",
+				"json": "Print result(s) in json"
+			}
+		},
+		"get": {
+			"description": "Get one task",
+			"id": "ID",
+			"type": "Type",
+			"status": "Status",
+			"runningTime": "Running time",
+			"createdAt": "Created at",
+			"options": {
+				"taskId": "Task identifier",
+				"json": "Print result(s) as JSON"
+			}
+		}
+	},
+	"generate": {
+		"description": "Generate things <command>: sushi-matrix",
+		"sushiMatrix": {
+			"description": "Generate a summary of SUSHI items by institution and vendor"
+		},
+		"harvestMatrix": {
+			"description": "Generate a summary of the latest harvest tasks for all SUSHI items",
+			"options": {
+				"package": "Add a column for the SUSHI Package",
+				"harvestId": "Add a column for the harvest ID",
+				"errors": "Add a column for harvest errors"
+			}
+		}
+	},
 	"sushi": {
-		"description": "Manage sushi <command>: delete, list, info, export, import",
+		"description": "Manage sushi <command>: delete, list, info, export, import, get-platforms",
 		"noCredentialsFound": "No sushi credentials found",
 		"noDataFound": "No sushi data found",
 		"cannotReadFile": "Cannot read file {{file}}",
@@ -89,11 +140,28 @@
 			"description": "Delete sushi credentials",
 			"removed": "Data removed successfully"
 		},
+		"getPlatforms": {
+			"description": "Get the list of known SUSHI endpoints",
+			"options": {
+				"fields": "Fields that should be displayed in the table, separated by commas",
+				"json": "Print result(s) in json",
+				"ndjson": "Print result(s) in ndjson"
+			},
+			"fields": {
+				"vendor": "Vendor",
+				"sushiUrl": "Endpoint URL",
+				"customerId": "Customer ID",
+				"requestorId": "Requestor ID",
+				"apiKey": "API key",
+				"description": "Description",
+				"technicalProvider": "Technical provider"
+			}
+		},
 		"export": {
 			"description": "Export sushi credentials",
 			"options": {
 				"institutions": "Institution name, case sensitive",
-				"output": "Destination path",
+				"output": "Export directory",
 				"ndjson": "Print result(s) in ndjson",
 				"csv": "Print result(s) in csv",
 				"interactive": "Interactive mode"
@@ -117,10 +185,17 @@
 			"options": {
 				"filesPath": "Files path",
 				"institution": "Institution name, case sensitive",
-				"interactive": "Interactive mode"
+				"interactive": "Interactive mode",
+				"overwrite": "Overwrite conflicts"
 			},
 			"cannotReadFile": "Cannot read file {{file}}",
-			"imported": "Imported successfully"
+			"imported": "Imported successfully",
+			"itemCreated": "[Imported] {{vendor}}",
+			"itemConflict": "[Conflict] {{vendor}}",
+			"itemError": "[Error][{{vendor}}] {{message}}",
+			"nbImported": "{{n}} imported",
+			"nbConflicts": "{{n}} conflicts",
+			"nbErrors": "{{n}} errors"
 		},
 		"info": {
 			"description": "Get SUSHI informations",
@@ -148,16 +223,88 @@
 				"all": "List all",
 				"json": "Print result(s) in json",
 				"ndjson": "Print result(s) in ndjson",
+				"interactive": "Interactive mode",
+				"connection": "Only list items with a given connection state"
+			},
+			"fields": {
+				"id": "SUSHI ID",
+				"institution": "Institution",
+				"package": "Package",
+				"vendor": "Vendor",
+				"endpoint": "Endpoint",
+				"customerId": "Customer ID",
+				"requestorId": "Requestor ID",
+				"apiKey": "API key",
+				"comment": "Comment"
+			}
+		},
+		"harvest": {
+			"description": "Harvest SUSHI reports",
+			"options": {
+				"all": "Harvest all SUSHI items",
+				"json": "Print result(s) in json",
+				"ndjson": "Print result(s) in ndjson",
+				"harvestId": "A specific ID to assign to the harvest batch.",
+				"sushiId": "One or more SUSHI IDs. Harvest SUSHI items that have the given identifiers.",
+				"institutionId": "One or more institution IDs. Harvest SUSHI items that belong to the given institutions.",
+				"endpointId": "One or more endpoint IDs. Harvest SUSHI items that uses the given endpoints.",
+				"allowFaulty": "Allow faulty or untested SUSHI endpoints to be harvested",
+				"ignoreValidation": "Ignore report validation. Validation errors remains visible in task logs.",
+				"from": "Beginning of the period to harvest",
+				"to": "End of the period to harvest",
+				"target": "Index where the data should be inserted",
+				"reportType": "The report type that should be harvested (tr, dr, pr, ir)",
+				"noCache": "Download the report again, even if it's been already downloaded",
 				"interactive": "Interactive mode"
 			},
-			"institution": "institution",
-			"package": "package",
-			"vendor": "vendor",
-			"endpoint": "endpoint",
-			"customerId": "customerId",
-			"requestorId": "requestorId",
-			"apiKey": "apiKey",
-			"comment": "comment"
+			"harvestAllInstitutions": "Harvest for all institutions ?",
+			"harvestAllEndpoints": "Harvest for all endpoints ?",
+			"selectReportType": "Which report type should be harvested ?",
+			"selectInstitutions": "Select institutions",
+			"selectEndpoints": "Select endpoints",
+			"selectSushiCredentials": "Select SUSHI credentials to harvest",
+			"harvestId": "Harvest ID (optional)",
+			"invalidDate": "Invalid date",
+			"noFilter": "No filter specified.",
+			"pleaseSetAllFlag": "Please explicitly set --all flag to harvest all SUSHI items",
+			"xFailedTasks": "{{n}} harvest task(s) failed to be created",
+			"xTasksCreated": "{{n}} harvest task(s) created",
+			"runFollowingCommand": "Run the following command in order to follow the created tasks:",
+			"sushiId": "SUSHI ID",
+			"taskId": "Task ID",
+			"status": "Status",
+			"message": "Message"
+		},
+		"fixEndpoints": {
+			"description": "Fix SUSHI items with missing or incorrect endpoint association",
+			"options": {
+				"fromFiles": "Use export files instead of fetching SUSHI items from the API",
+				"output": "Write resulting SUSHI items into a file instead of updating them using the API"
+			},
+			"sushiInvalidResponse": "Failed to fetch SUSHI credentials : invalid response",
+			"endpointInvalidResponse": "Failed to fetch SUSHI endpoints : invalid response",
+			"allSushiAssociated": "All SUSHI credentials are associated to an endpoint",
+			"nbIssuesDetected": "{{total}} issues detected ({{unfixable}} require a manual intervention). Proceed ?",
+			"unexistingEndpoint": "[{{label}}] is associated to an unexisting endpoint",
+			"notAssociatedToEndpoint": "[{{label}}] is not associated to an endpoint",
+			"selectEndpoint": "Select the enpoint to associate",
+			"foundExactMatch": "An endpoint matching the vendor name has been found",
+			"foundMultiple": "There are multiple endpoints matching the vendor name, please choose",
+			"associatedToEndpoint": "[{{sushi}}] has been associated to endpoint [{{endpoint}}]",
+			"createEndpoint": "[No results] Create an endpoint",
+			"ignoreSushiItem": "[No results] Ignore this SUSHI item",
+			"enterEndpointVendor": "Enter endpoint vendor name",
+			"enterEndpointUrl": "Enter endpoint URL",
+			"requireCustomerId": "Does it require a customer ID ?",
+			"requireRequestorId": "Does it require a requestor ID ?",
+			"requireApiKey": "Does it require an API key ?",
+			"isSushiCompliant": "Is it SUSHI compliant ?",
+			"validated": "Should this endpoint appear as validated ?",
+			"endpointCreated": "Endpoint [{{label}}] has been created",
+			"noMoreIssues": "There are no more issues to be fixed",
+			"rememberChoice": "Use this endpoint for all credentials with this vendor name ?",
+			"sushiUrl": "URL: {{url}}",
+			"sushiParams": "Parameters: {{params}}"
 		}
 	},
 	"spaces":	{
@@ -307,11 +454,13 @@
 			"notFound": "task [{{taskId}}] not found"
 		}
 	},
+	"institution": {
+		"notFound": "Institution [{{id}}] not found"
+	},
 	"institutions": {
 		"description": "Manage institutions <command>: add, delete, refresh, get, export, import",
 		"institutionsCheckbox": "Institutions (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"institutionsSelect": "Institutions (Use arrow keys or begin typing to search, press <enter> to submit)",
-		"institutionsNotFound": "Institutions not found",
 		"institutionsNamesNotFound": "institution(s) [{{institutions}}] not found",
 		"validated": "Validated",
 		"notValidated": "Not validated",
@@ -606,11 +755,12 @@
 		"add": {
 			"description": "Create index-pattern",
 			"options": {
+				"json": "Print result(s) in json",
 				"space": "Space name, case sensitive",
 				"title": "Index-pattern name",
 				"timeFieldName": "Time field name (default: datetime)"
 			},
-			"created": "index-pattern [{{title}}] created in space [{{space}}]"
+			"created": "index-pattern [{{title}}] created in space [{{space}}] with ID [{{id}}]"
 		}
 	},
 	"indices": {

@@ -16,26 +16,45 @@ exports.builder = function builder(yargs) {
     describe: i18n.t('indexPattern.add.options.timeFieldName'),
     type: 'string',
     default: 'datetime',
+  }).option('json', {
+    describe: i18n.t('indexPattern.add.options.json'),
+    type: 'boolean',
   });
 };
 exports.handler = async function handler(argv) {
   const {
-    space, title, timeFieldName, verbose,
+    space, title, timeFieldName, verbose, json,
   } = argv;
 
   if (verbose) {
     console.log(`* Create index-pattern [${title}] for space [${space}] with datetime field [${timeFieldName}] from ${config.ezmesure.baseUrl}`);
   }
 
+  let patternId;
+
   try {
-    await spacesLib.addIndexPatterns(space, {
+    const { data } = await spacesLib.addIndexPatterns(space, {
       title,
       timeFieldName,
     });
+
+    patternId = data?.id;
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    if (json) {
+      console.log(JSON.stringify({
+        space,
+        title,
+        error: `[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`,
+      }, null, 2));
+    } else {
+      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    }
     process.exit(1);
   }
 
-  console.log(i18n.t('indexPattern.add.created', { space, title }));
+  if (json) {
+    console.log(JSON.stringify({ space, title, id: patternId }, null, 2));
+  } else {
+    console.log(i18n.t('indexPattern.add.created', { space, title, id: patternId }));
+  }
 };
