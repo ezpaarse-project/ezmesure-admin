@@ -7,6 +7,7 @@ const { format } = require('date-fns');
 const itMode = require('./interactive/export');
 const dashboards = require('../../../lib/dashboards');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'export [space]';
 exports.desc = i18n.t('dashboard.export.description');
@@ -62,12 +63,7 @@ exports.handler = async function handler(argv) {
       });
       dashboardData = data;
     } catch (err) {
-      console.log(err);
-      if (err?.response?.data) {
-        console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
-        process.exit(1);
-      }
-      console.error(err);
+      console.error(formatApiError(err));
       process.exit(1);
     }
 

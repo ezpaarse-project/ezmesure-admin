@@ -3,6 +3,7 @@ const { i18n } = global;
 const elasticLib = require('../../lib/cluster');
 const ezmesure = require('../../lib/app/ezmesure');
 const { config } = require('../../lib/app/config');
+const { formatApiError } = require('../../lib/utils');
 
 exports.command = 'ping';
 exports.desc = i18n.t('ping.description');
@@ -35,7 +36,7 @@ exports.handler = async function handler(argv) {
     ezmesurePing = await ezmesure.get('/');
   } catch (error) {
     console.error('ezMESURE: Ping failed');
-    console.error(`ezMESURE respond with statusCode [${error?.response?.data?.status} - ${error?.response?.data?.error}]`);
+    console.error(formatApiError(error));
   }
 
   if (ezmesurePing) {

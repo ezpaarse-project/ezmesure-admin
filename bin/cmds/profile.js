@@ -1,5 +1,6 @@
 const ezmesure = require('../../lib/app/ezmesure');
 const { config } = require('../../lib/app/config');
+const { formatApiError } = require('../../lib/utils');
 
 exports.command = 'profile';
 exports.desc = 'Displays the person who is connected to the command';
@@ -16,7 +17,7 @@ exports.handler = async function handler(argv) {
     const { data } = await ezmesure.get('/profile');
     profile = data;
   } catch (error) {
-    console.log(`[Error#${error?.response?.data?.staus}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 

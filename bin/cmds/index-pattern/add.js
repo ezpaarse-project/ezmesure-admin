@@ -2,6 +2,7 @@ const { i18n } = global;
 
 const spacesLib = require('../../../lib/spaces');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'add <space> <title> [timeFieldName]';
 exports.desc = i18n.t('indexPattern.add.description');
@@ -44,10 +45,10 @@ exports.handler = async function handler(argv) {
       console.log(JSON.stringify({
         space,
         title,
-        error: `[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`,
+        error: formatApiError(error, { prefix: false, colorize: false }),
       }, null, 2));
     } else {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      console.error(formatApiError(error));
     }
     process.exit(1);
   }

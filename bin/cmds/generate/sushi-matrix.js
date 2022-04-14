@@ -4,6 +4,7 @@ const Papa = require('papaparse');
 
 const institutionsLib = require('../../../lib/institutions');
 const endpointsLib = require('../../../lib/endpoints');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'sushi-matrix';
 exports.desc = i18n.t('generate.sushiMatrix.description');
@@ -33,11 +34,7 @@ exports.handler = async function handler() {
     institutions = await institutionsLib.getAll().then((res) => res?.data);
     endpoints = await endpointsLib.getAll().then((res) => res?.data);
   } catch (e) {
-    const errorMessage = e?.response?.data?.error;
-    const status = e?.response?.status;
-    const statusMessage = e?.response?.statusMessage;
-
-    console.error(`[${status}] ${errorMessage || statusMessage || e.message}`);
+    console.error(formatApiError(e));
     process.exit(1);
   }
 
@@ -62,11 +59,7 @@ exports.handler = async function handler() {
     try {
       sushiItems = await institutionsLib.getSushi(institution.id).then((res) => res?.data);
     } catch (e) {
-      const errorMessage = e?.response?.data?.error;
-      const status = e?.response?.status;
-      const statusMessage = e?.response?.statusMessage;
-
-      console.error(`[${status}] ${errorMessage || statusMessage || e.message}`);
+      console.error(formatApiError(e));
       process.exit(1);
     }
 

@@ -6,6 +6,7 @@ const chalk = require('chalk');
 const institutionsLib = require('../../../lib/institutions');
 const { config } = require('../../../lib/app/config');
 const itMode = require('./interactive/get');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'get [institutions...]';
 exports.desc = i18n.t('institutions.get.description');
@@ -64,7 +65,7 @@ exports.handler = async function handler(argv) {
     const { data } = await institutionsLib.getAll();
     institutionsData = data;
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 

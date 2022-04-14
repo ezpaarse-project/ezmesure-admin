@@ -1,6 +1,7 @@
 const usersLib = require('../../../../lib/users');
 const rolesLib = require('../../../../lib/roles');
 const { config } = require('../../../../lib/app/config');
+const { formatApiError } = require('../../../../lib/utils');
 const itMode = require('../interactive/get');
 
 const { i18n } = global;
@@ -35,7 +36,7 @@ exports.handler = async function handler(argv) {
       const { data } = await usersLib.getAll({ size: 1000 });
       usersSelected = data;
     } catch (error) {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      console.error(formatApiError(error));
       process.exit(1);
     }
   }
@@ -46,7 +47,7 @@ exports.handler = async function handler(argv) {
         const { data } = await usersLib.getByUsername(users[i]);
         usersSelected.push(data[users[i]]);
       } catch (error) {
-        console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+        console.error(formatApiError(error));
         process.exit(1);
       }
     }
@@ -67,7 +68,7 @@ exports.handler = async function handler(argv) {
       const { data } = await rolesLib.findByName(roles[i]);
       rolesSelected.push(data?.name);
     } catch (error) {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      console.error(formatApiError(error));
     }
   }
 
@@ -98,7 +99,7 @@ exports.handler = async function handler(argv) {
         username: user.username,
       }));
     } catch (error) {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      console.error(formatApiError(error));
     }
   }
 };

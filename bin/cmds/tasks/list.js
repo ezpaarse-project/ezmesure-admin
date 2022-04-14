@@ -10,6 +10,7 @@ const {
 } = require('date-fns');
 
 const tasksLib = require('../../../lib/tasks');
+const { formatApiError } = require('../../../lib/utils');
 
 const coloredStatus = (status = '') => {
   if (status === 'running') { return chalk.blue(status); }
@@ -101,11 +102,7 @@ exports.handler = async function handler(argv) {
     const { data } = await tasksLib.getAll(params);
     tasks = data;
   } catch (error) {
-    const errorMessage = error?.response?.data?.error;
-    const status = error?.response?.status;
-    const statusMessage = error?.response?.statusMessage;
-
-    console.error(`[${status}] ${errorMessage || statusMessage || error.message}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 

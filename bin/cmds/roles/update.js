@@ -4,6 +4,7 @@ const rolesLib = require('../../../lib/roles');
 const spacesLib = require('../../../lib/spaces');
 const kibana = require('../../../lib/app/kibana');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'update <role>';
 exports.desc = i18n.t('roles.update.description');
@@ -43,7 +44,7 @@ exports.handler = async function handler(argv) {
     const { data } = await rolesLib.findByName(argv.role);
     role = data;
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 
@@ -77,7 +78,7 @@ exports.handler = async function handler(argv) {
     try {
       await spacesLib.findById(spacesNamesToAdd[i]);
     } catch (error) {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      console.error(formatApiError(error));
       process.exit(1);
     }
   }
@@ -158,7 +159,7 @@ exports.handler = async function handler(argv) {
   try {
     await rolesLib.createOrUpdate(role.name, role);
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 

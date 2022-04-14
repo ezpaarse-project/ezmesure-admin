@@ -4,6 +4,7 @@ const { table } = require('table');
 
 const { config } = require('../../../lib/app/config');
 const institutionsLib = require('../../../lib/institutions');
+const { formatApiError } = require('../../../lib/utils');
 const itMode = require('./interactive/info');
 
 exports.command = 'list [institutionIds...]';
@@ -87,7 +88,8 @@ exports.handler = async function handler(argv) {
     const { data } = await institutionsLib.getAll();
     if (data) { institutions = data; }
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
+    process.exit(1);
   }
 
   if (!Array.isArray(institutions) || institutions.length === 0) {
@@ -127,8 +129,8 @@ exports.handler = async function handler(argv) {
         sushi: data,
       });
     } catch (err) {
-      console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
-      process.exit(0);
+      console.error(formatApiError(err));
+      process.exit(1);
     }
   }
 

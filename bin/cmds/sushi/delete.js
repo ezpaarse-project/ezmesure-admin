@@ -4,6 +4,7 @@ const sushiLib = require('../../../lib/sushi');
 const institutionsLib = require('../../../lib/institutions');
 const { config } = require('../../../lib/app/config');
 const itMode = require('./interactive/list');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'delete';
 exports.desc = i18n.t('sushi.delete.description');
@@ -20,7 +21,7 @@ exports.handler = async function handler(argv) {
     const { data } = await institutionsLib.getAll();
     if (data) { institutions = data; }
   } catch (error) {
-    console.error(error);
+    console.error(formatApiError(error));
   }
 
   if (!institutions) {
@@ -36,7 +37,7 @@ exports.handler = async function handler(argv) {
     const { data } = await institutionsLib.getSushi(institutionSelected);
     if (data) { sushi = data; }
   } catch (err) {
-    console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(formatApiError(err));
   }
 
   const { vendorsSelected } = await itMode.selectVendors(sushi);
@@ -52,7 +53,7 @@ exports.handler = async function handler(argv) {
     }
     await sushiLib.delete(vendorsSelected);
   } catch (err) {
-    console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(formatApiError(err));
     process.exit(1);
   }
 

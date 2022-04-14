@@ -13,6 +13,7 @@ const sushiLib = require('../../../lib/sushi');
 const endpointsLib = require('../../../lib/endpoints');
 const institutionsLib = require('../../../lib/institutions');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 
 const coloredStatus = (status = '') => {
   if (status === 'running') { return chalk.blue(status); }
@@ -20,14 +21,6 @@ const coloredStatus = (status = '') => {
   if (status === 'error') { return chalk.red(status); }
   if (status === 'finished') { return chalk.green(status); }
   return chalk.white(status);
-};
-
-const formatApiError = (e) => {
-  const errorMessage = e?.response?.data?.error;
-  const status = e?.response?.status;
-  const statusMessage = e?.response?.statusMessage;
-
-  return `[${status}] ${errorMessage || statusMessage || e.message}`;
 };
 
 exports.command = 'harvest';
@@ -305,7 +298,7 @@ exports.handler = async function handler(argv) {
       });
       task = data;
     } catch (e) {
-      error = formatApiError(e);
+      error = formatApiError(e, { prefix: false, colorize: false });
     }
 
     results.push({ sushiId, task, error });

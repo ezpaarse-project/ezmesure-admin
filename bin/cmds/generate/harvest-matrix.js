@@ -3,6 +3,7 @@ const { i18n } = global;
 const Papa = require('papaparse');
 
 const tasksLib = require('../../../lib/tasks');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'harvest-matrix';
 exports.desc = i18n.t('generate.harvestMatrix.description');
@@ -32,11 +33,7 @@ exports.handler = async function handler(argv) {
   try {
     ({ data: tasks } = await tasksLib.getAll({ collapse: 'params.sushiId' }));
   } catch (e) {
-    const errorMessage = e?.response?.data?.error;
-    const status = e?.response?.status;
-    const statusMessage = e?.response?.statusMessage;
-
-    console.error(`[${status}] ${errorMessage || statusMessage || e.message}`);
+    console.error(formatApiError(e));
     process.exit(1);
   }
 

@@ -2,6 +2,7 @@ const { i18n } = global;
 
 const indicesLib = require('../../../lib/indices');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'add <index>';
 exports.desc = i18n.t('indices.add.description');
@@ -21,7 +22,7 @@ exports.handler = async function handler(argv) {
   try {
     await indicesLib.create(index);
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 

@@ -5,6 +5,7 @@ const path = require('path');
 
 const dashboards = require('../../../lib/dashboards');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 const itMode = require('./interactive/import');
 
 exports.command = 'import [space]';
@@ -100,11 +101,7 @@ exports.handler = async function handler(argv) {
 
           console.log(i18n.t('dashboard.import.imported', { title }));
         } catch (error) {
-          if (error?.response?.data) {
-            console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
-            process.exit(1);
-          }
-          console.error(error);
+          console.error(formatApiError(error));
           process.exit(1);
         }
       }

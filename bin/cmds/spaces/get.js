@@ -5,6 +5,7 @@ const chalk = require('chalk');
 const spacesLib = require('../../../lib/spaces');
 const { config } = require('../../../lib/app/config');
 const itMode = require('./interactive/get');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'get [spaces...]';
 exports.desc = i18n.t('spaces.get.description');
@@ -46,7 +47,7 @@ exports.handler = async function handler(argv) {
     const { data } = await spacesLib.getAll();
     spaces = data;
   } catch (error) {
-    console.error(error);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 
@@ -77,7 +78,7 @@ exports.handler = async function handler(argv) {
         spaces[i].indexPatterns = data.map(({ attributes }) => attributes.title);
       }
     } catch (error) {
-      console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      console.error(formatApiError(error));
       spaces[i].indexPatterns = [];
     }
   }

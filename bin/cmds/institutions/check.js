@@ -9,6 +9,7 @@ const { config } = require('../../../lib/app/config');
 const rolesLib = require('../../../lib/roles');
 const spacesLib = require('../../../lib/spaces');
 const itMode = require('./interactive/get');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'check [institutions...]';
 exports.desc = i18n.t('institutions.check.description');
@@ -50,7 +51,7 @@ exports.handler = async function handler(argv) {
     const { data } = await institutionsLib.getAll();
     institutionsData = data;
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 
@@ -81,7 +82,7 @@ exports.handler = async function handler(argv) {
   try {
     ({ data: allRoles } = await rolesLib.getAll());
   } catch (error) {
-    console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 
@@ -90,7 +91,7 @@ exports.handler = async function handler(argv) {
   try {
     ({ data: allSpaces } = await spacesLib.getAll());
   } catch (error) {
-    console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 

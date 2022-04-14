@@ -7,6 +7,7 @@ const readline = require('readline');
 const sushiLib = require('../../../lib/sushi');
 const institutionsLib = require('../../../lib/institutions');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 
 const itMode = require('./interactive/list');
 
@@ -63,7 +64,7 @@ exports.handler = async function handler(argv) {
     const { data } = await institutionsLib.getAll();
     if (data) { institutions = data; }
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 
@@ -169,8 +170,7 @@ exports.handler = async function handler(argv) {
       },
     });
   } catch (error) {
-    const errMsg = error?.response?.data?.error || error?.response?.statusText;
-    console.log(`[Error#${error?.response?.status}] ${errMsg}`);
+    console.error(formatApiError(error));
   }
 
   const {

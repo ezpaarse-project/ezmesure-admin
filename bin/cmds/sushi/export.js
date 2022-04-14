@@ -7,6 +7,7 @@ const { format } = require('date-fns');
 
 const institutionsLib = require('../../../lib/institutions');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 const itMode = require('./interactive/info');
 
 exports.command = 'export <output> [institutions...]';
@@ -57,7 +58,7 @@ exports.handler = async function handler(argv) {
     const { data } = await institutionsLib.getAll();
     institutions = data;
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 
@@ -89,7 +90,7 @@ exports.handler = async function handler(argv) {
       const { data } = await institutionsLib.getSushi(institutions[i].id);
       if (data) { sushiData = data; }
     } catch (error) {
-      console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      console.error(formatApiError(error));
     }
 
     if (!sushiData || !sushiData.length) {

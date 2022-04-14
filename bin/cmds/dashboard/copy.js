@@ -4,6 +4,7 @@ const Joi = require('joi');
 
 const dashboards = require('../../../lib/dashboards');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 const itMode = require('./interactive/copy');
 
 exports.command = 'copy';
@@ -70,17 +71,13 @@ exports.handler = async function handler(argv) {
 
     try {
       if (verbose) {
-        console.log(`* Copyy dashboard [${source.dashboard}] from space [${source.space}] to target space [${target.space}] with index-pattern [${target.indexPattern}] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Copy dashboard [${source.dashboard}] from space [${source.space}] to target space [${target.space}] with index-pattern [${target.indexPattern}] from ${config.ezmesure.baseUrl}`);
       }
 
       await dashboards.copy({ source, target, force: argv.force });
     } catch (err) {
-      if (err?.response?.data) {
-        console.error(i18n.t('dashboard.copy.error', {
-          statusCode: err?.response?.data?.status,
-          message: err?.response?.data?.error,
-        }));
-      }
+      console.error(formatApiError(err));
+      process.exit(1);
     }
 
     console.log(i18n.t('dashboard.copy.copied', {

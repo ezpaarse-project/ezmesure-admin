@@ -5,6 +5,7 @@ const Joi = require('joi');
 const spaces = require('../../../lib/spaces');
 const itMode = require('./interactive/add');
 const kibana = require('../../../lib/app/kibana');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'add <name>';
 exports.desc = i18n.t('spaces.add.description');
@@ -95,7 +96,7 @@ exports.handler = async function handler(argv) {
   try {
     await spaces.create(space);
   } catch (err) {
-    console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(formatApiError(err));
     process.exit(1);
   }
 

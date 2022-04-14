@@ -2,6 +2,7 @@ const { i18n } = global;
 
 const rolesLib = require('../../../lib/roles');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'add <role>';
 exports.desc = i18n.t('roles.add.description');
@@ -36,6 +37,8 @@ exports.handler = async function handler(argv) {
     role, indexPattern, space, readOnly, privileges, verbose,
   } = argv;
 
+  let hasError = false;
+
   if (verbose) {
     console.log(`* Create or update role [${role}] with index-pattern [${indexPattern}] for space [${space}] from ${config.ezmesure.baseUrl}`);
   }
@@ -59,7 +62,8 @@ exports.handler = async function handler(argv) {
     });
     console.log(i18n.t('roles.add.roleCreated', { roleName: role }));
   } catch (err) {
-    console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(formatApiError(err));
+    hasError = true;
   }
 
   if (readOnly) {
@@ -86,7 +90,10 @@ exports.handler = async function handler(argv) {
       });
       console.log(i18n.t('roles.add.roleCreated', { roleName: `${role}_read_only` }));
     } catch (err) {
-      console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      console.error(formatApiError(err));
+      hasError = true;
     }
   }
+
+  process.exit(hasError ? 1 : 0);
 };

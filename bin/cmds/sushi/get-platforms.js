@@ -5,6 +5,7 @@ const { table } = require('table');
 
 const sushiLib = require('../../../lib/sushi');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'get-platforms';
 exports.desc = i18n.t('sushi.getPlatforms.description');
@@ -61,7 +62,7 @@ exports.handler = async function handler(argv) {
     const { data } = await sushiLib.getPlatforms();
     if (data) { sushiPlatforms = data; }
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
   }
 
   if (!Array.isArray(sushiPlatforms)) {

@@ -2,6 +2,7 @@ const { i18n } = global;
 
 const { config } = require('../../../lib/app/config');
 const usersLib = require('../../../lib/users');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'add <username> <password>';
 exports.desc = i18n.t('users.get.description');
@@ -66,7 +67,7 @@ exports.handler = async function handler(argv) {
       },
     });
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 

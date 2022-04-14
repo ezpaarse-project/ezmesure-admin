@@ -4,6 +4,7 @@ const { table } = require('table');
 const rolesLib = require('../../../lib/roles');
 const { config } = require('../../../lib/app/config');
 const itMode = require('./interactive/get');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'get [roles...]';
 exports.desc = i18n.t('roles.get.description');
@@ -45,7 +46,7 @@ exports.handler = async function handler(argv) {
     const { data } = await rolesLib.getAll(true);
     roles = data;
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
     process.exit(1);
   }
 

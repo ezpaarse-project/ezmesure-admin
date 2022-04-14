@@ -7,15 +7,8 @@ const chalk = require('chalk');
 const { config } = require('../../../lib/app/config');
 const endpointsLib = require('../../../lib/endpoints');
 const sushiLib = require('../../../lib/sushi');
+const { formatApiError } = require('../../../lib/utils');
 const itMode = require('./interactive/fix-endpoints');
-
-function logRequestError(e) {
-  const errorMessage = e?.response?.data?.error;
-  const status = e?.response?.status;
-  const statusMessage = e?.response?.statusMessage;
-
-  console.error(`[${status}] ${errorMessage || statusMessage || e.message}`);
-}
 
 exports.command = 'fix-endpoints';
 exports.desc = i18n.t('sushi.fixEndpoints.description');
@@ -127,7 +120,7 @@ exports.handler = async function handler(argv) {
     if (verbose) { console.log(`* Retrieving endpoints from ${config.ezmesure.baseUrl}`); }
     ({ data: endpoints } = await endpointsLib.getAll());
   } catch (e) {
-    logRequestError(e);
+    console.error(formatApiError(e));
     process.exit(1);
   }
 
@@ -235,7 +228,7 @@ exports.handler = async function handler(argv) {
         try {
           endpoint = await createEndpointFromSushi(sushiItem);
         } catch (e) {
-          logRequestError(e);
+          console.error(formatApiError(e));
           process.exit(1);
         }
         endpoints.push(endpoint);
@@ -270,7 +263,7 @@ exports.handler = async function handler(argv) {
           await sushiLib.update(sushiItem.id, { endpointId: endpoint?.id });
         }
       } catch (e) {
-        logRequestError(e);
+        console.error(formatApiError(e));
         process.exit(1);
       }
 

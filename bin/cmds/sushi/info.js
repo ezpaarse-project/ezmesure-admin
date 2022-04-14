@@ -8,6 +8,7 @@ const institutionsLib = require('../../../lib/institutions');
 const { sushiTest } = require('../../../lib/sushi');
 const itMode = require('./interactive/info');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'info [institutions...]';
 exports.desc = i18n.t('sushi.info.description');
@@ -55,7 +56,8 @@ exports.handler = async function handler(argv) {
     const { data } = await institutionsLib.getAll();
     if (data) { institutions = data; }
   } catch (error) {
-    console.error(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+    console.error(formatApiError(error));
+    process.exit(1);
   }
 
   if (!institutions) {
@@ -116,7 +118,7 @@ exports.handler = async function handler(argv) {
         failed,
       });
     } catch (err) {
-      console.error(`[Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      console.error(formatApiError(err));
     }
   }
 

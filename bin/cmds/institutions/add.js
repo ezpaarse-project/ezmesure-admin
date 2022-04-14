@@ -7,6 +7,7 @@ const institutions = require('../../../lib/institutions');
 const roles = require('../../../lib/roles');
 const spaces = require('../../../lib/spaces');
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'add <name>';
 exports.desc = i18n.t('institutions.add.description');
@@ -81,11 +82,7 @@ exports.handler = async function handler(argv) {
       .filter((el) => el.name === name)
       .pop();
   } catch (err) {
-    if (err?.response?.data) {
-      console.error(`[${i18n.t('institutions.add.getInstitutions')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
-      process.exit(1);
-    }
-    console.error(`[${i18n.t('institutions.add.getInstitutions')}]`, err);
+    console.error(`[${i18n.t('institutions.add.getInstitutions')}] ${formatApiError(err)}`);
     process.exit(1);
   }
 
@@ -109,7 +106,7 @@ exports.handler = async function handler(argv) {
       institution = data;
       console.log(i18n.t('institutions.add.institutionCreated', { name }));
     } catch (err) {
-      console.error(`[${i18n.t('institutions.add.createInstitution')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+      console.error(`[${i18n.t('institutions.add.createInstitution')}] ${formatApiError(err)}`);
       process.exit(1);
     }
   }
@@ -122,7 +119,7 @@ exports.handler = async function handler(argv) {
     await institutions.validate(institution.id, true);
     console.log(i18n.t('institutions.add.institutionValidated', { name }));
   } catch (err) {
-    console.error(`[${i18n.t('institutions.add.validate')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.validate')}] ${formatApiError(err)}`);
   }
 
   try {
@@ -136,7 +133,7 @@ exports.handler = async function handler(argv) {
     });
     console.log(i18n.t('institutions.add.spaceCreated', { space }));
   } catch (err) {
-    console.error(`[${i18n.t('institutions.add.createSpace')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.createSpace')}] ${formatApiError(err)}`);
   }
 
   try {
@@ -147,7 +144,7 @@ exports.handler = async function handler(argv) {
     await indices.create(index);
     console.log(i18n.t('institutions.add.indexCreated', { index }));
   } catch (err) {
-    console.error(`[${i18n.t('institutions.add.createIndex')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.createIndex')}] ${formatApiError(err)}`);
   }
 
   try {
@@ -160,7 +157,7 @@ exports.handler = async function handler(argv) {
     });
     console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: index }));
   } catch (err) {
-    console.error(`[${i18n.t('institutions.add.createIndexPattern')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.createIndexPattern')}] ${formatApiError(err)}`);
   }
 
   // Create all privileges role
@@ -187,7 +184,7 @@ exports.handler = async function handler(argv) {
     });
     console.log(i18n.t('institutions.add.roleCreated', { roleName: space }));
   } catch (err) {
-    console.error(`[${i18n.t('institutions.add.createRole')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.createRole')}] ${formatApiError(err)}`);
   }
 
   // Create read_only privileges role
@@ -215,6 +212,6 @@ exports.handler = async function handler(argv) {
     console.log(i18n.t('institutions.add.roleCreated', { roleName: `${space}_read_only` }));
   } catch (err) {
     console.log(err);
-    console.error(`[${i18n.t('institutions.add.createRole')}][Error#${err?.response?.data?.status}] ${err?.response?.data?.error}`);
+    console.error(`[${i18n.t('institutions.add.createRole')}] ${formatApiError(err)}`);
   }
 };

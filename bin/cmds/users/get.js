@@ -9,6 +9,7 @@ const usersLib = require('../../../lib/users');
 const itMode = require('./interactive/get');
 
 const { config } = require('../../../lib/app/config');
+const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'get [users...]';
 exports.desc = i18n.t('users.get.description');
@@ -86,7 +87,7 @@ exports.handler = async function handler(argv) {
       });
       usersData = data;
     } catch (error) {
-      console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+      console.error(formatApiError(error));
       process.exit(1);
     }
   }
@@ -97,7 +98,7 @@ exports.handler = async function handler(argv) {
         const { data } = await usersLib.getByUsername(users[i]);
         usersData.push(data[users[i]]);
       } catch (error) {
-        console.log(`[Error#${error?.response?.data?.status}] ${error?.response?.data?.error}`);
+        console.error(formatApiError(error));
         process.exit(1);
       }
     }

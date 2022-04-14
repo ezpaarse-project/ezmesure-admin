@@ -10,6 +10,7 @@ const stream = require('stream');
 const ezmesure = require('../../lib/app/ezmesure');
 const scopes = require('../../lib/app/config').getScopes();
 const kibana = require('../../lib/app/kibana');
+const { formatApiError } = require('../../lib/utils');
 
 exports.command = 'login';
 exports.desc = i18n.t('login.description');
@@ -90,7 +91,7 @@ exports.handler = async function handler(argv) {
   try {
     res = await ezmesure.post('/login/local', credentials);
   } catch (error) {
-    console.log(`[Error#${error?.response?.status}] ${error?.response?.statusText}`);
+    console.error(formatApiError(error));
     console.error(i18n.t('login.loginFailed', { username: credentials.username }));
     process.exit(1);
   }

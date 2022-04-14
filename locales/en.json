@@ -364,6 +364,7 @@
 		"roleCheckbox": "Roles(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"noRolesSelected": "No roles have been selected",
 		"rolesNotFound": "No roles found",
+		"noRolesSpecified": "No roles specified",
 		"role": "Role",
 		"indexes": "Indexes",
 		"spaces": "Spaces",
