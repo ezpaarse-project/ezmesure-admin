@@ -128,6 +128,37 @@
 			}
 		}
 	},
+	"queues": {
+		"description": "Manage queues <command>: get, pause, resume",
+		"get": {
+			"description": "Get the status of one or all job queues",
+			"options": {
+				"queueName": "The name of the queue",
+				"all": "Get all queues"
+			},
+			"missingChoice": "Please provide either a queue name or --all flag"
+		},
+		"pause": {
+			"description": "Pause a job queue",
+			"options": {
+				"queueName": "The name of the queue that should be paused",
+				"json": "Print result(s) in json"
+			},
+			"invalidResponse": "The API returned an invalid response",
+			"paused": "The queue [{{name}}] is now paused",
+			"notPaused": "The queue [{{name}}] was not paused"
+		},
+		"resume": {
+			"description": "Resume a job queue",
+			"options": {
+				"queueName": "The name of the queue that should be resumed",
+				"json": "Print result(s) in json"
+			},
+			"invalidResponse": "The API returned an invalid response",
+			"resumed": "The queue [{{name}}] is now active",
+			"notResumed": "The queue [{{name}}] was not resumed"
+		}
+	},
 	"sushi": {
 		"description": "Manage sushi <command>: delete, list, info, export, import, get-platforms",
 		"noCredentialsFound": "No sushi credentials found",
