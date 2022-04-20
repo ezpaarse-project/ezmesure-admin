@@ -13,6 +13,36 @@
 			"availableFields": "List fields that can be displayed in the table view"
 		}
 	},
+	"fields": {
+		"task": {
+			"id": "ID",
+			"type": "Type",
+			"status": "Status",
+			"runningTime": "Running time",
+			"createdAt": "Created at",
+			"updatedAt": "Updated at",
+			"startedAt": "Started at",
+			"params.sushiId": "SUSHI ID",
+			"params.endpointId": "Endpoint ID",
+			"params.institutionId": "Institution ID",
+			"params.harvestId": "Harvest ID",
+			"params.username": "Username",
+			"params.reportType": "Report type",
+			"params.index": "Index",
+			"params.beginDate": "Begin date",
+			"params.endDate": "End date",
+			"params.forceDownload": "Force download",
+			"params.endpointVendor": "Endpoint vendor",
+			"params.sushiLabel": "SUSHI Label",
+			"params.sushiPackage": "Package",
+			"params.institutionName": "Institution",
+			"result.inserted": "Inserted",
+			"result.updated": "Updated",
+			"result.failed": "Failed",
+			"result.errors": "Errors",
+			"result.coveredPeriods": "Covered periods"
+		}
+	},
 	"users": {
 		"description": "Manage users <command>: get, roles, add",
 		"noUsersFound": "No users found",
