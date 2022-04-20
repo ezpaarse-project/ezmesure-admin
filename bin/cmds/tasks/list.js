@@ -39,6 +39,10 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('tasks.list.options.status'),
       type: 'string',
     })
+    .option('size', {
+      describe: i18n.t('tasks.list.options.size'),
+      type: 'number',
+    })
     .option('t', {
       alias: 'type',
       describe: i18n.t('tasks.list.options.type'),
@@ -89,6 +93,7 @@ exports.handler = async function handler(argv) {
   const params = {};
   let tasks;
 
+  if (argv.size) { params.size = argv.size; }
   if (argv.status) { params.status = argv.status; }
   if (argv.type) { params.type = argv.type; }
   if (argv.id) { params.id = argv.id; }
