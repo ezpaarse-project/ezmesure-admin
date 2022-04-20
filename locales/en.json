@@ -8,7 +8,9 @@
 		"options": {
 			"timeout": "Request timeout in milliseconds",
 			"verbose": "Make the operation more talkative",
-			"version": "Print version information and quit"
+			"version": "Print version information and quit",
+			"fields": "A list of fields to display in the table view",
+			"availableFields": "List fields that can be displayed in the table view"
 		}
 	},
 	"users": {
