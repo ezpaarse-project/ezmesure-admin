@@ -108,7 +108,7 @@ exports.handler = async function handler(argv) {
     let error;
     let updatedTask;
 
-    if (argv.force || updatedTask?.status === 'waiting') {
+    if (argv.force || task?.status === 'waiting') {
       try {
         ({ data: updatedTask } = await tasksLib.cancel(task.id));
 
