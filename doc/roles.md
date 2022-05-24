@@ -114,7 +114,7 @@ $ ezmesure-admin roles update myRole --space-add <spaceName>:<privileges>
 | --- |
 | all |
 | read |
-| custo |
+| custom |
 
 ```bash
 $ ezmesure-admin roles update myRole --space-add my-space:all
