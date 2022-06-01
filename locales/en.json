@@ -219,6 +219,21 @@
 		"cannotParse": "Cannot parse {{file}}",
 		"vendorCheckbox": "Sushi vendor (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"noCredentialsFoundFor": "There are no sushi credentials for this institution ({{institution}})",
+		"add": {
+			"description": "Add new SUSHI credentials",
+			"created": "SUSHI credentials have been created",
+			"options": {
+				"vendor": "SUSHI vendor",
+				"requestorId": "Requestor ID",
+				"customerId": "Customer ID",
+				"apiKey": "API key",
+				"comment": "Arbitrary comment",
+				"package": "SUSHI package",
+				"institutionId": "ID of the institution that owns the SUSHI credentials",
+				"endpointId": "ID of the associated SUSHI endpoint",
+				"params": "A list of query parameters formatted as [key=value]"
+			}
+		},
 		"delete": {
 			"description": "Delete sushi credentials",
 			"removed": "Data removed successfully"
