@@ -5,6 +5,8 @@
 		"unknownFields": "Unknown fields: {{fields}}",
 		"fileNotFound": "File not found: {{file}}",
 		"invalidJsonFile": "Invalid JSON file: {{file}}",
+		"error": "Error",
+		"ignored": "Ignored",
 		"options": {
 			"timeout": "Request timeout in milliseconds",
 			"verbose": "Make the operation more talkative",
@@ -817,6 +819,30 @@
 			"conflict": "There are conflicts, use the --overwrite option to force the rewriting of conflicts",
 			"imported": "Dashboard imported [{{title}}] successfully",
 			"noFiles": "No files specified"
+		},
+		"bulkImport": {
+			"description": "Import dashboard(s) in a list of spaces",
+			"options": {
+				"spaces":"Space names, case sensitive. If not provided, will import in all institution spaces with a given suffix.",
+				"ignoreMissingSpaces": "Ignore missing spaces",
+				"ignoreConflicts": "Ignore object conflicts",
+				"onConflict": "Behavior when an import contains conflicts",
+				"overwrite": "Overwrite conflicts",
+				"files": "Files path"
+			},
+			"selectDashboards": "Select dashboards to import",
+			"selectSpaceType": "Select space type, or enter a custom space suffix",
+			"selectIndexPattern": "Select index pattern",
+			"space": "Space: {{space}}",
+			"spaceNotFound": "Space not found",
+			"ezpaarseSpace": "ezPAARSE space",
+			"ezcounterSpace": "ezCOUNTER space",
+			"noFiles": "No files specified",
+			"nbImported": "{{count}} objects have been imported",
+			"nbAffectedSpaces": "{{count}} spaces have been affected",
+			"nbConflicts": "{{count}} objects generated conflicts",
+			"nbMissingSpaces": "{{count}} spaces were not found",
+			"nbErrors": "{{count}} errors"
 		},
 		"copy": {
 			"description": "Copy a dashboard from one space to another",
