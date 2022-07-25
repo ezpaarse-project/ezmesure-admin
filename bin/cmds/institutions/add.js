@@ -21,6 +21,11 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('institutions.add.options.index'),
       type: 'string',
     })
+    .option('r', {
+      alias: 'role',
+      describe: i18n.t('institutions.add.options.role'),
+      type: 'string',
+    })
     .option('s', {
       alias: 'space',
       describe: i18n.t('institutions.add.options.space'),
@@ -44,7 +49,7 @@ exports.handler = async function handler(argv) {
     name, ezpaarse, ezmesure, reporting, verbose,
   } = argv;
 
-  let { index, space } = argv;
+  let { index, space, role } = argv;
 
   if (verbose) {
     console.log(`* Validating fields that describe institution [${name}]`);
@@ -53,7 +58,8 @@ exports.handler = async function handler(argv) {
   const schema = Joi.object({
     name: Joi.string().trim().required(),
     index: Joi.string().trim().required(),
-    space: Joi.string().trim().required(),
+    space: Joi.string().trim(),
+    role: Joi.string().trim(),
     ezpaarse: Joi.boolean().allow(null),
     ezmesure: Joi.boolean().allow(null),
     reporting: Joi.boolean().allow(null),
@@ -69,7 +75,8 @@ exports.handler = async function handler(argv) {
   }
 
   index = index.toLowerCase();
-  space = space.toLowerCase();
+  space = (space || index).toLowerCase();
+  role = (role || index).toLowerCase();
 
   if (verbose) {
     console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
@@ -96,7 +103,7 @@ exports.handler = async function handler(argv) {
         name,
         indexPrefix: index,
         space,
-        role: space,
+        role,
         auto: {
           ezpaarse,
           ezmesure,
@@ -162,11 +169,11 @@ exports.handler = async function handler(argv) {
 
   // Create all privileges role
   if (verbose) {
-    console.log(`* Create institution [${name}] role [${space}] from ${config.ezmesure.baseUrl}`);
+    console.log(`* Create institution [${name}] role [${role}] from ${config.ezmesure.baseUrl}`);
   }
 
   try {
-    await roles.createOrUpdate(space, {
+    await roles.createOrUpdate(role, {
       elasticsearch: {
         indices: [
           {
@@ -182,22 +189,22 @@ exports.handler = async function handler(argv) {
         },
       ],
     });
-    console.log(i18n.t('institutions.add.roleCreated', { roleName: space }));
+    console.log(i18n.t('institutions.add.roleCreated', { roleName: role }));
   } catch (err) {
     console.error(`[${i18n.t('institutions.add.createRole')}] ${formatApiError(err)}`);
   }
 
   // Create read_only privileges role
   if (verbose) {
-    console.log(`* Create institution [${name}] role [${space}_read_only] from ${config.ezmesure.baseUrl}`);
+    console.log(`* Create institution [${name}] role [${role}_read_only] from ${config.ezmesure.baseUrl}`);
   }
 
   try {
-    await roles.createOrUpdate(`${space}_read_only`, {
+    await roles.createOrUpdate(`${role}_read_only`, {
       elasticsearch: {
         indices: [
           {
-            names: [`${space}*`],
+            names: [`${index}*`],
             privileges: ['read'],
           },
         ],
@@ -209,7 +216,7 @@ exports.handler = async function handler(argv) {
         },
       ],
     });
-    console.log(i18n.t('institutions.add.roleCreated', { roleName: `${space}_read_only` }));
+    console.log(i18n.t('institutions.add.roleCreated', { roleName: `${role}_read_only` }));
   } catch (err) {
     console.log(err);
     console.error(`[${i18n.t('institutions.add.createRole')}] ${formatApiError(err)}`);

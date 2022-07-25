@@ -593,8 +593,9 @@
 			"description": "Create institution",
 			"options": {
 				"name": "Institution name",
-				"index": "Index name",
-				"space":"Space name",
+				"index": "Index prefix",
+				"space":"Base space name. Defaults to the index prefix.",
+				"role":"Base role name. Defaults to the index prefix.",
 				"ezpaarse": "Automation ezPAARSE",
 				"ezmesure": "Automation ezMESURE",
 				"reporting": "Automation Reporting"
