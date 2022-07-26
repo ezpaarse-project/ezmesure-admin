@@ -31,6 +31,14 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('institutions.add.options.space'),
       type: 'string',
     })
+    .option('ezpaarse-space', {
+      describe: i18n.t('institutions.add.options.ezpaarseSpace'),
+      type: 'boolean',
+    })
+    .option('publisher-space', {
+      describe: i18n.t('institutions.add.options.publisherSpace'),
+      type: 'boolean',
+    })
     .option('ezpaarse', {
       describe: i18n.t('institutions.add.options.ezpaarse'),
       type: 'boolean',
@@ -46,7 +54,13 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    name, ezpaarse, ezmesure, reporting, verbose,
+    name,
+    ezpaarse,
+    ezmesure,
+    reporting,
+    verbose,
+    ezpaarseSpace,
+    publisherSpace,
   } = argv;
 
   let { index, space, role } = argv;
@@ -129,42 +143,86 @@ exports.handler = async function handler(argv) {
     console.error(`[${i18n.t('institutions.add.validate')}] ${formatApiError(err)}`);
   }
 
-  try {
-    if (verbose) {
-      console.log(`* Create institution [${name}] space [${space}] from ${config.ezmesure.baseUrl}`);
+  if (ezpaarseSpace) {
+    try {
+      if (verbose) {
+        console.log(`* Create institution [${name}] space [${space}] from ${config.ezmesure.baseUrl}`);
+      }
+
+      await spaces.create({
+        id: space,
+        name: space,
+      });
+      console.log(i18n.t('institutions.add.spaceCreated', { space }));
+    } catch (err) {
+      console.error(`[${i18n.t('institutions.add.createSpace')}] ${formatApiError(err)}`);
     }
 
-    await spaces.create({
-      id: space,
-      name: space,
-    });
-    console.log(i18n.t('institutions.add.spaceCreated', { space }));
-  } catch (err) {
-    console.error(`[${i18n.t('institutions.add.createSpace')}] ${formatApiError(err)}`);
+    try {
+      if (verbose) {
+        console.log(`* Create institution [${name}] index [${index}] from ${config.ezmesure.baseUrl}`);
+      }
+
+      await indices.create(index);
+      console.log(i18n.t('institutions.add.indexCreated', { index }));
+    } catch (err) {
+      console.error(`[${i18n.t('institutions.add.createIndex')}] ${formatApiError(err)}`);
+    }
+
+    try {
+      if (verbose) {
+        console.log(`* Create institution [${name}] index-pattern [${index}*] from ${config.ezmesure.baseUrl}`);
+      }
+
+      await spaces.addIndexPatterns(space, {
+        title: `${index}*`,
+      });
+      console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: `${index}*` }));
+    } catch (err) {
+      console.error(`[${i18n.t('institutions.add.createIndexPattern')}] ${formatApiError(err)}`);
+    }
   }
 
-  try {
-    if (verbose) {
-      console.log(`* Create institution [${name}] index [${index}] from ${config.ezmesure.baseUrl}`);
+  if (publisherSpace) {
+    const publisherSpaceName = `${space}-publisher`;
+    const publisherIndex = `${index}-publisher`;
+    try {
+      if (verbose) {
+        console.log(`* Create institution [${name}] space [${publisherSpaceName}] from ${config.ezmesure.baseUrl}`);
+      }
+
+      await spaces.create({
+        id: publisherSpaceName,
+        name: publisherSpaceName,
+      });
+      console.log(i18n.t('institutions.add.spaceCreated', { space: publisherSpaceName }));
+    } catch (err) {
+      console.error(`[${i18n.t('institutions.add.createSpace')}] ${formatApiError(err)}`);
     }
 
-    await indices.create(index);
-    console.log(i18n.t('institutions.add.indexCreated', { index }));
-  } catch (err) {
-    console.error(`[${i18n.t('institutions.add.createIndex')}] ${formatApiError(err)}`);
-  }
+    try {
+      if (verbose) {
+        console.log(`* Create institution [${name}] index [${publisherIndex}] from ${config.ezmesure.baseUrl}`);
+      }
 
-  try {
-    if (verbose) {
-      console.log(`* Create institution [${name}] index-pattern [${index}*] from ${config.ezmesure.baseUrl}`);
+      await indices.create(publisherIndex, { type: 'publisher' });
+      console.log(i18n.t('institutions.add.indexCreated', { index: publisherIndex }));
+    } catch (err) {
+      console.error(`[${i18n.t('institutions.add.createIndex')}] ${formatApiError(err)}`);
     }
 
-    await spaces.addIndexPatterns(space, {
-      title: `${index}*`,
-    });
-    console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: index }));
-  } catch (err) {
-    console.error(`[${i18n.t('institutions.add.createIndexPattern')}] ${formatApiError(err)}`);
+    try {
+      if (verbose) {
+        console.log(`* Create institution [${name}] index-pattern [${publisherIndex}*] from ${config.ezmesure.baseUrl}`);
+      }
+
+      await spaces.addIndexPatterns(space, {
+        title: `${publisherIndex}*`,
+      });
+      console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: `${publisherIndex}*` }));
+    } catch (err) {
+      console.error(`[${i18n.t('institutions.add.createIndexPattern')}] ${formatApiError(err)}`);
+    }
   }
 
   // Create all privileges role
@@ -172,22 +230,16 @@ exports.handler = async function handler(argv) {
     console.log(`* Create institution [${name}] role [${role}] from ${config.ezmesure.baseUrl}`);
   }
 
+  const createdSpaces = [];
+  if (ezpaarseSpace) { createdSpaces.push(space); }
+  if (publisherSpace) { createdSpaces.push(`${space}-publisher`); }
+
   try {
     await roles.createOrUpdate(role, {
       elasticsearch: {
-        indices: [
-          {
-            names: [`${index}*`],
-            privileges: ['all'],
-          },
-        ],
+        indices: [{ names: [`${index}*`], privileges: ['all'] }],
       },
-      kibana: [
-        {
-          spaces: [space],
-          base: ['all'],
-        },
-      ],
+      kibana: createdSpaces.length > 0 ? [{ spaces: createdSpaces, base: ['all'] }] : undefined,
     });
     console.log(i18n.t('institutions.add.roleCreated', { roleName: role }));
   } catch (err) {
@@ -202,23 +254,12 @@ exports.handler = async function handler(argv) {
   try {
     await roles.createOrUpdate(`${role}_read_only`, {
       elasticsearch: {
-        indices: [
-          {
-            names: [`${index}*`],
-            privileges: ['read'],
-          },
-        ],
+        indices: [{ names: [`${index}*`], privileges: ['read'] }],
       },
-      kibana: [
-        {
-          spaces: [space],
-          base: ['read'],
-        },
-      ],
+      kibana: createdSpaces.length > 0 ? [{ spaces: createdSpaces, base: ['read'] }] : undefined,
     });
     console.log(i18n.t('institutions.add.roleCreated', { roleName: `${role}_read_only` }));
   } catch (err) {
-    console.log(err);
     console.error(`[${i18n.t('institutions.add.createRole')}] ${formatApiError(err)}`);
   }
 };

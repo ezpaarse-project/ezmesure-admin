@@ -596,6 +596,8 @@
 				"index": "Index prefix",
 				"space":"Base space name. Defaults to the index prefix.",
 				"role":"Base role name. Defaults to the index prefix.",
+				"ezpaarseSpace": "Create an ezPAARSE space",
+				"publisherSpace": "Create a publisher space",
 				"ezpaarse": "Automation ezPAARSE",
 				"ezmesure": "Automation ezMESURE",
 				"reporting": "Automation Reporting"
