@@ -3,6 +3,8 @@ const { i18n } = global;
 const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('chalk');
+const axios = require('axios');
+const JSZip = require('jszip');
 
 const institutionsLib = require('../../../lib/institutions');
 const spacesLib = require('../../../lib/spaces');
@@ -185,6 +187,52 @@ async function importDashboards(opts = {}) {
   return { imported, errors, conflicts };
 }
 
+async function getRemoteTemplates() {
+  const { data } = await axios({
+    method: 'get',
+    url: 'https://github.com/ezpaarse-project/ezmesure-templates/archive/refs/heads/master.zip',
+    responseType: 'arraybuffer',
+  });
+
+  const dirs = new Map();
+  const zip = new JSZip();
+  await zip.loadAsync(data);
+
+  // We loop over all uncompressed zip entries
+  zip.forEach((relativePath, entry) => {
+    if (path.extname(relativePath).toLowerCase() !== '.json') {
+      return;
+    }
+    const dirPath = path.dirname(relativePath);
+
+    if (!dirs.has(dirPath)) {
+      dirs.set(dirPath, []);
+    }
+
+    // A promise that will resolve with the file content, decompressed and parsed into JSON
+    const filePromise = entry.async('string').then((content) => {
+      try {
+        return JSON.parse(content);
+      } catch (e) {
+        return null;
+      }
+    });
+
+    dirs.get(dirPath).push(filePromise);
+  });
+
+  // Wait for file promises to resolve and changes the Map() into an object
+  // with the dir path and the resolved file contents
+  return Promise.all(
+    Array
+      .from(dirs.entries())
+      .map(async ([dirPath, filePromises]) => ({
+        path: dirPath,
+        files: await Promise.all(filePromises),
+      })),
+  );
+}
+
 exports.handler = async function handler(argv) {
   const {
     files,
@@ -194,23 +242,31 @@ exports.handler = async function handler(argv) {
   } = argv;
   let { spaces } = argv;
 
-  if (!files) {
-    console.log(i18n.t('dashboard.bulkImport.noFiles'));
-    process.exit(1);
-  }
+  let dashboardFiles;
 
+  if (files) {
   if (verbose) {
     console.log(`* Reading ${files?.length} dashboard files`);
   }
 
-  let dashboardFiles = await Promise.all(files.map(
+    dashboardFiles = await Promise.all(files.map(
     (filePath) => fs.readFile(path.resolve(filePath), 'utf8').then((content) => JSON.parse(content)),
   ));
+  } else {
+    console.log('Downloading remote templates from ezpaarse-project/ezmesure-templates...');
+
+    const dirs = await getRemoteTemplates();
+
+    dashboardFiles = await itMode.autocomplete({
+      message: i18n.t('dashboard.bulkImport.selectTemplateDir'),
+      choices: dirs.map((dir) => ({ name: dir.path, value: dir.files })),
+    });
+  }
 
   dashboardFiles = await selectDashboards(dashboardFiles);
 
   if (dashboardFiles.length === 0) {
-    console.log(i18n.t('dashboard.bulkImport.noDashboardSelected'));
+    console.log(i18n.t('dashboard.bulkImport.noDashboardsSelected'));
     process.exit(1);
   }
 

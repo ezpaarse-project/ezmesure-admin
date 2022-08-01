@@ -831,11 +831,13 @@
 				"ignoreConflicts": "Ignore object conflicts",
 				"onConflict": "Behavior when an import contains conflicts",
 				"overwrite": "Overwrite conflicts",
-				"files": "Files path"
+				"files": "Files path. If not provided, will fetch dashboards from the remote reference repository."
 			},
 			"selectDashboards": "Select dashboards to import",
 			"selectSpaceType": "Select space type, or enter a custom space suffix",
 			"selectIndexPattern": "Select index pattern",
+			"selectTemplateDir": "Select template directory",
+			"noDashboardsSelected": "No dashboard(s) selected",
 			"space": "Space: {{space}}",
 			"spaceNotFound": "Space not found",
 			"ezpaarseSpace": "ezPAARSE space",
