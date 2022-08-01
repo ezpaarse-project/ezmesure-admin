@@ -58,11 +58,9 @@ function selectDashboards(dashboards) {
           const color = tag?.attributes?.color;
           const name = tag?.attributes?.name;
           return color ? chalk.hex(color)(name) : name;
-        });
+        }) ?? [];
 
-      if (tags) {
-        title = `${title} [${tags ? tags.join(',') : 'no tags'}]`;
-      }
+      title = `${title || chalk.grey('Untitled')} [${tags.length > 0 ? tags.join(',') : chalk.grey('no tags')}]`;
 
       return {
         name: title,
