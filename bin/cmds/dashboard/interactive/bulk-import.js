@@ -14,7 +14,7 @@ exports.autocomplete = async ({ message, choices, custom }) => inquirer.prompt([
   highlight: true,
   source: (answersSoFar, input) => new Promise((resolve) => {
     const results = choices.filter(
-      ({ name }) => name.toLowerCase().includes(input?.toLowerCase?.() || ''),
+      ({ name }) => name?.toLowerCase?.().includes(input?.toLowerCase?.() || ''),
     );
 
     if (typeof custom === 'function' && input) {
@@ -36,7 +36,7 @@ exports.selectMultiple = async ({ message, choices, default: defaultValue }) => 
   source: (answersSoFar, input) => new Promise((resolve) => {
     input = input ? input.toLowerCase() : '';
 
-    resolve(choices.filter(({ name }) => name.toLowerCase().includes(input)));
+    resolve(choices.filter(({ name }) => name?.toLowerCase?.().includes(input)));
   }),
 }]).then((answers) => answers?.choice);
 
