@@ -162,24 +162,24 @@ exports.handler = async function handler(argv) {
 
     try {
       if (verbose) {
-        console.log(`* Create institution [${name}] index [${index}] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create institution [${name}] index [${ezpaarseIndex}] from ${config.ezmesure.baseUrl}`);
       }
 
-      await indices.create(index);
-      console.log(i18n.t('institutions.add.indexCreated', { index }));
+      await indices.create(ezpaarseIndex);
+      console.log(i18n.t('institutions.add.indexCreated', { index: ezpaarseIndex }));
     } catch (err) {
       console.error(`[${i18n.t('institutions.add.createIndex')}] ${formatApiError(err)}`);
     }
 
     try {
       if (verbose) {
-        console.log(`* Create institution [${name}] index-pattern [${index}*] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create institution [${name}] index-pattern [${ezpaarseIndex}*] from ${config.ezmesure.baseUrl}`);
       }
 
       await spaces.addIndexPatterns(space, {
-        title: `${index}*`,
+        title: `${ezpaarseIndex}*`,
       });
-      console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: `${index}*` }));
+      console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: `${ezpaarseIndex}*` }));
     } catch (err) {
       console.error(`[${i18n.t('institutions.add.createIndexPattern')}] ${formatApiError(err)}`);
     }
