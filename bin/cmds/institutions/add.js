@@ -99,9 +99,7 @@ exports.handler = async function handler(argv) {
   let institution;
   try {
     const { data } = await institutions.getAll();
-    institution = data
-      .filter((el) => el.name === name)
-      .pop();
+    institution = data.find((el) => el.name === name);
   } catch (err) {
     console.error(`[${i18n.t('institutions.add.getInstitutions')}] ${formatApiError(err)}`);
     process.exit(1);
