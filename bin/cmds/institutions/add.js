@@ -144,6 +144,8 @@ exports.handler = async function handler(argv) {
   }
 
   if (ezpaarseSpace) {
+    const ezpaarseIndex = `${index}-ec`;
+
     try {
       if (verbose) {
         console.log(`* Create institution [${name}] space [${space}] from ${config.ezmesure.baseUrl}`);
