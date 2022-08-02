@@ -241,7 +241,15 @@ exports.handler = async function handler(argv) {
       elasticsearch: {
         indices: [{ names: [`${index}*`], privileges: ['all'] }],
       },
-      kibana: createdSpaces.length > 0 ? [{ spaces: createdSpaces, base: ['all'] }] : undefined,
+      kibana: createdSpaces.length > 0 ? [{
+        spaces: createdSpaces,
+        feature: {
+          dashboard: ['all'],
+          discover: ['all'],
+          visualize: ['all'],
+          maps: ['all'],
+        },
+      }] : undefined,
     });
     console.log(i18n.t('institutions.add.roleCreated', { roleName: role }));
   } catch (err) {
@@ -258,7 +266,15 @@ exports.handler = async function handler(argv) {
       elasticsearch: {
         indices: [{ names: [`${index}*`], privileges: ['read'] }],
       },
-      kibana: createdSpaces.length > 0 ? [{ spaces: createdSpaces, base: ['read'] }] : undefined,
+      kibana: createdSpaces.length > 0 ? [{
+        spaces: createdSpaces,
+        feature: {
+          dashboard: ['read'],
+          discover: ['read'],
+          visualize: ['read'],
+          maps: ['read'],
+        },
+      }] : undefined,
     });
     console.log(i18n.t('institutions.add.roleCreated', { roleName: `${role}_read_only` }));
   } catch (err) {
