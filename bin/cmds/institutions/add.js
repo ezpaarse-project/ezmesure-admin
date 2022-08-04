@@ -6,9 +6,20 @@ const kibana = require('../../../lib/kibana');
 const indices = require('../../../lib/indices');
 const institutions = require('../../../lib/institutions');
 const roles = require('../../../lib/roles');
-const spaces = require('../../../lib/spaces');
 const { config } = require('../../../lib/app/config');
 const { formatApiError } = require('../../../lib/utils');
+
+function frenchDate(name) {
+  return {
+    name,
+    format: {
+      id: 'date',
+      params: {
+        pattern: 'DD-MM-yyyy',
+      },
+    },
+  };
+}
 
 exports.command = 'add <name>';
 exports.desc = i18n.t('institutions.add.description');
@@ -183,6 +194,9 @@ exports.handler = async function handler(argv) {
         body: {
           index_pattern: {
         title: `${ezpaarseIndex}*`,
+            fields: {
+              datetime: frenchDate('datetime'),
+            },
           },
         },
       });
@@ -233,6 +247,9 @@ exports.handler = async function handler(argv) {
         body: {
           index_pattern: {
         title: `${publisherIndex}*`,
+            fields: {
+              X_Date_Month: frenchDate('X_Date_Month'),
+            },
           },
         },
       });
