@@ -247,6 +247,7 @@ exports.handler = async function handler(argv) {
         body: {
           index_pattern: {
         title: `${publisherIndex}*`,
+            timeFieldName: 'X_Date_Month',
             fields: {
               X_Date_Month: frenchDate('X_Date_Month'),
             },
