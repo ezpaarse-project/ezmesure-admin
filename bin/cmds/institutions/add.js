@@ -216,7 +216,7 @@ exports.handler = async function handler(argv) {
         console.log(`* Create institution [${name}] index-pattern [${publisherIndex}*] from ${config.ezmesure.baseUrl}`);
       }
 
-      await spaces.addIndexPatterns(space, {
+      await spaces.addIndexPatterns(publisherSpaceName, {
         title: `${publisherIndex}*`,
       });
       console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: `${publisherIndex}*` }));
