@@ -1,6 +1,7 @@
 const { i18n } = global;
 
 const Joi = require('joi');
+const chalk = require('chalk');
 
 const kibana = require('../../../lib/kibana');
 const indices = require('../../../lib/indices');
@@ -142,6 +143,12 @@ exports.handler = async function handler(argv) {
     }
   }
 
+  let institutionName = institution.name;
+
+  if (institution.acronym) {
+    institutionName += ` (${institution.acronym})`;
+  }
+
   try {
     if (verbose) {
       console.log(`* Validate institution [${name}] from ${config.ezmesure.baseUrl}`);
@@ -163,30 +170,36 @@ exports.handler = async function handler(argv) {
 
       await kibana.spaces.create({
         body: {
-        id: space,
+          id: space,
           name: institutionName,
           description: `Espace ezPAARSE (id: ${space})`,
         },
       });
       console.log(i18n.t('institutions.add.spaceCreated', { space }));
     } catch (err) {
-      console.error(`[${i18n.t('institutions.add.createSpace')}] ${formatApiError(err)}`);
+      const errorMsg = formatApiError(err, {
+        prefix: (err?.response?.status !== 409) || chalk.yellow('Warning: '),
+      });
+      console.error(`[${i18n.t('institutions.add.createSpace')}] ${errorMsg}`);
     }
 
     try {
       if (verbose) {
-        console.log(`* Create institution [${name}] index [${ezpaarseIndex}] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create index [${ezpaarseIndex}] from ${config.ezmesure.baseUrl}`);
       }
 
       await indices.create(ezpaarseIndex);
       console.log(i18n.t('institutions.add.indexCreated', { index: ezpaarseIndex }));
     } catch (err) {
-      console.error(`[${i18n.t('institutions.add.createIndex')}] ${formatApiError(err)}`);
+      const errorMsg = formatApiError(err, {
+        prefix: (err?.response?.status !== 409) || chalk.yellow('Warning: '),
+      });
+      console.error(`[${i18n.t('institutions.add.createIndex')}] ${errorMsg}`);
     }
 
     try {
       if (verbose) {
-        console.log(`* Create institution [${name}] index-pattern [${ezpaarseIndex}*] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create index-pattern [${ezpaarseIndex}*] from ${config.ezmesure.baseUrl}`);
       }
 
       await kibana.indexPatterns.create({
@@ -194,7 +207,7 @@ exports.handler = async function handler(argv) {
         body: {
           override: true,
           index_pattern: {
-        title: `${ezpaarseIndex}*`,
+            title: `${ezpaarseIndex}*`,
             fields: {
               datetime: frenchDate('datetime'),
             },
@@ -217,14 +230,17 @@ exports.handler = async function handler(argv) {
 
       await kibana.spaces.create({
         body: {
-        id: publisherSpaceName,
+          id: publisherSpaceName,
           name: institutionName,
           description: `Espace éditeurs (id: ${publisherSpaceName})`,
         },
       });
       console.log(i18n.t('institutions.add.spaceCreated', { space: publisherSpaceName }));
     } catch (err) {
-      console.error(`[${i18n.t('institutions.add.createSpace')}] ${formatApiError(err)}`);
+      const errorMsg = formatApiError(err, {
+        prefix: (err?.response?.status !== 409) || chalk.yellow('Warning: '),
+      });
+      console.error(`[${i18n.t('institutions.add.createSpace')}] ${errorMsg}`);
     }
 
     try {
@@ -235,7 +251,10 @@ exports.handler = async function handler(argv) {
       await indices.create(publisherIndex, { type: 'publisher' });
       console.log(i18n.t('institutions.add.indexCreated', { index: publisherIndex }));
     } catch (err) {
-      console.error(`[${i18n.t('institutions.add.createIndex')}] ${formatApiError(err)}`);
+      const errorMsg = formatApiError(err, {
+        prefix: (err?.response?.status !== 409) || chalk.yellow('Warning: '),
+      });
+      console.error(`[${i18n.t('institutions.add.createIndex')}] ${errorMsg}`);
     }
 
     try {
@@ -248,7 +267,7 @@ exports.handler = async function handler(argv) {
         body: {
           override: true,
           index_pattern: {
-        title: `${publisherIndex}*`,
+            title: `${publisherIndex}*`,
             timeFieldName: 'X_Date_Month',
             fields: {
               X_Date_Month: frenchDate('X_Date_Month'),
