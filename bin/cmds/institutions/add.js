@@ -2,6 +2,7 @@ const { i18n } = global;
 
 const Joi = require('joi');
 
+const kibana = require('../../../lib/kibana');
 const indices = require('../../../lib/indices');
 const institutions = require('../../../lib/institutions');
 const roles = require('../../../lib/roles');
@@ -146,12 +147,15 @@ exports.handler = async function handler(argv) {
 
     try {
       if (verbose) {
-        console.log(`* Create institution [${name}] space [${space}] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create space [${space}] from ${config.ezmesure.baseUrl}`);
       }
 
-      await spaces.create({
+      await kibana.spaces.create({
+        body: {
         id: space,
-        name: space,
+          name: institutionName,
+          description: `Espace ezPAARSE (id: ${space})`,
+        },
       });
       console.log(i18n.t('institutions.add.spaceCreated', { space }));
     } catch (err) {
@@ -174,8 +178,13 @@ exports.handler = async function handler(argv) {
         console.log(`* Create institution [${name}] index-pattern [${ezpaarseIndex}*] from ${config.ezmesure.baseUrl}`);
       }
 
-      await spaces.addIndexPatterns(space, {
+      await kibana.indexPatterns.create({
+        space,
+        body: {
+          index_pattern: {
         title: `${ezpaarseIndex}*`,
+          },
+        },
       });
       console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: `${ezpaarseIndex}*` }));
     } catch (err) {
@@ -191,9 +200,12 @@ exports.handler = async function handler(argv) {
         console.log(`* Create institution [${name}] space [${publisherSpaceName}] from ${config.ezmesure.baseUrl}`);
       }
 
-      await spaces.create({
+      await kibana.spaces.create({
+        body: {
         id: publisherSpaceName,
-        name: publisherSpaceName,
+          name: institutionName,
+          description: `Espace éditeurs (id: ${publisherSpaceName})`,
+        },
       });
       console.log(i18n.t('institutions.add.spaceCreated', { space: publisherSpaceName }));
     } catch (err) {
@@ -216,8 +228,13 @@ exports.handler = async function handler(argv) {
         console.log(`* Create institution [${name}] index-pattern [${publisherIndex}*] from ${config.ezmesure.baseUrl}`);
       }
 
-      await spaces.addIndexPatterns(space, {
+      await kibana.indexPatterns.create({
+        space,
+        body: {
+          index_pattern: {
         title: `${publisherIndex}*`,
+          },
+        },
       });
       console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: `${publisherIndex}*` }));
     } catch (err) {
