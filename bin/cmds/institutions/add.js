@@ -192,6 +192,7 @@ exports.handler = async function handler(argv) {
       await kibana.indexPatterns.create({
         space,
         body: {
+          override: true,
           index_pattern: {
         title: `${ezpaarseIndex}*`,
             fields: {
@@ -245,6 +246,7 @@ exports.handler = async function handler(argv) {
       await kibana.indexPatterns.create({
         space,
         body: {
+          override: true,
           index_pattern: {
         title: `${publisherIndex}*`,
             timeFieldName: 'X_Date_Month',
