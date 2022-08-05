@@ -838,6 +838,7 @@
 			"selectIndexPattern": "Select index pattern",
 			"selectTemplateDir": "Select template directory",
 			"noDashboardsSelected": "No dashboard(s) selected",
+			"noIndexPatternCreateOne": "No index pattern found. Please enter one.",
 			"space": "Space: {{space}}",
 			"spaceNotFound": "Space not found",
 			"ezpaarseSpace": "ezPAARSE space",

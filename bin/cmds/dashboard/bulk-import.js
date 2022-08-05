@@ -7,7 +7,7 @@ const axios = require('axios');
 const JSZip = require('jszip');
 
 const institutionsLib = require('../../../lib/institutions');
-const spacesLib = require('../../../lib/spaces');
+const kibana = require('../../../lib/kibana');
 const dashboardsLib = require('../../../lib/dashboards');
 const { config } = require('../../../lib/app/config');
 const { formatApiError } = require('../../../lib/utils');
@@ -118,8 +118,7 @@ async function importDashboards(opts = {}) {
   }
 
   try {
-    const { data: patterns } = await spacesLib.getIndexPatterns(space);
-    indexPatterns = patterns.map((p) => p?.attributes?.title);
+    await kibana.spaces.get({ id: space });
   } catch (error) {
     if (error?.response?.status === 404) {
       return { spaceNotFound: true };
@@ -129,27 +128,93 @@ async function importDashboards(opts = {}) {
     process.exit(1);
   }
 
-  let indexPattern = indexPatterns?.[0];
-
-  if (indexPatterns.length > 1) {
-    indexPattern = await itMode.list({
-      message: i18n.t('dashboard.bulkImport.selectIndexPattern'),
-      choices: indexPatterns.map((value) => ({ name: value, value })),
+  try {
+    const { data } = await kibana.savedObjects.find({
+      space,
+      params: { type: 'index-pattern', per_page: 1000 },
     });
+    indexPatterns = data?.saved_objects;
+  } catch (error) {
+    console.error(formatApiError(error));
+    process.exit(1);
+  }
+
+  let indexPatternTitle = indexPatterns?.[0]?.attributes?.title;
+
+  if (Array.isArray(indexPatterns) && indexPatterns.length > 1) {
+    let defaultPatternId;
+
+    if (verbose) {
+      console.log(`* Getting default index pattern of space [${space}]`);
+    }
+
+    try {
+      const { data } = await kibana.indexPatterns.getDefault({ space });
+      defaultPatternId = data?.index_pattern_id;
+    } catch (error) {
+      console.error(formatApiError(error));
+      process.exit(1);
+    }
+
+    indexPatternTitle = await itMode.list({
+      message: i18n.t('dashboard.bulkImport.selectIndexPattern'),
+      choices: indexPatterns.map((pattern) => {
+        const title = pattern?.attributes?.title || '';
+        let name = title;
+
+        if (pattern?.id === defaultPatternId) {
+          name = `${title} ${chalk.yellow('(default)')}`;
+        }
+
+        return { name, value: title };
+      }),
+    });
+  }
+
+  if (!indexPatternTitle) {
+    indexPatternTitle = await itMode.input({
+      message: i18n.t('dashboard.bulkImport.noIndexPatternCreateOne'),
+      default: `${space}-*`,
+    });
+
+    try {
+      if (verbose) { console.log(`* Creating index pattern [${indexPatternTitle}] into space [${space}]`); }
+
+      const { data: createdPattern } = await kibana.indexPatterns.create({
+        space,
+        body: {
+          index_pattern: { title: indexPatternTitle },
+        },
+      });
+
+      const patternId = createdPattern?.index_pattern?.id;
+      if (verbose) { console.log(`* Setting index pattern [${patternId}] as default in space [${space}]`); }
+
+      await kibana.indexPatterns.setDefault({
+        space,
+        body: {
+          index_pattern_id: patternId,
+          force: true,
+        },
+      });
+    } catch (error) {
+      console.error(formatApiError(error));
+      process.exit(1);
+    }
   }
 
   await Promise.all(dashboards.map(async (dashboard) => {
     const dashboardTitle = dashboard?.objects?.find?.((obj) => obj?.type === 'dashboard')?.attributes?.title;
 
     if (verbose) {
-      console.log(`* Import dashboard [${dashboardTitle}] into space [${space}] with index-pattern [${indexPattern}] from ${config.ezmesure.baseUrl}`);
+      console.log(`* Import dashboard [${dashboardTitle}] into space [${space}] with index-pattern [${indexPatternTitle}] from ${config.ezmesure.baseUrl}`);
     }
 
     try {
       const { data } = await dashboardsLib.import({
         space,
         dashboard,
-        indexPattern,
+        indexPattern: indexPatternTitle,
         force: overwrite,
       });
 
@@ -245,13 +310,13 @@ exports.handler = async function handler(argv) {
   let dashboardFiles;
 
   if (files) {
-  if (verbose) {
-    console.log(`* Reading ${files?.length} dashboard files`);
-  }
+    if (verbose) {
+      console.log(`* Reading ${files?.length} dashboard files`);
+    }
 
     dashboardFiles = await Promise.all(files.map(
-    (filePath) => fs.readFile(path.resolve(filePath), 'utf8').then((content) => JSON.parse(content)),
-  ));
+      (filePath) => fs.readFile(path.resolve(filePath), 'utf8').then((content) => JSON.parse(content)),
+    ));
   } else {
     console.log('Downloading remote templates from ezpaarse-project/ezmesure-templates...');
 

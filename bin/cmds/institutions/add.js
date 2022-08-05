@@ -1,13 +1,26 @@
 const { i18n } = global;
 
 const Joi = require('joi');
+const chalk = require('chalk');
 
+const kibana = require('../../../lib/kibana');
 const indices = require('../../../lib/indices');
 const institutions = require('../../../lib/institutions');
 const roles = require('../../../lib/roles');
-const spaces = require('../../../lib/spaces');
 const { config } = require('../../../lib/app/config');
 const { formatApiError } = require('../../../lib/utils');
+
+function frenchDate(name) {
+  return {
+    name,
+    format: {
+      id: 'date',
+      params: {
+        pattern: 'DD-MM-yyyy',
+      },
+    },
+  };
+}
 
 exports.command = 'add <name>';
 exports.desc = i18n.t('institutions.add.description');
@@ -130,6 +143,12 @@ exports.handler = async function handler(argv) {
     }
   }
 
+  let institutionName = institution.name;
+
+  if (institution.acronym) {
+    institutionName += ` (${institution.acronym})`;
+  }
+
   try {
     if (verbose) {
       console.log(`* Validate institution [${name}] from ${config.ezmesure.baseUrl}`);
@@ -146,36 +165,54 @@ exports.handler = async function handler(argv) {
 
     try {
       if (verbose) {
-        console.log(`* Create institution [${name}] space [${space}] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create space [${space}] from ${config.ezmesure.baseUrl}`);
       }
 
-      await spaces.create({
-        id: space,
-        name: space,
+      await kibana.spaces.create({
+        body: {
+          id: space,
+          name: institutionName,
+          description: `Espace ezPAARSE (id: ${space})`,
+        },
       });
       console.log(i18n.t('institutions.add.spaceCreated', { space }));
     } catch (err) {
-      console.error(`[${i18n.t('institutions.add.createSpace')}] ${formatApiError(err)}`);
+      const errorMsg = formatApiError(err, {
+        prefix: (err?.response?.status !== 409) || chalk.yellow('Warning: '),
+      });
+      console.error(`[${i18n.t('institutions.add.createSpace')}] ${errorMsg}`);
     }
 
     try {
       if (verbose) {
-        console.log(`* Create institution [${name}] index [${ezpaarseIndex}] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create index [${ezpaarseIndex}] from ${config.ezmesure.baseUrl}`);
       }
 
       await indices.create(ezpaarseIndex);
       console.log(i18n.t('institutions.add.indexCreated', { index: ezpaarseIndex }));
     } catch (err) {
-      console.error(`[${i18n.t('institutions.add.createIndex')}] ${formatApiError(err)}`);
+      const errorMsg = formatApiError(err, {
+        prefix: (err?.response?.status !== 409) || chalk.yellow('Warning: '),
+      });
+      console.error(`[${i18n.t('institutions.add.createIndex')}] ${errorMsg}`);
     }
 
     try {
       if (verbose) {
-        console.log(`* Create institution [${name}] index-pattern [${ezpaarseIndex}*] from ${config.ezmesure.baseUrl}`);
+        console.log(`* Create index-pattern [${ezpaarseIndex}*] from ${config.ezmesure.baseUrl}`);
       }
 
-      await spaces.addIndexPatterns(space, {
-        title: `${ezpaarseIndex}*`,
+      await kibana.indexPatterns.create({
+        space,
+        body: {
+          override: true,
+          index_pattern: {
+            title: `${ezpaarseIndex}*`,
+            fields: {
+              datetime: frenchDate('datetime'),
+            },
+          },
+        },
       });
       console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: `${ezpaarseIndex}*` }));
     } catch (err) {
@@ -191,13 +228,19 @@ exports.handler = async function handler(argv) {
         console.log(`* Create institution [${name}] space [${publisherSpaceName}] from ${config.ezmesure.baseUrl}`);
       }
 
-      await spaces.create({
-        id: publisherSpaceName,
-        name: publisherSpaceName,
+      await kibana.spaces.create({
+        body: {
+          id: publisherSpaceName,
+          name: institutionName,
+          description: `Espace éditeurs (id: ${publisherSpaceName})`,
+        },
       });
       console.log(i18n.t('institutions.add.spaceCreated', { space: publisherSpaceName }));
     } catch (err) {
-      console.error(`[${i18n.t('institutions.add.createSpace')}] ${formatApiError(err)}`);
+      const errorMsg = formatApiError(err, {
+        prefix: (err?.response?.status !== 409) || chalk.yellow('Warning: '),
+      });
+      console.error(`[${i18n.t('institutions.add.createSpace')}] ${errorMsg}`);
     }
 
     try {
@@ -208,7 +251,10 @@ exports.handler = async function handler(argv) {
       await indices.create(publisherIndex, { type: 'publisher' });
       console.log(i18n.t('institutions.add.indexCreated', { index: publisherIndex }));
     } catch (err) {
-      console.error(`[${i18n.t('institutions.add.createIndex')}] ${formatApiError(err)}`);
+      const errorMsg = formatApiError(err, {
+        prefix: (err?.response?.status !== 409) || chalk.yellow('Warning: '),
+      });
+      console.error(`[${i18n.t('institutions.add.createIndex')}] ${errorMsg}`);
     }
 
     try {
@@ -216,8 +262,18 @@ exports.handler = async function handler(argv) {
         console.log(`* Create institution [${name}] index-pattern [${publisherIndex}*] from ${config.ezmesure.baseUrl}`);
       }
 
-      await spaces.addIndexPatterns(publisherSpaceName, {
-        title: `${publisherIndex}*`,
+      await kibana.indexPatterns.create({
+        space: publisherSpaceName,
+        body: {
+          override: true,
+          index_pattern: {
+            title: `${publisherIndex}*`,
+            timeFieldName: 'X_Date_Month',
+            fields: {
+              X_Date_Month: frenchDate('X_Date_Month'),
+            },
+          },
+        },
       });
       console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: `${publisherIndex}*` }));
     } catch (err) {

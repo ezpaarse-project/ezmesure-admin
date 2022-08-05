@@ -5,7 +5,7 @@ const checkboxPlus = require('inquirer-checkbox-plus-prompt');
 inquirer.registerPrompt('checkbox-plus', checkboxPlus);
 inquirer.registerPrompt('autocomplete', autocomplete);
 
-exports.autocomplete = async ({ message, choices, custom }) => inquirer.prompt([{
+exports.autocomplete = ({ message, choices, custom }) => inquirer.prompt([{
   type: 'autocomplete',
   pageSize: 20,
   name: 'choice',
@@ -25,7 +25,7 @@ exports.autocomplete = async ({ message, choices, custom }) => inquirer.prompt([
   }),
 }]).then((answers) => answers?.choice);
 
-exports.selectMultiple = async ({ message, choices, default: defaultValue }) => inquirer.prompt([{
+exports.selectMultiple = ({ message, choices, default: defaultValue }) => inquirer.prompt([{
   type: 'checkbox-plus',
   pageSize: 20,
   name: 'choice',
@@ -40,10 +40,18 @@ exports.selectMultiple = async ({ message, choices, default: defaultValue }) => 
   }),
 }]).then((answers) => answers?.choice);
 
-exports.list = async ({ message, choices, default: defaultValue }) => inquirer.prompt([{
+exports.list = ({ message, choices, default: defaultValue }) => inquirer.prompt([{
   type: 'list',
   name: 'choice',
   message,
   choices,
   default: defaultValue || 0,
+}]).then((answers) => answers?.choice);
+
+exports.input = ({ message, default: defaultValue, validate }) => inquirer.prompt([{
+  type: 'input',
+  name: 'choice',
+  message,
+  validate,
+  default: defaultValue,
 }]).then((answers) => answers?.choice);
