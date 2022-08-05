@@ -906,5 +906,14 @@
 	},
 	"ping": {
 		"description": "Lets you know that both ezMESURE and ElasticSearch instances are available and that you are properly configured to use both instances"
+	},
+	"kibanaRequest": {
+		"description": "Make a request to the Kibana API through the ezMESURE API",
+		"options": {
+			"method": "The HTTP method to use",
+			"apiPath": "The Kibana API path",
+			"timeout": "Request timeout",
+			"data": "Request body"
+		}
 	}
 }
