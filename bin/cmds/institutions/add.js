@@ -263,7 +263,7 @@ exports.handler = async function handler(argv) {
       }
 
       await kibana.indexPatterns.create({
-        space,
+        space: publisherSpaceName,
         body: {
           override: true,
           index_pattern: {
