@@ -71,6 +71,27 @@ $ ezmesure-admin tasks list --help
 | -j, --json          | Flag    | Print result(s) in json |
 | -n, --ndjson        | Flag    | Print result(s) in ndjson |
 
+#### Examples:
+
+List the latest task of each SUSHI item.
+
+```bash
+$ eza tasks list --collapse params.sushiId
+```
+
+List tasks that have been delayed for a given harvest ID.
+
+```bash
+$ eza tasks list --harvestId some-id -u delayed
+```
+
+List failed tasks with their error logs (using JQ).
+
+```bash
+$ eza tasks list -u error --ndjson | jq '{ vendor: .params.endpointVendor, runningTime, createdAt, logs: .logs | map(select(.type | match("error|warning"))) | map(.type + ": " + .message) }'
+```
+
+
 ### cancel
 
 **Cancel a list of tasks based on a query**
