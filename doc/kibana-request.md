@@ -23,13 +23,13 @@ Get Kibana spaces
 $ ezmesure-admin kibana-request /api/spaces/space
 ```
 
-Create an index pattern `cnrs-ec-*` into the space `cnrs`.
+Create an index pattern `cnrs-ezpaarse-*` into the space `cnrs`.
 
 ```bash
 $ ezmesure-admin kibana-request -X POST /s/cnrs/api/index_patterns/index-pattern -d '
 {
   "index_pattern": {
-     "title": "cnrs-ec-*"
+     "title": "cnrs-ezpaarse-*"
   }
 }
 '

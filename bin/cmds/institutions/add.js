@@ -161,7 +161,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (ezpaarseSpace) {
-    const ezpaarseIndex = `${index}-ec`;
+    const ezpaarseIndex = `${index}-ezpaarse`;
 
     try {
       if (verbose) {
