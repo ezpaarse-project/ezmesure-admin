@@ -35,7 +35,7 @@ exports.builder = function builder(yargs) {
     })
     .option('correspondent', {
       describe: i18n.t('users.get.options.correspondent'),
-      type: 'string',
+      choices: ['all', 'tech', 'doc'],
     })
     .option('a', {
       alias: 'all',
@@ -106,36 +106,21 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  if (correspondent) {
-    if (correspondent === 'tech') {
-      usersData = usersData.filter((user) => {
-        if (user?.roles?.includes('tech_contact')) {
-          return user;
-        }
-      });
-    }
-    if (correspondent === 'doc') {
-      usersData = usersData.filter((user) => {
-        if (user?.roles?.includes('doc_contact')) {
-          return user;
-        }
-      });
-    }
-    if (correspondent === 'all') {
-      usersData = usersData.filter((user) => {
-        if (user?.roles?.includes('tech_contact') || user?.roles?.includes('doc_contact')) {
-          return user;
-        }
-      });
-    }
+  console.log(correspondent);
+
+  if (correspondent === 'tech') {
+    usersData = usersData.filter((user) => user?.roles?.includes('tech_contact'));
+  }
+  if (correspondent === 'doc') {
+    usersData = usersData.filter((user) => user?.roles?.includes('doc_contact'));
+  }
+  if (correspondent === 'all') {
+    usersData = usersData.filter((user) => user?.roles?.includes('tech_contact') || user?.roles?.includes('doc_contact'));
   }
 
   if (createdAt) {
-    usersData = usersData.filter((user) => {
-      if (new Date(user?.metadata?.createdAt).getTime() > new Date(createdAt).getTime()) {
-        return user;
-      }
-    });
+    usersData = usersData.filter((user) => new Date(user?.metadata?.createdAt).getTime()
+      > new Date(createdAt).getTime());
   }
 
   if (Array.isArray(filter) && filter.length > 0) {
