@@ -33,9 +33,9 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('users.get.options.size'),
       type: 'number',
     })
-    .option('only-correspondent', {
-      describe: i18n.t('users.get.options.onlyCorrespondent'),
-      boolean: true,
+    .option('correspondent', {
+      describe: i18n.t('users.get.options.correspondent'),
+      type: 'string',
     })
     .option('a', {
       alias: 'all',
@@ -56,6 +56,10 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('users.get.options.emailList'),
       type: 'boolean',
     })
+    .option('createdAt', {
+      describe: i18n.t('users.get.options.createdAt'),
+      type: 'string',
+    })
     .option('c', {
       alias: 'csv',
       describe: i18n.t('institutions.check.options.csv'),
@@ -66,10 +70,8 @@ exports.handler = async function handler(argv) {
   const { users } = argv;
   let { size } = argv;
 
-  const onlyCorrespondent = argv['only-correspondent'];
-
   const {
-    json, ndjson, csv, emailList, interactive, verbose, all, filter,
+    json, ndjson, csv, emailList, interactive, verbose, all, filter, createdAt, correspondent,
   } = argv;
 
   if (all) { size = 10000; }
@@ -104,9 +106,33 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  if (onlyCorrespondent) {
+  if (correspondent) {
+    if (correspondent === 'tech') {
+      usersData = usersData.filter((user) => {
+        if (user?.roles?.includes('tech_contact')) {
+          return user;
+        }
+      });
+    }
+    if (correspondent === 'doc') {
+      usersData = usersData.filter((user) => {
+        if (user?.roles?.includes('doc_contact')) {
+          return user;
+        }
+      });
+    }
+    if (correspondent === 'all') {
+      usersData = usersData.filter((user) => {
+        if (user?.roles?.includes('tech_contact') || user?.roles?.includes('doc_contact')) {
+          return user;
+        }
+      });
+    }
+  }
+
+  if (createdAt) {
     usersData = usersData.filter((user) => {
-      if (user?.roles?.includes('tech_contact') || user?.roles?.includes('doc_contact')) {
+      if (new Date(user?.metadata?.createdAt).getTime() > new Date(createdAt).getTime()) {
         return user;
       }
     });
