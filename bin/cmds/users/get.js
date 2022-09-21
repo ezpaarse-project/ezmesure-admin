@@ -106,8 +106,6 @@ exports.handler = async function handler(argv) {
     }
   }
 
-  console.log(correspondent);
-
   if (correspondent === 'tech') {
     usersData = usersData.filter((user) => user?.roles?.includes('tech_contact'));
   }
