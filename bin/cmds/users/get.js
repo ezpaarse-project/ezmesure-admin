@@ -56,8 +56,8 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('users.get.options.emailList'),
       type: 'boolean',
     })
-    .option('createdAt', {
-      describe: i18n.t('users.get.options.createdAt'),
+    .option('createdForm', {
+      describe: i18n.t('users.get.options.createdForm'),
       type: 'string',
     })
     .option('c', {
@@ -71,7 +71,7 @@ exports.handler = async function handler(argv) {
   let { size } = argv;
 
   const {
-    json, ndjson, csv, emailList, interactive, verbose, all, filter, createdAt, correspondent,
+    json, ndjson, csv, emailList, interactive, verbose, all, filter, createdForm, correspondent,
   } = argv;
 
   if (all) { size = 10000; }
@@ -116,9 +116,9 @@ exports.handler = async function handler(argv) {
     usersData = usersData.filter((user) => user?.roles?.includes('tech_contact') || user?.roles?.includes('doc_contact'));
   }
 
-  if (createdAt) {
-    usersData = usersData.filter((user) => new Date(user?.metadata?.createdAt).getTime()
-      > new Date(createdAt).getTime());
+  if (createdForm) {
+    usersData = usersData.filter((user) => new Date(user?.metadata?.createdForm).getTime()
+      > new Date(createdForm).getTime());
   }
 
   if (Array.isArray(filter) && filter.length > 0) {
