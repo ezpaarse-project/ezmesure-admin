@@ -60,11 +60,11 @@ $ ezmesure-admin dashboard export org-template -o ~/Documents/exports # with spa
 dashboard [default:dashboard:49aff500-9133-11eb-b738-8bb313f943aa] exported successfully
 ```
 
-### export
+### import
 
 #### Usage
 ```bash
-$ ezmesure-admin dashboard export --help
+$ ezmesure-admin dashboard import --help
 ```
 
 #### Options
@@ -84,3 +84,30 @@ Examples :
 ```bash
 $ ezmesure-admin dashboard import mySpace --index-pattern myIndex --files ~/Documents/exports
 ```
+
+### bulk-import
+
+Import a set of dashboards into a given list of spaces. If no space is provided, the command prompts the user for a suffix, and imports dashboards into all spaces that belong to an institution and match the given suffix. If no JSON files are provided, the commande fetches dashboards from the reference repository (ezmesure-templates), and lets the user choose from them.
+
+#### Usage
+```bash
+$ ezmesure-admin dashboard bulk-import --help
+```
+
+#### Options
+| Name | Type | Description |
+| --- | --- | --- |
+| -s, --spaces            | Array   | Space names, case sensitive. If not provided, will import in all institution spaces with a given suffix. |
+| --ignore-missing-spaces | Boolean | Ignore missing spaces |
+| --ignore-conflicts      | Boolean | Ignore object conflicts |
+| -o, --overwrite         | Boolean | Overwrite conflicts |
+| -f, --files             | Boolean | Files path. If not provided, will fetch dashboards from the remote reference repository. |
+
+
+Examples :
+
+```bash
+$ ezmesure-admin dashboard bulk-import --ignore-missing-spaces
+$ ezmesure-admin dashboard bulk-import --spaces foo-publisher,bar-publisher
+```
+
