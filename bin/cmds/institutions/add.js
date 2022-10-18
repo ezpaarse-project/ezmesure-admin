@@ -2,6 +2,8 @@ const { i18n } = global;
 
 const Joi = require('joi');
 const chalk = require('chalk');
+const fs = require('fs-extra');
+const path = require('path');
 
 const kibana = require('../../../lib/kibana');
 const indices = require('../../../lib/indices');
@@ -9,6 +11,9 @@ const institutions = require('../../../lib/institutions');
 const roles = require('../../../lib/roles');
 const { config } = require('../../../lib/app/config');
 const { formatApiError } = require('../../../lib/utils');
+
+const ezpaarseLogoPath = path.resolve(__dirname, '../../../assets/ezpaarse.png');
+const counterLogoPath = path.resolve(__dirname, '../../../assets/counter.png');
 
 function frenchDate(name) {
   return {
@@ -168,11 +173,14 @@ exports.handler = async function handler(argv) {
         console.log(`* Create space [${space}] from ${config.ezmesure.baseUrl}`);
       }
 
+      const logo = await fs.readFile(ezpaarseLogoPath, { encoding: 'base64' });
+
       await kibana.spaces.create({
         body: {
           id: space,
           name: institutionName,
           description: `Espace ezPAARSE (id: ${space})`,
+          imageUrl: `data:image/png;base64,${logo}`,
         },
       });
       console.log(i18n.t('institutions.add.spaceCreated', { space }));
@@ -228,11 +236,14 @@ exports.handler = async function handler(argv) {
         console.log(`* Create institution [${name}] space [${publisherSpaceName}] from ${config.ezmesure.baseUrl}`);
       }
 
+      const logo = await fs.readFile(counterLogoPath, { encoding: 'base64' });
+
       await kibana.spaces.create({
         body: {
           id: publisherSpaceName,
           name: institutionName,
           description: `Espace éditeurs (id: ${publisherSpaceName})`,
+          imageUrl: `data:image/png;base64,${logo}`,
         },
       });
       console.log(i18n.t('institutions.add.spaceCreated', { space: publisherSpaceName }));
