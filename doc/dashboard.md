@@ -87,7 +87,7 @@ $ ezmesure-admin dashboard import mySpace --index-pattern myIndex --files ~/Docu
 
 ### bulk-import
 
-Import a set of dashboards into a given list of spaces. If no space is provided, the command prompts the user for a suffix, and imports dashboards into all spaces that belong to an institution and match the given suffix. If no JSON files are provided, the commande fetches dashboards from the reference repository (ezmesure-templates), and lets the user choose from them.
+Import a set of dashboards into a given list of spaces. If no space is provided, the command prompts the user for a suffix, and imports dashboards into all spaces that belong to an institution and match the given suffix. If no JSON files are provided, the command fetches dashboards from the reference repository (ezmesure-templates), and lets the user choose from them.
 
 #### Usage
 ```bash
@@ -106,8 +106,15 @@ $ ezmesure-admin dashboard bulk-import --help
 
 Examples :
 
+To import dashboards from the reference repository into spaces of all institutions, and ignore spaces that does not exist, run :
+
 ```bash
 $ ezmesure-admin dashboard bulk-import --ignore-missing-spaces
+```
+
+To import dashboards from the reference repository into a given list of spaces, run :
+
+```bash
 $ ezmesure-admin dashboard bulk-import --spaces foo-publisher,bar-publisher
 ```
 
