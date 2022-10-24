@@ -1,6 +1,6 @@
 {
   "name": "@ezpaarse-project/ezmesure-admin",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Command line utilities to manage ezMESURE",
   "bin": {
     "ezmesure-admin": "./ezmesure-admin",
