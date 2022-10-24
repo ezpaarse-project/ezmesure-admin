@@ -29,7 +29,7 @@
   "license": "CeCILL",
   "dependencies": {
     "@elastic/elasticsearch": "^7.13.0",
-    "axios": "^0.21.1",
+    "axios": "^1.1.3",
     "chai": "^4.3.4",
     "chalk": "^4.1.1",
     "cli-progress": "^3.9.0",
