@@ -614,6 +614,7 @@
 			"indexCreated": "index [{{index}}] created",
 			"createIndex": "Create index",
 			"indexPatternCreated": "index-pattern [{{indexPattern}}] created",
+			"indexPatternSetAsDefault": "index-pattern [{{indexPattern}}] set as default",
 			"createIndexPattern": "Create index-pattern",
 			"roleCreated": "role [{{roleName}}] created or updated",
 			"createRole": "Create role"

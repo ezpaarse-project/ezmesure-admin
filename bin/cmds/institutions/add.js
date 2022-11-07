@@ -167,6 +167,7 @@ exports.handler = async function handler(argv) {
 
   if (ezpaarseSpace) {
     const ezpaarseIndex = `${index}-ezpaarse`;
+    const indexPattern = `${ezpaarseIndex}*`;
 
     try {
       if (verbose) {
@@ -210,19 +211,33 @@ exports.handler = async function handler(argv) {
         console.log(`* Create index-pattern [${ezpaarseIndex}*] from ${config.ezmesure.baseUrl}`);
       }
 
-      await kibana.indexPatterns.create({
+      const { data: createdPattern } = await kibana.indexPatterns.create({
         space,
         body: {
           override: true,
           index_pattern: {
-            title: `${ezpaarseIndex}*`,
+            title: indexPattern,
             fields: {
               datetime: frenchDate('datetime'),
             },
           },
         },
       });
-      console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: `${ezpaarseIndex}*` }));
+
+      const patternId = createdPattern?.index_pattern?.id;
+      console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern }));
+
+      if (verbose) { console.log(`* Setting index pattern [${patternId}] as default in space [${space}]`); }
+
+      await kibana.indexPatterns.setDefault({
+        space,
+        body: {
+          index_pattern_id: patternId,
+          force: true,
+        },
+      });
+
+      console.log(i18n.t('institutions.add.indexPatternSetAsDefault', { indexPattern }));
     } catch (err) {
       console.error(`[${i18n.t('institutions.add.createIndexPattern')}] ${formatApiError(err)}`);
     }
@@ -231,6 +246,8 @@ exports.handler = async function handler(argv) {
   if (publisherSpace) {
     const publisherSpaceName = `${space}-publisher`;
     const publisherIndex = `${index}-publisher`;
+    const indexPattern = `${publisherIndex}*`;
+
     try {
       if (verbose) {
         console.log(`* Create institution [${name}] space [${publisherSpaceName}] from ${config.ezmesure.baseUrl}`);
@@ -273,12 +290,12 @@ exports.handler = async function handler(argv) {
         console.log(`* Create institution [${name}] index-pattern [${publisherIndex}*] from ${config.ezmesure.baseUrl}`);
       }
 
-      await kibana.indexPatterns.create({
+      const { data: createdPattern } = await kibana.indexPatterns.create({
         space: publisherSpaceName,
         body: {
           override: true,
           index_pattern: {
-            title: `${publisherIndex}*`,
+            title: indexPattern,
             timeFieldName: 'X_Date_Month',
             fields: {
               X_Date_Month: frenchDate('X_Date_Month'),
@@ -286,7 +303,21 @@ exports.handler = async function handler(argv) {
           },
         },
       });
-      console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern: `${publisherIndex}*` }));
+
+      const patternId = createdPattern?.index_pattern?.id;
+      console.log(i18n.t('institutions.add.indexPatternCreated', { indexPattern }));
+
+      if (verbose) { console.log(`* Setting index pattern [${patternId}] as default in space [${space}]`); }
+
+      await kibana.indexPatterns.setDefault({
+        space: publisherSpaceName,
+        body: {
+          index_pattern_id: patternId,
+          force: true,
+        },
+      });
+
+      console.log(i18n.t('institutions.add.indexPatternSetAsDefault', { indexPattern }));
     } catch (err) {
       console.error(`[${i18n.t('institutions.add.createIndexPattern')}] ${formatApiError(err)}`);
     }
