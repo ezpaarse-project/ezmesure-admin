@@ -344,6 +344,7 @@ exports.handler = async function handler(argv) {
           discover: ['all'],
           visualize: ['all'],
           maps: ['all'],
+          indexPatterns: ['all'],
         },
       }] : undefined,
     });
