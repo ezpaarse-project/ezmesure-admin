@@ -179,7 +179,7 @@ exports.handler = async function handler(argv) {
       await kibana.spaces.create({
         body: {
           id: space,
-          name: institutionName,
+          name: `${institutionName} *ezpaarse*`,
           description: `Espace ezPAARSE (id: ${space})`,
           imageUrl: `data:image/png;base64,${logo}`,
         },
@@ -258,7 +258,7 @@ exports.handler = async function handler(argv) {
       await kibana.spaces.create({
         body: {
           id: publisherSpaceName,
-          name: institutionName,
+          name: `${institutionName} *éditeur*`,
           description: `Espace éditeurs (id: ${publisherSpaceName})`,
           imageUrl: `data:image/png;base64,${logo}`,
         },
