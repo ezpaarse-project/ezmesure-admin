@@ -355,6 +355,7 @@
 				"to": "End of the period to harvest",
 				"target": "Index where the data should be inserted",
 				"reportType": "The report type that should be harvested (tr, dr, pr, ir)",
+				"timeout": "Maximum task duration in seconds",
 				"noCache": "Download the report again, even if it's been already downloaded",
 				"interactive": "Interactive mode"
 			},

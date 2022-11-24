@@ -94,6 +94,10 @@ exports.builder = function builder(yargs) {
     .option('no-cache', {
       describe: i18n.t('sushi.harvest.options.noCache'),
       type: 'boolean',
+    })
+    .option('timeout', {
+      describe: i18n.t('sushi.harvest.options.timeout'),
+      type: 'number',
     });
 };
 exports.handler = async function handler(argv) {
@@ -105,6 +109,7 @@ exports.handler = async function handler(argv) {
     verbose,
     allowFaulty,
     ignoreValidation,
+    timeout,
     $0: scriptName,
   } = argv;
 
@@ -295,6 +300,7 @@ exports.handler = async function handler(argv) {
         harvestId,
         reportType,
         ignoreValidation,
+        timeout,
       });
       task = data;
     } catch (e) {
