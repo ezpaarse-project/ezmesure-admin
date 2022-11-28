@@ -152,7 +152,6 @@
 		"cancel": {
 			"description": "Cancel tasks",
 			"options": {
-				"force": "Try to cancel tasks that are not in waiting status",
 				"id": "Filter tasks by ID (comma-separated list)",
 				"harvestId": "Filter tasks by harvest ID (comma-separated list)",
 				"status": "Filter tasks by status (comma-separated list)",

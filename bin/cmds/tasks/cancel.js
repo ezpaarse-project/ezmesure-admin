@@ -19,11 +19,6 @@ exports.command = 'cancel';
 exports.desc = i18n.t('tasks.cancel.description');
 exports.builder = function builder(yargs) {
   return yargs
-    .option('f', {
-      alias: 'force',
-      describe: i18n.t('tasks.cancel.options.force'),
-      type: 'boolean',
-    })
     .option('u', {
       alias: 'status',
       describe: i18n.t('tasks.cancel.options.status'),
@@ -108,17 +103,15 @@ exports.handler = async function handler(argv) {
     let error;
     let updatedTask;
 
-    if (argv.force || task?.status === 'waiting') {
-      try {
-        ({ data: updatedTask } = await tasksLib.cancel(task.id));
+    try {
+      ({ data: updatedTask } = await tasksLib.cancel(task.id));
 
-        if (updatedTask?.status === 'cancelled' && (updatedTask?.status !== task?.status)) {
-          nbCancelled += 1;
-        }
-      } catch (e) {
-        nbFailed += 1;
-        error = e;
+      if (updatedTask?.status === 'cancelled' && (updatedTask?.status !== task?.status)) {
+        nbCancelled += 1;
       }
+    } catch (e) {
+      nbFailed += 1;
+      error = e;
     }
 
     results.push({ task: (updatedTask || task), error });
