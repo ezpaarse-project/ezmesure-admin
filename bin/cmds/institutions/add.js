@@ -217,6 +217,7 @@ exports.handler = async function handler(argv) {
           override: true,
           index_pattern: {
             title: indexPattern,
+            timeFieldName: 'datetime',
             fields: {
               datetime: frenchDate('datetime'),
             },
