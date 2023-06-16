@@ -556,6 +556,22 @@
 			"notFound": "task [{{taskId}}] not found"
 		}
 	},
+	"transfer": {
+		"description": "Transfer data from one ezMESURE instance to another",
+		"options": {
+			"to": "URL to the destination ezMESURE API",
+			"overwrite": "Overwrite conflicts",
+			"bulkSize": "Number of items that should be imported at once",
+			"insecure": "Skip TLS certificates verification"
+		},
+		"authenticating": "Authenticating to {{url}}",
+		"itemCreated": "[Imported][{{type}}] {{name}}",
+		"itemConflict": "[Conflict][{{type}}] {{name}}",
+		"itemError": "[Error][{{type}}][{{name}}] {{message}}",
+		"nbImported": "{{n}} imported",
+		"nbConflicts": "{{n}} conflicts",
+		"nbErrors": "{{n}} errors"
+	},
 	"institution": {
 		"notFound": "Institution [{{id}}] not found"
 	},
