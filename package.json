@@ -9,7 +9,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest --verbose --runInBand ./tests",
+    "test": "export NODE_TLS_REJECT_UNAUTHORIZED=0; export NODE_NO_WARNINGS=1; export NODE_ENV=test; cross-env NODE_NO_WARNINGS=1 jest --verbose --runInBand",
     "lint": "eslint --ext .js .",
     "prepare": "husky install"
   },
@@ -49,6 +49,7 @@
     "papaparse": "^5.3.1",
     "table": "^6.7.1",
     "uuid": "^8.3.2",
+    "winston": "^3.10.0",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
@@ -58,6 +59,6 @@
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-jest": "^24.4.0",
     "husky": "^6.0.0",
-    "jest": "^27.0.6"
+    "jest": "^29.6.1"
   }
 }

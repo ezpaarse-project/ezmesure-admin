@@ -3,10 +3,10 @@ const { i18n } = global;
 const { table } = require('table');
 const chalk = require('chalk');
 
+const logger = require('../../../lib/logger');
+
 const institutionsLib = require('../../../lib/institutions');
-const { config } = require('../../../lib/app/config');
 const itMode = require('./interactive/get');
-const { formatApiError } = require('../../../lib/utils');
 
 exports.command = 'get [institutions...]';
 exports.desc = i18n.t('institutions.get.description');
@@ -20,16 +20,6 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('institutions.get.options.interactive'),
       boolean: true,
     })
-    .option('a', {
-      alias: 'all',
-      describe: i18n.t('institutions.get.options.all'),
-      type: 'boolean',
-    })
-    .option('j', {
-      alias: 'json',
-      describe: i18n.t('institutions.get.options.json'),
-      type: 'boolean',
-    })
     .option('no-validated', {
       describe: i18n.t('institutions.get.options.noValidated'),
       type: 'boolean',
@@ -38,34 +28,42 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('institutions.get.options.noContact'),
       type: 'boolean',
     })
+    .option('j', {
+      alias: 'json',
+      describe: i18n.t('institutions.get.options.json'),
+      type: 'boolean',
+    })
     .option('n', {
       alias: 'ndjson',
       describe: i18n.t('institutions.get.options.ndjson'),
+      type: 'boolean',
+    })
+    .option('v', {
+      alias: 'verbose',
+      describe: i18n.t('institutions.get.options.verbose'),
       type: 'boolean',
     });
 };
 exports.handler = async function handler(argv) {
   const {
     institutions,
-    all,
     json,
     validated,
     contact,
     ndjson,
-    verbose,
     interactive,
+    verbose,
   } = argv;
-
-  if (verbose) {
-    console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
-  }
 
   let institutionsData;
   try {
-    const { data } = await institutionsLib.getAll();
+    const { data } = await institutionsLib.getAll({ include: 'memberships' });
+    if (verbose) {
+      logger.info('[institution]: get all institution');
+    }
     institutionsData = data;
   } catch (error) {
-    console.error(formatApiError(error));
+    logger.error(`[institution]: Cannot get all institution - ${error.response.status}`);
     process.exit(1);
   }
 
@@ -73,7 +71,9 @@ exports.handler = async function handler(argv) {
     try {
       institutionsData = await itMode(institutionsData);
     } catch (error) {
-      console.error(error);
+      logger.error('[interactive]: error in interactive mode');
+      logger.error(error);
+      process.exit(1);
     }
   }
 
@@ -89,36 +89,31 @@ exports.handler = async function handler(argv) {
   }
 
   if (!institutionsData) {
-    console.error(i18n.t('institutions.institutionsNotFound'));
+    logger.info('[institutions]: Cannot found institutions');
     process.exit(0);
   }
 
-  if (institutions.length && !all) {
+  if (institutions.length) {
     institutionsData = institutionsData
       .filter(({ id, name }) => institutions.includes(name) || institutions.includes(id));
     if (!institutionsData.length) {
-      console.log(i18n.t('institutions.institutionsNamesNotFound', { institutions: institutions.join(', ') }));
-      process.exit(0);
+      logger.info(`[institutions]: Cannot found institution [${institutions.join(', ')}]`);
+      process.exit(1);
     }
   }
 
   if (ndjson) {
-    if (verbose) {
-      console.log('* Export in ndjson format');
-    }
-
     institutionsData.forEach((data) => console.log(JSON.stringify(data)));
     process.exit(0);
   }
 
   if (json) {
-    if (verbose) {
-      console.log('* Export in json format');
-    }
-
     console.log(JSON.stringify(institutionsData, null, 2));
     process.exit(0);
   }
+
+  const red = chalk.hex('#e55039').bold;
+  const green = chalk.hex('#78e08f').bold;
 
   const header = [
     i18n.t('institutions.name'),
@@ -127,35 +122,28 @@ exports.handler = async function handler(argv) {
     i18n.t('institutions.domains'),
     i18n.t('institutions.auto'),
     i18n.t('institutions.validate'),
-    i18n.t('institutions.indexPrefix'),
-    i18n.t('institutions.role'),
     i18n.t('institutions.contact'),
   ];
 
-  if (verbose) {
-    console.log('* Display institutions in graphical form in a table');
-  }
+  const getContactsOfInstitution = (institution, role) => {
+    const contacts = institution.memberships
+      .filter((membership) => membership.roles.includes(role));
+    const usernames = contacts.map((c) => c.username);
+    return usernames;
+  };
 
-  const red = chalk.hex('#e55039').bold;
-  const green = chalk.hex('#78e08f').bold;
-
-  const row = institutionsData.map(({
-    name, city, website, domains, auto, validate,
-    indexPrefix, role, docContactName, techContactName,
-  }) => ([
-    name,
-    city || '',
-    website || '',
-    (domains && domains.join(', ')) || '',
+  const row = institutionsData.map((institution) => ([
+    institution.name,
+    institution.city || '',
+    institution.website || '',
+    (institution.domains && institution.domains.join(', ')) || '',
     [
-      (auto.ezpaarse ? green : red)('ezPAARSE'),
-      (auto.ezmesure ? green : red)('ezMESURE'),
-      (auto.report ? green : red)('reporting'),
+      (institution.auto?.ezpaarse ? green : red)('ezPAARSE'),
+      (institution.auto?.ezmesure ? green : red)('ezMESURE'),
+      (institution.auto?.report ? green : red)('reporting'),
     ].join('\n'),
-    validate ? green(i18n.t('institutions.get.validated')) : red(i18n.t('institutions.get.notValidated')),
-    indexPrefix || '',
-    role || '',
-    [`${i18n.t('institutions.get.doc')} : ${docContactName || red('n/a')}`, `${i18n.t('institutions.get.tech')} : ${techContactName || red('n/a')}`].join('\n'),
+    institution.validate ? green(i18n.t('institutions.get.validated')) : red(i18n.t('institutions.get.notValidated')),
+    [`${i18n.t('institutions.get.doc')} : ${getContactsOfInstitution(institution, 'contact:doc') || red('n/a')}`, `${i18n.t('institutions.get.tech')} : ${getContactsOfInstitution(institution, 'contact:tech') || red('n/a')}`].join('\n'),
   ]));
 
   console.log(table([header, ...row]));

@@ -7,10 +7,11 @@ const set = require('lodash.set');
 const get = require('lodash.get');
 const stream = require('stream');
 
+const logger = require('../../lib/logger');
+
 const ezmesure = require('../../lib/app/ezmesure');
 const scopes = require('../../lib/app/config').getScopes();
 const kibana = require('../../lib/app/kibana');
-const { formatApiError } = require('../../lib/utils');
 
 exports.command = 'login';
 exports.desc = i18n.t('login.description');
@@ -37,10 +38,6 @@ exports.handler = async function handler(argv) {
   } = argv;
 
   const credentials = { username, password };
-
-  if (password) {
-    console.log(i18n.t('login.warning'));
-  }
 
   if (!username) {
     const { user } = await inquirer.prompt([
@@ -79,29 +76,23 @@ exports.handler = async function handler(argv) {
   }
 
   if (kibana.reservedUsers.includes(credentials.username)) {
-    console.error(`You cannot authenticate with a reserved user [${credentials.username}]`);
+    logger.error(`You cannot authenticate with a reserved user [${credentials.username}]`);
     process.exit(1);
-  }
-
-  if (verbose) {
-    console.log(`* Login from ${config?.ezmesure?.baseUrl}`);
   }
 
   let res;
   try {
     res = await ezmesure.post('/login/local', credentials);
+    if (verbose) {
+      logger.info('[login]: loggin succefully');
+    }
   } catch (error) {
-    console.error(formatApiError(error));
-    console.error(i18n.t('login.loginFailed', { username: credentials.username }));
+    logger.error(`[login]: Cannot login - ${error.response.status}`);
     process.exit(1);
   }
 
-  if (verbose) {
-    console.log('* API token recovery');
-  }
-
   if (!get(res.headers, 'set-cookie')) {
-    console.error('ezMESURE Token not found');
+    logger.error('[login]: Cannot get ezMESURE token');
     process.exit(1);
   }
 
@@ -109,26 +100,17 @@ exports.handler = async function handler(argv) {
   if (match && match[1]) {
     set(config, 'ezmesure.token', match[1]);
 
-    if (verbose) {
-      console.log('* API token recovered');
-    }
-
     try {
-      if (verbose) {
-        console.log('* Saving the API token');
-      }
-
       await fs.ensureFile(scope.location);
       await fs.writeFile(scope.location, JSON.stringify(config, null, 2));
-    } catch (error) {
       if (verbose) {
-        console.log('* Failed to save the API token');
+        logger.info('[login]: API token saved');
       }
-
-      console.error(error);
+    } catch (error) {
+      logger.error('[login]: Cannot save API token');
       process.exit(1);
     }
 
-    console.log(i18n.t('login.loggedIn', { username: credentials.username }));
+    logger.info(`[login]: [${credentials.username}] logged in succefully`);
   }
 };
