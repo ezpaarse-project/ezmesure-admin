@@ -3,9 +3,9 @@ const { i18n } = global;
 const fs = require('fs-extra');
 const path = require('path');
 
+const logger = require('../../../lib/logger');
 const dashboards = require('../../../lib/dashboards');
 const { config } = require('../../../lib/app/config');
-const { formatApiError } = require('../../../lib/utils');
 const itMode = require('./interactive/import');
 
 exports.command = 'import [space]';
@@ -15,11 +15,6 @@ exports.builder = function builder(yargs) {
     describe: i18n.t('dashboard.import.options.space'),
     type: 'string',
   })
-    .option('i', {
-      alias: 'index-pattern',
-      type: 'string',
-      describe: i18n.t('dashboard.import.options.indexPattern'),
-    })
     .option('o', {
       alias: 'overwrite',
       type: 'boolean',
@@ -39,13 +34,17 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    files, overwrite, indexPattern, interactive, verbose,
+    files, overwrite, interactive, verbose,
   } = argv;
 
   let { space } = argv;
 
+  if (verbose) { logger.setLevel('verbose'); }
+
+  logger.verbose(`Host: ${config.ezmesure.baseUrl}`);
+
   if (!files) {
-    console.log(i18n.t('dashboard.import.noFiles'));
+    logger.error(i18n.t('dashboard.import.noFiles'));
     process.exit(1);
   }
 
@@ -59,52 +58,47 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < files.length; i += 1) {
     const filePath = path.resolve(files[i]);
 
-    if (verbose) {
-      console.log(`* Read dashboard file from ${filePath}`);
-    }
+    logger.verbose(`Read dashboard file from ${filePath}`);
 
     let content;
     try {
       content = await fs.readFile(filePath, 'utf8');
-    } catch (err) {
-      console.error(err);
-      console.error(i18n.t('dashboard.import.cannotRead', { file: files[i] }), err);
+    } catch (error) {
+      logger.error(`Cannot read file [${filePath}] ${error?.message}`);
+      process.exit(1);
     }
 
     if (content) {
       let dashboard;
+      logger.verbose(`Parse dashboard from [${filePath}]`);
       try {
-        if (verbose) {
-          console.log(`* Parse dashboard data from ${filePath}`);
-        }
-
         dashboard = JSON.parse(content);
-      } catch (e) {
-        console.error(i18n.t('dashboard.import.cannotParse', { file: files[i] }), e);
+      } catch (error) {
+        logger.error(`Cannot parse dashboard from [${filePath}]`);
+        process.exit(1);
       }
 
       if (dashboard) {
         const dshData = dashboard.objects.filter(({ type }) => type === 'dashboard');
         const title = dshData?.pop().attributes?.title;
 
-        if (verbose) {
-          console.log(`* Import dashboard [${title}] into space [${space}] with index-pattern [${indexPattern}] from ${config.ezmesure.baseUrl}`);
-        }
+        logger.verbose(`Import dashboard [${title}] into space [${space}]`);
 
         try {
           await dashboards.import({
             space,
             dashboard,
-            indexPattern,
             force: overwrite,
           });
-
-          console.log(i18n.t('dashboard.import.imported', { title }));
         } catch (error) {
-          console.error(formatApiError(error));
+          logger.error(`Cannot import dashboard [${filePath}] - ${error?.response?.status}`);
           process.exit(1);
         }
+        logger.info(i18n.t('dashboard.import.imported', { title }));
       }
+    } else {
+      logger.error(`No dashboard from [${filePath}]`);
+      process.exit(1);
     }
   }
 };

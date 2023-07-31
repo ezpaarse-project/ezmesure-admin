@@ -104,7 +104,7 @@ $ ezmesure-admin tasks cancel --help
 #### Options
 | Name | Type | Description |
 | --- | --- | --- |
-| --force             | Flag   | Try to cancel tasks that are not in waiting status |
+| --force             | Flag   | Cancel tasks that are not in waiting status |
 | -u, --status        | String | Filter tasks by status (comma-separated list) |
 | -t, --type          | String | Filter tasks by type (comma-separated list) |
 | --id                | String | Filter tasks by ID (comma-separated list) |

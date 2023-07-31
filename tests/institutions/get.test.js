@@ -17,7 +17,7 @@ describe('[institutions]: Test get features', () => {
     await login();
   });
 
-  describe('#1 eza institution get', () => {
+  describe('eza institution get', () => {
     let institutionId;
 
     beforeAll(async () => {
@@ -58,7 +58,7 @@ describe('[institutions]: Test get features', () => {
     });
   });
 
-  describe('#2 eza institution get <Institution name>', () => {
+  describe('eza institution get <Institution name>', () => {
     let institutionId;
 
     beforeAll(async () => {

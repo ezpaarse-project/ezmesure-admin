@@ -17,13 +17,13 @@ describe('[institutions]: Test add features', () => {
     await login();
   });
 
-  describe('#1 eza institution add', () => {
+  describe('eza institution add', () => {
     let institutionId;
 
     it('Should add institutions', () => {
       const res = exec(commandFile, ['institutions', 'add', institutionTest.name]).toString();
 
-      const testMessage = res.includes(`institution [${institutionTest.name}] created`);
+      const testMessage = res.includes(`Institution [${institutionTest.name}] is created`);
       expect(testMessage).toBe(true);
     });
 

@@ -4,6 +4,7 @@ const { table } = require('table');
 const chalk = require('chalk');
 
 const logger = require('../../../lib/logger');
+const { config } = require('../../../lib/app/config');
 
 const institutionsLib = require('../../../lib/institutions');
 const itMode = require('./interactive/get');
@@ -55,15 +56,17 @@ exports.handler = async function handler(argv) {
     verbose,
   } = argv;
 
+  if (verbose) { logger.setLevel('verbose'); }
+
+  logger.verbose(`Host: ${config.ezmesure.baseUrl}`);
+
   let institutionsData;
+  logger.verbose('Get all institutions');
   try {
     const { data } = await institutionsLib.getAll({ include: 'memberships' });
-    if (verbose) {
-      logger.info('[institution]: get all institution');
-    }
     institutionsData = data;
   } catch (error) {
-    logger.error(`[institution]: Cannot get all institution - ${error.response.status}`);
+    logger.error(`Cannot get all institutions - ${error.response.status}`);
     process.exit(1);
   }
 
@@ -71,17 +74,18 @@ exports.handler = async function handler(argv) {
     try {
       institutionsData = await itMode(institutionsData);
     } catch (error) {
-      logger.error('[interactive]: error in interactive mode');
-      logger.error(error);
+      logger.error('Error in interactive mode');
       process.exit(1);
     }
   }
 
   if (typeof validated === 'boolean') {
+    logger.verbose('Filter validated institutions');
     institutionsData = institutionsData.filter((e) => e.validated === validated);
   }
 
   if (typeof contact === 'boolean') {
+    logger.verbose('Filter institution without contact');
     institutionsData = institutionsData.filter((e) => {
       const hasContact = e.docContactName || e.techContactName;
       return contact ? hasContact : !hasContact;
@@ -103,11 +107,13 @@ exports.handler = async function handler(argv) {
   }
 
   if (ndjson) {
+    logger.verbose('Return ndjson');
     institutionsData.forEach((data) => console.log(JSON.stringify(data)));
     process.exit(0);
   }
 
   if (json) {
+    logger.verbose('Return json');
     console.log(JSON.stringify(institutionsData, null, 2));
     process.exit(0);
   }

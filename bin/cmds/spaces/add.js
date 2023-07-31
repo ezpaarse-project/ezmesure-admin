@@ -1,104 +1,73 @@
 const { i18n } = global;
 
-const Joi = require('joi');
+const logger = require('../../../lib/logger');
+const { config } = require('../../../lib/app/config');
 
 const spaces = require('../../../lib/spaces');
 const itMode = require('./interactive/add');
-const kibana = require('../../../lib/app/kibana');
-const { formatApiError } = require('../../../lib/utils');
 
-exports.command = 'add <name>';
+exports.command = 'add <id> <institutionId> <type> <description> <initials>';
 exports.desc = i18n.t('spaces.add.description');
 exports.builder = function builder(yargs) {
-  return yargs.positional('name', {
-    describe: i18n.t('spaces.add.options.name'),
-    type: 'string',
-  })
-    .option('c', {
-      alias: 'color',
-      type: 'string',
-      describe: i18n.t('spaces.add.options.color'),
-    })
-    .option('d', {
-      alias: 'description',
-      type: 'string',
-      describe: i18n.t('spaces.add.options.description'),
-    })
-    .option('i', {
-      alias: 'initials',
-      type: 'string',
-      describe: i18n.t('spaces.add.options.initials'),
+  return yargs
+    .option('n', {
+      alias: 'name',
+      type: 'boolean',
+      describe: i18n.t('spaces.add.options.name'),
     })
     .option('it', {
       alias: 'interactive',
       type: 'boolean',
       describe: i18n.t('spaces.add.options.interactive'),
-    })
-    .option('f', {
-      alias: 'features',
-      type: 'string',
-      describe: i18n.t('spaces.add.options.features'),
     });
 };
 exports.handler = async function handler(argv) {
+  let { name } = argv;
   const {
-    name,
-    color,
+    id,
+    institutionId,
+    type,
     description,
     initials,
     interactive,
-    features,
     verbose,
   } = argv;
 
-  if (verbose) {
-    console.log(`* Validating fields that describe the space [${name}]`);
-  }
+  if (verbose) { logger.setLevel('verbose'); }
 
-  const schema = Joi.object({
-    id: Joi.string().trim(),
-    name: Joi.string().trim().required(),
-    color: Joi.string().trim(),
-    description: Joi.string().trim(),
-    initials: Joi.string().trim(),
-  });
+  logger.verbose(`Host: ${config.ezmesure.baseUrl}`);
 
-  const { error } = schema.validate({
-    name, color, description, initials,
-  });
+  logger.verbose(`Validating fields that describe the space [${name}]`);
 
-  if (error) {
-    console.error(error.message);
-    process.exit(1);
+  if (!name) {
+    name = id;
   }
 
   const space = {
-    id: name.toLowerCase(),
+    id,
+    institutionId,
+    type,
     name,
-    color,
-    description: description || 'homepage',
+    description,
     initials,
-    disabledFeatures: features && kibana.features.filter((feature) => !features.includes(feature)),
   };
 
   if (interactive) {
-    const { spaceDescr, spaceInitials, spaceColor } = await itMode();
+    logger.verbose('Interactive Mode');
+    const { spaceDescr, spaceInitials } = await itMode();
 
     space.description = spaceDescr;
     space.initials = spaceInitials;
-    space.color = spaceColor;
   }
 
-  if (verbose) {
-    console.log(`* Creation of space [${name}]`);
-  }
+  logger.verbose(`Create space [${name}]`);
 
   try {
     await spaces.create(space);
   } catch (err) {
-    console.error(formatApiError(err));
+    logger.error(`Cannot create space [id: ${space?.id}, institutionId: ${space?.institutionId}, type: ${space?.type}, name: ${space?.name}, description: ${space?.description}, initials: ${space?.initials}] - ${err?.response?.status}`);
     process.exit(1);
   }
 
-  console.log(i18n.t('spaces.add.created', { space: space.name }));
+  logger.info(i18n.t('spaces.add.created', { space: space.name }));
 };
