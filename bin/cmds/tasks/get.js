@@ -69,7 +69,7 @@ exports.handler = async function handler(argv) {
 
   displayer.print(tasks, {
     headerTranslateKey: (field) => `fields.task['${field}']`,
-    defaultFields: ['id', 'type', 'status', 'runningTime', 'createdAt'],
+    defaultFields: ['id', 'credentials.endpoint.vendor', 'beginDate', 'status', 'runningTime', 'createdAt'],
     formats: taskFields.format,
   });
 };
