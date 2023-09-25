@@ -1,9 +1,11 @@
 const { i18n } = global;
 
 const { table } = require('table');
+const get = require('lodash.get');
 
 const { config } = require('../../../lib/app/config');
 const institutionsLib = require('../../../lib/institutions');
+const sushiLib = require('../../../lib/sushi');
 const { formatApiError } = require('../../../lib/utils');
 const itMode = require('./interactive/info');
 
@@ -16,6 +18,16 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('sushi.list.options.json'),
       type: 'boolean',
     })
+    .option('q', {
+      alias: 'query',
+      describe: i18n.t('sushi.list.options.query'),
+      type: 'string',
+    })
+    .option('s', {
+      alias: 'sort',
+      describe: i18n.t('sushi.list.options.sort'),
+      type: 'string',
+    })
     .option('n', {
       alias: 'ndjson',
       describe: i18n.t('sushi.list.options.ndjson'),
@@ -25,6 +37,16 @@ exports.builder = function builder(yargs) {
       alias: 'interactive',
       describe: i18n.t('sushi.list.options.interactive'),
       type: 'boolean',
+    })
+    .option('size', {
+      describe: i18n.t('sushi.list.options.size'),
+      type: 'number',
+      default: 100,
+    })
+    .option('page', {
+      describe: i18n.t('sushi.list.options.page'),
+      type: 'number',
+      default: 1,
     })
     .option('a', {
       alias: 'all',
@@ -42,15 +64,20 @@ exports.handler = async function handler(argv) {
     json,
     ndjson,
     verbose,
-    institutionIds,
+    query,
+    sort,
+    size,
+    page,
+    all,
   } = argv;
+
+  let { institutionIds } = argv;
 
   const availableFields = [
     'id',
-    'institution',
-    'package',
-    'vendor',
-    'endpoint',
+    'institution.name',
+    'endpoint.vendor',
+    'tags',
     'customerId',
     'requestorId',
     'apiKey',
@@ -73,77 +100,53 @@ exports.handler = async function handler(argv) {
   if (fields.length === 0) {
     fields = [
       'id',
-      'institution',
-      'vendor',
-      'package',
+      'institution.name',
+      'endpoint.vendor',
+      'tags',
     ];
   }
 
-  if (verbose) {
-    console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
-  }
-
-  let institutions;
-  try {
-    const { data } = await institutionsLib.getAll();
-    if (data) { institutions = data; }
-  } catch (error) {
-    console.error(formatApiError(error));
-    process.exit(1);
-  }
-
-  if (!Array.isArray(institutions) || institutions.length === 0) {
-    console.log(i18n.t('institutions.institutionsNotFound'));
-    process.exit(0);
-  }
-
-  if (Array.isArray(institutionIds) && institutionIds?.length > 0) {
-    institutions = institutions
-      .filter(({ id, name }) => institutionIds.includes(name) || institutionIds.includes(id));
-  }
-
   if (!institutionIds?.length && argv.interactive) {
-    const { institutionsSelected } = await itMode.selectInstitutions(institutions);
+    if (verbose) {
+      console.log(`* Retrieving institutions from ${config.ezmesure.baseUrl}`);
+    }
 
-    institutions = institutions.filter(({ id }) => institutionsSelected.includes(id));
+    let institutions;
+    try {
+      const { data } = await institutionsLib.getAll();
+      if (data) { institutions = data; }
+    } catch (error) {
+      console.error(formatApiError(error));
+      process.exit(1);
+    }
+
+    if (!Array.isArray(institutions) || institutions.length === 0) {
+      console.log(i18n.t('institutions.institutionsNotFound'));
+      process.exit(0);
+    }
+
+    ({ institutionsSelected: institutionIds } = await itMode.selectInstitutions(institutions));
   }
-
-  const institutionsSelected = institutions;
 
   let sushiData = [];
 
-  for (let i = 0; i < institutionsSelected.length; i += 1) {
-    const { name: institutionName } = institutionsSelected[i];
-
-    if (verbose) {
-      console.log(`* Retrieving SUSHI information for institution [${institutionName}] from ${config.ezmesure.baseUrl}`);
-    }
-
-    try {
-      const { data } = await institutionsLib.getSushi(
-        institutionsSelected[i].id,
-        { connection: argv.connection },
-      );
-      sushiData.push({
-        institution: institutionName,
-        sushi: data,
-      });
-    } catch (err) {
-      console.error(formatApiError(err));
-      process.exit(1);
-    }
-  }
-
-  if (!argv.all) {
-    sushiData = sushiData.filter((x) => x.sushi.length);
+  try {
+    const { data } = await sushiLib.getAll({
+      institutionId: institutionIds,
+      include: ['institution', 'endpoint'],
+      q: query,
+      sort,
+      size: all ? undefined : size,
+      page,
+    });
+    sushiData = data;
+  } catch (err) {
+    console.error(formatApiError(err));
+    process.exit(1);
   }
 
   if (ndjson) {
-    sushiData.forEach(({ institution, sushi }) => {
-      sushi.forEach((item) => console.log(
-        JSON.stringify({ ...item, institution }),
-      ));
-    });
+    sushiData.forEach((sushi) => console.log(JSON.stringify(sushi)));
     process.exit(0);
   }
 
@@ -153,11 +156,7 @@ exports.handler = async function handler(argv) {
   }
 
   const header = fields.map((field) => i18n.t(`sushi.list.fields.${field}`));
-
-  const lines = sushiData
-    .sort((a, b) => (a?.sushi?.length < b?.sushi?.length ? 1 : -1))
-    .flatMap(({ institution, sushi }) => sushi.map((s) => ({ institution, ...s })))
-    .map((sushi) => fields.map((field) => (sushi[field] || '')));
+  const lines = sushiData.map((sushi) => fields.map((field) => (get(sushi, field, ''))));
 
   console.log(table([header, ...lines]));
 };

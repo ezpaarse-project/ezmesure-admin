@@ -320,7 +320,11 @@
 		"list": {
 			"description": "List SUSHI credentials of institution",
 			"options": {
+				"size": "Maximum number of SUSHI items to fetch",
+				"page": "The page to fetch",
+				"sort": "Sort results by a specific field",
 				"all": "List all",
+				"query": "A string used to filter by institution or endpoint name",
 				"json": "Print result(s) in json",
 				"ndjson": "Print result(s) in ndjson",
 				"interactive": "Interactive mode",
@@ -328,10 +332,9 @@
 			},
 			"fields": {
 				"id": "SUSHI ID",
-				"institution": "Institution",
-				"package": "Package",
-				"vendor": "Vendor",
-				"endpoint": "Endpoint",
+				"institution": { "name": "Institution" },
+				"endpoint": { "vendor": "Endpoint" },
+				"tags": "Tags",
 				"customerId": "Customer ID",
 				"requestorId": "Requestor ID",
 				"apiKey": "API key",
