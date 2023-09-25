@@ -375,6 +375,7 @@
 			"xTasksCreated": "{{n}} harvest task(s) created",
 			"runFollowingCommand": "Run the following command in order to follow the created tasks:",
 			"sushiId": "SUSHI ID",
+			"endpoint": "Endpoint",
 			"taskId": "Task ID",
 			"status": "Status",
 			"message": "Message"

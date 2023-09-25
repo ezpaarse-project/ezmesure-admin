@@ -284,7 +284,7 @@ exports.handler = async function handler(argv) {
   for (let i = 0; i < sushiItems.length; i += 1) {
     const sushiItem = sushiItems[i];
     const sushiId = sushiItem?.id;
-    let task;
+    let tasks;
     let error;
 
     if (verbose) {
@@ -302,12 +302,16 @@ exports.handler = async function handler(argv) {
         ignoreValidation,
         timeout,
       });
-      task = data;
+      tasks = data;
     } catch (e) {
       error = formatApiError(e, { prefix: false, colorize: false });
     }
 
-    results.push({ sushiId, task, error });
+    if (Array.isArray(tasks)) {
+      results.push(...tasks.map((task) => ({ sushiId, task, error })));
+    } else {
+      results.push({ sushiId, tasks, error });
+    }
   }
 
   if (argv.ndjson) {
@@ -321,6 +325,7 @@ exports.handler = async function handler(argv) {
 
   const header = [
     i18n.t('sushi.harvest.sushiId'),
+    i18n.t('sushi.harvest.endpoint'),
     i18n.t('sushi.harvest.taskId'),
     i18n.t('sushi.harvest.status'),
     i18n.t('sushi.harvest.message'),
@@ -328,6 +333,7 @@ exports.handler = async function handler(argv) {
 
   const lines = results.map(({ sushiId, task, error }) => [
     sushiId || '',
+    task?.credentials?.endpoint?.vendor || '',
     task?.id || '',
     coloredStatus(error ? 'error' : task?.status),
     error || '',
