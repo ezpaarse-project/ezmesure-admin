@@ -205,20 +205,20 @@ exports.handler = async function handler(argv) {
   let sushiItems;
 
   if (institutionIds.length > 0) {
-    params.institutionId = institutionIds.join(',');
+    params.institutionId = institutionIds;
   }
   if (endpointIds.length > 0) {
-    params.endpointId = endpointIds.join(',');
+    params.endpointId = endpointIds;
   }
   if (sushiIds.length > 0) {
-    params.id = sushiIds.join(',');
+    params.id = sushiIds;
   }
   if (!allowFaulty) {
     params.connection = 'working';
   }
 
   try {
-    ({ data: sushiItems } = await sushiLib.getAll(params));
+    ({ data: sushiItems } = await sushiLib.getAll({ ...params, include: 'endpoint' }));
   } catch (e) {
     console.error(formatApiError(e));
     process.exit(1);
@@ -228,21 +228,18 @@ exports.handler = async function handler(argv) {
     sushiItems = await itMode.selectMultiple(
       i18n.t('sushi.harvest.selectSushiCredentials'),
       sushiItems.map((sushi) => {
-        const packageName = chalk.grey(`[${sushi.package}]`);
-        let statusIcon = chalk.grey('?');
+        const { tags } = sushi;
 
-        if (sushi?.connection?.success === true) {
-          statusIcon = chalk.green('✓');
-        } else if (sushi?.connection?.success === false) {
-          statusIcon = chalk.red('✕');
+        let name = sushi?.endpoint?.vendor || '';
+
+        if (Array.isArray(tags) && tags.length > 0) {
+          const tagsSuffix = `(tags: ${tags.join(', ')})`;
+          name = `${name} ${chalk.grey(tagsSuffix)}`;
         }
 
-        return {
-          name: `${statusIcon} ${sushi.vendor} ${packageName}`,
-          value: sushi,
-        };
+        return { name, value: sushi };
       }),
-      sushiItems.filter((sushi) => sushi?.connection?.success === true),
+      sushiItems,
     );
 
     const validateDate = (input) => {
@@ -288,7 +285,7 @@ exports.handler = async function handler(argv) {
     let error;
 
     if (verbose) {
-      console.log(`* Starting harvest for [${sushiItem.vendor}][${sushiId}]`);
+      console.log(`* Starting harvest for [${sushiItem.endpoint?.vendor}][${sushiId}]`);
     }
 
     try {
