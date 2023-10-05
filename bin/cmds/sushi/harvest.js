@@ -131,6 +131,7 @@ exports.handler = async function handler(argv) {
 
   if (interactive) {
     reportType = await itMode.list(i18n.t('sushi.harvest.selectReportType'), [
+      { name: 'All available reports', value: 'all' },
       { name: 'Title Report', value: 'tr' },
       { name: 'Item Report', value: 'ir' },
       { name: 'Platform Report', value: 'pr' },
