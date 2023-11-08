@@ -397,7 +397,7 @@ exports.handler = async function handler(argv) {
     to: destinationUrl,
     verbose,
     overwrite,
-    bulk,
+    bulkSize,
     insecure,
   } = argv;
 
@@ -441,7 +441,7 @@ exports.handler = async function handler(argv) {
       label: 'SUSHI endpoints',
       data: await transferSushiEndpoints(
         destEzmesure,
-        { overwrite, bulkSize: bulk },
+        { overwrite, bulkSize },
       ),
     },
     {
@@ -449,7 +449,7 @@ exports.handler = async function handler(argv) {
       data: await transferInstitutions(
         destEzmesure,
         institutions,
-        { overwrite, bulkSize: bulk },
+        { overwrite, bulkSize },
       ),
     },
     {
@@ -457,7 +457,7 @@ exports.handler = async function handler(argv) {
       data: await transferUsers(
         destEzmesure,
         institutions,
-        { overwrite, bulkSize: bulk },
+        { overwrite, bulkSize },
       ),
     },
   ];
