@@ -128,7 +128,7 @@ async function bulkImport(ezm, options) {
       items,
     } = (result?.data || {});
 
-    items.forEach((item) => {
+    items?.forEach((item) => {
       switch (item?.status) {
         case 'error':
           console.error(i18n.t('transfer.itemError', {
