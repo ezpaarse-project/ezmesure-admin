@@ -15,6 +15,12 @@ exports.builder = function builder(yargs) {
       alias: 'out',
       describe: i18n.t('export.options.out'),
       type: 'string',
+    })
+    .option('b', {
+      alias: 'bulk-size',
+      describe: i18n.t('export.options.bulkSize'),
+      type: 'number',
+      default: 1000,
     });
 };
 
@@ -80,7 +86,7 @@ const exportDepositors = async (opts) => {
 
   const res = {};
   const fileStreams = {};
-  const scroll = elastic.helpers.scrollDocuments(
+  const scroll = elastic.helpers.scrollSearch(
     {
       index: 'depositors',
       body: {
@@ -90,34 +96,36 @@ const exportDepositors = async (opts) => {
           },
         },
       },
+      size: opts.bulkSize,
     },
   );
   console.log(chalk.grey('  Got scroll for depositors...'));
 
-  // setup heartbeat
-  const heartbeat = setInterval(() => {
+  for await (const { body: result } of scroll) {
     console.log(chalk.grey('  Still scrolling...'));
     console.group();
     for (const [type, docs] of Object.entries(res)) {
       console.log(chalk.grey(`  ${type}: ${docs.length}`));
     }
     console.groupEnd();
-  }, 1000);
 
-  // TODO: get id
+    for (const { _id, _source: depositor } of result.hits.hits) {
+      // init stream if not opened
+      if (!fileStreams[depositor.type]) {
+        console.log(chalk.grey(`  Opening new file for ${depositor.type}...`));
+        fileStreams[depositor.type] = fs.createWriteStream(path.join(depositorFolder, `${depositor.type}.jsonl`));
+        res[depositor.type] = [];
+      }
 
-  for await (const depositor of scroll) {
-    // init stream if not opened
-    if (!fileStreams[depositor.type]) {
-      console.log(chalk.grey(`  Opening new file for ${depositor.type}...`));
-      fileStreams[depositor.type] = fs.createWriteStream(path.join(depositorFolder, `${depositor.type}.jsonl`));
-      res[depositor.type] = [];
+      const doc = {
+        id: _id.split(':')[1],
+        ...depositor[depositor.type],
+      };
+
+      fileStreams[depositor.type].write(`${JSON.stringify(doc)}\n`);
+      res[depositor.type].push(doc);
     }
-
-    fileStreams[depositor.type].write(`${JSON.stringify(depositor[depositor.type])}\n`);
-    res[depositor.type].push(depositor[depositor.type]);
   }
-  clearInterval(heartbeat);
 
   // close all opened streams
   for (const type of Object.keys(fileStreams)) {
@@ -156,7 +164,7 @@ const exportInstitutions = async (opts) => {
 };
 
 exports.handler = async function handler(argv) {
-  const { out } = argv;
+  const { out, bulkSize } = argv;
 
   let dataFolder;
   if (out) {
@@ -169,7 +177,7 @@ exports.handler = async function handler(argv) {
   await fsp.mkdir(dumpFolder, { recursive: true });
 
   try {
-    const depositors = await exportDepositors({ dumpFolder });
+    const depositors = await exportDepositors({ dumpFolder, bulkSize });
     const users = await exportUsers({ dumpFolder });
     const roles = await exportRoles({ dumpFolder });
 
