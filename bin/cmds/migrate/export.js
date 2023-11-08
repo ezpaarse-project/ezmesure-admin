@@ -5,7 +5,7 @@ const fs = require('fs');
 const fsp = require('fs/promises');
 
 const chalk = require('chalk');
-const elastic = require('../../lib/app/elastic');
+const elastic = require('../../../lib/app/elastic');
 
 exports.command = 'export';
 exports.desc = i18n.t('export.description');
