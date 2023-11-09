@@ -8,17 +8,18 @@ const chalk = require('chalk');
 const elastic = require('../../../lib/app/elastic');
 
 exports.command = 'export';
-exports.desc = i18n.t('export.description');
+exports.desc = i18n.t('migrate.export.description');
 exports.builder = function builder(yargs) {
   return yargs
     .option('o', {
       alias: 'out',
-      describe: i18n.t('export.options.out'),
+      describe: i18n.t('migrate.export.options.out'),
       type: 'string',
+      default: new Date().toISOString(),
     })
     .option('b', {
       alias: 'bulk-size',
-      describe: i18n.t('export.options.bulkSize'),
+      describe: i18n.t('migrate.export.options.bulkSize'),
       type: 'number',
       default: 1000,
     });
@@ -166,13 +167,7 @@ const exportInstitutions = async (opts) => {
 exports.handler = async function handler(argv) {
   const { out, bulkSize } = argv;
 
-  let dataFolder;
-  if (out) {
-    dataFolder = path.resolve(out);
-  } else {
-    const now = new Date();
-    dataFolder = path.resolve(now.toISOString());
-  }
+  const dataFolder = path.resolve(out);
   const dumpFolder = path.join(dataFolder, 'dump');
   await fsp.mkdir(dumpFolder, { recursive: true });
 
@@ -182,7 +177,10 @@ exports.handler = async function handler(argv) {
     const roles = await exportRoles({ dumpFolder });
 
     await exportInstitutions({
-      depositors, users, roles, dataFolder,
+      depositors,
+      users,
+      roles,
+      dataFolder,
     });
 
     console.log(chalk.green(` Data exported to "${chalk.underline(dataFolder)}"`));
