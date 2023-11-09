@@ -75,32 +75,63 @@ const membershipsOfInstitution = (opts) => {
   );
 };
 
-const getTypeOfSpaceOrRepo = async (opts) => {
-  if (/-publisher$/i.test(opts.id)) {
-    return 'counter5';
-  }
-  if (opts.counterFound) {
-    return 'ezpaarse';
+const getTypeOfSpacesOrRepos = async (opts) => {
+  const unknownTypes = [];
+  let res = {};
+
+  let counterFound = false;
+  for (const id of opts.ids) {
+    let type;
+    if (!type && opts.answers[opts.type][id]) {
+      type = opts.answers[opts.type][id];
+    }
+    if (!type && /-publisher$/i.test(id)) {
+      type = 'counter5';
+      counterFound = true;
+    }
+
+    if (type) {
+      res[id] = type;
+    } else {
+      unknownTypes.push(id);
+    }
   }
 
-  const current = await inquirer.prompt(
-    [
-      {
-        type: 'list',
-        name: opts.id,
-        message: `ASK FOR ${opts.type} TYPE of: ${opts.id}`,
-        choices: ['counter5', 'ezpaarse'],
-      },
-    ],
-    opts.answers[opts.type],
-  );
+  if (counterFound) {
+    for (const id of unknownTypes) {
+      res[id] = 'ezpaarse';
+    }
+    return res;
+  }
 
-  const answer = current[opts.id];
-  opts.answers[opts.type][opts.id] = answer;
-  return answer;
+  if (unknownTypes.length > 0) {
+    const answers = await inquirer.prompt(
+      unknownTypes.map(
+        (id) => ({
+          type: 'list',
+          name: id,
+          // TODO: better message, add list of ids
+          message: `ASK FOR ${opts.type} TYPE of: ${id}`,
+          choices: ['counter5', 'ezpaarse'],
+        }),
+      ),
+    );
+
+    opts.answers[opts.type] = {
+      ...(opts.answers[opts.type] ?? {}),
+      ...answers,
+    };
+    res = {
+      ...res,
+      ...answers,
+    };
+  }
+
+  return res;
 };
 
 const spacesOfInstitution = async (opts) => {
+  const bannedSpaces = new Set(['space:bienvenue', 'space:default']);
   let ids = [];
   for (const role of opts.institution.roles) {
     const apps = role.applications.filter((a) => a.application === 'kibana-.kibana');
@@ -108,44 +139,33 @@ const spacesOfInstitution = async (opts) => {
       ids = [
         ...ids,
         ...resources
-          .filter((r) => /^space:/i.test(r))
+          .filter((r) => /^space:/i.test(r) && !bannedSpaces.has(r))
           .map((r) => r.split(':')[1]),
       ];
     }
   }
 
-  const spaces = [];
-  let counterFound = false;
-  for (const id of new Set(ids)) {
-    const type = await getTypeOfSpaceOrRepo({
-      type: 'space',
-      id,
-      counterFound,
-      answers: opts.answers,
-    });
-    const typeLabel = type === 'counter5' ? 'éditeur' : 'ezpaarse';
+  ids = [...new Set(ids)];
+  const types = await getTypeOfSpacesOrRepos({ type: 'space', ids, answers: opts.answers });
+  return ids.map(
+    (id) => {
+      const type = types[id];
+      const typeLabel = type === 'counter5' ? 'éditeur' : 'ezpaarse';
 
-    let { name } = opts.institution;
-    if (opts.institution.acronym) {
-      name += ` (${opts.institution.acronym})`;
-    }
-    name += ` *${typeLabel}*`;
+      let { name } = opts.institution;
+      if (opts.institution.acronym) {
+        name += ` (${opts.institution.acronym})`;
+      }
+      name += ` *${typeLabel}*`;
 
-    const space = {
-      id,
-      type,
-      name,
-      description: `Espace ${typeLabel} (id: ${id})`,
-    };
-
-    if (space.type === 'counter5') {
-      counterFound = true;
-    }
-
-    spaces.push(space);
-  }
-
-  return spaces;
+      return {
+        id,
+        type,
+        name,
+        description: `Espace ${typeLabel} (id: ${id})`,
+      };
+    },
+  );
 };
 
 const reposOfInstitution = async (opts) => {
@@ -157,27 +177,15 @@ const reposOfInstitution = async (opts) => {
     }
   }
 
-  const repos = [];
-  let counterFound = false;
-  for (const id of new Set(ids)) {
-    const repo = {
+  ids = [...new Set(ids)];
+
+  const types = await getTypeOfSpacesOrRepos({ type: 'repo', ids, answers: opts.answers });
+  return ids.map(
+    (id) => ({
       pattern: id,
-      type: await getTypeOfSpaceOrRepo({
-        type: 'repo',
-        id,
-        counterFound,
-        answers: opts.answers,
-      }),
-    };
-
-    if (repo.type === 'counter5') {
-      counterFound = true;
-    }
-
-    repos.push(repo);
-  }
-
-  return repos;
+      type: types[id],
+    }),
+  );
 };
 
 const transformSushiCred = (cred) => ({
