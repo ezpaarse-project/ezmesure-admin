@@ -26,6 +26,8 @@ exports.builder = function builder(yargs) {
     });
 };
 
+const membershipsByUser = {};
+
 const membershipsOfInstitution = (opts) => {
   const features = [
     'institution',
@@ -51,7 +53,7 @@ const membershipsOfInstitution = (opts) => {
         permissions = [...permissions, ...features.map((f) => `${f}:write`)];
       }
 
-      return {
+      const membership = {
         username: member.username,
         roles,
         permissions,
@@ -71,6 +73,14 @@ const membershipsOfInstitution = (opts) => {
         ),
         locked: roles.length > 0,
       };
+
+      // Keep it so we can add it to user
+      membershipsByUser[member.username] = [
+        ...(membershipsByUser[member.username] ?? []),
+        { ...membership, username: undefined, institutionId: opts.institution.id },
+      ];
+
+      return membership;
     },
   );
 };
@@ -206,6 +216,7 @@ const transformUser = (user) => ({
   email: user.email,
   metadata: user.metadata,
   isAdmin: user.roles.includes('superuser'),
+  memberships: membershipsByUser[user.username],
 });
 
 const transformSushiEndpoint = (endpoint) => ({
@@ -324,6 +335,16 @@ exports.handler = async function handler(argv) {
   }
   await fsp.mkdir(outFolder, { recursive: true });
 
+  // Do institution migration
+  console.log(chalk.grey('[institutions] Migrating institutions...'));
+  await transformJSONL({
+    transformer: transformInstitution,
+    transformerParams: [{ answers }],
+    inFile: path.join(inFolder, 'institutions.jsonl'),
+    outFile: path.join(outFolder, 'institutions.jsonl'),
+  });
+  console.log(chalk.green('[institutions]  Institutions migrated !'));
+
   // Start users migration
   console.log(chalk.grey('[users] Migrating users...'));
   const userPromise = transformJSONL({
@@ -342,17 +363,8 @@ exports.handler = async function handler(argv) {
     outFile: path.join(outFolder, 'sushis.jsonl'),
   }).then(() => console.log(chalk.green('[sushis]  Sushi endpoints migrated !')));
 
-  // Start institution migration
-  console.log(chalk.grey('[institutions] Migrating institutions...'));
-  const institutionsPromise = transformJSONL({
-    transformer: transformInstitution,
-    transformerParams: [{ answers }],
-    inFile: path.join(inFolder, 'institutions.jsonl'),
-    outFile: path.join(outFolder, 'institutions.jsonl'),
-  }).then(() => console.log(chalk.green('[institutions]  Institutions migrated !')));
-
   // Await all streams
-  await Promise.all([userPromise, sushiPromise, institutionsPromise]);
+  await Promise.all([userPromise, sushiPromise]);
 
   // Save types of repos and spaces
   await fsp.writeFile(answerPath, JSON.stringify(answers, undefined, 4));
