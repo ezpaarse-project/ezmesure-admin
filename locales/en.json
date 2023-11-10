@@ -968,16 +968,16 @@
 			},
 
 			"institutions": {
-				"going": "  [institutions] Migrating institutions...",
-				"ok": "✔️ [institutions] Institutions migrated !"
+				"going": "i Migrating institutions...",
+				"ok": "✔️ {{count}} Institutions migrated !"
 			},
 			"users": {
-				"going": "  [users] Migrating users...",
-				"ok": "✔️ [users] Users migrated !"
+				"going": "i Migrating users...",
+				"ok": "✔️ {{count}} Users migrated !"
 			},
 			"sushi": {
-				"going": "  [sushis] Migrating sushi endpoints...",
-				"ok": "✔️ [sushis] Sushi endpoints migrated !"
+				"going": "i Migrating sushi endpoints...",
+				"ok": "✔️ {{count}} Sushi endpoints migrated !"
 			},
 			"answersOk": "✔️ Answers saved to \"{{out}}\"",
 			"dataOk": "✔️ Data migrated to \"{{out}}\"",

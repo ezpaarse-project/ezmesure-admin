@@ -6,6 +6,7 @@ const fsp = require('fs/promises');
 const readline = require('readline');
 const stream = require('stream');
 
+const cliProgress = require('cli-progress');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 
@@ -301,10 +302,28 @@ const JSONL2Stream = (filePath) => {
   return s;
 };
 
-const transformJSONL = (opts) => new Promise((resolve, reject) => {
+const transformJSONL = async (opts) => {
+  console.log(chalk.blue(i18n.t(`migrate.apply.${opts.i18nKey}.going`)));
+  console.group();
+
+  let count = 0;
+  let bar;
+
+  if (opts.progressBar) {
+    bar = new cliProgress.SingleBar(
+      {
+        format: chalk.grey('    {bar} {percentage}% | {value}/{total}'),
+      },
+      cliProgress.Presets.shades_classic,
+    );
+    bar.start(0, 0);
+  }
+
+  await new Promise((resolve, reject) => {
   const transformStream = new stream.Transform({
     objectMode: true,
     transform: (chunk, e, cb) => {
+        bar?.setTotal(bar?.total + 1);
       Promise.resolve(opts.transformer(chunk, ...(opts.transformerParams ?? [])))
         .then((res) => cb(null, res))
         .catch((err) => cb(err));
@@ -314,6 +333,8 @@ const transformJSONL = (opts) => new Promise((resolve, reject) => {
   const toJSONLStream = new stream.Transform({
     objectMode: true,
     transform: (chunk, e, cb) => {
+        count += 1;
+        bar?.increment();
       cb(null, `${JSON.stringify(chunk)}\n`);
     },
   });
@@ -325,6 +346,11 @@ const transformJSONL = (opts) => new Promise((resolve, reject) => {
     .on('close', () => resolve())
     .on('error', (err) => reject(err));
 });
+
+  bar?.stop();
+  console.log(chalk.green(i18n.t(`migrate.apply.${opts.i18nKey}.ok`, { count })));
+  console.groupEnd();
+};
 
 exports.handler = async function handler(argv) {
   const { out, exportedpath, file } = argv;
@@ -350,36 +376,34 @@ exports.handler = async function handler(argv) {
   }
   await fsp.mkdir(outFolder, { recursive: true });
 
-  // Do institution migration
-  console.log(chalk.grey(i18n.t('migrate.apply.institutions.going')));
+  // Institution migration
   await transformJSONL({
+    i18nKey: 'institutions',
     transformer: transformInstitution,
     transformerParams: [{ answers }],
     inFile: path.join(inFolder, 'institutions.jsonl'),
     outFile: path.join(outFolder, 'institutions.jsonl'),
   });
-  console.log(chalk.green(i18n.t('migrate.apply.institutions.ok')));
 
-  // Start users migration
-  console.log(chalk.grey(i18n.t('migrate.apply.users.going')));
-  const userPromise = transformJSONL({
+  // Users migration
+  await transformJSONL({
+    i18nKey: 'users',
+    progressBar: true,
     transformer: transformUser,
     // transformerParams: [],
     inFile: path.join(inFolder, 'dump/users.jsonl'),
     outFile: path.join(outFolder, 'users.jsonl'),
-  }).then(() => console.log(chalk.green(i18n.t('migrate.apply.users.ok'))));
+  });
 
-  // Start sushi migration
-  console.log(chalk.grey(i18n.t('migrate.apply.sushi.going')));
-  const sushiPromise = transformJSONL({
+  // Sushi migration
+  await transformJSONL({
+    i18nKey: 'sushi',
+    progressBar: true,
     transformer: transformSushiEndpoint,
     // transformerParams: [],
     inFile: path.join(inFolder, 'dump/depositors/sushi-endpoint.jsonl'),
     outFile: path.join(outFolder, 'sushis.jsonl'),
-  }).then(() => console.log(chalk.green(i18n.t('migrate.apply.sushi.ok'))));
-
-  // Await all streams
-  await Promise.all([userPromise, sushiPromise]);
+  });
 
   // Save types of repos and spaces
   await fsp.writeFile(answerPath, JSON.stringify(answers, undefined, 4));

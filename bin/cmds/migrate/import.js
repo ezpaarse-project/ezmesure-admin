@@ -47,6 +47,7 @@ async function readJSONL(filePath) {
 }
 
 // TODO show errors !
+
 async function importUsers(filePath, bulkSize) {
   const rl = await readJSONL(filePath);
   let data = [];
@@ -86,7 +87,6 @@ async function importUsers(filePath, bulkSize) {
   console.groupEnd();
 }
 
-// TODO
 async function importInstitutions(filePath, bulkSize) {
   const rl = await readJSONL(filePath);
   let data = [];
