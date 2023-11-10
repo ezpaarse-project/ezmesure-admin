@@ -5,7 +5,9 @@ const path = require('path');
 const fs = require('fs');
 const readline = require('readline');
 
+const cliProgress = require('cli-progress');
 const chalk = require('chalk');
+
 const users = require('../../../lib/users');
 const ezmesure = require('../../../lib/app/ezmesure');
 const institutions = require('../../../lib/institutions');
@@ -50,23 +52,38 @@ async function importUsers(filePath, bulkSize) {
   let data = [];
   let i = 0;
 
+  console.log(chalk.blue('i Importing users...'));
+  console.group();
+
+  const bar = new cliProgress.SingleBar(
+    {
+      format: chalk.grey('    {bar} {percentage}% | {value}/{total}'),
+    },
+    cliProgress.Presets.shades_classic,
+  );
+  bar.start(0, 0);
+
   for await (const line of rl) {
     i += 1;
     data.push(JSON.parse(line));
+    bar.setTotal(bar.total + 1);
     if (i === bulkSize) {
-      console.log(chalk.blue(`${bulkSize} users imported`));
-      // import users and memberships
+      // import users
       await users.import(data);
+      bar.increment(data.length);
       i = 0;
       data = [];
     }
   }
 
   if (data.length > 0) {
-    console.log(chalk.blue(`${data.length} users imported`));
     await users.import(data);
+    bar.increment(data.length);
   }
-  console.log(chalk.green('users, memberships are imported successfully'));
+
+  bar.stop();
+  console.log(chalk.green(`✔️ ${bar.total} users imported`));
+  console.groupEnd();
 }
 
 // TODO
@@ -75,24 +92,38 @@ async function importInstitutions(filePath, bulkSize) {
   let data = [];
   let i = 0;
 
+  console.log(chalk.blue('i Importing institutions...'));
+  console.group();
+
+  const bar = new cliProgress.SingleBar(
+    {
+      format: chalk.grey('    {bar} {percentage}% | {value}/{total}'),
+    },
+    cliProgress.Presets.shades_classic,
+  );
+  bar.start(0, 0);
+
   for await (const line of rl) {
     i += 1;
     data.push(JSON.parse(line));
+    bar.setTotal(bar.total + 1);
     if (i === bulkSize) {
-      // import institutions, repo, space
-      console.log(chalk.blue(`${bulkSize} institutions imported`));
+      // import institutions, repo, space, members
       await institutions.import(data);
+      bar.increment(data.length);
       i = 0;
       data = [];
     }
   }
 
   if (data.length > 0) {
-    console.log(chalk.blue(`${data.length} institutions imported`));
     await institutions.import(data);
+    bar.increment(data.length);
   }
 
-  console.log(chalk.green('Institutions, repositories, spaces are imported successfully'));
+  bar.stop();
+  console.log(chalk.green(`✔️ ${bar.total} institutions, repositories, spaces and memberships imported`));
+  console.groupEnd();
 }
 
 async function importSushiEndpoints(filePath, bulkSize) {
@@ -100,23 +131,38 @@ async function importSushiEndpoints(filePath, bulkSize) {
   let data = [];
   let i = 0;
 
+  console.log(chalk.blue('i Importing sushi endpoints...'));
+  console.group();
+
+  const bar = new cliProgress.SingleBar(
+    {
+      format: chalk.grey('    {bar} {percentage}% | {value}/{total}'),
+    },
+    cliProgress.Presets.shades_classic,
+  );
+  bar.start(0, 0);
+
   for await (const line of rl) {
     i += 1;
     data.push(JSON.parse(line));
+    bar.setTotal(bar.total + 1);
     if (i === bulkSize) {
       // import sushiEndpoint
-      console.log(chalk.blue(`${bulkSize} sushiEndpoints imported`));
       await sushiEndpoint.import(data);
+      bar.increment(data.length);
       i = 0;
       data = [];
     }
   }
 
   if (data.length > 0) {
-    console.log(chalk.blue(`${data.length} sushiEndpoints imported`));
     await sushiEndpoint.import(data);
+    bar.increment(data.length);
   }
-  console.log(chalk.green('sushi endpoint are imported successfully'));
+
+  bar.stop();
+  console.log(chalk.green(`✔️ ${bar.total} sushi endpoints imported`));
+  console.groupEnd();
 }
 
 exports.handler = async function handler(argv) {
@@ -159,5 +205,5 @@ exports.handler = async function handler(argv) {
     throw error;
   }
 
-  console.log(chalk.green('all are imported successfully'));
+  console.log(chalk.green('✔️ Import successful'));
 };
