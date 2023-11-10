@@ -26,10 +26,10 @@ exports.builder = function builder(yargs) {
 };
 
 const exportUsers = async (opts) => {
-  console.log(chalk.blue('i Exporting users...'));
+  console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'users' })));
   console.group();
   const userFile = fs.createWriteStream(path.join(opts.dumpFolder, 'users.jsonl'));
-  console.log(chalk.grey('  Opening new file for users...'));
+  console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'users' })));
 
   const { body } = await elastic.security.getUser({});
   const users = Object.values(body).filter((u) => {
@@ -47,16 +47,18 @@ const exportUsers = async (opts) => {
   }
 
   userFile.end();
-  console.log(chalk.green(` ${users.length} users exported to "${chalk.underline(userFile.path)}"`));
+  console.log(chalk.green(
+    i18n.t('migrate.export.ok', { count: users.length, type: 'users', out: chalk.underline(userFile.path) }),
+  ));
   console.groupEnd();
   return users;
 };
 
 const exportRoles = async (opts) => {
-  console.log(chalk.blue('i Exporting roles...'));
+  console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'roles' })));
   console.group();
   const roleFile = fs.createWriteStream(path.join(opts.dumpFolder, 'roles.jsonl'));
-  console.log(chalk.grey('  Opening new file for roles...'));
+  console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'roles' })));
 
   const { body } = await elastic.security.getRole({});
   const entries = Object.entries(body).filter(([, r]) => {
@@ -74,13 +76,15 @@ const exportRoles = async (opts) => {
   }
 
   roleFile.end();
-  console.log(chalk.green(` ${roles.length} roles exported to "${chalk.underline(roleFile.path)}"`));
+  console.log(chalk.green(
+    i18n.t('migrate.export.ok', { count: roles.length, type: 'roles', out: chalk.underline(roleFile.path) }),
+  ));
   console.groupEnd();
   return roles;
 };
 
 const exportDepositors = async (opts) => {
-  console.log(chalk.blue('i Exporting depositors...'));
+  console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'depositors' })));
   console.group();
   const depositorFolder = path.join(opts.dumpFolder, 'depositors');
   await fsp.mkdir(depositorFolder, { recursive: true });
@@ -100,10 +104,10 @@ const exportDepositors = async (opts) => {
       size: opts.bulkSize,
     },
   );
-  console.log(chalk.grey('  Got scroll for depositors...'));
+  console.log(chalk.grey(i18n.t('migrate.export.scroll.got', { type: 'depositors' })));
 
   for await (const { body: result } of scroll) {
-    console.log(chalk.grey('  Still scrolling...'));
+    console.log(chalk.grey(i18n.t('migrate.export.scroll.heartbeat')));
     console.group();
     for (const [type, docs] of Object.entries(res)) {
       console.log(chalk.grey(`  ${type}: ${docs.length}`));
@@ -113,7 +117,7 @@ const exportDepositors = async (opts) => {
     for (const { _id, _source: depositor } of result.hits.hits) {
       // init stream if not opened
       if (!fileStreams[depositor.type]) {
-        console.log(chalk.grey(`  Opening new file for ${depositor.type}...`));
+        console.log(chalk.grey(i18n.t('migrate.export.file', { type: depositor.type })));
         fileStreams[depositor.type] = fs.createWriteStream(path.join(depositorFolder, `${depositor.type}.jsonl`));
         res[depositor.type] = [];
       }
@@ -130,7 +134,9 @@ const exportDepositors = async (opts) => {
 
   // close all opened streams
   for (const type of Object.keys(fileStreams)) {
-    console.log(chalk.green(` ${res[type].length} ${type} exported to "${chalk.underline(fileStreams[type].path)}"`));
+    console.log(chalk.green(
+      i18n.t('migrate.export.ok', { count: res[type].length, type, out: chalk.underline(fileStreams[type].path) }),
+    ));
     fileStreams[type].end();
   }
   console.groupEnd();
@@ -138,11 +144,11 @@ const exportDepositors = async (opts) => {
 };
 
 const exportInstitutions = async (opts) => {
-  console.log(chalk.blue('i Exporting institutions...'));
+  console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'institutions' })));
   console.group();
   const res = [];
   const institutionFile = fs.createWriteStream(path.join(opts.dataFolder, 'institutions.jsonl'));
-  console.log(chalk.grey('  Opening new file for institutions...'));
+  console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'institutions' })));
 
   for (const raw of opts.depositors.institution) {
     const roles = opts.roles.filter((r) => r.name === raw.role || r.name === `${raw.role}_read_only`);
@@ -159,7 +165,9 @@ const exportInstitutions = async (opts) => {
     res.push(institution);
   }
 
-  console.log(chalk.green(` ${res.length} institutions exported to "${chalk.underline(institutionFile.path)}"`));
+  console.log(chalk.green(
+    i18n.t('migrate.export.ok', { count: res.length, type: 'institutions', out: chalk.underline(institutionFile.path) }),
+  ));
   console.groupEnd();
   return res;
 };
@@ -183,7 +191,7 @@ exports.handler = async function handler(argv) {
       dataFolder,
     });
 
-    console.log(chalk.green(` Data exported to "${chalk.underline(dataFolder)}"`));
+    console.log(chalk.green(`✔️ Data exported to "${chalk.underline(dataFolder)}"`));
   } catch (error) {
     await fsp.writeFile(path.join(dataFolder, 'error.log'), JSON.stringify(error, undefined, 4), 'utf-8');
     throw error;

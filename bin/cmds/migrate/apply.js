@@ -26,7 +26,7 @@ exports.builder = function builder(yargs) {
     });
 };
 
-const membershipsByUser = {};
+
 
 const membershipsOfInstitution = (opts) => {
   const features = [
@@ -53,7 +53,7 @@ const membershipsOfInstitution = (opts) => {
         permissions = [...permissions, ...features.map((f) => `${f}:write`)];
       }
 
-      const membership = {
+      return {
         username: member.username,
         roles,
         permissions,
@@ -66,21 +66,13 @@ const membershipsOfInstitution = (opts) => {
         ),
         repositoryPermissions: opts.repositories.map(
           (repo) => ({
-            pattern: repo.pattern,
+            repositoryPattern: repo.pattern,
             readonly: isReadOnly,
             locked: roles.length > 0,
           }),
         ),
         locked: roles.length > 0,
       };
-
-      // Keep it so we can add it to user
-      membershipsByUser[member.username] = [
-        ...(membershipsByUser[member.username] ?? []),
-        { ...membership, username: undefined, institutionId: opts.institution.id },
-      ];
-
-      return membership;
     },
   );
 };
@@ -120,8 +112,20 @@ const getTypeOfSpacesOrRepos = async (opts) => {
         (id) => ({
           type: 'list',
           name: id,
-          // TODO: better message, add list of ids
-          message: `ASK FOR ${opts.type} TYPE of: ${id}`,
+          message: i18n.t(
+            'migrate.apply.askRepoOrSpaceType.prompt',
+            {
+              id: chalk.red(id),
+              type: chalk.underline(opts.type),
+              institution: chalk.italic(opts.institution),
+              ids: chalk.reset(chalk.grey(
+                i18n.t(
+                  'migrate.apply.askRepoOrSpaceType.idList',
+                  { type: opts.type, ids: opts.ids },
+                ),
+              )),
+            },
+          ),
           choices: ['counter5', 'ezpaarse'],
         }),
       ),
@@ -156,7 +160,13 @@ const spacesOfInstitution = async (opts) => {
   }
 
   ids = [...new Set(ids)];
-  const types = await getTypeOfSpacesOrRepos({ type: 'space', ids, answers: opts.answers });
+  const types = await getTypeOfSpacesOrRepos({
+    type: 'space',
+    ids,
+    institution: opts.institution.name,
+    answers: opts.answers,
+  });
+
   return ids.map(
     (id) => {
       const type = types[id];
@@ -189,7 +199,13 @@ const reposOfInstitution = async (opts) => {
 
   ids = [...new Set(ids)];
 
-  const types = await getTypeOfSpacesOrRepos({ type: 'repo', ids, answers: opts.answers });
+  const types = await getTypeOfSpacesOrRepos({
+    type: 'repo',
+    ids,
+    institution: opts.institution.name,
+    answers: opts.answers,
+  });
+
   return ids.map(
     (id) => ({
       pattern: id,
@@ -216,7 +232,6 @@ const transformUser = (user) => ({
   email: user.email,
   metadata: user.metadata,
   isAdmin: user.roles.includes('superuser'),
-  memberships: membershipsByUser[user.username],
 });
 
 const transformSushiEndpoint = (endpoint) => ({
@@ -330,45 +345,45 @@ exports.handler = async function handler(argv) {
   if (!out) {
     outFolder = path.resolve(
       path.dirname(inFolder),
-      `${path.basename(inFolder)}-migrated`,
+      `${path.basename(inFolder)}_migrated`,
     );
   }
   await fsp.mkdir(outFolder, { recursive: true });
 
   // Do institution migration
-  console.log(chalk.grey('[institutions] Migrating institutions...'));
+  console.log(chalk.grey(i18n.t('migrate.apply.institutions.going')));
   await transformJSONL({
     transformer: transformInstitution,
     transformerParams: [{ answers }],
     inFile: path.join(inFolder, 'institutions.jsonl'),
     outFile: path.join(outFolder, 'institutions.jsonl'),
   });
-  console.log(chalk.green('[institutions]  Institutions migrated !'));
+  console.log(chalk.green(i18n.t('migrate.apply.institutions.ok')));
 
   // Start users migration
-  console.log(chalk.grey('[users] Migrating users...'));
+  console.log(chalk.grey(i18n.t('migrate.apply.users.going')));
   const userPromise = transformJSONL({
     transformer: transformUser,
     // transformerParams: [],
     inFile: path.join(inFolder, 'dump/users.jsonl'),
     outFile: path.join(outFolder, 'users.jsonl'),
-  }).then(() => console.log(chalk.green('[users]  Users migrated !')));
+  }).then(() => console.log(chalk.green(i18n.t('migrate.apply.users.ok'))));
 
   // Start sushi migration
-  console.log(chalk.grey('[sushis] Migrating sushi endpoints...'));
+  console.log(chalk.grey(i18n.t('migrate.apply.sushi.going')));
   const sushiPromise = transformJSONL({
     transformer: transformSushiEndpoint,
     // transformerParams: [],
     inFile: path.join(inFolder, 'dump/depositors/sushi-endpoint.jsonl'),
     outFile: path.join(outFolder, 'sushis.jsonl'),
-  }).then(() => console.log(chalk.green('[sushis]  Sushi endpoints migrated !')));
+  }).then(() => console.log(chalk.green(i18n.t('migrate.apply.sushi.ok'))));
 
   // Await all streams
   await Promise.all([userPromise, sushiPromise]);
 
   // Save types of repos and spaces
   await fsp.writeFile(answerPath, JSON.stringify(answers, undefined, 4));
-  console.log(chalk.green(` Answers saved to "${chalk.underline(answerPath)}"`));
+  console.log(chalk.green(i18n.t('migrate.apply.answersOk', { out: chalk.underline(answerPath) })));
 
-  console.log(chalk.green(` Data migrated to "${chalk.underline(outFolder)}"`));
+  console.log(chalk.green(i18n.t('migrate.apply.dataOk', { out: chalk.underline(outFolder) })));
 };

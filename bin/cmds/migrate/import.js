@@ -11,24 +11,19 @@ const ezmesure = require('../../../lib/app/ezmesure');
 const institutions = require('../../../lib/institutions');
 const sushiEndpoint = require('../../../lib/sushiEndpoints');
 
-exports.command = 'import';
+exports.command = 'import <exported path>';
 exports.desc = i18n.t('import.description');
 exports.builder = function builder(yargs) {
   return yargs
-    .option('d', {
-      alias: 'directory',
-      describe: i18n.t('import.import.options.directory'),
-      type: 'string',
-    })
     .option('b', {
       alias: 'bulk-size',
-      describe: i18n.t('migrate.import.options.bulkSize'),
+      describe: i18n.t('import.options.bulkSize'),
       type: 'number',
       default: 15,
     })
     .option('k', {
       alias: 'insecure',
-      describe: i18n.t('migrate.import.options.insecure'),
+      describe: i18n.t('import.options.insecure'),
       type: 'boolean',
     });
 };
@@ -49,7 +44,7 @@ async function readJSONL(filePath) {
   });
 }
 
-// TODO
+// TODO show errors !
 async function importUsers(filePath, bulkSize) {
   const rl = await readJSONL(filePath);
   let data = [];
@@ -82,9 +77,7 @@ async function importInstitutions(filePath, bulkSize) {
 
   for await (const line of rl) {
     i += 1;
-    const parsedLine = JSON.parse(line);
-    delete parsedLine.memberships;
-    data.push(parsedLine);
+    data.push(JSON.parse(line));
     if (i === bulkSize) {
       // import institutions, repo, space
       console.log(chalk.blue(`${bulkSize} institutions imported`));
@@ -127,9 +120,9 @@ async function importSushiEndpoints(filePath, bulkSize) {
 }
 
 exports.handler = async function handler(argv) {
-  const { directory, bulkSize, insecure } = argv;
+  const { exportedpath, bulkSize, insecure } = argv;
 
-  if (!fs.existsSync(directory)) {
+  if (!fs.existsSync(exportedpath)) {
     console.error('No directory specified');
     return;
   }
@@ -138,9 +131,17 @@ exports.handler = async function handler(argv) {
     ezmesure.defaults.httpsAgent = new https.Agent({ rejectUnauthorized: false });
   }
 
-  const filePathInstitutions = path.resolve(directory, 'institutions.jsonl');
-  const filePathUsers = path.resolve(directory, 'users.jsonl');
-  const filePathSushiEndpoints = path.resolve(directory, 'sushis.jsonl');
+  const filePathUsers = path.resolve(exportedpath, 'users.jsonl');
+  const filePathSushiEndpoints = path.resolve(exportedpath, 'sushis.jsonl');
+  const filePathInstitutions = path.resolve(exportedpath, 'institutions.jsonl');
+
+  try {
+    await importUsers(filePathUsers, bulkSize);
+  } catch (error) {
+    console.error('error users');
+    console.error(error.response.data);
+    throw error;
+  }
 
   try {
     await importSushiEndpoints(filePathSushiEndpoints, bulkSize);
@@ -154,14 +155,6 @@ exports.handler = async function handler(argv) {
     await importInstitutions(filePathInstitutions, bulkSize);
   } catch (error) {
     console.error('error institution');
-    console.error(error.response.data);
-    throw error;
-  }
-
-  try {
-    await importUsers(filePathUsers, bulkSize);
-  } catch (error) {
-    console.error('error users');
     console.error(error.response.data);
     throw error;
   }

@@ -939,5 +939,59 @@
 			"timeout": "Request timeout",
 			"data": "Request body"
 		}
+	},
+	"migrate": {
+		"description": "Commands to migrate from Legacy to Reloaded",
+
+		"export": {
+			"description": "Export depositors, roles and users from ezMESURE's Elastic",
+			"options": {
+				"out": "Directory where to output files (Default: current datetime)",
+				"bulkSize": "Number of items that should be exported at once"
+			},
+
+			"scroll": {
+				"got": "  Got scroll for {{type}}...",
+				"heartbeat": "  Still scrolling..."
+			},
+			"going": "i Exporting {{type}}...",
+			"file": "  Opening new file for {{type}}...",
+			"ok": "✔️ {{count}} {{type}} exported to \"{{out}}\"",
+			"dataOk": "✔️ Data exported to \"{{out}}\""
+		},
+
+		"apply": {
+			"description": "Apply migration to convert exported files into ezMESURE Reloaded import files",
+			"options": {
+				"out": "The directory where to output files (Default: inputfolder + '_migrated')",
+				"file": "File path to cache repo and spaces answers"
+			},
+
+			"institutions": {
+				"going": "  [institutions] Migrating institutions...",
+				"ok": "✔️ [institutions] Institutions migrated !"
+			},
+			"users": {
+				"going": "  [users] Migrating users...",
+				"ok": "✔️ [users] Users migrated !"
+			},
+			"sushi": {
+				"going": "  [sushis] Migrating sushi endpoints...",
+				"ok": "✔️ [sushis] Sushi endpoints migrated !"
+			},
+			"answersOk": "✔️ Answers saved to \"{{out}}\"",
+			"dataOk": "✔️ Data migrated to \"{{out}}\"",
+			"askRepoOrSpaceType": {
+				"prompt": "Type of {{type}} of {{id}} from {{institution}} ? {{ids}}",
+				"idList": "All {{type}}(s): {{ids}}"
+			}
+		}
+	},
+	"import": {
+		"description": "Import institutions, sushis endpoints and users into ezMESURE",
+		"options": {
+			"bulkSize": "Number of items that should be imported at once",
+			"insecure": "Skip TLS certificates verification"
+		}
 	}
 }
