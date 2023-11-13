@@ -59,7 +59,15 @@ const exportUsers = async (opts) => {
   userFile.end();
   bar.stop();
   console.log(chalk.green(
-    i18n.t('migrate.export.ok', { count: users.length, type: 'users', out: chalk.underline(userFile.path) }),
+    i18n.t(
+      'migrate.export.ok',
+      {
+        count: users.length,
+        type: 'users',
+        out: chalk.underline(userFile.path),
+        warns: chalk.yellow(0),
+      },
+    ),
   ));
   console.groupEnd();
   return users;
@@ -99,7 +107,15 @@ const exportRoles = async (opts) => {
   roleFile.end();
   bar.stop();
   console.log(chalk.green(
-    i18n.t('migrate.export.ok', { count: roles.length, type: 'roles', out: chalk.underline(roleFile.path) }),
+    i18n.t(
+      'migrate.export.ok',
+      {
+        count: roles.length,
+        type: 'roles',
+        out: chalk.underline(roleFile.path),
+        warns: chalk.yellow(0),
+      },
+    ),
   ));
   console.groupEnd();
   return roles;
@@ -169,7 +185,15 @@ const exportDepositors = async (opts) => {
   // close all opened streams
   for (const type of Object.keys(fileStreams)) {
     console.log(chalk.green(
-      i18n.t('migrate.export.ok', { count: res[type].length, type, out: chalk.underline(fileStreams[type].path) }),
+      i18n.t(
+        'migrate.export.ok',
+        {
+          count: res[type].length,
+          type,
+          out: chalk.underline(fileStreams[type].path),
+          warns: chalk.yellow(0),
+        },
+      ),
     ));
     fileStreams[type].end();
   }
@@ -181,17 +205,17 @@ const exportInstitutions = async (opts) => {
   console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'institutions' })));
   console.group();
   const institutionFile = fs.createWriteStream(path.join(opts.dataFolder, 'institutions.jsonl'));
+  const logFile = fs.createWriteStream(path.join(opts.dataFolder, 'institutions.log'));
   console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'institutions' })));
 
-  // creating multibar to allow logging over
-  const bars = new cliProgress.MultiBar(
+  const bar = new cliProgress.SingleBar(
     {
       format: chalk.grey('    {bar} | {percentage}% | {value}/{total}'),
     },
     cliProgress.Presets.shades_classic,
   );
-  const bar = bars.create(opts.depositors.institution.length);
 
+  let warns = 0;
   const res = opts.depositors.institution.map(
     (raw) => {
       const roles = opts.roles.filter((r) => r.name === raw.role || r.name === `${raw.role}_read_only`);
@@ -205,9 +229,11 @@ const exportInstitutions = async (opts) => {
       };
 
       if (roles.length <= 0) {
-        console.log(chalk.yellow(i18n.t('migrate.export.noRoles', { institution: chalk.underline(institution.name) })));
+        logFile.write(`warn: ${i18n.t('migrate.export.noRoles', { institution: institution.name })}\n`);
+        warns += 1;
       } else if (institution.members.length <= 0) {
-        console.log(chalk.yellow(i18n.t('migrate.export.noMembers', { institution: chalk.underline(institution.name) })));
+        logFile.write(`warn: ${i18n.t('migrate.export.noMembers', { institution: institution.name })}\n`);
+        warns += 1;
       }
 
       institutionFile.write(`${JSON.stringify(institution)}\n`);
@@ -216,9 +242,17 @@ const exportInstitutions = async (opts) => {
     },
   );
 
-  bars.stop();
+  logFile.end();
+  institutionFile.end();
+
+  bar.stop();
   console.log(chalk.green(
-    i18n.t('migrate.export.ok', { count: res.length, type: 'institutions', out: chalk.underline(institutionFile.path) }),
+    i18n.t('migrate.export.ok', {
+      count: res.length,
+      type: 'institutions',
+      out: chalk.underline(institutionFile.path),
+      warns: chalk.yellow(warns),
+    }),
   ));
   console.groupEnd();
   return res;
@@ -245,7 +279,7 @@ exports.handler = async function handler(argv) {
 
     console.log(chalk.green(`✔️ Data exported to "${chalk.underline(dataFolder)}"`));
   } catch (error) {
-    await fsp.writeFile(path.join(dataFolder, 'error.log'), JSON.stringify(error, undefined, 4), 'utf-8');
+    await fsp.writeFile(path.join(dataFolder, 'error.log'), `${error}`, 'utf-8');
     throw error;
   }
 };

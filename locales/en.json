@@ -956,10 +956,10 @@
 			},
 			"going": "i Exporting {{type}}...",
 			"file": "  Opening new file for {{type}}...",
-			"ok": "✔️ {{count}} {{type}} exported to \"{{out}}\"",
+			"ok": "✔️ {{count}} {{type}} exported ({{warns}} warnings) to \"{{out}}\"",
 			"dataOk": "✔️ Data exported to \"{{out}}\"",
-			"noRoles": "! Can't get members: No roles found for {{institution}}",
-			"noMembers": "! No members found for {{institution}}"
+			"noRoles": "Can't get members: No roles found for {{institution}}",
+			"noMembers": "No members found for {{institution}}"
 		},
 
 		"apply": {
