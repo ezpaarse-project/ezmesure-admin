@@ -92,6 +92,9 @@ const getTypeOfSpacesOrRepos = async (opts) => {
       type = 'counter5';
       counterFound = true;
     }
+    if (!type && /^ez[-_]/i.test(id)) {
+      type = 'ezpaarse';
+    }
 
     if (type) {
       res[id] = type;
