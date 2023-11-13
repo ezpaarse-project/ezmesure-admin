@@ -19,6 +19,11 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('migrate.apply.options.out'),
       type: 'string',
     })
+    .option('interactive', {
+      alias: 'i',
+      describe: i18n.t('migrate.apply.options.interactive'),
+      boolean: true,
+    })
     .option('f', {
       alias: 'file',
       describe: i18n.t('migrate.apply.options.file'),
@@ -108,7 +113,7 @@ const getTypeOfSpacesOrRepos = async (opts) => {
     return res;
   }
 
-  if (unknownTypes.length > 0) {
+  if (opts.interactive && unknownTypes.length > 0) {
     const skipSymbol = Symbol('skip option');
 
     const answers = await inquirer.prompt(
@@ -292,6 +297,10 @@ const createReposFromSpaces = async (opts) => {
 
   const cachedReposPatterns = new Set(cachedRepos.map((r) => r.pattern));
   const choices = [...new Set([...missingRepos, ...cachedRepos])];
+
+  if (!opts.interactive) {
+    return cachedRepos;
+  }
 
   const customSymbol = Symbol('custom option');
   const answers = await inquirer.prompt(
@@ -502,7 +511,12 @@ const transformJSONL = async (opts) => {
 };
 
 exports.handler = async function handler(argv) {
-  const { out, exportedpath, file } = argv;
+  const {
+    out,
+    exportedpath,
+    file,
+    interactive,
+  } = argv;
   const inFolder = path.resolve(exportedpath);
 
   // TODO: check folder
@@ -525,38 +539,44 @@ exports.handler = async function handler(argv) {
   }
   await fsp.mkdir(outFolder, { recursive: true });
 
-  // Institution migration
-  await transformJSONL({
-    i18nKey: 'institutions',
-    transformer: transformInstitution,
-    transformerParams: [{ answers }],
-    inFile: path.join(inFolder, 'institutions.jsonl'),
-    outFile: path.join(outFolder, 'institutions.jsonl'),
-  });
+  try {
+    // Institution migration
+    await transformJSONL({
+      i18nKey: 'institutions',
+      progressBar: !interactive,
+      transformer: transformInstitution,
+      transformerParams: [{ answers, interactive }],
+      inFile: path.join(inFolder, 'institutions.jsonl'),
+      outFile: path.join(outFolder, 'institutions.jsonl'),
+    });
 
-  // Users migration
-  await transformJSONL({
-    i18nKey: 'users',
-    progressBar: true,
-    transformer: transformUser,
-    // transformerParams: [],
-    inFile: path.join(inFolder, 'dump/users.jsonl'),
-    outFile: path.join(outFolder, 'users.jsonl'),
-  });
+    // Users migration
+    await transformJSONL({
+      i18nKey: 'users',
+      progressBar: true,
+      transformer: transformUser,
+      // transformerParams: [],
+      inFile: path.join(inFolder, 'dump/users.jsonl'),
+      outFile: path.join(outFolder, 'users.jsonl'),
+    });
 
-  // Sushi migration
-  await transformJSONL({
-    i18nKey: 'sushi',
-    progressBar: true,
-    transformer: transformSushiEndpoint,
-    // transformerParams: [],
-    inFile: path.join(inFolder, 'dump/depositors/sushi-endpoint.jsonl'),
-    outFile: path.join(outFolder, 'sushis.jsonl'),
-  });
+    // Sushi migration
+    await transformJSONL({
+      i18nKey: 'sushi',
+      progressBar: true,
+      transformer: transformSushiEndpoint,
+      // transformerParams: [],
+      inFile: path.join(inFolder, 'dump/depositors/sushi-endpoint.jsonl'),
+      outFile: path.join(outFolder, 'sushis.jsonl'),
+    });
 
-  // Save types of repos and spaces
-  await fsp.writeFile(answerPath, JSON.stringify(answers, undefined, 4));
-  console.log(chalk.green(i18n.t('migrate.apply.answersOk', { out: chalk.underline(answerPath) })));
+    // Save types of repos and spaces
+    await fsp.writeFile(answerPath, JSON.stringify(answers, undefined, 4));
+    console.log(chalk.green(i18n.t('migrate.apply.answersOk', { out: chalk.underline(answerPath) })));
 
-  console.log(chalk.green(i18n.t('migrate.apply.dataOk', { out: chalk.underline(outFolder) })));
+    console.log(chalk.green(i18n.t('migrate.apply.dataOk', { out: chalk.underline(outFolder) })));
+  } catch (error) {
+    await fsp.writeFile(path.join(outFolder, 'error.log'), `${error}`, 'utf-8');
+    throw error;
+  }
 };

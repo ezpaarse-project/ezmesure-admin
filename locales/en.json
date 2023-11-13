@@ -966,6 +966,7 @@
 			"description": "Apply migration to convert exported files into ezMESURE Reloaded import files",
 			"options": {
 				"out": "The directory where to output files (Default: inputfolder + '_migrated')",
+				"interactive": "Interactive mode",
 				"file": "File path to cache repo and spaces answers"
 			},
 
