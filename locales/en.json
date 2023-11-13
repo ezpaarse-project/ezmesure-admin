@@ -979,11 +979,21 @@
 				"going": "i Migrating sushi endpoints...",
 				"ok": "✔️ {{count}} Sushi endpoints migrated !"
 			},
+
+			"skip": "Skip",
+			"create": "Create",
 			"answersOk": "✔️ Answers saved to \"{{out}}\"",
 			"dataOk": "✔️ Data migrated to \"{{out}}\"",
+
 			"askRepoOrSpaceType": {
-				"prompt": "Type of {{type}} of {{id}} from {{institution}} ? {{ids}}",
+				"prompt": "Type of {{type}} of {{id}} from {{institution}} ?\n{{ids}}",
 				"idList": "All {{type}}(s): {{ids}}"
+			},
+			"askMoreRepos": {
+				"ask": "Spaces without matching repos found for {{institution}}, do you wish to create missing repos ?\n{{ids}}",
+				"prompt": "Patterns to create ?\n{{ids}}",
+				"spacesList": "Current spaces(s): {{ids}}",
+				"patternList": "Current patterns(s): {{ids}}"
 			}
 		}
 	},
