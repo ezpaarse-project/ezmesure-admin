@@ -469,32 +469,32 @@ const transformJSONL = async (opts) => {
   }
 
   await new Promise((resolve, reject) => {
-  const transformStream = new stream.Transform({
-    objectMode: true,
-    transform: (chunk, e, cb) => {
+    const transformStream = new stream.Transform({
+      objectMode: true,
+      transform: (chunk, e, cb) => {
         bar?.setTotal(bar?.total + 1);
-      Promise.resolve(opts.transformer(chunk, ...(opts.transformerParams ?? [])))
-        .then((res) => cb(null, res))
-        .catch((err) => cb(err));
-    },
-  });
+        Promise.resolve(opts.transformer(chunk, ...(opts.transformerParams ?? [])))
+          .then((res) => cb(null, res))
+          .catch((err) => cb(err));
+      },
+    });
 
-  const toJSONLStream = new stream.Transform({
-    objectMode: true,
-    transform: (chunk, e, cb) => {
+    const toJSONLStream = new stream.Transform({
+      objectMode: true,
+      transform: (chunk, e, cb) => {
         count += 1;
         bar?.increment();
-      cb(null, `${JSON.stringify(chunk)}\n`);
-    },
-  });
+        cb(null, `${JSON.stringify(chunk)}\n`);
+      },
+    });
 
-  JSONL2Stream(opts.inFile)
-    .pipe(transformStream)
-    .pipe(toJSONLStream)
-    .pipe(fs.createWriteStream(opts.outFile))
-    .on('close', () => resolve())
-    .on('error', (err) => reject(err));
-});
+    JSONL2Stream(opts.inFile)
+      .pipe(transformStream)
+      .pipe(toJSONLStream)
+      .pipe(fs.createWriteStream(opts.outFile))
+      .on('close', () => resolve())
+      .on('error', (err) => reject(err));
+  });
 
   bar?.stop();
   console.log(chalk.green(i18n.t(`migrate.apply.${opts.i18nKey}.ok`, { count })));
