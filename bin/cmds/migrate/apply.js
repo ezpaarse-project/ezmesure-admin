@@ -78,7 +78,7 @@ const membershipsOfInstitution = (opts) => {
 
 const getTypeOfSpacesOrRepos = async (opts) => {
   const unknownTypes = [];
-  let res = {};
+  const res = {};
 
   let counterFound = false;
   for (const id of opts.ids) {
@@ -109,6 +109,8 @@ const getTypeOfSpacesOrRepos = async (opts) => {
   }
 
   if (unknownTypes.length > 0) {
+    const skipSymbol = Symbol('skip option');
+
     const answers = await inquirer.prompt(
       unknownTypes.map(
         (id) => ({
@@ -119,28 +121,41 @@ const getTypeOfSpacesOrRepos = async (opts) => {
             {
               id: chalk.red(id),
               type: chalk.underline(opts.type),
-              institution: chalk.italic(opts.institution),
-              ids: chalk.reset(chalk.grey(
+              institution: chalk.underline(opts.institution),
+              ids: chalk.reset.grey(
                 i18n.t(
                   'migrate.apply.askRepoOrSpaceType.idList',
-                  { type: opts.type, ids: opts.ids },
+                  {
+                    type: opts.type,
+                    ids: opts.ids.map((i) => {
+                      const label = `${i} (${res[i] ?? '?'})`;
+                      return (i === id ? chalk.red(label) : label);
+                    }).join(', '),
+                  },
                 ),
-              )),
+              ),
             },
           ),
-          choices: ['counter5', 'ezpaarse'],
+          choices: [
+            'counter5',
+            'ezpaarse',
+            new inquirer.Separator(),
+            { value: skipSymbol, name: i18n.t('migrate.apply.skip') },
+          ],
         }),
       ),
     );
 
-    opts.answers[opts.type] = {
-      ...(opts.answers[opts.type] ?? {}),
-      ...answers,
-    };
-    res = {
-      ...res,
-      ...answers,
-    };
+    for (const [key, value] of Object.entries(answers)) {
+      if (value !== skipSymbol) {
+        if (!opts.answers[opts.type]) {
+          opts.answers[opts.type] = {};
+        }
+
+        opts.answers[opts.type][key] = value;
+        res[key] = value;
+      }
+    }
   }
 
   return res;
