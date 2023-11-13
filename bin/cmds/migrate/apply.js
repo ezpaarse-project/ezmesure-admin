@@ -23,11 +23,9 @@ exports.builder = function builder(yargs) {
       alias: 'file',
       describe: i18n.t('migrate.apply.options.file'),
       type: 'string',
-      default: 'space-repo-type-answers.json',
+      default: 'migrate-cache.json',
     });
 };
-
-
 
 const membershipsOfInstitution = (opts) => {
   const features = [
@@ -148,6 +146,23 @@ const getTypeOfSpacesOrRepos = async (opts) => {
   return res;
 };
 
+const genSpace = (opts) => {
+  const typeLabel = opts.type === 'counter5' ? 'éditeur' : 'ezpaarse';
+
+  let { name } = opts.institution;
+  if (opts.institution.acronym) {
+    name += ` (${opts.institution.acronym})`;
+  }
+  name += ` *${typeLabel}*`;
+
+  return {
+    id: opts.id,
+    type: opts.type,
+    name,
+    description: `Espace ${typeLabel} (id: ${opts.id})`,
+  };
+};
+
 const spacesOfInstitution = async (opts) => {
   const bannedSpaces = new Set(['space:bienvenue', 'space:default']);
   let ids = [];
@@ -172,25 +187,18 @@ const spacesOfInstitution = async (opts) => {
   });
 
   return ids.map(
-    (id) => {
-      const type = types[id];
-      const typeLabel = type === 'counter5' ? 'éditeur' : 'ezpaarse';
-
-      let { name } = opts.institution;
-      if (opts.institution.acronym) {
-        name += ` (${opts.institution.acronym})`;
-      }
-      name += ` *${typeLabel}*`;
-
-      return {
-        id,
-        type,
-        name,
-        description: `Espace ${typeLabel} (id: ${id})`,
-      };
-    },
+    (id) => genSpace({
+      id,
+      institution: opts.institution,
+      type: types[id],
+    }),
   );
 };
+
+const genRepo = (opts) => ({
+  pattern: opts.id,
+  type: opts.type,
+});
 
 const reposOfInstitution = async (opts) => {
   let ids = [];
@@ -211,8 +219,8 @@ const reposOfInstitution = async (opts) => {
   });
 
   return ids.map(
-    (id) => ({
-      pattern: id,
+    (id) => genRepo({
+      id,
       type: types[id],
     }),
   );
@@ -257,9 +265,132 @@ const transformSushiEndpoint = (endpoint) => ({
   defaultApiKey: '',
 });
 
+const createReposFromSpaces = async (opts) => {
+  const cachedRepos = opts.answers.createdRepos[opts.institution.id] ?? [];
+  const repos = [...opts.repositories, ...cachedRepos];
+
+  const reposTypes = new Set(repos.map(({ type }) => type));
+  const patterns = new Set(repos.map((r) => r.pattern));
+  const missingRepos = opts.spaces
+    .filter((s) => !reposTypes.has(s.type))
+    .map((s) => genRepo({ id: `${s.id}*`, type: s.type }));
+
+  const cachedReposPatterns = new Set(cachedRepos.map((r) => r.pattern));
+  const choices = [...new Set([...missingRepos, ...cachedRepos])];
+
+  const customSymbol = Symbol('custom option');
+  const answers = await inquirer.prompt(
+    [
+      {
+        type: 'confirm',
+        name: 'confirm',
+        message: i18n.t(
+          'migrate.apply.askMoreRepos.ask',
+          {
+            institution: chalk.underline(opts.institution.name),
+            ids: chalk.reset.grey(
+              i18n.t(
+                'migrate.apply.askMoreRepos.spacesList',
+                {
+                  ids: opts.spaces.map(
+                    (s) => `${s.id} (${s.type})`,
+                  ).join(', '),
+                },
+              ),
+            ),
+          },
+        ),
+        when: () => missingRepos.length > 0,
+      },
+      {
+        type: 'checkbox',
+        name: 'repos',
+        message: i18n.t(
+          'migrate.apply.askMoreRepos.prompt',
+          {
+            ids: chalk.reset.grey(i18n.t(
+              'migrate.apply.askMoreRepos.patternList',
+              {
+                ids: repos.map(
+                  (r) => `${chalk.reset.cyan(r.pattern)} ${chalk.grey(`(${r.type})`)}`,
+                ).join(', '),
+              },
+            )),
+          },
+        ),
+        choices: [
+          ...choices
+            .filter((r) => !patterns.has(r.pattern) || cachedReposPatterns.has(r.pattern))
+            .map((r) => ({
+              value: r.pattern,
+              name: `${r.pattern} ${chalk.grey(`(${r.type})`)}`,
+              checked: cachedReposPatterns.has(r.pattern),
+            })),
+          new inquirer.Separator(),
+          { value: customSymbol, name: i18n.t('migrate.apply.create') },
+        ],
+        when: (ans) => ans.confirm,
+      },
+      {
+        type: 'input',
+        name: 'custom.pattern',
+        message: 'Pattern:',
+        when: (ans) => ans.confirm && ans.repos.includes(customSymbol),
+      },
+      {
+        type: 'list',
+        name: 'custom.type',
+        message: 'Type:',
+        choices: ['counter5', 'ezpaarse'],
+        when: (ans) => ans.confirm && ans.repos.includes(customSymbol),
+      },
+    ],
+  );
+
+  if (!answers.confirm) {
+    return cachedRepos;
+  }
+
+  let res = answers.repos
+    .map((p) => missingRepos.find((r) => r.pattern === p))
+    .filter((r) => !!r);
+
+  if (answers.custom) {
+    const newRepos = [
+      ...res,
+      answers.custom,
+    ];
+
+    res = [
+      ...newRepos,
+      // ask for more repos
+      ...await createReposFromSpaces({
+        ...opts,
+        repositories: [
+          ...opts.repositories,
+          ...newRepos,
+        ],
+      }),
+    ];
+  }
+
+  opts.answers.createdRepos[opts.institution.id] = res;
+  return res;
+};
+
 const transformInstitution = async (institution, opts) => {
   const spaces = await spacesOfInstitution({ institution, answers: opts.answers });
-  const repositories = await reposOfInstitution({ institution, answers: opts.answers });
+  let repositories = await reposOfInstitution({ institution, answers: opts.answers });
+
+  repositories = [
+    ...repositories,
+    ...await createReposFromSpaces({
+      institution,
+      spaces,
+      repositories,
+      answers: opts.answers,
+    }),
+  ].filter((r) => !!r?.type);
 
   return {
     id: institution.id,
@@ -363,7 +494,7 @@ exports.handler = async function handler(argv) {
 
   // prepare answer file
   const answerPath = path.resolve(file);
-  let answers = { repo: [], space: [] };
+  let answers = { repo: {}, space: {}, createdRepos: {} };
   if (fs.existsSync(answerPath)) {
     answers = JSON.parse(await fsp.readFile(answerPath, 'utf-8'));
     // TODO: validation
