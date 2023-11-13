@@ -106,7 +106,6 @@ async function importInstitutions(filePath, bulkSize) {
   for await (const line of rl) {
     i += 1;
     data.push(JSON.parse(line));
-    bar.setTotal(bar.total + 1);
     if (i === bulkSize) {
       // import institutions, repo, space, members
       await institutions.import(data);

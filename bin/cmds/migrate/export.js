@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const fsp = require('fs/promises');
 
+const cliProgress = require('cli-progress');
 const chalk = require('chalk');
 const elastic = require('../../../lib/app/elastic');
 
@@ -31,6 +32,13 @@ const exportUsers = async (opts) => {
   const userFile = fs.createWriteStream(path.join(opts.dumpFolder, 'users.jsonl'));
   console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'users' })));
 
+  const bar = new cliProgress.SingleBar(
+    {
+      format: chalk.grey('    {bar} | {percentage}% | {value}/{total}'),
+    },
+    cliProgress.Presets.shades_classic,
+  );
+
   const { body } = await elastic.security.getUser({});
   const users = Object.values(body).filter((u) => {
     if (u.metadata._reserved) {
@@ -42,11 +50,14 @@ const exportUsers = async (opts) => {
     return u.username !== 'ezmesure-admin';
   });
 
+  bar.start(users.length, 0);
   for (const user of users) {
     userFile.write(`${JSON.stringify(user)}\n`);
+    bar.increment();
   }
 
   userFile.end();
+  bar.stop();
   console.log(chalk.green(
     i18n.t('migrate.export.ok', { count: users.length, type: 'users', out: chalk.underline(userFile.path) }),
   ));
@@ -60,6 +71,13 @@ const exportRoles = async (opts) => {
   const roleFile = fs.createWriteStream(path.join(opts.dumpFolder, 'roles.jsonl'));
   console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'roles' })));
 
+  const bar = new cliProgress.SingleBar(
+    {
+      format: chalk.grey('    {bar} | {percentage}% | {value}/{total}'),
+    },
+    cliProgress.Presets.shades_classic,
+  );
+
   const { body } = await elastic.security.getRole({});
   const entries = Object.entries(body).filter(([, r]) => {
     if (r.metadata._reserved) {
@@ -68,14 +86,18 @@ const exportRoles = async (opts) => {
     return !r.metadata._deprecated;
   });
 
-  const roles = [];
-  for (const [name, raw] of entries) {
-    const role = { name, ...raw };
-    roleFile.write(`${JSON.stringify(role)}\n`);
-    roles.push(role);
-  }
+  bar.start(entries.length, 0);
+  const roles = entries.map(
+    ([name, raw]) => {
+      const role = { name, ...raw };
+      roleFile.write(`${JSON.stringify(role)}\n`);
+      bar.increment();
+      return role;
+    },
+  );
 
   roleFile.end();
+  bar.stop();
   console.log(chalk.green(
     i18n.t('migrate.export.ok', { count: roles.length, type: 'roles', out: chalk.underline(roleFile.path) }),
   ));
@@ -88,6 +110,14 @@ const exportDepositors = async (opts) => {
   console.group();
   const depositorFolder = path.join(opts.dumpFolder, 'depositors');
   await fsp.mkdir(depositorFolder, { recursive: true });
+
+  const multibar = new cliProgress.MultiBar(
+    {
+      emptyOnZero: true,
+      format: chalk.grey('    {bar} | {type} | {percentage}% | {value}/{total}'),
+    },
+    cliProgress.Presets.shades_classic,
+  );
 
   const res = {};
   const fileStreams = {};
@@ -106,18 +136,20 @@ const exportDepositors = async (opts) => {
   );
   console.log(chalk.grey(i18n.t('migrate.export.scroll.got', { type: 'depositors' })));
 
+  const bars = {};
+
   for await (const { body: result } of scroll) {
-    console.log(chalk.grey(i18n.t('migrate.export.scroll.heartbeat')));
-    console.group();
-    for (const [type, docs] of Object.entries(res)) {
-      console.log(chalk.grey(`  ${type}: ${docs.length}`));
+    for (const type of Object.keys(fileStreams)) {
+      const typeInCurrent = result.hits.hits.filter((h) => h._source.type === type).length;
+      bars[type].setTotal(res[type].length + typeInCurrent);
     }
-    console.groupEnd();
 
     for (const { _id, _source: depositor } of result.hits.hits) {
       // init stream if not opened
       if (!fileStreams[depositor.type]) {
-        console.log(chalk.grey(i18n.t('migrate.export.file', { type: depositor.type })));
+        bars[depositor.type] = multibar.create(0, 0);
+        multibar.log(`  ${chalk.grey(i18n.t('migrate.export.file', { type: depositor.type }))}\n`);
+
         fileStreams[depositor.type] = fs.createWriteStream(path.join(depositorFolder, `${depositor.type}.jsonl`));
         res[depositor.type] = [];
       }
@@ -129,9 +161,11 @@ const exportDepositors = async (opts) => {
 
       fileStreams[depositor.type].write(`${JSON.stringify(doc)}\n`);
       res[depositor.type].push(doc);
+      bars[depositor.type].increment(1, { type: depositor.type });
     }
   }
 
+  multibar.stop();
   // close all opened streams
   for (const type of Object.keys(fileStreams)) {
     console.log(chalk.green(
@@ -146,25 +180,43 @@ const exportDepositors = async (opts) => {
 const exportInstitutions = async (opts) => {
   console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'institutions' })));
   console.group();
-  const res = [];
   const institutionFile = fs.createWriteStream(path.join(opts.dataFolder, 'institutions.jsonl'));
   console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'institutions' })));
 
-  for (const raw of opts.depositors.institution) {
-    const roles = opts.roles.filter((r) => r.name === raw.role || r.name === `${raw.role}_read_only`);
-    const rolesNames = new Set(roles.map((r) => r.name));
+  // creating multibar to allow logging over
+  const bars = new cliProgress.MultiBar(
+    {
+      format: chalk.grey('    {bar} | {percentage}% | {value}/{total}'),
+    },
+    cliProgress.Presets.shades_classic,
+  );
+  const bar = bars.create(opts.depositors.institution.length);
 
-    const institution = {
-      ...raw,
-      roles,
-      sushi: opts.depositors.sushi.filter((s) => s.institutionId === raw.id),
-      members: opts.users.filter((u) => u.roles.some((r) => rolesNames.has(r))),
-    };
+  const res = opts.depositors.institution.map(
+    (raw) => {
+      const roles = opts.roles.filter((r) => r.name === raw.role || r.name === `${raw.role}_read_only`);
+      const rolesNames = new Set(roles.map((r) => r.name));
 
-    institutionFile.write(`${JSON.stringify(institution)}\n`);
-    res.push(institution);
-  }
+      const institution = {
+        ...raw,
+        roles,
+        sushi: opts.depositors.sushi.filter((s) => s.institutionId === raw.id),
+        members: opts.users.filter((u) => u.roles.some((r) => rolesNames.has(r))),
+      };
 
+      if (roles.length <= 0) {
+        console.log(chalk.yellow(i18n.t('migrate.export.noRoles', { institution: chalk.underline(institution.name) })));
+      } else if (institution.members.length <= 0) {
+        console.log(chalk.yellow(i18n.t('migrate.export.noMembers', { institution: chalk.underline(institution.name) })));
+      }
+
+      institutionFile.write(`${JSON.stringify(institution)}\n`);
+      bar.increment();
+      return institution;
+    },
+  );
+
+  bars.stop();
   console.log(chalk.green(
     i18n.t('migrate.export.ok', { count: res.length, type: 'institutions', out: chalk.underline(institutionFile.path) }),
   ));

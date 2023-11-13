@@ -957,7 +957,9 @@
 			"going": "i Exporting {{type}}...",
 			"file": "  Opening new file for {{type}}...",
 			"ok": "✔️ {{count}} {{type}} exported to \"{{out}}\"",
-			"dataOk": "✔️ Data exported to \"{{out}}\""
+			"dataOk": "✔️ Data exported to \"{{out}}\"",
+			"noRoles": "! Can't get members: No roles found for {{institution}}",
+			"noMembers": "! No members found for {{institution}}"
 		},
 
 		"apply": {
