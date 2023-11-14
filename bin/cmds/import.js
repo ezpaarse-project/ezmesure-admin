@@ -50,17 +50,8 @@ exports.builder = function builder(yargs) {
  * @returns {Promise<Object[]>} data parsed from file
  */
 async function readJSONL(filePath) {
-  let readStream;
-
-  try {
-    readStream = fs.createReadStream(filePath);
-  } catch (err) {
-    console.error(`Cannot readstream ${filePath}`);
-    process.exit(1);
-  }
-
   const rl = readline.createInterface({
-    input: readStream,
+    input: fs.createReadStream(filePath),
     crlfDelay: Infinity,
   });
 
