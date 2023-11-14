@@ -140,8 +140,8 @@ async function importUsers(opts) {
     chalk.green(i18n.t(
       'import.users.ok',
       {
-        total: counters.total,
-        created: counters.created,
+        total: `${counters.total}`,
+        created: `${counters.created}`,
         conflicts: chalk.yellow(counters.conflicts),
         errors: chalk.red(counters.errors),
       },
@@ -161,12 +161,13 @@ async function importInstitutions(opts) {
     importer: (chunk) => institutions.import(chunk),
   });
 
+  console.log(counters);
   console.log(
     chalk.green(i18n.t(
       'import.institutions.ok',
       {
-        total: counters.total,
-        created: counters.created,
+        total: `${counters.total}`,
+        created: `${counters.created}`,
         conflicts: chalk.yellow(counters.conflicts),
         errors: chalk.red(counters.errors),
       },
@@ -190,8 +191,8 @@ async function importSushiEndpoints(opts) {
     chalk.green(i18n.t(
       'import.sushi.ok',
       {
-        total: counters.total,
-        created: counters.created,
+        total: `${counters.total}`,
+        created: `${counters.created}`,
         conflicts: chalk.yellow(counters.conflicts),
         errors: chalk.red(counters.errors),
       },
