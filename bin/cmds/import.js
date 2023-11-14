@@ -42,28 +42,48 @@ exports.builder = function builder(yargs) {
     });
 };
 
+/**
+ * Read JSONL file line by line, parse content and returns it
+ *
+ * @param {string} filePath The path to the JSONL file
+ *
+ * @returns {Promise<Object[]>} data parsed from file
+ */
 async function readJSONL(filePath) {
   let readStream;
 
   try {
-    readStream = await fs.createReadStream(filePath);
+    readStream = fs.createReadStream(filePath);
   } catch (err) {
     console.error(`Cannot readstream ${filePath}`);
     process.exit(1);
   }
 
-  return readline.createInterface({
+  const rl = readline.createInterface({
     input: readStream,
     crlfDelay: Infinity,
   });
+
+  const data = [];
+  for await (const line of rl) {
+    data.push(JSON.parse(line));
+  }
+  return data;
 }
 
+/**
+ * Import JSONL file into ezMESURE Reloaded
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.filePath The path of the JSONL file
+ * @param {number} opts.bulkSize The size of chunks
+ * @param {string} opts.logPath The path to the log file
+ * @param {(chunk: Object) => Promise<any>} opts.importer The importer
+ */
 async function importJSONL(opts) {
   const now = new Date();
-  const rl = await readJSONL(opts.filePath);
   console.log(chalk.grey(i18n.t('import.file', { type: 'logs' })));
   const logFile = fs.createWriteStream(opts.logPath);
-  const data = [];
 
   const multiBar = new cliProgress.MultiBar(
     {
@@ -73,10 +93,8 @@ async function importJSONL(opts) {
   );
   const bar = multiBar.create(0, 0);
 
-  for await (const line of rl) {
-    data.push(JSON.parse(line));
-    bar.setTotal(bar.total + 1);
-  }
+  const data = await readJSONL(opts.filePath);
+  bar.setTotal(data.length);
 
   const counters = {
     errors: 0,
@@ -125,15 +143,23 @@ async function importJSONL(opts) {
   return counters;
 }
 
+/**
+ * Import users into ezMESURE Reloaded
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.inFolder The in folder
+ * @param {string} opts.outFolder The out folder
+ * @param {number} opts.bulkSize The size of chunks
+ */
 async function importUsers(opts) {
   console.log(chalk.blue(i18n.t('import.users.going')));
   console.group();
 
   const counters = await importJSONL({
-    filePath: opts.filePath,
+    filePath: path.resolve(opts.inFolder, 'users.jsonl'),
     bulkSize: opts.bulkSize,
-    logPath: opts.logPath,
-    importer: (chunk) => users.import(chunk),
+    logPath: path.join(opts.outFolder, 'user.log'),
+    importer: (chunks) => users.import(chunks),
   });
 
   console.log(
@@ -150,15 +176,23 @@ async function importUsers(opts) {
   console.groupEnd();
 }
 
+/**
+ * Import institutions into ezMESURE Reloaded
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.inFolder The in folder
+ * @param {string} opts.outFolder The out folder
+ * @param {number} opts.bulkSize The size of chunks
+ */
 async function importInstitutions(opts) {
   console.log(chalk.blue(i18n.t('import.institutions.going')));
   console.group();
 
   const counters = await importJSONL({
-    filePath: opts.filePath,
+    filePath: path.resolve(opts.inFolder, 'sushis.jsonl'),
     bulkSize: opts.bulkSize,
-    logPath: opts.logPath,
-    importer: (chunk) => institutions.import(chunk),
+    logPath: path.join(opts.outFolder, 'sushis.log'),
+    importer: (chunks) => institutions.import(chunks),
   });
 
   console.log(
@@ -175,15 +209,23 @@ async function importInstitutions(opts) {
   console.groupEnd();
 }
 
+/**
+ * Import endpoints into ezMESURE Reloaded
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.inFolder The in folder
+ * @param {string} opts.outFolder The out folder
+ * @param {number} opts.bulkSize The size of chunks
+ */
 async function importSushiEndpoints(opts) {
   console.log(chalk.blue(i18n.t('import.sushi.going')));
   console.group();
 
   const counters = await importJSONL({
-    filePath: opts.filePath,
+    filePath: path.resolve(opts.inFolder, 'institutions.jsonl'),
     bulkSize: opts.bulkSize,
-    logPath: opts.logPath,
-    importer: (chunk) => sushiEndpoint.import(chunk),
+    logPath: path.join(opts.outFolder, 'institutions.log'),
+    importer: (chunks) => sushiEndpoint.import(chunks),
   });
 
   console.log(
@@ -223,8 +265,8 @@ exports.handler = async function handler(argv) {
   }
 
   // ask for confirmation
-  if (!yes) {
-    const confirm = await inquirer.prompt({
+  const confirm = await inquirer.prompt(
+    {
       type: 'confirm',
       name: 'value',
       message: i18n.t(
@@ -235,10 +277,11 @@ exports.handler = async function handler(argv) {
         },
       ),
       default: true,
-    });
-    if (!confirm.value) {
-      process.exit(0);
-    }
+    },
+    { value: yes },
+  );
+  if (!confirm.value) {
+    process.exit(0);
   }
 
   // ensure out folder
@@ -250,19 +293,19 @@ exports.handler = async function handler(argv) {
 
   try {
     await importUsers({
-      filePath: path.resolve(exportedpath, 'users.jsonl'),
+      inFolder: exportedpath,
+      outFolder,
       bulkSize,
-      logPath: path.join(outFolder, 'user.log'),
     });
     await importSushiEndpoints({
-      filePath: path.resolve(exportedpath, 'sushis.jsonl'),
+      inFolder: exportedpath,
+      outFolder,
       bulkSize,
-      logPath: path.join(outFolder, 'sushis.log'),
     });
     await importInstitutions({
-      filePath: path.resolve(exportedpath, 'institutions.jsonl'),
+      inFolder: exportedpath,
+      outFolder,
       bulkSize,
-      logPath: path.join(outFolder, 'institutions.log'),
     });
 
     console.log(chalk.green(i18n.t('import.ok', { out: chalk.underline(outFolder) })));

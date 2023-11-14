@@ -26,6 +26,14 @@ exports.builder = function builder(yargs) {
     });
 };
 
+/**
+ * Export users into file
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.dumpFolder Path to the dump folder
+ *
+ * @returns {Promise<Object[]>} List of users
+ */
 const exportUsers = async (opts) => {
   console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'users' })));
   console.group();
@@ -73,6 +81,14 @@ const exportUsers = async (opts) => {
   return users;
 };
 
+/**
+ * Export roles into file
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.dumpFolder Path to the dump folder
+ *
+ * @returns {Promise<Object[]>} List of roles
+ */
 const exportRoles = async (opts) => {
   console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'roles' })));
   console.group();
@@ -121,6 +137,15 @@ const exportRoles = async (opts) => {
   return roles;
 };
 
+/**
+ * Export depositors index into multiple files
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.dumpFolder Path to the dump folder
+ * @param {number} opts.bulkSize Size of scroll
+ *
+ * @returns {Promise<Record<string, Object[]>>} Exported depositors, items are grouped by type
+ */
 const exportDepositors = async (opts) => {
   console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'depositors' })));
   console.group();
@@ -201,6 +226,19 @@ const exportDepositors = async (opts) => {
   return res;
 };
 
+/**
+ * Export institutions from exported depositors
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.dataFolder Path to the out folder
+ * @param {Object} opts.depositors Exported depositors
+ * @param {Array} opts.depositors.institution Exported institutions from depositors
+ * @param {Array} opts.depositors.sushi Exported sushi creds from depositors
+ * @param {Array} opts.roles Exported roles
+ * @param {Array} opts.users Exportes users
+ *
+ * @returns {Promise<Object[]>} Exported institutions
+ */
 const exportInstitutions = async (opts) => {
   console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'institutions' })));
   console.group();

@@ -23,6 +23,7 @@ exports.builder = function builder(yargs) {
       alias: 'i',
       describe: i18n.t('migrate.apply.options.interactive'),
       boolean: true,
+      default: true,
     })
     .option('f', {
       alias: 'file',
@@ -32,6 +33,16 @@ exports.builder = function builder(yargs) {
     });
 };
 
+/**
+ * Extract memberships of a legacy institution
+ *
+ * @param {Object} opts Various options
+ * @param {Object} opts.institution Legacy institution processed
+ * @param {Object[]} opts.spaces Spaces extracted from institution
+ * @param {Object[]} opts.repositories Repos extracted from institution
+ *
+ * @returns {Object[]} Memberships of the institution
+ */
 const membershipsOfInstitution = (opts) => {
   const features = [
     'institution',
@@ -81,6 +92,18 @@ const membershipsOfInstitution = (opts) => {
   );
 };
 
+/**
+ * Try to guess the type of repo/space, asking if not sure
+ *
+ * @param {Object} opts Various options
+ * @param {"repo" | "space"} opts.type Type of entity processed
+ * @param {string[]} opts.ids Ids of spaces/repos
+ * @param {Object} opts.institution Legacy institution processed
+ * @param {Object} opts.answers Cached answers
+ * @param {boolean} opts.interactive Is the command is interactive
+ *
+ * @returns {Promise<Object>} Mapping between id and type of entity
+ */
 const getTypeOfSpacesOrRepos = async (opts) => {
   const unknownTypes = [];
   const res = {};
@@ -166,6 +189,16 @@ const getTypeOfSpacesOrRepos = async (opts) => {
   return res;
 };
 
+/**
+ * Shorthand to generate spaces from id, type and institution
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.id Id of the space
+ * @param {Object} opts.institution Legacy institution processed
+ * @param {"ezpaarse" | "counter5"} opts.type Type of the repo
+ *
+ * @returns {Object} The space
+ */
 const genSpace = (opts) => {
   const typeLabel = opts.type === 'counter5' ? 'éditeur' : 'ezpaarse';
 
@@ -183,6 +216,16 @@ const genSpace = (opts) => {
   };
 };
 
+/**
+ * Extract spaces of a legacy institution, asking if unsure of the type
+ *
+ * @param {Object} opts Various options
+ * @param {Object} opts.institution Legacy institution processed
+ * @param {Object} opts.answers Cached answers
+ * @param {boolean} opts.interactive Is the command is interactive
+ *
+ * @returns {Promise<Object[]>} List of spaces of an institution
+ */
 const spacesOfInstitution = async (opts) => {
   const bannedSpaces = new Set(['space:bienvenue', 'space:default']);
   let ids = [];
@@ -203,6 +246,7 @@ const spacesOfInstitution = async (opts) => {
     type: 'space',
     ids,
     institution: opts.institution.name,
+    interactive: opts.interactive,
     answers: opts.answers,
   });
 
@@ -216,11 +260,31 @@ const spacesOfInstitution = async (opts) => {
   return spaces.filter((s) => s?.type);
 };
 
+/**
+ * Shorthand to generate repo from id and type
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.id Pattern/Id of the repo
+ * @param {"ezpaarse" | "counter5"} opts.type Type of the repo
+ *
+ * @returns {Object} The repo
+ */
 const genRepo = (opts) => ({
   pattern: opts.id,
   type: opts.type,
 });
 
+/**
+ * Create missing repos, guessing from spaces, asking if unsure
+ *
+ * @param {Object} opts Various options
+ * @param {Object} opts.institution Legacy institution processed
+ * @param {Object[]} opts.spaces Spaces extracted from institution
+ * @param {Object} opts.answers Cached answers
+ * @param {boolean} opts.interactive Is the command is interactive
+ *
+ * @returns {Promise<Object[]>} List of created repos
+ */
 const createReposFromSpaces = async (opts) => {
   const cachedRepos = opts.answers.createdRepos[opts.institution.id] ?? [];
   const repos = [...opts.repositories, ...cachedRepos];
@@ -339,6 +403,17 @@ const createReposFromSpaces = async (opts) => {
   return res;
 };
 
+/**
+ * Extract repos of a legacy institution, asking if unsure of the type or if there's missing repos
+ *
+ * @param {Object} opts Various options
+ * @param {Object} opts.institution Legacy institution processed
+ * @param {Object[]} opts.spaces Spaces extracted from institution
+ * @param {Object} opts.answers Cached answers
+ * @param {boolean} opts.interactive Is the command is interactive
+ *
+ * @returns {Promise<Object[]>} List of repos of an institution
+ */
 const reposOfInstitution = async (opts) => {
   let ids = [];
   for (const role of opts.institution.roles) {
@@ -353,6 +428,7 @@ const reposOfInstitution = async (opts) => {
   const types = await getTypeOfSpacesOrRepos({
     type: 'repo',
     ids,
+    interactive: opts.interactive,
     institution: opts.institution.name,
     answers: opts.answers,
   });
@@ -367,12 +443,22 @@ const reposOfInstitution = async (opts) => {
   return [
     ...repositories,
     ...await createReposFromSpaces({
-      ...opts,
+      institution: opts.institution,
+      interactive: opts.interactive,
+      spaces: opts.spaces,
       repositories,
+      answers: opts.answers,
     }),
   ].filter((r) => r?.type);
 };
 
+/**
+ * Transform legacy credential into a reloaded one
+ *
+ * @param {Object} cred Current credential processed
+ *
+ * @returns {Object} The new credential
+ */
 const transformSushiCred = (cred) => ({
   id: cred.id,
   customerId: cred.customerId,
@@ -385,6 +471,13 @@ const transformSushiCred = (cred) => ({
   tags: [],
 });
 
+/**
+ * Transform legacy user into a reloaded one
+ *
+ * @param {Object} user Current user processed
+ *
+ * @returns {Object} The new user
+ */
 const transformUser = (user) => ({
   username: user.username,
   fullName: user.full_name || '',
@@ -393,6 +486,13 @@ const transformUser = (user) => ({
   isAdmin: user.roles.includes('superuser'),
 });
 
+/**
+ * Transform legacy endpoint into a reloaded one
+ *
+ * @param {Object} endpoint Current endpoint processed
+ *
+ * @returns {Object} The new endpoint
+ */
 const transformSushiEndpoint = (endpoint) => ({
   id: endpoint.id,
   sushiUrl: endpoint.sushiUrl,
@@ -412,23 +512,25 @@ const transformSushiEndpoint = (endpoint) => ({
   defaultApiKey: '',
 });
 
+/**
+ * Transform legacy institution into a reloaded one
+ *
+ * @param {Object} institution Current institution processed
+ * @param {Object} opts Various options
+ * @param {Object} opts.answers Cached answers
+ * @param {boolean} opts.interactive Is the command is interactive
+ *
+ * @returns {Promise<Object>} The new institution
+ */
 const transformInstitution = async (institution, opts) => {
   const spaces = await spacesOfInstitution({ institution, answers: opts.answers });
-  let repositories = await reposOfInstitution({
+
+  const repositories = await reposOfInstitution({
     institution,
     spaces,
+    interactive: opts.interactive,
     answers: opts.answers,
   });
-
-  repositories = [
-    ...repositories,
-    ...await createReposFromSpaces({
-      institution,
-      spaces,
-      repositories,
-      answers: opts.answers,
-    }),
-  ].filter((r) => !!r?.type);
 
   return {
     id: institution.id,
@@ -459,6 +561,13 @@ const transformInstitution = async (institution, opts) => {
   };
 };
 
+/**
+ * Read JSONL file line by line, parse content and write it into a PassThrough stream
+ *
+ * @param {string} filePath The path to the JSONL file
+ *
+ * @returns {stream.PassThrough}
+ */
 const JSONL2Stream = (filePath) => {
   const rl = readline.createInterface({
     input: fs.createReadStream(filePath),
@@ -474,6 +583,18 @@ const JSONL2Stream = (filePath) => {
   return s;
 };
 
+/**
+ * Pipe given JSONL file into another JSONL file, transforming data row by row
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.i18nKey i18n key to use to localise console logs
+ * @param {boolean} opts.progressBar Should show progress bar. Disable if interactive
+ * @param {(chunk: Object) => Promise<Object> | Object} opts.transformer The transformer
+ * @param {string} opts.inFile Path to the input file
+ * @param {string} opts.outFile Path to the output file
+ *
+ * @returns {Promise<void>} Promise is resolved when all input file is processed
+ */
 const transformJSONL = async (opts) => {
   console.log(chalk.blue(i18n.t(`migrate.apply.${opts.i18nKey}.going`)));
   console.group();
@@ -496,7 +617,7 @@ const transformJSONL = async (opts) => {
       objectMode: true,
       transform: (chunk, e, cb) => {
         bar?.setTotal(bar?.total + 1);
-        Promise.resolve(opts.transformer(chunk, ...(opts.transformerParams ?? [])))
+        Promise.resolve(opts.transformer(chunk))
           .then((res) => cb(null, res))
           .catch((err) => cb(err));
       },
@@ -559,8 +680,7 @@ exports.handler = async function handler(argv) {
     await transformJSONL({
       i18nKey: 'institutions',
       progressBar: !interactive,
-      transformer: transformInstitution,
-      transformerParams: [{ answers, interactive }],
+      transformer: (chunk) => transformInstitution(chunk, { answers, interactive }),
       inFile: path.join(inFolder, 'institutions.jsonl'),
       outFile: path.join(outFolder, 'institutions.jsonl'),
     });
@@ -569,8 +689,7 @@ exports.handler = async function handler(argv) {
     await transformJSONL({
       i18nKey: 'users',
       progressBar: true,
-      transformer: transformUser,
-      // transformerParams: [],
+      transformer: (chunk) => transformUser(chunk),
       inFile: path.join(inFolder, 'dump/users.jsonl'),
       outFile: path.join(outFolder, 'users.jsonl'),
     });
@@ -579,8 +698,7 @@ exports.handler = async function handler(argv) {
     await transformJSONL({
       i18nKey: 'sushi',
       progressBar: true,
-      transformer: transformSushiEndpoint,
-      // transformerParams: [],
+      transformer: (chunk) => transformSushiEndpoint(chunk),
       inFile: path.join(inFolder, 'dump/depositors/sushi-endpoint.jsonl'),
       outFile: path.join(outFolder, 'sushis.jsonl'),
     });
