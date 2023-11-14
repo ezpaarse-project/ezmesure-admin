@@ -161,7 +161,6 @@ async function importInstitutions(opts) {
     importer: (chunk) => institutions.import(chunk),
   });
 
-  console.log(counters);
   console.log(
     chalk.green(i18n.t(
       'import.institutions.ok',
@@ -266,7 +265,7 @@ exports.handler = async function handler(argv) {
       logPath: path.join(outFolder, 'institutions.log'),
     });
 
-    console.log(chalk.green(`✔️ Import successful, logs are available in ${chalk.underline(outFolder)}`));
+    console.log(chalk.green(i18n.t('import.ok', { out: chalk.underline(outFolder) })));
   } catch (error) {
     const now = new Date();
     console.log(chalk.grey(i18n.t('import.file', { type: 'error logs' })));
