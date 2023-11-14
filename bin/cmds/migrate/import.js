@@ -53,6 +53,7 @@ async function readJSONL(filePath) {
 }
 
 async function importJSONL(opts) {
+  const now = new Date();
   const rl = await readJSONL(opts.filePath);
   const logFile = fs.createWriteStream(opts.logPath);
   const data = [];
@@ -107,7 +108,7 @@ async function importJSONL(opts) {
       }
 
       if (message) {
-        logFile.write(`${message}\n${JSON.stringify(item.data ?? {})}\n\n`);
+        logFile.write(`${now.toISOString()} ${message}\n${JSON.stringify(item.data ?? {})}\n\n`);
       }
     }
   }
@@ -208,7 +209,8 @@ exports.handler = async function handler(argv) {
 
     console.log(chalk.green('✔️ Import successful'));
   } catch (error) {
-    await fsp.writeFile(path.join(outFolder, 'error.log'), `${error}`, 'utf-8');
+    const now = new Date();
+    await fsp.writeFile(path.join(outFolder, 'error.log'), `${now.toISOString()} error: ${error}`, 'utf-8');
     throw error;
   }
 };

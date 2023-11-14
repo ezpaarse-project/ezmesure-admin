@@ -589,7 +589,8 @@ exports.handler = async function handler(argv) {
 
     console.log(chalk.green(i18n.t('migrate.apply.dataOk', { out: chalk.underline(outFolder) })));
   } catch (error) {
-    await fsp.writeFile(path.join(outFolder, 'error.log'), `${error}`, 'utf-8');
+    const now = new Date();
+    await fsp.writeFile(path.join(outFolder, 'error.log'), `${now.toISOString()} error: ${error}`, 'utf-8');
     throw error;
   }
 };

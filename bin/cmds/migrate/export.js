@@ -204,6 +204,7 @@ const exportDepositors = async (opts) => {
 const exportInstitutions = async (opts) => {
   console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'institutions' })));
   console.group();
+  const now = new Date();
   const institutionFile = fs.createWriteStream(path.join(opts.dataFolder, 'institutions.jsonl'));
   const logFile = fs.createWriteStream(path.join(opts.dataFolder, 'institutions.log'));
   console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'institutions' })));
@@ -229,10 +230,10 @@ const exportInstitutions = async (opts) => {
       };
 
       if (roles.length <= 0) {
-        logFile.write(`warn: ${i18n.t('migrate.export.noRoles', { institution: institution.name })}\n`);
+        logFile.write(`${now.toISOString()} warn: ${i18n.t('migrate.export.noRoles', { institution: institution.name })}\n`);
         warns += 1;
       } else if (institution.members.length <= 0) {
-        logFile.write(`warn: ${i18n.t('migrate.export.noMembers', { institution: institution.name })}\n`);
+        logFile.write(`${now.toISOString()} warn: ${i18n.t('migrate.export.noMembers', { institution: institution.name })}\n`);
         warns += 1;
       }
 
@@ -279,7 +280,8 @@ exports.handler = async function handler(argv) {
 
     console.log(chalk.green(`✔️ Data exported to "${chalk.underline(dataFolder)}"`));
   } catch (error) {
-    await fsp.writeFile(path.join(dataFolder, 'error.log'), `${error}`, 'utf-8');
+    const now = new Date();
+    await fsp.writeFile(path.join(dataFolder, 'error.log'), `${now.toISOString()} error: ${error}`, 'utf-8');
     throw error;
   }
 };
