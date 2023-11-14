@@ -260,6 +260,7 @@ const createReposFromSpaces = async (opts) => {
             ),
           },
         ),
+        default: true,
         when: () => missingRepos.length > 0,
       },
       {
@@ -532,14 +533,15 @@ exports.handler = async function handler(argv) {
   } = argv;
   const inFolder = path.resolve(exportedpath);
 
-  // TODO: check folder
+  if (!fs.existsSync(exportedpath)) {
+    throw new Error(i18n.t('migrate.apply.noInDir'));
+  }
 
   // prepare answer file
   const answerPath = path.resolve(file);
   let answers = { repo: {}, space: {}, createdRepos: {} };
   if (fs.existsSync(answerPath)) {
     answers = JSON.parse(await fsp.readFile(answerPath, 'utf-8'));
-    // TODO: validation
   }
 
   // prepare out folder
@@ -590,6 +592,7 @@ exports.handler = async function handler(argv) {
     console.log(chalk.green(i18n.t('migrate.apply.dataOk', { out: chalk.underline(outFolder) })));
   } catch (error) {
     const now = new Date();
+    console.log(chalk.grey(i18n.t('migrate.apply.file', { type: 'error logs' })));
     await fsp.writeFile(path.join(outFolder, 'error.log'), `${now.toISOString()} error: ${error}`, 'utf-8');
     throw error;
   }

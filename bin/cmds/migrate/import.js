@@ -8,6 +8,7 @@ const readline = require('readline');
 
 const cliProgress = require('cli-progress');
 const chalk = require('chalk');
+const inquirer = require('inquirer');
 
 const users = require('../../../lib/users');
 const ezmesure = require('../../../lib/app/ezmesure');
@@ -26,12 +27,17 @@ exports.builder = function builder(yargs) {
     })
     .option('o', {
       alias: 'out',
-      describe: i18n.t('migrate.apply.options.out'),
+      describe: i18n.t('import.options.out'),
       type: 'string',
     })
     .option('k', {
       alias: 'insecure',
       describe: i18n.t('import.options.insecure'),
+      type: 'boolean',
+    })
+    .option('y', {
+      alias: 'yes',
+      describe: i18n.t('import.options.yes'),
       type: 'boolean',
     });
 };
@@ -55,6 +61,7 @@ async function readJSONL(filePath) {
 async function importJSONL(opts) {
   const now = new Date();
   const rl = await readJSONL(opts.filePath);
+  console.log(chalk.grey(i18n.t('import.file', { type: 'logs' })));
   const logFile = fs.createWriteStream(opts.logPath);
   const data = [];
 
@@ -78,7 +85,7 @@ async function importJSONL(opts) {
     total: 0,
   };
   const chunkSize = opts.bulkSize || data.length;
-  console.log(chalk.grey(`  Using chunks of: ${chunkSize}`));
+  console.log(chalk.grey(i18n.t('import.chunks', { chunkSize })));
   for (let i = 0; i < data.length; i += chunkSize) {
     const chunk = data.slice(i, i + chunkSize);
     const { data: response } = await opts.importer(chunk);
@@ -97,10 +104,10 @@ async function importJSONL(opts) {
       let message;
       switch (item.status) {
         case 'error':
-          message = `error: ${item.message || 'Unknown error from API'}`;
+          message = `error: ${item.message || i18n.t('import.unknownError')}`;
           break;
         case 'conflict':
-          message = `warn: ${item.message || 'Unknown warning from API'}`;
+          message = `warn: ${item.message || i18n.t('import.unknownWarn')}`;
           break;
 
         default:
@@ -119,7 +126,7 @@ async function importJSONL(opts) {
 }
 
 async function importUsers(opts) {
-  console.log(chalk.blue('i Importing users...'));
+  console.log(chalk.blue(i18n.t('import.users.going')));
   console.group();
 
   const counters = await importJSONL({
@@ -129,12 +136,22 @@ async function importUsers(opts) {
     importer: (chunk) => users.import(chunk),
   });
 
-  console.log(chalk.green(`✔️ ${counters.total} users imported (${counters.created} created, ${chalk.yellow(counters.conflicts)} conflicts, ${chalk.red(counters.errors)} errors)`));
+  console.log(
+    chalk.green(i18n.t(
+      'import.users.ok',
+      {
+        total: counters.total,
+        created: counters.created,
+        conflicts: chalk.yellow(counters.conflicts),
+        errors: chalk.red(counters.errors),
+      },
+    )),
+  );
   console.groupEnd();
 }
 
 async function importInstitutions(opts) {
-  console.log(chalk.blue('i Importing institutions...'));
+  console.log(chalk.blue(i18n.t('import.institutions.going')));
   console.group();
 
   const counters = await importJSONL({
@@ -144,12 +161,22 @@ async function importInstitutions(opts) {
     importer: (chunk) => institutions.import(chunk),
   });
 
-  console.log(chalk.green(`✔️ ${counters.total} institutions imported (${counters.created} created, ${chalk.yellow(counters.conflicts)} conflicts, ${chalk.red(counters.errors)} errors)`));
+  console.log(
+    chalk.green(i18n.t(
+      'import.institutions.ok',
+      {
+        total: counters.total,
+        created: counters.created,
+        conflicts: chalk.yellow(counters.conflicts),
+        errors: chalk.red(counters.errors),
+      },
+    )),
+  );
   console.groupEnd();
 }
 
 async function importSushiEndpoints(opts) {
-  console.log(chalk.blue('i Importing sushi endpoints...'));
+  console.log(chalk.blue(i18n.t('import.sushi.going')));
   console.group();
 
   const counters = await importJSONL({
@@ -159,7 +186,17 @@ async function importSushiEndpoints(opts) {
     importer: (chunk) => sushiEndpoint.import(chunk),
   });
 
-  console.log(chalk.green(`✔️ ${counters.total} sushis endpoints imported (${counters.created} created, ${chalk.yellow(counters.conflicts)} conflicts, ${chalk.red(counters.errors)} errors)`));
+  console.log(
+    chalk.green(i18n.t(
+      'import.sushi.ok',
+      {
+        total: counters.total,
+        created: counters.created,
+        conflicts: chalk.yellow(counters.conflicts),
+        errors: chalk.red(counters.errors),
+      },
+    )),
+  );
   console.groupEnd();
 }
 
@@ -169,11 +206,11 @@ exports.handler = async function handler(argv) {
     bulkSize,
     insecure,
     out,
+    yes,
   } = argv;
 
   if (!fs.existsSync(exportedpath)) {
-    console.error('No directory specified');
-    return;
+    throw new Error(i18n.t('import.noInDir'));
   }
 
   // prepare out folder
@@ -184,6 +221,27 @@ exports.handler = async function handler(argv) {
       `${path.basename(exportedpath)}_imported`,
     );
   }
+
+  // ask for confirmation
+  if (!yes) {
+    const confirm = await inquirer.prompt({
+      type: 'confirm',
+      name: 'value',
+      message: i18n.t(
+        'import.askConfirmation',
+        {
+          out: chalk.underline(outFolder),
+          instance: chalk.underline(ezmesure.defaults.baseURL),
+        },
+      ),
+      default: true,
+    });
+    if (!confirm.value) {
+      process.exit(0);
+    }
+  }
+
+  // ensure out folder
   await fsp.mkdir(outFolder, { recursive: true });
 
   if (insecure) {
@@ -207,9 +265,10 @@ exports.handler = async function handler(argv) {
       logPath: path.join(outFolder, 'institutions.log'),
     });
 
-    console.log(chalk.green('✔️ Import successful'));
+    console.log(chalk.green(`✔️ Import successful, logs are available in ${chalk.underline(outFolder)}`));
   } catch (error) {
     const now = new Date();
+    console.log(chalk.grey(i18n.t('import.file', { type: 'error logs' })));
     await fsp.writeFile(path.join(outFolder, 'error.log'), `${now.toISOString()} error: ${error}`, 'utf-8');
     throw error;
   }

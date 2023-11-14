@@ -150,7 +150,7 @@ const exportDepositors = async (opts) => {
       size: opts.bulkSize,
     },
   );
-  console.log(chalk.grey(i18n.t('migrate.export.scroll.got', { type: 'depositors' })));
+  console.log(chalk.grey(i18n.t('migrate.export.scroll.got', { type: 'depositors', size: opts.bulkSize })));
 
   const bars = {};
 
@@ -204,10 +204,14 @@ const exportDepositors = async (opts) => {
 const exportInstitutions = async (opts) => {
   console.log(chalk.blue(i18n.t('migrate.export.going', { type: 'institutions' })));
   console.group();
+
   const now = new Date();
+
   const institutionFile = fs.createWriteStream(path.join(opts.dataFolder, 'institutions.jsonl'));
-  const logFile = fs.createWriteStream(path.join(opts.dataFolder, 'institutions.log'));
   console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'institutions' })));
+
+  const logFile = fs.createWriteStream(path.join(opts.dataFolder, 'institutions.log'));
+  console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'institutions logs' })));
 
   const bar = new cliProgress.SingleBar(
     {
@@ -281,6 +285,7 @@ exports.handler = async function handler(argv) {
     console.log(chalk.green(`✔️ Data exported to "${chalk.underline(dataFolder)}"`));
   } catch (error) {
     const now = new Date();
+    console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'error logs' })));
     await fsp.writeFile(path.join(dataFolder, 'error.log'), `${now.toISOString()} error: ${error}`, 'utf-8');
     throw error;
   }

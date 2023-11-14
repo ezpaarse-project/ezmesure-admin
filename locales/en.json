@@ -951,7 +951,7 @@
 			},
 
 			"scroll": {
-				"got": "  Got scroll for {{type}}...",
+				"got": "  Got scroll for {{type}} (size={{size}})...",
 				"heartbeat": "  Still scrolling..."
 			},
 			"going": "i Exporting {{type}}...",
@@ -982,12 +982,12 @@
 				"going": "i Migrating sushi endpoints...",
 				"ok": "✔️ {{count}} Sushi endpoints migrated !"
 			},
-
+			"noInDir": "No directory specified",
+			"file": "  Opening new file for {{type}}...",
 			"skip": "Skip",
 			"create": "Create",
 			"answersOk": "✔️ Answers saved to \"{{out}}\"",
 			"dataOk": "✔️ Data migrated to \"{{out}}\"",
-
 			"askRepoOrSpaceType": {
 				"prompt": "Type of {{type}} of {{id}} from {{institution}} ?\n{{ids}}",
 				"idList": "All {{type}}(s): {{ids}}"
@@ -1003,8 +1003,30 @@
 	"import": {
 		"description": "Import institutions, sushis endpoints and users into ezMESURE",
 		"options": {
+			"out": "The directory where to output files (Default: inputfolder + '_imported')",
 			"bulkSize": "Number of items that should be imported at once",
-			"insecure": "Skip TLS certificates verification"
-		}
+			"insecure": "Skip TLS certificates verification",
+			"yes": "Automatic yes to prompts; assume \"yes\" as answer to all prompts and run non-interactively."
+		},
+
+		"institutions": {
+			"going": "i Importing institutions...",
+			"ok": "✔️ {{total}} institutions imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
+		"users": {
+			"going": "i Importing users...",
+			"ok": "✔️ {{total}} users imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
+		"sushi": {
+			"going": "i Importing sushi endpoints...",
+			"ok": "✔️ {{total}} endpoints imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
+		"noInDir": "No directory specified",
+		"chunks": "  Using chunks of: {{chunkSize}}",
+		"unknownError": "Unknown error from API",
+		"unknownWarn": "Unknown warning from API",
+		"askConfirmation": "Do you wish to import data from {{out}} into {{instance}}",
+		"file": "  Opening new file for {{type}}...",
+		"ok": "✔️ Import successful, logs are available in \"{{out}}\""
 	}
 }
