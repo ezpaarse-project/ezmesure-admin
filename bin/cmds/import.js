@@ -10,10 +10,10 @@ const cliProgress = require('cli-progress');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 
-const users = require('../../../lib/users');
-const ezmesure = require('../../../lib/app/ezmesure');
-const institutions = require('../../../lib/institutions');
-const sushiEndpoint = require('../../../lib/sushiEndpoints');
+const users = require('../../lib/users');
+const ezmesure = require('../../lib/app/ezmesure');
+const institutions = require('../../lib/institutions');
+const sushiEndpoint = require('../../lib/sushiEndpoints');
 
 exports.command = 'import <exported path>';
 exports.desc = i18n.t('import.description');
