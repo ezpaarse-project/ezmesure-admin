@@ -60,7 +60,7 @@ async function importJSONL(opts) {
 
   const multiBar = new cliProgress.MultiBar(
     {
-      format: chalk.grey('    {bar} {percentage}% | {value}/{total}'),
+      format: chalk.grey('    {bar} {percentage}% | ETA: {eta_formatted} | {value}/{total}'),
     },
     cliProgress.Presets.shades_classic,
   );
