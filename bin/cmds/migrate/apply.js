@@ -206,83 +206,19 @@ const spacesOfInstitution = async (opts) => {
     answers: opts.answers,
   });
 
-  return ids.map(
+  const spaces = ids.map(
     (id) => genSpace({
       id,
       institution: opts.institution,
       type: types[id],
     }),
   );
+  return spaces.filter((s) => s?.type);
 };
 
 const genRepo = (opts) => ({
   pattern: opts.id,
   type: opts.type,
-});
-
-const reposOfInstitution = async (opts) => {
-  let ids = [];
-  for (const role of opts.institution.roles) {
-    const apps = role.indices;
-    for (const { names } of apps) {
-      ids = [...ids, ...names];
-    }
-  }
-
-  ids = [...new Set(ids)];
-
-  const types = await getTypeOfSpacesOrRepos({
-    type: 'repo',
-    ids,
-    institution: opts.institution.name,
-    answers: opts.answers,
-  });
-
-  return ids.map(
-    (id) => genRepo({
-      id,
-      type: types[id],
-    }),
-  );
-};
-
-const transformSushiCred = (cred) => ({
-  id: cred.id,
-  customerId: cred.customerId,
-  requestorId: cred.requestorId,
-  apiKey: cred.apiKey,
-  comment: cred.comment,
-  endpointId: cred.endpointId,
-  params: cred.params,
-  connection: {},
-  tags: [],
-});
-
-const transformUser = (user) => ({
-  username: user.username,
-  fullName: user.full_name,
-  email: user.email,
-  metadata: user.metadata,
-  isAdmin: user.roles.includes('superuser'),
-});
-
-const transformSushiEndpoint = (endpoint) => ({
-  id: endpoint.id,
-  sushiUrl: endpoint.sushiUrl,
-  vendor: endpoint.vendor,
-  description: endpoint.description,
-  counterVersion: endpoint.counterVersion,
-  technicalProvider: endpoint.technicalProvider,
-  requireCustomerId: endpoint.requireCustomerId,
-  requireRequestorId: endpoint.requireRequestorId,
-  requireApiKey: endpoint.requireApiKey,
-  ignoreReportValidation: endpoint.ignoreReportValidation,
-  paramSeparator: endpoint.paramSeparator,
-  params: endpoint.params,
-  tags: endpoint.tags,
-  defaultCustomerId: '',
-  defaultRequestorId: '',
-  defaultApiKey: '',
 });
 
 const createReposFromSpaces = async (opts) => {
@@ -402,9 +338,86 @@ const createReposFromSpaces = async (opts) => {
   return res;
 };
 
+const reposOfInstitution = async (opts) => {
+  let ids = [];
+  for (const role of opts.institution.roles) {
+    const apps = role.indices;
+    for (const { names } of apps) {
+      ids = [...ids, ...names];
+    }
+  }
+
+  ids = [...new Set(ids)];
+
+  const types = await getTypeOfSpacesOrRepos({
+    type: 'repo',
+    ids,
+    institution: opts.institution.name,
+    answers: opts.answers,
+  });
+
+  const repositories = ids.map(
+    (id) => genRepo({
+      id,
+      type: types[id],
+    }),
+  );
+
+  return [
+    ...repositories,
+    ...await createReposFromSpaces({
+      ...opts,
+      repositories,
+    }),
+  ].filter((r) => r?.type);
+};
+
+const transformSushiCred = (cred) => ({
+  id: cred.id,
+  customerId: cred.customerId,
+  requestorId: cred.requestorId,
+  apiKey: cred.apiKey,
+  comment: cred.comment,
+  endpointId: cred.endpointId,
+  params: cred.params,
+  connection: {},
+  tags: [],
+});
+
+const transformUser = (user) => ({
+  username: user.username,
+  fullName: user.full_name || '',
+  email: (user.email || '').split(';')[0],
+  metadata: user.metadata,
+  isAdmin: user.roles.includes('superuser'),
+});
+
+const transformSushiEndpoint = (endpoint) => ({
+  id: endpoint.id,
+  sushiUrl: endpoint.sushiUrl,
+  vendor: endpoint.vendor,
+  description: endpoint.description,
+  counterVersion: endpoint.counterVersion,
+  technicalProvider: endpoint.technicalProvider,
+  requireCustomerId: endpoint.requireCustomerId,
+  requireRequestorId: endpoint.requireRequestorId,
+  requireApiKey: endpoint.requireApiKey,
+  ignoreReportValidation: endpoint.ignoreReportValidation,
+  paramSeparator: endpoint.paramSeparator,
+  params: endpoint.params,
+  tags: endpoint.tags,
+  defaultCustomerId: '',
+  defaultRequestorId: '',
+  defaultApiKey: '',
+});
+
 const transformInstitution = async (institution, opts) => {
   const spaces = await spacesOfInstitution({ institution, answers: opts.answers });
-  let repositories = await reposOfInstitution({ institution, answers: opts.answers });
+  let repositories = await reposOfInstitution({
+    institution,
+    spaces,
+    answers: opts.answers,
+  });
 
   repositories = [
     ...repositories,
