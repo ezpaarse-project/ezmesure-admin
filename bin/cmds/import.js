@@ -25,8 +25,7 @@ exports.builder = function builder(yargs) {
       type: 'number',
       default: 15,
     })
-    .option('o', {
-      alias: 'out',
+    .option('out', {
       describe: i18n.t('import.options.out'),
       type: 'string',
     })
@@ -38,6 +37,11 @@ exports.builder = function builder(yargs) {
     .option('y', {
       alias: 'yes',
       describe: i18n.t('import.options.yes'),
+      type: 'boolean',
+    })
+    .option('o', {
+      alias: 'overwrite',
+      describe: i18n.t('transfer.options.overwrite'),
       type: 'boolean',
     });
 };
@@ -68,6 +72,7 @@ async function readJSONL(filePath) {
  * @param {Object} opts Various options
  * @param {string} opts.filePath The path of the JSONL file
  * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
  * @param {string} opts.logPath The path to the log file
  * @param {(chunk: Object) => Promise<any>} opts.importer The importer
  */
@@ -141,6 +146,7 @@ async function importJSONL(opts) {
  * @param {string} opts.inFolder The in folder
  * @param {string} opts.outFolder The out folder
  * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
  */
 async function importUsers(opts) {
   console.log(chalk.blue(i18n.t('import.users.going')));
@@ -150,7 +156,7 @@ async function importUsers(opts) {
     filePath: path.resolve(opts.inFolder, 'users.jsonl'),
     bulkSize: opts.bulkSize,
     logPath: path.join(opts.outFolder, 'user.log'),
-    importer: (chunks) => users.import(chunks),
+    importer: (chunks) => users.import(chunks, { params: { overwrite: opts.overwrite } }),
   });
 
   console.log(
@@ -174,6 +180,7 @@ async function importUsers(opts) {
  * @param {string} opts.inFolder The in folder
  * @param {string} opts.outFolder The out folder
  * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
  */
 async function importInstitutions(opts) {
   console.log(chalk.blue(i18n.t('import.institutions.going')));
@@ -183,7 +190,7 @@ async function importInstitutions(opts) {
     filePath: path.resolve(opts.inFolder, 'institutions.jsonl'),
     bulkSize: opts.bulkSize,
     logPath: path.join(opts.outFolder, 'institutions.log'),
-    importer: (chunks) => institutions.import(chunks),
+    importer: (chunks) => institutions.import(chunks, { params: { overwrite: opts.overwrite } }),
   });
 
   console.log(
@@ -207,6 +214,7 @@ async function importInstitutions(opts) {
  * @param {string} opts.inFolder The in folder
  * @param {string} opts.outFolder The out folder
  * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
  */
 async function importSushiEndpoints(opts) {
   console.log(chalk.blue(i18n.t('import.sushi.going')));
@@ -216,7 +224,7 @@ async function importSushiEndpoints(opts) {
     filePath: path.resolve(opts.inFolder, 'sushis.jsonl'),
     bulkSize: opts.bulkSize,
     logPath: path.join(opts.outFolder, 'sushis.log'),
-    importer: (chunks) => sushiEndpoint.import(chunks),
+    importer: (chunks) => sushiEndpoint.import(chunks, { params: { overwrite: opts.overwrite } }),
   });
 
   console.log(
@@ -240,6 +248,7 @@ exports.handler = async function handler(argv) {
     insecure,
     out,
     yes,
+    overwrite,
   } = argv;
 
   if (!fs.existsSync(exportedpath)) {
@@ -256,6 +265,9 @@ exports.handler = async function handler(argv) {
   }
 
   // ask for confirmation
+  if (overwrite) {
+    console.log('Importing in overwrite mode');
+  }
   const confirm = await inquirer.prompt(
     {
       type: 'confirm',
@@ -263,7 +275,7 @@ exports.handler = async function handler(argv) {
       message: i18n.t(
         'import.askConfirmation',
         {
-          out: chalk.underline(outFolder),
+          out: chalk.underline(exportedpath),
           instance: chalk.underline(ezmesure.defaults.baseURL),
         },
       ),
@@ -287,16 +299,19 @@ exports.handler = async function handler(argv) {
       inFolder: exportedpath,
       outFolder,
       bulkSize,
+      overwrite,
     });
     await importSushiEndpoints({
       inFolder: exportedpath,
       outFolder,
       bulkSize,
+      overwrite,
     });
     await importInstitutions({
       inFolder: exportedpath,
       outFolder,
       bulkSize,
+      overwrite,
     });
 
     console.log(chalk.green(i18n.t('import.ok', { out: chalk.underline(outFolder) })));
