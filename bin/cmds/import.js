@@ -180,9 +180,9 @@ async function importInstitutions(opts) {
   console.group();
 
   const counters = await importJSONL({
-    filePath: path.resolve(opts.inFolder, 'sushis.jsonl'),
+    filePath: path.resolve(opts.inFolder, 'institutions.jsonl'),
     bulkSize: opts.bulkSize,
-    logPath: path.join(opts.outFolder, 'sushis.log'),
+    logPath: path.join(opts.outFolder, 'institutions.log'),
     importer: (chunks) => institutions.import(chunks),
   });
 
@@ -213,9 +213,9 @@ async function importSushiEndpoints(opts) {
   console.group();
 
   const counters = await importJSONL({
-    filePath: path.resolve(opts.inFolder, 'institutions.jsonl'),
+    filePath: path.resolve(opts.inFolder, 'sushis.jsonl'),
     bulkSize: opts.bulkSize,
-    logPath: path.join(opts.outFolder, 'institutions.log'),
+    logPath: path.join(opts.outFolder, 'sushis.log'),
     importer: (chunks) => sushiEndpoint.import(chunks),
   });
 
