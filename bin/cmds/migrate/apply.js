@@ -10,6 +10,8 @@ const cliProgress = require('cli-progress');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 
+const { legacyDecrypt } = require('../../../lib/encrypter');
+
 exports.command = 'apply <exported path>';
 exports.desc = i18n.t('migrate.apply.description');
 exports.builder = function builder(yargs) {
@@ -460,6 +462,15 @@ const reposOfInstitution = async (opts) => {
 };
 
 /**
+ * Transform an encrypted field from a old format to the new one
+ *
+ * @param {string} data The encrypted data
+ *
+ * @returns Data ready to be used in ezMESURE Reloaded
+ */
+const transformEncryptedData = (data) => legacyDecrypt(data);
+
+/**
  * Transform legacy credential into a reloaded one
  *
  * @param {Object} cred Current credential processed
@@ -468,9 +479,9 @@ const reposOfInstitution = async (opts) => {
  */
 const transformSushiCred = (cred) => ({
   id: cred.id,
-  customerId: cred.customerId,
-  requestorId: cred.requestorId,
-  apiKey: cred.apiKey,
+  customerId: cred.customerId && transformEncryptedData(cred.customerId),
+  requestorId: cred.requestorId && transformEncryptedData(cred.requestorId),
+  apiKey: cred.apiKey && transformEncryptedData(cred.apiKey),
   comment: cred.comment,
   endpointId: cred.endpointId,
   params: cred.params,
