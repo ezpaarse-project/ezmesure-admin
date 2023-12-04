@@ -986,6 +986,7 @@
 			"file": "  Opening new file for {{type}}...",
 			"skip": "Skip",
 			"create": "Create",
+			"ignore": "Ignore",
 			"answersOk": "✔️ Answers saved to \"{{out}}\"",
 			"dataOk": "✔️ Data migrated to \"{{out}}\"",
 			"askRepoOrSpaceType": {
