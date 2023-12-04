@@ -680,7 +680,11 @@ exports.handler = async function handler(argv) {
     await transformJSONL({
       i18nKey: 'institutions',
       progressBar: !interactive,
-      transformer: (chunk) => transformInstitution(chunk, { answers, interactive }),
+      transformer: async (chunk) => {
+        const inst = await transformInstitution(chunk, { answers, interactive });
+        await fsp.writeFile(answerPath, JSON.stringify(answers, undefined, 4));
+        return inst;
+      },
       inFile: path.join(inFolder, 'institutions.jsonl'),
       outFile: path.join(outFolder, 'institutions.jsonl'),
     });
