@@ -1,10 +1,10 @@
 const { i18n } = global;
 
-const https = require('https');
-const path = require('path');
-const fs = require('fs');
-const fsp = require('fs/promises');
-const readline = require('readline');
+const https = require('node:https');
+const path = require('node:path');
+const fs = require('node:fs');
+const fsp = require('node:fs/promises');
+const readline = require('node:readline');
 
 const cliProgress = require('cli-progress');
 const chalk = require('chalk');
