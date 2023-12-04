@@ -110,6 +110,7 @@ const getTypeOfSpacesOrRepos = async (opts) => {
 
   let counterFound = false;
   for (const id of opts.ids) {
+    let skip = false;
     let type;
     if (!type && opts.answers[opts.type][id]) {
       type = opts.answers[opts.type][id];
@@ -119,13 +120,15 @@ const getTypeOfSpacesOrRepos = async (opts) => {
       counterFound = true;
     }
     if (!type && /^ez[-_]/i.test(id)) {
-      type = 'ezpaarse';
+      skip = true;
     }
 
-    if (type) {
-      res[id] = type;
-    } else {
-      unknownTypes.push(id);
+    if (!skip && type !== '_') {
+      if (type) {
+        res[id] = type;
+      } else {
+        unknownTypes.push(id);
+      }
     }
   }
 
@@ -169,6 +172,7 @@ const getTypeOfSpacesOrRepos = async (opts) => {
             'ezpaarse',
             new inquirer.Separator(),
             { value: skipSymbol, name: i18n.t('migrate.apply.skip') },
+            { value: '_', name: i18n.t('migrate.apply.ignore') },
           ],
         }),
       ),
@@ -296,7 +300,7 @@ const createReposFromSpaces = async (opts) => {
     .map((s) => genRepo({ id: `${s.id}*`, type: s.type }));
 
   const cachedReposPatterns = new Set(cachedRepos.map((r) => r.pattern));
-  const choices = [...new Set([...missingRepos, ...cachedRepos])];
+  const choices = [...missingRepos, ...cachedRepos];
 
   if (!opts.interactive) {
     return cachedRepos;
@@ -377,7 +381,10 @@ const createReposFromSpaces = async (opts) => {
   }
 
   let res = answers.repos
-    .map((p) => missingRepos.find((r) => r.pattern === p))
+    .map((p) => {
+      const missingRepo = missingRepos.find((r) => r.pattern === p);
+      return missingRepo || cachedRepos.find((r) => r.pattern === p);
+    })
     .filter((r) => !!r);
 
   if (answers.custom) {
@@ -449,7 +456,7 @@ const reposOfInstitution = async (opts) => {
       repositories,
       answers: opts.answers,
     }),
-  ].filter((r) => r?.type);
+  ].filter((r) => r?.type && r.type !== '_');
 };
 
 /**
@@ -523,7 +530,11 @@ const transformSushiEndpoint = (endpoint) => ({
  * @returns {Promise<Object>} The new institution
  */
 const transformInstitution = async (institution, opts) => {
-  const spaces = await spacesOfInstitution({ institution, answers: opts.answers });
+  const spaces = await spacesOfInstitution({
+    institution,
+    interactive: opts.interactive,
+    answers: opts.answers,
+  });
 
   const repositories = await reposOfInstitution({
     institution,
