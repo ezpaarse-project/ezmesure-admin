@@ -63,6 +63,9 @@ const membershipsOfInstitution = (opts) => {
       if (rawRoles.has('tech_contact')) {
         roles.push('contact:tech');
       }
+      if (rawRoles.has('guest')) {
+        roles.push('guest');
+      }
 
       const isReadOnly = rawRoles.has(`${opts.institution.role}_read_only`);
       let permissions = features.map((f) => `${f}:read`);
