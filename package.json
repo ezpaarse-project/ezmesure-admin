@@ -32,7 +32,7 @@
     "axios": "^1.1.3",
     "chai": "^4.3.4",
     "chalk": "^4.1.1",
-    "cli-progress": "^3.9.0",
+    "cli-progress": "^3.12.0",
     "date-fns": "^2.22.1",
     "enquirer": "^2.3.6",
     "fs-extra": "^9.1.0",
