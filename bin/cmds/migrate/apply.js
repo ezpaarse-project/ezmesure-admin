@@ -489,7 +489,7 @@ const transformSushiCred = (cred) => ({
   endpointId: cred.endpointId,
   params: cred.params,
   connection: {},
-  tags: [],
+  tags: cred.package ? [cred.package] : [],
 });
 
 /**
