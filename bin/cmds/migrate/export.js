@@ -262,19 +262,20 @@ const exportInstitutions = async (opts) => {
   const res = opts.depositors.institution.map(
     (raw) => {
       const roles = opts.roles.filter((r) => r.name === raw.role || r.name === `${raw.role}_read_only`);
-      const rolesNames = new Set(roles.map((r) => r.name));
+      const rawRolesNames = new Set([raw.role, `${raw.role}_read_only`]);
 
       const institution = {
         ...raw,
         roles,
         sushi: opts.depositors.sushi.filter((s) => s.institutionId === raw.id),
-        members: opts.users.filter((u) => u.roles.some((r) => rolesNames.has(r))),
+        members: opts.users.filter((u) => u.roles.some((r) => rawRolesNames.has(r))),
       };
 
       if (roles.length <= 0) {
         logFile.write(`${now.toISOString()} warn: ${i18n.t('migrate.export.noRoles', { institution: institution.name })}\n`);
         warns += 1;
-      } else if (institution.members.length <= 0) {
+      }
+      if (institution.members.length <= 0) {
         logFile.write(`${now.toISOString()} warn: ${i18n.t('migrate.export.noMembers', { institution: institution.name })}\n`);
         warns += 1;
       }
