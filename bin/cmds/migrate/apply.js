@@ -577,7 +577,6 @@ const transformInstitution = async (institution, opts) => {
     },
     parentInstitutionId: undefined,
     tags: [],
-    auto: {},
 
     sushiCredentials: institution.sushi.map((cred) => transformSushiCred(cred)),
     spaces,
