@@ -863,7 +863,7 @@
 			"selectTemplateDir": "Select template directory",
 			"noDashboardsSelected": "No dashboard(s) selected",
 			"noIndexPatternCreateOne": "No index pattern found. Please enter one.",
-			"space": "Space: {{space}}",
+			"space": "Space: {{name}} (id: {{id}})",
 			"spaceNotFound": "Space not found",
 			"ezpaarseSpace": "ezPAARSE space",
 			"ezcounterSpace": "ezCOUNTER space",

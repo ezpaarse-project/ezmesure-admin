@@ -6,7 +6,7 @@ const chalk = require('chalk');
 const axios = require('axios');
 const JSZip = require('jszip');
 
-const institutionsLib = require('../../../lib/institutions');
+const spacesLib = require('../../../lib/spaces');
 const kibana = require('../../../lib/kibana');
 const dashboardsLib = require('../../../lib/dashboards');
 const { config } = require('../../../lib/app/config');
@@ -72,28 +72,26 @@ function selectDashboards(dashboards) {
   });
 }
 
-async function getAllInstitutionSpaces() {
-  const spaceSuffix = await itMode.autocomplete({
+async function getAllSpacesByType() {
+  const spaceType = await itMode.list({
     message: i18n.t('dashboard.bulkImport.selectSpaceType'),
-    custom: (input) => ({ name: `{base}-${input}`, value: input }),
+    default: 'ezpaarse',
     choices: [
-      { name: `{base} (${i18n.t('dashboard.bulkImport.ezpaarseSpace')})`, value: '' },
-      { name: `{base}-publisher (${i18n.t('dashboard.bulkImport.ezcounterSpace')})`, value: 'publisher' },
+      { name: i18n.t('dashboard.bulkImport.ezpaarseSpace'), value: 'ezpaarse' },
+      { name: i18n.t('dashboard.bulkImport.ezcounterSpace'), value: 'counter5' },
     ],
   });
 
-  let institutions;
+  let spaces;
 
   try {
-    ({ data: institutions } = await institutionsLib.getAll());
+    ({ data: spaces } = await spacesLib.getAll({ type: spaceType }));
   } catch (error) {
     console.error(formatApiError(error));
     process.exit(1);
   }
 
-  return institutions
-    .filter((i) => i?.space)
-    .map(({ space }) => (spaceSuffix ? `${space}-${spaceSuffix}` : space));
+  return spaces;
 }
 
 async function importDashboards(opts = {}) {
@@ -114,11 +112,11 @@ async function importDashboards(opts = {}) {
   let indexPatterns;
 
   if (verbose) {
-    console.log(`* Getting index patterns of space [${space}] from ${config.ezmesure.baseUrl}`);
+    console.log(`* Getting index patterns of space [${space?.id}] from ${config.ezmesure.baseUrl}`);
   }
 
   try {
-    await kibana.spaces.get({ id: space });
+    await kibana.spaces.get({ id: space?.id });
   } catch (error) {
     if (error?.response?.status === 404) {
       return { spaceNotFound: true };
@@ -130,7 +128,7 @@ async function importDashboards(opts = {}) {
 
   try {
     const { data } = await kibana.savedObjects.find({
-      space,
+      space: space?.id,
       params: { type: 'index-pattern', per_page: 1000 },
     });
     indexPatterns = data?.saved_objects;
@@ -145,11 +143,11 @@ async function importDashboards(opts = {}) {
     let defaultPatternId;
 
     if (verbose) {
-      console.log(`* Getting default index pattern of space [${space}]`);
+      console.log(`* Getting default index pattern of space [${space?.id}]`);
     }
 
     try {
-      const { data } = await kibana.indexPatterns.getDefault({ space });
+      const { data } = await kibana.indexPatterns.getDefault({ space: space?.id });
       defaultPatternId = data?.index_pattern_id;
     } catch (error) {
       console.error(formatApiError(error));
@@ -174,24 +172,24 @@ async function importDashboards(opts = {}) {
   if (!indexPatternTitle) {
     indexPatternTitle = await itMode.input({
       message: i18n.t('dashboard.bulkImport.noIndexPatternCreateOne'),
-      default: `${space}-*`,
+      default: `${space?.id}-*`,
     });
 
     try {
-      if (verbose) { console.log(`* Creating index pattern [${indexPatternTitle}] into space [${space}]`); }
+      if (verbose) { console.log(`* Creating index pattern [${indexPatternTitle}] into space [${space?.id}]`); }
 
       const { data: createdPattern } = await kibana.indexPatterns.create({
-        space,
+        space: space?.id,
         body: {
           index_pattern: { title: indexPatternTitle },
         },
       });
 
       const patternId = createdPattern?.index_pattern?.id;
-      if (verbose) { console.log(`* Setting index pattern [${patternId}] as default in space [${space}]`); }
+      if (verbose) { console.log(`* Setting index pattern [${patternId}] as default in space [${space?.id}]`); }
 
       await kibana.indexPatterns.setDefault({
-        space,
+        space: space?.id,
         body: {
           index_pattern_id: patternId,
           force: true,
@@ -207,12 +205,12 @@ async function importDashboards(opts = {}) {
     const dashboardTitle = dashboard?.objects?.find?.((obj) => obj?.type === 'dashboard')?.attributes?.title;
 
     if (verbose) {
-      console.log(`* Import dashboard [${dashboardTitle}] into space [${space}] with index-pattern [${indexPatternTitle}] from ${config.ezmesure.baseUrl}`);
+      console.log(`* Import dashboard [${dashboardTitle}] into space [${space?.id}] with index-pattern [${indexPatternTitle}] from ${config.ezmesure.baseUrl}`);
     }
 
     try {
       const { data } = await dashboardsLib.import({
-        space,
+        space: space?.id,
         dashboard,
         indexPattern: indexPatternTitle,
         force: overwrite,
@@ -336,7 +334,9 @@ exports.handler = async function handler(argv) {
   }
 
   if (!Array.isArray(spaces) || spaces.length === 0) {
-    spaces = await getAllInstitutionSpaces();
+    spaces = await getAllSpacesByType();
+  } else {
+    spaces = spaces.map((id) => ({ id }));
   }
 
   let totalImported = 0;
@@ -349,7 +349,7 @@ exports.handler = async function handler(argv) {
     const space = spaces[i];
 
     console.log();
-    console.group(chalk.bold(i18n.t('dashboard.bulkImport.space', { space })));
+    console.group(chalk.bold(i18n.t('dashboard.bulkImport.space', { name: space?.name, id: space?.id })));
 
     const result = await importDashboards({
       dashboards: dashboardFiles,
