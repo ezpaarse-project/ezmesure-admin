@@ -25,6 +25,10 @@ exports.builder = function builder(yargs) {
       describe: i18n.t('dashboard.import.options.interactive'),
       type: 'boolean',
     })
+    .option('i', {
+      alias: 'index-pattern',
+      describe: i18n.t('dashboard.import.options.indexPattern'),
+    })
     .option('f', {
       alias: 'files',
       type: 'array',
@@ -34,7 +38,7 @@ exports.builder = function builder(yargs) {
 };
 exports.handler = async function handler(argv) {
   const {
-    files, overwrite, interactive, verbose,
+    files, overwrite, interactive, verbose, indexPattern,
   } = argv;
 
   let { space } = argv;
@@ -88,6 +92,7 @@ exports.handler = async function handler(argv) {
           await dashboards.import({
             space,
             dashboard,
+            indexPattern,
             force: overwrite,
           });
         } catch (error) {
