@@ -343,45 +343,6 @@
 				"comment": "Comment"
 			}
 		},
-		"harvest": {
-			"description": "Harvest SUSHI reports",
-			"options": {
-				"all": "Harvest all SUSHI items",
-				"json": "Print result(s) in json",
-				"ndjson": "Print result(s) in ndjson",
-				"harvestId": "A specific ID to assign to the harvest batch.",
-				"sushiId": "One or more SUSHI IDs. Harvest SUSHI items that have the given identifiers.",
-				"institutionId": "One or more institution IDs. Harvest SUSHI items that belong to the given institutions.",
-				"endpointId": "One or more endpoint IDs. Harvest SUSHI items that uses the given endpoints.",
-				"allowFaulty": "Allow faulty or untested SUSHI endpoints to be harvested",
-				"ignoreValidation": "Ignore report validation. Validation errors remains visible in task logs.",
-				"from": "Beginning of the period to harvest",
-				"to": "End of the period to harvest",
-				"target": "Index where the data should be inserted",
-				"reportType": "The report type that should be harvested (tr, dr, pr, ir)",
-				"timeout": "Maximum task duration in seconds",
-				"noCache": "Download the report again, even if it's been already downloaded",
-				"interactive": "Interactive mode"
-			},
-			"harvestAllInstitutions": "Harvest for all institutions ?",
-			"harvestAllEndpoints": "Harvest for all endpoints ?",
-			"selectReportType": "Which report type should be harvested ?",
-			"selectInstitutions": "Select institutions",
-			"selectEndpoints": "Select endpoints",
-			"selectSushiCredentials": "Select SUSHI credentials to harvest",
-			"harvestId": "Harvest ID (optional)",
-			"invalidDate": "Invalid date",
-			"noFilter": "No filter specified.",
-			"pleaseSetAllFlag": "Please explicitly set --all flag to harvest all SUSHI items",
-			"xFailedTasks": "{{n}} harvest task(s) failed to be created",
-			"xTasksCreated": "{{n}} harvest task(s) created",
-			"runFollowingCommand": "Run the following command in order to follow the created tasks:",
-			"sushiId": "SUSHI ID",
-			"endpoint": "Endpoint",
-			"taskId": "Task ID",
-			"status": "Status",
-			"message": "Message"
-		},
 		"fixEndpoints": {
 			"description": "Fix SUSHI items with missing or incorrect endpoint association",
 			"options": {
