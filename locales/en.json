@@ -1017,6 +1017,45 @@
 			"pleaseSetAllFlag": "i Please explicitly set --all flag to harvest all SUSHI items",
 			"runStartCommand": "i Run the following command in order to start the created session:",
 			"runStatusCommand": "i Run the following command in order to get more info about the session:"
+		},
+		"status": {
+			"description": "Get info about an harvest sessions",
+			"options": {
+				"json": "Print result(s) in json",
+				"harvestId": "Harvest ID",
+				"credentials": "Show credentials that will be harvested when starting, not the one provided",
+				"jobs": "Show jobs of the harvest session"
+			},
+			"notFound": "Harvest session {{harvestId}} not found",
+			"header": "{{chip}} {{harvestId}} - {{beginDate}} to {{endDate}}",
+			"reportTypes": "Report Types",
+			"timeout": "Timeout",
+			"allowFaulty": "Allow Faulty",
+			"downloadUnsupported": "Download Unsupported",
+			"forceDownload": "Force Download",
+			"ignoreValidation": "Ignore Validation",
+			"jobs": "Jobs",
+			"credentials": "Credentials",
+			"credentialsText": "{{harvestable}} harvestable out of {{all}}",
+			"state": "Active",
+			"stateText": "{{state}} since {{date}}",
+			"states": {
+				"prepared": "prepared",
+				"active": "active",
+				"ended": "ended"
+			},
+			"runningTime":"Running time (ms)",
+			"institution": "Institution",
+			"endpoint": "Endpoint",
+			"tags": "Tags",
+			"connection": "Connection",
+			"startedAt": "Started at",
+			"updatedAt": "Updated at",
+			"jobId": "Job ID",
+			"credentialsId": "Credentials ID",
+			"index": "Index",
+			"jobStatus": "Status",
+			"errorCode": "Error code"
 		}
 	}
 }
