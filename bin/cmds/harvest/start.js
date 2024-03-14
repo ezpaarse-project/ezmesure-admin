@@ -83,6 +83,7 @@ exports.handler = async function handler(argv) {
     restartAll,
     verbose,
     yes,
+    $0: scriptName,
   } = argv;
 
   const confirm = await inquirer.prompt(
@@ -117,4 +118,12 @@ exports.handler = async function handler(argv) {
   }
 
   printJobs(jobs, argv);
+
+  console.log(chalk.green(i18n.t('harvest.start.success', { id: harvestId, jobs: jobs.length })));
+  console.log(chalk.blue(i18n.t('harvest.start.runStatusCommand')));
+  console.log(chalk.blue(`\t${scriptName} harvest status ${harvestId}`));
+  console.log(chalk.blue(i18n.t('harvest.start.runJobsCommand')));
+  console.log(chalk.blue(`\t${scriptName} harvest status ${harvestId} --jobs`));
+  console.log(chalk.blue(i18n.t('harvest.start.runWatchCommand')));
+  console.log(chalk.blue(`\t${scriptName} harvest status ${harvestId} --watch`));
 };

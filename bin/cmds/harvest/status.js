@@ -21,15 +21,28 @@ exports.builder = (yargs) => yargs
   .option('credentials', {
     describe: i18n.t('harvest.status.options.credentials'),
     type: 'boolean',
+    conflicts: ['jobs', 'watch', 'watchDelay'],
   })
   .option('jobs', {
     describe: i18n.t('harvest.status.options.jobs'),
     type: 'boolean',
+    conflicts: 'credentials',
+  })
+  .option('watch', {
+    describe: i18n.t('sushi.harvest.options.watch'),
+    type: 'boolean',
+  })
+  .option('watchDelay', {
+    describe: i18n.t('sushi.harvest.options.watchDelay'),
+    type: 'number',
+    implies: 'watch',
   })
   .option('json', {
     describe: i18n.t('sushi.harvest.options.json'),
     type: 'boolean',
   });
+
+const DEF_WATCH_DELAY = 5000;
 
 const DEF_TIMEOUT = 600;
 const DEF_ALLOW_FAULTY = false;
@@ -39,7 +52,56 @@ const DEF_IGNORE_VALIDATION = null;
 
 const formatDuration = (ms) => formatDistance(0, ms, { includeSeconds: true });
 
-const printHarvestStatus = async (argv) => {
+const printOrWatch = async (fnc, argv) => {
+  const {
+    harvestId,
+    watch,
+    watchDelay,
+    verbose,
+  } = argv;
+
+  const print = async () => {
+    if (verbose) {
+      console.log(
+        chalk.gray(`Fetching status of harvest session ${harvestId} from ${config.ezmesure.baseUrl}`),
+      );
+    }
+
+    let sessionStatus;
+    try {
+      sessionStatus = (await harvestLib.getStatuses([harvestId])).data[harvestId];
+    } catch (error) {
+      console.error(formatApiError(error));
+      process.exit(1);
+    }
+
+    if (!sessionStatus) {
+      console.error(i18n.t('harvest.status.notFound', { harvestId }));
+      process.exit(1);
+    }
+
+    await fnc(sessionStatus, argv);
+    return sessionStatus;
+  };
+
+  let interval;
+  const watchFnc = async () => {
+    console.clear();
+    const sessionStatus = await print();
+
+    if (!sessionStatus.isActive) {
+      clearInterval(interval);
+    }
+  };
+
+  const sessionStatus = await print();
+
+  if (watch && sessionStatus.isActive) {
+    interval = setInterval(watchFnc, watchDelay || DEF_WATCH_DELAY);
+  }
+};
+
+const printHarvestStatus = async (sessionStatus, argv) => {
   const { harvestId, json, verbose } = argv;
 
   if (verbose) {
@@ -49,10 +111,8 @@ const printHarvestStatus = async (argv) => {
   }
 
   let session;
-  let sessionStatus;
   try {
     session = (await harvestLib.getOne(harvestId)).data;
-    sessionStatus = (await harvestLib.getStatuses([harvestId])).data[harvestId];
   } catch (error) {
     console.error(formatApiError(error));
     process.exit(1);
@@ -180,7 +240,7 @@ const printCredentials = async (argv) => {
   );
 };
 
-const printJobs = async (argv) => {
+const printJobs = async (session, argv) => {
   const { harvestId, json, verbose } = argv;
 
   if (verbose) {
@@ -255,13 +315,13 @@ exports.handler = async function handler(argv) {
 
   if (credentials) {
     await printCredentials(argv);
-    process.exit(0);
+    return;
   }
 
   if (jobs) {
-    await printJobs(argv);
-    process.exit(0);
+    printOrWatch(printJobs, argv);
+    return;
   }
 
-  await printHarvestStatus(argv);
+  printOrWatch(printHarvestStatus, argv);
 };

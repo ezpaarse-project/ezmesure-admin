@@ -1008,15 +1008,15 @@
 				"to": "End of the period to harvest",
 				"reportTypes": "The report types that should be harvested (tr, dr, pr, ir)",
 				"timeout": "Maximum task duration in seconds",
-				"noCache": "Download the report again, even if it's been already downloaded",
-				"interactive": "Interactive mode"
+				"noCache": "Download the report again, even if it's been already downloaded"
 			},
 			"success": "✔️ Harvest session [{{id}}] is ready to be harvested",
 			"invalidDate": "x Invalid date",
 			"noFilter": "x No filter specified.",
 			"pleaseSetAllFlag": "i Please explicitly set --all flag to harvest all SUSHI items",
 			"runStartCommand": "i Run the following command in order to start the created session:",
-			"runStatusCommand": "i Run the following command in order to get more info about the session:"
+			"runStatusCommand": "i Run the following command in order to get more info about the session:",
+			"runCredentialsCommand": "i Run the following command in order to get more credentials that will be harvested:"
 		},
 		"status": {
 			"description": "Get info about an harvest sessions",
@@ -1056,6 +1056,19 @@
 			"index": "Index",
 			"jobStatus": "Status",
 			"errorCode": "Error code"
+		},
+		"start": {
+			"description": "Start harvesting of a harvest session",
+			"options": {
+				"harvestId": "Harvest ID",
+				"yes": "Automatic yes to prompts; assume \"yes\" as answer to all prompts and run non-interactively.",
+				"restartAll": "Restart all jobs of the harvest session, including success ones"
+			},
+			"askConfirmation": "Do you wish to start the harvesting of {{id}} into {{instance}}",
+			"success": "✔️ Harvest session [{{id}}] has started with [{{jobs}}] jobs",
+			"runStatusCommand": "i Run the following command in order to get more info about the session:",
+			"runJobsCommand": "i Run the following command in order to get more info about the jobs:",
+			"runWatchCommand": "i Run the following command in order to watch for the status of the session:"
 		}
 	}
 }

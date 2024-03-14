@@ -180,6 +180,8 @@ exports.handler = async function handler(argv) {
   console.log(chalk.green(i18n.t('harvest.prepare.success', { id: item.id })));
   console.log(chalk.blue(i18n.t('harvest.prepare.runStatusCommand')));
   console.log(chalk.blue(`\t${scriptName} harvest status ${item.id}`));
+  console.log(chalk.blue(i18n.t('harvest.start.runCredentialsCommand')));
+  console.log(chalk.blue(`\t${scriptName} harvest status ${harvestId} --credentials`));
   console.log(chalk.blue(i18n.t('harvest.prepare.runStartCommand')));
   console.log(chalk.blue(`\t${scriptName} harvest start ${item.id}`));
 };
