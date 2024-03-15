@@ -22,24 +22,36 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('harvest.status.options.credentials'),
     type: 'boolean',
     conflicts: ['jobs', 'watch', 'watchDelay'],
+    group: 'Output :',
   })
   .option('jobs', {
     describe: i18n.t('harvest.status.options.jobs'),
     type: 'boolean',
-    conflicts: 'credentials',
+    conflicts: ['credentials'],
+    group: 'Output :',
   })
   .option('watch', {
     describe: i18n.t('harvest.status.options.watch'),
     type: 'boolean',
+    group: 'Watch :',
   })
   .option('watchDelay', {
     describe: i18n.t('harvest.status.options.watchDelay'),
     type: 'number',
     implies: 'watch',
+    group: 'Watch :',
   })
-  .option('json', {
+  .option('j', {
+    alias: 'json',
     describe: i18n.t('harvest.prepare.options.json'),
     type: 'boolean',
+    conflicts: ['n'],
+  })
+  .option('n', {
+    alias: 'ndjson',
+    describe: i18n.t('harvest.status.options.ndjson'),
+    type: 'boolean',
+    conflicts: ['j'],
   });
 
 const DEF_WATCH_DELAY = 5000;
@@ -180,7 +192,9 @@ const printHarvestStatus = async (sessionStatus, argv) => {
 };
 
 const printCredentials = async (argv) => {
-  const { harvestId, json, verbose } = argv;
+  const {
+    harvestId, json, ndjson, verbose,
+  } = argv;
 
   if (verbose) {
     console.log(
@@ -198,6 +212,11 @@ const printCredentials = async (argv) => {
 
   if (json) {
     console.log(JSON.stringify(credentials, null, 2));
+    return;
+  }
+
+  if (ndjson) {
+    credentials.forEach((c) => console.log(JSON.stringify(c)));
     return;
   }
 
@@ -241,7 +260,12 @@ const printCredentials = async (argv) => {
 };
 
 const printJobs = async (session, argv) => {
-  const { harvestId, json, verbose } = argv;
+  const {
+    harvestId,
+    json,
+    ndjson,
+    verbose,
+  } = argv;
 
   if (verbose) {
     console.log(
@@ -259,6 +283,11 @@ const printJobs = async (session, argv) => {
 
   if (json) {
     console.log(JSON.stringify(jobs, null, 2));
+    return;
+  }
+
+  if (ndjson) {
+    jobs.forEach((j) => console.log(JSON.stringify(j)));
     return;
   }
 

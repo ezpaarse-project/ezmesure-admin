@@ -10,63 +10,76 @@ const { formatApiError } = require('../../../lib/utils');
 exports.command = 'prepare';
 exports.desc = i18n.t('harvest.prepare.description');
 exports.builder = (yargs) => yargs
-  .option('all', {
-    alias: 'a',
-    type: 'boolean',
-    describe: i18n.t('harvest.prepare.options.all'),
-  })
   .option('from', {
     type: 'string',
     describe: i18n.t('harvest.prepare.options.from'),
+    group: 'Session parameters :',
   })
   .option('to', {
     type: 'string',
     describe: i18n.t('harvest.prepare.options.to'),
+    group: 'Session parameters :',
   })
   .option('reportTypes', {
     alias: 'rt',
     type: 'array',
     describe: i18n.t('harvest.prepare.options.reportTypes'),
+    group: 'Session parameters :',
   })
   .option('harvestId', {
     alias: 'hid',
     type: 'string',
     describe: i18n.t('harvest.prepare.options.harvestId'),
+    group: 'Session parameters :',
   })
   .option('sushiIds', {
     alias: 's',
     type: 'array',
     describe: i18n.t('harvest.prepare.options.sushiId'),
+    group: 'Session parameters :',
   })
   .option('institutionIds', {
     alias: 'i',
     type: 'array',
     describe: i18n.t('harvest.prepare.options.institutionId'),
+    group: 'Session parameters :',
   })
   .option('endpointIds', {
     alias: 'e',
     type: 'array',
     describe: i18n.t('harvest.prepare.options.endpointId'),
+    group: 'Session parameters :',
+  })
+  .option('all', {
+    alias: 'a',
+    type: 'boolean',
+    describe: i18n.t('harvest.prepare.options.all'),
+    group: 'Session parameters :',
   })
   .option('allow-faulty', {
     type: 'boolean',
     describe: i18n.t('harvest.prepare.options.allowFaulty'),
+    group: 'Session parameters :',
   })
   .option('ignore-validation', {
     type: 'boolean',
     describe: i18n.t('harvest.prepare.options.ignoreValidation'),
-  })
-  .option('json', {
-    describe: i18n.t('harvest.prepare.options.json'),
-    type: 'boolean',
+    group: 'Session parameters :',
   })
   .option('no-cache', {
     describe: i18n.t('harvest.prepare.options.noCache'),
+    group: 'Session parameters :',
     type: 'boolean',
   })
   .option('timeout', {
     describe: i18n.t('harvest.prepare.options.timeout'),
+    group: 'Session parameters :',
     type: 'number',
+  })
+  .option('j', {
+    alias: 'json',
+    describe: i18n.t('harvest.prepare.options.json'),
+    type: 'boolean',
   });
 
 exports.handler = async function handler(argv) {
@@ -180,7 +193,7 @@ exports.handler = async function handler(argv) {
   console.log(chalk.green(i18n.t('harvest.prepare.success', { id: item.id })));
   console.log(chalk.blue(i18n.t('harvest.prepare.runStatusCommand')));
   console.log(chalk.blue(`\t${scriptName} harvest status ${item.id}`));
-  console.log(chalk.blue(i18n.t('harvest.start.runCredentialsCommand')));
+  console.log(chalk.blue(i18n.t('harvest.prepare.runCredentialsCommand')));
   console.log(chalk.blue(`\t${scriptName} harvest status ${harvestId} --credentials`));
   console.log(chalk.blue(i18n.t('harvest.prepare.runStartCommand')));
   console.log(chalk.blue(`\t${scriptName} harvest start ${item.id}`));

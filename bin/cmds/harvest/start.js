@@ -15,25 +15,39 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('harvest.status.options.harvestId'),
     type: 'string',
   })
+  .option('restartAll', {
+    describe: i18n.t('harvest.start.options.restartAll'),
+    type: 'boolean',
+    group: 'Start parameters :',
+  })
   .option('y', {
     alias: 'yes',
     describe: i18n.t('harvest.start.options.yes'),
     type: 'boolean',
   })
-  .option('restartAll', {
-    describe: i18n.t('harvest.start.options.restartAll'),
-    type: 'boolean',
-  })
-  .option('json', {
+  .option('j', {
+    alias: 'json',
     describe: i18n.t('sushi.prepare.harvest.options.json'),
     type: 'boolean',
+    conflicts: ['n'],
+  })
+  .option('n', {
+    alias: 'ndjson',
+    describe: i18n.t('harvest.prepare.options.ndjson'),
+    type: 'boolean',
+    conflicts: ['j'],
   });
 
 const printJobs = (jobs, argv) => {
-  const { json } = argv;
+  const { json, ndjson } = argv;
 
   if (json) {
     console.log(JSON.stringify(jobs, null, 2));
+    return;
+  }
+
+  if (ndjson) {
+    jobs.forEach((j) => console.log(JSON.stringify(j)));
     return;
   }
 
