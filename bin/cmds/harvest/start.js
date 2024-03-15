@@ -25,7 +25,7 @@ exports.builder = (yargs) => yargs
     type: 'boolean',
   })
   .option('json', {
-    describe: i18n.t('sushi.harvest.options.json'),
+    describe: i18n.t('sushi.prepare.harvest.options.json'),
     type: 'boolean',
   });
 

@@ -29,16 +29,16 @@ exports.builder = (yargs) => yargs
     conflicts: 'credentials',
   })
   .option('watch', {
-    describe: i18n.t('sushi.harvest.options.watch'),
+    describe: i18n.t('harvest.status.options.watch'),
     type: 'boolean',
   })
   .option('watchDelay', {
-    describe: i18n.t('sushi.harvest.options.watchDelay'),
+    describe: i18n.t('harvest.status.options.watchDelay'),
     type: 'number',
     implies: 'watch',
   })
   .option('json', {
-    describe: i18n.t('sushi.harvest.options.json'),
+    describe: i18n.t('harvest.prepare.options.json'),
     type: 'boolean',
   });
 

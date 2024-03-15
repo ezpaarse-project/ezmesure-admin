@@ -1022,9 +1022,11 @@
 			"description": "Get info about an harvest sessions",
 			"options": {
 				"json": "Print result(s) in json",
-				"harvestId": "Harvest ID",
-				"credentials": "Show credentials that will be harvested when starting, not the one provided",
-				"jobs": "Show jobs of the harvest session"
+				"harvestId": "Specific ID of the harvest session",
+				"credentials": "Show credentials that will be harvested when starting, not the one provided. Not usable with jobs or watch",
+				"jobs": "Show jobs of the harvest session. Not usable with credentials",
+				"watch": "Refresh the status of the harvest session while session is active",
+				"watchDelay": "Delay in milliseconds between each status refresh"
 			},
 			"notFound": "Harvest session {{harvestId}} not found",
 			"header": "{{chip}} {{harvestId}} - {{beginDate}} to {{endDate}}",
@@ -1060,7 +1062,6 @@
 		"start": {
 			"description": "Start harvesting of a harvest session",
 			"options": {
-				"harvestId": "Harvest ID",
 				"yes": "Automatic yes to prompts; assume \"yes\" as answer to all prompts and run non-interactively.",
 				"restartAll": "Restart all jobs of the harvest session, including success ones"
 			},

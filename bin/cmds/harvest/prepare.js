@@ -13,59 +13,59 @@ exports.builder = (yargs) => yargs
   .option('all', {
     alias: 'a',
     type: 'boolean',
-    describe: i18n.t('sushi.harvest.options.all'),
+    describe: i18n.t('harvest.prepare.options.all'),
   })
   .option('from', {
     type: 'string',
-    describe: i18n.t('sushi.harvest.options.from'),
+    describe: i18n.t('harvest.prepare.options.from'),
   })
   .option('to', {
     type: 'string',
-    describe: i18n.t('sushi.harvest.options.to'),
+    describe: i18n.t('harvest.prepare.options.to'),
   })
   .option('reportTypes', {
     alias: 'rt',
     type: 'array',
-    describe: i18n.t('sushi.harvest.options.reportTypes'),
+    describe: i18n.t('harvest.prepare.options.reportTypes'),
   })
   .option('harvestId', {
     alias: 'hid',
     type: 'string',
-    describe: i18n.t('sushi.harvest.options.harvestId'),
+    describe: i18n.t('harvest.prepare.options.harvestId'),
   })
   .option('sushiIds', {
     alias: 's',
     type: 'array',
-    describe: i18n.t('sushi.harvest.options.sushiId'),
+    describe: i18n.t('harvest.prepare.options.sushiId'),
   })
   .option('institutionIds', {
     alias: 'i',
     type: 'array',
-    describe: i18n.t('sushi.harvest.options.institutionId'),
+    describe: i18n.t('harvest.prepare.options.institutionId'),
   })
   .option('endpointIds', {
     alias: 'e',
     type: 'array',
-    describe: i18n.t('sushi.harvest.options.endpointId'),
+    describe: i18n.t('harvest.prepare.options.endpointId'),
   })
   .option('allow-faulty', {
     type: 'boolean',
-    describe: i18n.t('sushi.harvest.options.allowFaulty'),
+    describe: i18n.t('harvest.prepare.options.allowFaulty'),
   })
   .option('ignore-validation', {
     type: 'boolean',
-    describe: i18n.t('sushi.harvest.options.ignoreValidation'),
+    describe: i18n.t('harvest.prepare.options.ignoreValidation'),
   })
   .option('json', {
-    describe: i18n.t('sushi.harvest.options.json'),
+    describe: i18n.t('harvest.prepare.options.json'),
     type: 'boolean',
   })
   .option('no-cache', {
-    describe: i18n.t('sushi.harvest.options.noCache'),
+    describe: i18n.t('harvest.prepare.options.noCache'),
     type: 'boolean',
   })
   .option('timeout', {
-    describe: i18n.t('sushi.harvest.options.timeout'),
+    describe: i18n.t('harvest.prepare.options.timeout'),
     type: 'number',
   });
 
