@@ -1070,6 +1070,11 @@
 			"runStatusCommand": "i Run the following command in order to get more info about the session:",
 			"runJobsCommand": "i Run the following command in order to get more info about the jobs:",
 			"runWatchCommand": "i Run the following command in order to watch for the status of the session:"
+		},
+		"stop": {
+			"description": "Stop a running harvest session",
+			"askConfirmation": "Do you wish to stop the harvesting of {{id}} into {{instance}}",
+			"success": "✔️ Harvest session [{{id}}] has been stopped"
 		}
 	}
 }
