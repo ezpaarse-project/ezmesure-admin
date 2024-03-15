@@ -1075,6 +1075,11 @@
 			"description": "Stop a running harvest session",
 			"askConfirmation": "Do you wish to stop the harvesting of {{id}} into {{instance}}",
 			"success": "✔️ Harvest session [{{id}}] has been stopped"
+		},
+		"delete": {
+			"description": "Delete a harvest session",
+			"askConfirmation": "Do you wish to delete the harvesting of {{id}} into {{instance}}",
+			"success": "✔️ Harvest session [{{id}}] has been deleted"
 		}
 	}
 }
