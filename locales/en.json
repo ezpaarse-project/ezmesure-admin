@@ -653,6 +653,9 @@
 			"createIndexPattern": "Import index-pattern",
 			"roleImported": "role imported (created or updated)",
 			"importRole": "Import role"
+		},
+		"harvestable": {
+			"description": "Get harvestable institutions"
 		}
 	},
 	"counter4": {
@@ -1021,7 +1024,7 @@
 		"status": {
 			"description": "Get info about an harvest sessions",
 			"options": {
-				"json": "Print result(s) in json",
+				"ndjson": "Print result(s) in ndjson",
 				"harvestId": "Specific ID of the harvest session",
 				"credentials": "Show credentials that will be harvested when starting, not the one provided. Not usable with jobs or watch",
 				"jobs": "Show jobs of the harvest session. Not usable with credentials",
