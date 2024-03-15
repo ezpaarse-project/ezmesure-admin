@@ -702,6 +702,9 @@
 			"createIndexPattern": "Import index-pattern",
 			"roleImported": "role imported (created or updated)",
 			"importRole": "Import role"
+		},
+		"harvestable": {
+			"description": "Get harvestable institutions"
 		}
 	},
 	"counter4": {
