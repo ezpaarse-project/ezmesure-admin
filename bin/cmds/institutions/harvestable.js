@@ -12,6 +12,7 @@ const {
 } = require('date-fns');
 
 const institutionsLib = require('../../../lib/institutions');
+const sushiLib = require('../../../lib/sushi');
 const { config } = require('../../../lib/app/config');
 const { formatApiError } = require('../../../lib/utils');
 
@@ -21,6 +22,12 @@ exports.builder = (yargs) => yargs
   .option('allow-faulty', {
     type: 'boolean',
     describe: i18n.t('harvest.prepare.options.allowFaulty'),
+    default: false,
+  })
+  .option('allow-not-ready', {
+    type: 'boolean',
+    describe: i18n.t('institutions.harvestable.options.allowNotReady'),
+    default: false,
   })
   .option('j', {
     alias: 'json',
@@ -73,6 +80,7 @@ const initProgress = (opts) => {
 exports.handler = async function handler(argv) {
   const {
     allowFaulty,
+    allowNotReady,
     json,
     ndjson,
     verbose,
@@ -103,8 +111,8 @@ exports.handler = async function handler(argv) {
     const { sushiReadySince } = institution;
 
     const readySince = sushiReadySince && parseISO(sushiReadySince);
-    if (!isValid(readySince) || isAfter(readySince, now)) {
-      skip(`${institution.name} is not ready yet.`);
+    if (!allowNotReady && (!isValid(readySince) || isAfter(readySince, now))) {
+      skip(i18n.t('institutions.harvestable.institutionIsNotReady', { name: institution.name }));
       continue;
     }
 
@@ -112,7 +120,12 @@ exports.handler = async function handler(argv) {
       progress.log(`Fetching sushi credentials of ${institution.name}...`, 'grey');
     }
     // eslint-disable-next-line no-await-in-loop
-    const sushiCredentials = (await institutionsLib.getSushi(institution.id, { include: ['harvests'] })).data;
+    const sushiCredentials = (await sushiLib.getAll({ institutionId: institution.id, include: ['harvests'] })).data;
+
+    if (sushiCredentials.length <= 0) {
+      skip(i18n.t('institutions.harvestable.institutionHasNoCredentials', { name: institution.name }));
+      continue;
+    }
 
     let lastHarvestDate = -Infinity;
     const counts = {};
@@ -131,30 +144,32 @@ exports.handler = async function handler(argv) {
         );
       }
     }
-    const total = (counts.success ?? 0) + (counts.failed ?? 0);
-    if (!allowFaulty && total < sushiCredentials.length) {
-      skip(`${institution.name} didn't tested & fixed all their credentials.`);
+
+    const validCredentialsCount = (counts.success ?? 0) + (counts.failed ?? 0);
+    if (!allowFaulty && validCredentialsCount < sushiCredentials.length) {
+      skip(i18n.t('institutions.harvestable.institutionHasFaultyCredentials', { name: institution.name }));
       continue;
     }
 
     if (isValid(lastHarvestDate) && isAfter(lastHarvestDate, readySince)) {
-      skip(`${institution.name} are already harvested.`);
+      skip(i18n.t('institutions.harvestable.institutionIsHarvested', { name: institution.name }));
       continue;
     }
 
     institutionsReady.push({
       institution,
-      readySince: format(readySince, 'yyyy-MM-dd'),
+      readySince: isValid(readySince) ? format(readySince, 'yyyy-MM-dd') : undefined,
       lastHarvest: isValid(lastHarvestDate) ? format(lastHarvestDate, 'yyyy-MM-dd') : undefined,
       counts,
-      total,
+      credentialsCount: sushiCredentials.length,
+      validCredentialsCount,
     });
-    progress.log(`${institution.name} is ready to be harvested.`, 'green');
+    progress.log(i18n.t('institutions.harvestable.institutionIsReady', { name: institution.name }), 'green');
     progress.bar?.increment();
   }
 
   progress.stop();
-  log(`\n${institutionsReady.length} institutions ready.`, 'green');
+  log(`\n${i18n.t('institutions.harvestable.nbInstitutionsReady', { count: institutionsReady.length })}`, 'green');
 
   if (json) {
     process.stdout.write(`${JSON.stringify(institutionsReady, null, 2)}\n`);
@@ -169,22 +184,28 @@ exports.handler = async function handler(argv) {
   process.stdout.write(
     table([
       [
-        chalk.bold('Name'),
-        chalk.bold('Ready since'),
-        chalk.bold('Last harvest'),
-        chalk.bold('Credentials'),
+        chalk.bold(i18n.t('institutions.harvestable.name')),
+        chalk.bold(i18n.t('institutions.harvestable.readySince')),
+        chalk.bold(i18n.t('institutions.harvestable.lastHarvest')),
+        chalk.bold(i18n.t('institutions.harvestable.credentials')),
       ],
       ...institutionsReady.map((r) => {
-        let credStatus = `${chalk.green(`✓ ${r.counts.success}`)} ${chalk.red(`x ${r.counts.failed}`)}`;
-        if (allowFaulty) {
+        let credStatus = '';
+        if (r.counts.success) {
+          credStatus += `${chalk.green(`✓ ${r.counts.success}`)}`;
+        }
+        if (r.counts.failed) {
+          credStatus += ` ${chalk.red(`x ${r.counts.failed}`)}`;
+        }
+        if (allowFaulty && r.counts.unauthorized) {
           credStatus += ` ${chalk.yellow(`! ${r.counts.unauthorized}`)}`;
         }
-        credStatus += ` /${r.total}`;
+        credStatus += ` /${r.credentialsCount}`;
 
         return [
           r.institution.name,
-          r.readySince,
-          r.lastHarvest,
+          r.readySince || chalk.red(i18n.t('institutions.harvestable.notReady')),
+          r.lastHarvest || chalk.red(i18n.t('institutions.harvestable.neverHarvested')),
           credStatus,
         ];
       }),
