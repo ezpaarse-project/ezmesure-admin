@@ -119,8 +119,15 @@ exports.handler = async function handler(argv) {
     if (verbose) {
       progress.log(`Fetching sushi credentials of ${institution.name}...`, 'grey');
     }
-    // eslint-disable-next-line no-await-in-loop
-    const sushiCredentials = (await sushiLib.getAll({ institutionId: institution.id, include: ['harvests'] })).data;
+
+    let sushiCredentials;
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      sushiCredentials = (await sushiLib.getAll({ institutionId: institution.id, include: ['harvests'] })).data;
+    } catch (error) {
+      console.error(formatApiError(error));
+      process.exit(1);
+    }
 
     if (sushiCredentials.length <= 0) {
       skip(i18n.t('institutions.harvestable.institutionHasNoCredentials', { name: institution.name }));
@@ -156,12 +163,21 @@ exports.handler = async function handler(argv) {
       continue;
     }
 
+    let memberships;
+    try {
+      memberships = (await institutionsLib.getMembers(institution.id, { include: ['user'] })).data;
+    } catch (error) {
+      console.error(formatApiError(error));
+      process.exit(1);
+    }
+
     institutionsReady.push({
       institution,
+      sushiCredentials,
       readySince: isValid(readySince) ? format(readySince, 'yyyy-MM-dd') : undefined,
       lastHarvest: isValid(lastHarvestDate) ? format(lastHarvestDate, 'yyyy-MM-dd') : undefined,
+      contacts: memberships.filter((m) => m.roles.includes('contact:doc')),
       counts,
-      credentialsCount: sushiCredentials.length,
       validCredentialsCount,
     });
     progress.log(i18n.t('institutions.harvestable.institutionIsReady', { name: institution.name }), 'green');
@@ -185,6 +201,7 @@ exports.handler = async function handler(argv) {
     table([
       [
         chalk.bold(i18n.t('institutions.harvestable.name')),
+        chalk.bold(i18n.t('institutions.harvestable.contacts')),
         chalk.bold(i18n.t('institutions.harvestable.readySince')),
         chalk.bold(i18n.t('institutions.harvestable.lastHarvest')),
         chalk.bold(i18n.t('institutions.harvestable.credentials')),
@@ -200,10 +217,11 @@ exports.handler = async function handler(argv) {
         if (allowFaulty && r.counts.unauthorized) {
           credStatus += ` ${chalk.yellow(`! ${r.counts.unauthorized}`)}`;
         }
-        credStatus += ` /${r.credentialsCount}`;
+        credStatus += ` /${r.sushiCredentials.length}`;
 
         return [
           r.institution.name,
+          r.contacts.map((m) => m.user.email || m.user.username).join('\n'),
           r.readySince || chalk.red(i18n.t('institutions.harvestable.notReady')),
           r.lastHarvest || chalk.red(i18n.t('institutions.harvestable.neverHarvested')),
           credStatus,
