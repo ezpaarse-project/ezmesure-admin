@@ -660,6 +660,7 @@
 				"allowNotReady": "Allow not ready institutions"
 			},
 			"name": "Name",
+			"contacts": "Doc Contact(s)",
 			"readySince": "Ready since",
 			"notReady": "Not ready",
 			"lastHarvest": "Last harvest",
