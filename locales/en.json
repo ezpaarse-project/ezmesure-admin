@@ -702,6 +702,25 @@
 			"createIndexPattern": "Import index-pattern",
 			"roleImported": "role imported (created or updated)",
 			"importRole": "Import role"
+		},
+		"harvestable": {
+			"description": "Get harvestable institutions",
+			"options": {
+				"allowNotReady": "Allow not ready institutions"
+			},
+			"name": "Name",
+			"contacts": "Doc Contact(s)",
+			"readySince": "Ready since",
+			"notReady": "Not ready",
+			"lastHarvest": "Last harvest",
+			"neverHarvested": "Never harvested",
+			"credentials": "Credentials",
+			"nbInstitutionsReady": "{{count}} institutions ready",
+			"institutionIsReady": "{{name}} is ready to be harvested",
+			"institutionIsNotReady": "{{name}} is not ready yet",
+			"institutionIsHarvested": "{{name}} is already harvested",
+			"institutionHasNoCredentials": "{{name}} has no SUSHI",
+			"institutionHasFaultyCredentials": "{{name}} didn't tested & fixed all their credentials"
 		}
 	},
 	"counter4": {
