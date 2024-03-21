@@ -1,7 +1,6 @@
 const { i18n } = global;
 
 const chalk = require('chalk');
-
 const { table } = require('table');
 const { parseISO, formatDistance, format } = require('date-fns');
 
@@ -62,6 +61,11 @@ const DEF_DOWNLOAD_UNSUPPORTED = false;
 const DEF_FORCE_DOWNLOAD = false;
 const DEF_IGNORE_VALIDATION = null;
 
+const out = process.stdout;
+const moveCursor = (dx, dy) => new Promise((resolve) => out.moveCursor(dx, dy, resolve));
+const cursorTo = (x, y) => new Promise((resolve) => out.cursorTo(x, y, resolve));
+const clearScreenDown = () => new Promise((resolve) => out.clearScreenDown(resolve));
+
 const formatDuration = (ms) => formatDistance(0, ms, { includeSeconds: true });
 
 const printOrWatch = async (fnc, argv) => {
@@ -72,11 +76,24 @@ const printOrWatch = async (fnc, argv) => {
     verbose,
   } = argv;
 
-  const print = async () => {
+  let interval;
+  let printedLines = 0;
+
+  const printSessionStatus = async () => {
+    if (printedLines > 0) {
+      if (process.stdout.isTTY) {
+        await moveCursor(0, -printedLines);
+        await cursorTo(0);
+        await clearScreenDown();
+      }
+      printedLines = 0;
+    }
+
     if (verbose) {
       console.log(
         chalk.gray(`Fetching status of harvest session ${harvestId} from ${config.ezmesure.baseUrl}`),
       );
+      printedLines += 1;
     }
 
     let sessionStatus;
@@ -92,22 +109,20 @@ const printOrWatch = async (fnc, argv) => {
       process.exit(1);
     }
 
-    await fnc(sessionStatus, argv);
+    printedLines += await fnc(sessionStatus, argv);
+
     return sessionStatus;
   };
 
-  let interval;
   const watchFnc = async () => {
-    console.clear();
-    const sessionStatus = await print();
+    const sessionStatus = await printSessionStatus();
 
     if (!sessionStatus.isActive) {
       clearInterval(interval);
     }
   };
 
-  const sessionStatus = await print();
-
+  const sessionStatus = await printSessionStatus();
   if (watch && sessionStatus.isActive) {
     interval = setInterval(watchFnc, watchDelay || DEF_WATCH_DELAY);
   }
@@ -116,10 +131,12 @@ const printOrWatch = async (fnc, argv) => {
 const printHarvestStatus = async (sessionStatus, argv) => {
   const { harvestId, json, verbose } = argv;
 
+  let printedLines = 0;
   if (verbose) {
     console.log(
       chalk.gray(`Fetching status of harvest session ${harvestId} from ${config.ezmesure.baseUrl}`),
     );
+    printedLines += 1;
   }
 
   let session;
@@ -137,7 +154,8 @@ const printHarvestStatus = async (sessionStatus, argv) => {
 
   if (json) {
     console.log(JSON.stringify({ session, sessionStatus }, null, 2));
-    return;
+    printedLines += 1;
+    return printedLines;
   }
 
   const {
@@ -171,13 +189,14 @@ const printHarvestStatus = async (sessionStatus, argv) => {
     beginDate,
     endDate,
   }));
+  printedLines += 1;
 
   const jobStatuses = [...Object.entries(sessionStatus._count.jobStatuses)]
     .map(([value, header]) => ({ header, value }));
 
   const { harvestable, all } = sessionStatus._count.credentials;
 
-  printSystemctlStyle({
+  printedLines += printSystemctlStyle({
     reportTypes: reportTypes.join(', ').toUpperCase(),
     timeout: { value: timeout, def: DEF_TIMEOUT },
     allowFaulty: { value: allowFaulty, def: DEF_ALLOW_FAULTY },
@@ -189,6 +208,8 @@ const printHarvestStatus = async (sessionStatus, argv) => {
     runningTime: sessionStatus.runningTime && formatDuration(sessionStatus.runningTime),
     jobs: { value: session._count.jobs, items: jobStatuses },
   });
+
+  return printedLines;
 };
 
 const printCredentials = async (argv) => {
@@ -196,10 +217,13 @@ const printCredentials = async (argv) => {
     harvestId, json, ndjson, verbose,
   } = argv;
 
+  let printedLines = 0;
+
   if (verbose) {
     console.log(
       chalk.gray(`Fetching credentials of harvest session ${harvestId} from ${config.ezmesure.baseUrl}`),
     );
+    printedLines += 1;
   }
 
   let credentials;
@@ -212,51 +236,55 @@ const printCredentials = async (argv) => {
 
   if (json) {
     console.log(JSON.stringify(credentials, null, 2));
-    return;
+    printedLines += 1;
+    return printedLines;
   }
 
   if (ndjson) {
     credentials.forEach((c) => console.log(JSON.stringify(c)));
-    return;
+    printedLines += credentials.length;
+    return printedLines;
   }
 
-  console.log(
-    table([
-      [
-        chalk.bold(i18n.t('harvest.status.institution')),
-        chalk.bold(i18n.t('harvest.status.endpoint')),
-        chalk.bold(i18n.t('harvest.status.tags')),
-        chalk.bold(i18n.t('harvest.status.connection')),
-        chalk.bold(i18n.t('harvest.status.updatedAt')),
-      ],
-      ...credentials.map((c) => {
-        let connection = c.connection?.status;
-        switch (connection) {
-          case 'success':
-            connection = chalk.green(connection);
-            break;
-          case 'unauthorized':
-            connection = chalk.yellow(connection);
-            break;
-          case 'failed':
-            connection = chalk.red(connection);
-            break;
+  const t = table([
+    [
+      chalk.bold(i18n.t('harvest.status.institution')),
+      chalk.bold(i18n.t('harvest.status.endpoint')),
+      chalk.bold(i18n.t('harvest.status.tags')),
+      chalk.bold(i18n.t('harvest.status.connection')),
+      chalk.bold(i18n.t('harvest.status.updatedAt')),
+    ],
+    ...credentials.map((c) => {
+      let connection = c.connection?.status;
+      switch (connection) {
+        case 'success':
+          connection = chalk.green(connection);
+          break;
+        case 'unauthorized':
+          connection = chalk.yellow(connection);
+          break;
+        case 'failed':
+          connection = chalk.red(connection);
+          break;
 
-          default:
-            connection = chalk.grey('untested');
-            break;
-        }
+        default:
+          connection = chalk.grey('untested');
+          break;
+      }
 
-        return [
-          c.institution.name,
-          c.endpoint.vendor,
-          c.tags.join(', '),
-          connection,
-          format(parseISO(c.updatedAt), 'yyyy-MM-dd HH:mm:ss'),
-        ];
-      }),
-    ]),
-  );
+      return [
+        c.institution.name,
+        c.endpoint.vendor,
+        c.tags.join(', '),
+        connection,
+        format(parseISO(c.updatedAt), 'yyyy-MM-dd HH:mm:ss'),
+      ];
+    }),
+  ]);
+
+  console.log(t);
+  printedLines += t.split('\n').length;
+  return printedLines;
 };
 
 const printJobs = async (session, argv) => {
@@ -267,10 +295,13 @@ const printJobs = async (session, argv) => {
     verbose,
   } = argv;
 
+  let printedLines = 0;
+
   if (verbose) {
     console.log(
       chalk.gray(`Fetching jobs of harvest session ${harvestId} from ${config.ezmesure.baseUrl}`),
     );
+    printedLines += 1;
   }
 
   let jobs;
@@ -283,60 +314,64 @@ const printJobs = async (session, argv) => {
 
   if (json) {
     console.log(JSON.stringify(jobs, null, 2));
-    return;
+    printedLines += 1;
+    return printedLines;
   }
 
   if (ndjson) {
     jobs.forEach((j) => console.log(JSON.stringify(j)));
-    return;
+    printedLines += jobs.length;
+    return printedLines;
   }
 
-  console.log(
-    table([
-      [
-        chalk.bold(i18n.t('harvest.status.jobId')),
-        chalk.bold(i18n.t('harvest.status.credentialsId')),
-        chalk.bold(i18n.t('harvest.status.reportTypes')),
-        chalk.bold(i18n.t('harvest.status.index')),
-        chalk.bold(i18n.t('harvest.status.runningTime')),
-        chalk.bold(i18n.t('harvest.status.jobStatus')),
-        chalk.bold(i18n.t('harvest.status.errorCode')),
-        chalk.bold(i18n.t('harvest.status.updatedAt')),
-        chalk.bold(i18n.t('harvest.status.startedAt')),
-      ],
-      ...jobs.map((j) => {
-        let { status } = j;
-        switch (status) {
-          case 'finished':
-            status = chalk.green(status);
-            break;
-          case 'waiting':
-            status = chalk.grey(status);
-            break;
-          case 'running':
-          case 'delayed':
-            status = chalk.yellow(status);
-            break;
+  const t = table([
+    [
+      chalk.bold(i18n.t('harvest.status.jobId')),
+      chalk.bold(i18n.t('harvest.status.credentialsId')),
+      chalk.bold(i18n.t('harvest.status.reportTypes')),
+      chalk.bold(i18n.t('harvest.status.index')),
+      chalk.bold(i18n.t('harvest.status.runningTime')),
+      chalk.bold(i18n.t('harvest.status.jobStatus')),
+      chalk.bold(i18n.t('harvest.status.errorCode')),
+      chalk.bold(i18n.t('harvest.status.updatedAt')),
+      chalk.bold(i18n.t('harvest.status.startedAt')),
+    ],
+    ...jobs.map((j) => {
+      let { status } = j;
+      switch (status) {
+        case 'finished':
+          status = chalk.green(status);
+          break;
+        case 'waiting':
+          status = chalk.grey(status);
+          break;
+        case 'running':
+        case 'delayed':
+          status = chalk.yellow(status);
+          break;
 
-          default:
-            status = chalk.red(status);
-            break;
-        }
+        default:
+          status = chalk.red(status);
+          break;
+      }
 
-        return [
-          j.id,
-          j.credentialsId,
-          j.reportType,
-          j.index,
-          j.runningTime,
-          status,
-          j.errorCode || '',
-          format(parseISO(j.updatedAt), 'yyyy-MM-dd HH:mm:ss'),
-          format(parseISO(j.startedAt), 'yyyy-MM-dd HH:mm:ss'),
-        ];
-      }),
-    ]),
-  );
+      return [
+        j.id,
+        j.credentialsId,
+        j.reportType,
+        j.index,
+        j.runningTime,
+        status,
+        j.errorCode || '',
+        format(parseISO(j.updatedAt), 'yyyy-MM-dd HH:mm:ss'),
+        format(parseISO(j.startedAt), 'yyyy-MM-dd HH:mm:ss'),
+      ];
+    }),
+  ]);
+
+  console.log(t);
+  printedLines += t.split('\n').length;
+  return printedLines;
 };
 
 exports.handler = async function handler(argv) {
