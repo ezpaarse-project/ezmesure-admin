@@ -364,7 +364,7 @@ const printJobs = async (session, argv) => {
         status,
         j.errorCode || '',
         format(parseISO(j.updatedAt), 'yyyy-MM-dd HH:mm:ss'),
-        format(parseISO(j.startedAt), 'yyyy-MM-dd HH:mm:ss'),
+        j.startedAt && format(parseISO(j.startedAt), 'yyyy-MM-dd HH:mm:ss'),
       ];
     }),
   ]);
