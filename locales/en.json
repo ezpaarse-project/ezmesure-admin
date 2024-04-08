@@ -288,7 +288,7 @@
 			"comment": "comment",
 			"params": "params",
 			"package": "package",
-			"insitutionId": "insitutionId",
+			"institutionId": "institutionId",
 			"updatedAt": "updatedAt",
 			"createdAt": "createdAt"
 		},
