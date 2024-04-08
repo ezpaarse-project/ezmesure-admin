@@ -2,7 +2,7 @@ const { i18n } = global;
 
 const { MultiBar, Presets } = require('cli-progress');
 const chalk = require('chalk');
-const { formatDistanceToNow, formatDistance } = require('date-fns');
+const { formatDistanceToNow, formatDistance, isValid } = require('date-fns');
 
 const { setTimeout } = require('node:timers/promises');
 
@@ -17,13 +17,13 @@ const fetchTask = async (taskId) => {
   const { body: { completed, task } } = await elastic.tasks.get({ taskId });
 
   const fields = ['created', 'deleted', 'updated'];
-  const value = fields.reduce((acc, field) => { acc += task.status[field]; return acc; }, 0);
+  const value = fields.reduce((acc, field) => { acc += task.status[field] || 0; return acc; }, 0);
 
   const elapsed = formatDistanceToNow(task.start_time_in_millis);
   const speed = Math.round(value / (task.running_time_in_nanos * 1e-9));
 
   const rem = ((task.status.total - value) / speed) * 1000;
-  const remaining = rem >= 60 ? formatDistance(0, rem) : 'Ended';
+  const remaining = isValid(rem) && rem >= 60 ? formatDistance(0, rem) : '-';
 
   return {
     task,
@@ -80,6 +80,7 @@ exports.handler = async function handler(argv) {
     multiBar.stop();
   } catch (error) {
     console.error(`\n${chalk.red(error)}`);
+    console.error(error.stack);
     process.exit(1);
   }
 };
