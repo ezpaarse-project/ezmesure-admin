@@ -92,14 +92,22 @@ exports.handler = async function handler(argv) {
         console.log(chalk.gray(i18n.t('export.institutionSort')));
         // ensuring that parent institutions are always before their children
         // working with a copy of the data to avoid mistakes while iterating over it
-        [...data].forEach((institution, index) => {
+        [...data].forEach((institution) => {
           if (!institution.parentInstitutionId) {
             return;
           }
 
+          const index = data.findIndex((i) => i.id === institution.id);
           const parentIndex = data.findIndex((i) => i.id === institution.parentInstitutionId);
+          if (parentIndex < 0) {
+            throw new Error(`Parent institution of ${institution.id} not found`);
+          }
+          if (index > parentIndex) {
+            return;
+          }
+
           data.splice(index, 1);
-          data.splice(parentIndex + 1, 0, institution);
+          data.splice(parentIndex, 0, institution);
         });
 
         return { data, ...resp };
