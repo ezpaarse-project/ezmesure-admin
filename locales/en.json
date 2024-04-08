@@ -288,7 +288,7 @@
 			"comment": "comment",
 			"params": "params",
 			"package": "package",
-			"insitutionId": "insitutionId",
+			"institutionId": "institutionId",
 			"updatedAt": "updatedAt",
 			"createdAt": "createdAt"
 		},
@@ -1058,5 +1058,20 @@
 		"askConfirmation": "Do you wish to import data from {{out}} into {{instance}}",
 		"file": "  Opening new file for {{type}}...",
 		"ok": "✔️ Import successful, logs are available in \"{{out}}\""
+	},
+
+	"export": {
+		"description": "Export users, sushis endpoints and institutions from ezMESURE",
+		"options": {
+			"out": "Directory where to output files (Default: current datetime)",
+			"bulkSize": "Number of items that should be exported at once"
+		},
+
+		"institutionSort": "  Sorting institutions...",
+
+		"going": "i Exporting {{type}}...",
+		"file": "  Opening new file for {{type}}...",
+		"ok": "✔️ {{count}} {{type}} exported to \"{{out}}\"",
+		"dataOk": "✔️ Data exported to \"{{out}}\""
 	}
 }

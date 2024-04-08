@@ -136,7 +136,7 @@ exports.handler = async function handler(argv) {
         i18n.t('sushi.export.comment'),
         i18n.t('sushi.export.params'),
         i18n.t('sushi.export.package'),
-        i18n.t('sushi.export.insitutionId'),
+        i18n.t('sushi.export.institutionId'),
         i18n.t('sushi.export.updatedAt'),
         i18n.t('sushi.export.createdAt'),
       ];
@@ -152,7 +152,7 @@ exports.handler = async function handler(argv) {
         comment,
         params,
         package: pkg,
-        insitutionId,
+        institutionId,
         updatedAt,
         createdAt,
       }) => {
@@ -166,7 +166,7 @@ exports.handler = async function handler(argv) {
           comment,
           params.join(' '),
           pkg,
-          insitutionId,
+          institutionId,
           updatedAt,
           createdAt,
         ]);
