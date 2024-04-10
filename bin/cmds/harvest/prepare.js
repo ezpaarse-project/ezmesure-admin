@@ -148,7 +148,7 @@ exports.handler = async function handler(argv) {
       endDate: options.to,
       reportTypes: options.reportTypes,
       credentialsQuery: {
-        ids: options.sushiIds,
+        sushiIds: options.sushiIds,
         institutionIds: options.institutionIds,
         endpointIds: options.endpointIds,
       },
