@@ -25,7 +25,6 @@ exports.handler = async function handler(argv) {
     harvestId,
     verbose,
     yes,
-    $0: scriptName,
   } = argv;
 
   const confirm = await inquirer.prompt(
@@ -59,8 +58,4 @@ exports.handler = async function handler(argv) {
   }
 
   console.log(chalk.green(i18n.t('harvest.delete.success', { id: harvestId })));
-  console.log(chalk.blue(i18n.t('harvest.start.runStatusCommand')));
-  console.log(chalk.blue(`\t${scriptName} harvest status ${harvestId}`));
-  console.log(chalk.blue(i18n.t('harvest.start.runJobsCommand')));
-  console.log(chalk.blue(`\t${scriptName} harvest status ${harvestId} --jobs`));
 };

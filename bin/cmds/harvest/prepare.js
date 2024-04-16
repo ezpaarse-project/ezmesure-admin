@@ -25,6 +25,16 @@ exports.builder = (yargs) => yargs
     type: 'array',
     describe: i18n.t('harvest.prepare.options.reportTypes'),
     group: 'Session parameters :',
+    default: [
+      'dr',
+      'dr_d1',
+      'ir',
+      'pr',
+      'pr_p1',
+      'tr',
+      'tr_b1',
+      'tr_j1',
+    ],
   })
   .option('harvestId', {
     alias: 'hid',
@@ -146,7 +156,7 @@ exports.handler = async function handler(argv) {
     const body = {
       beginDate: options.from,
       endDate: options.to,
-      reportTypes: options.reportTypes,
+      reportTypes: options.reportTypes.map((reportType) => reportType.toLowerCase()),
       credentialsQuery: {
         sushiIds: options.sushiIds,
         institutionIds: options.institutionIds,
