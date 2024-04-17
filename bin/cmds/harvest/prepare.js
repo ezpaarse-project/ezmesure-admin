@@ -162,6 +162,7 @@ exports.handler = async function handler(argv) {
         institutionIds: options.institutionIds,
         endpointIds: options.endpointIds,
       },
+      forceDownload: options.forceDownload,
       allowFaulty: options.allowFaulty,
       timeout: options.timeout,
       ignoreValidation: options.ignoreValidation,
