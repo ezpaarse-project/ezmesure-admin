@@ -15,7 +15,7 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('harvest.status.options.harvestId'),
     type: 'string',
   })
-  .option('restartAll', {
+  .option('restart-all', {
     describe: i18n.t('harvest.start.options.restartAll'),
     type: 'boolean',
     group: 'Start parameters :',
