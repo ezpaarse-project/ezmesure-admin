@@ -20,7 +20,7 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('harvest.prepare.options.to'),
     group: 'Session parameters :',
   })
-  .option('reportTypes', {
+  .option('report-types', {
     alias: 'rt',
     type: 'array',
     describe: i18n.t('harvest.prepare.options.reportTypes'),
@@ -36,25 +36,25 @@ exports.builder = (yargs) => yargs
       'tr_j1',
     ],
   })
-  .option('harvestId', {
+  .option('harvest-id', {
     alias: 'hid',
     type: 'string',
     describe: i18n.t('harvest.prepare.options.harvestId'),
     group: 'Session parameters :',
   })
-  .option('sushiIds', {
+  .option('sushi-ids', {
     alias: 's',
     type: 'array',
     describe: i18n.t('harvest.prepare.options.sushiId'),
     group: 'Session parameters :',
   })
-  .option('institutionIds', {
+  .option('institution-ids', {
     alias: 'i',
     type: 'array',
     describe: i18n.t('harvest.prepare.options.institutionId'),
     group: 'Session parameters :',
   })
-  .option('endpointIds', {
+  .option('endpoint-ids', {
     alias: 'e',
     type: 'array',
     describe: i18n.t('harvest.prepare.options.endpointId'),
