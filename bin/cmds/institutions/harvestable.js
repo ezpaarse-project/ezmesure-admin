@@ -135,21 +135,24 @@ exports.handler = async function handler(argv) {
     }
 
     let lastHarvestDate = -Infinity;
-    const counts = {};
+    const counts = {
+      success: 0,
+      failed: 0,
+      unauthorized: 0,
+      untested: 0,
+    };
     for (const { connection, harvests } of sushiCredentials) {
-      const status = connection?.status;
-      if (status) {
-        counts[status] = (counts[status] ?? 0) + 1;
+      const status = connection?.status ?? 'untested';
+      counts[status] = (counts[status] ?? 0) + 1;
 
-        const [lastHarvest] = harvests.sort(
-          (a, b) => parseISO(b.harvestedAt) - parseISO(a.harvestedAt),
-        );
+      const [lastHarvest] = harvests.sort(
+        (a, b) => parseISO(b.harvestedAt) - parseISO(a.harvestedAt),
+      );
 
-        lastHarvestDate = Math.max(
-          lastHarvest?.harvestedAt ? parseISO(lastHarvest.harvestedAt) : -Infinity,
-          lastHarvestDate,
-        );
-      }
+      lastHarvestDate = Math.max(
+        lastHarvest?.harvestedAt ? parseISO(lastHarvest.harvestedAt) : -Infinity,
+        lastHarvestDate,
+      );
     }
 
     const validCredentialsCount = (counts.success ?? 0) + (counts.failed ?? 0);

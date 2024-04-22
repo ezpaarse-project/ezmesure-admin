@@ -88,6 +88,7 @@ exports.handler = async function handler(argv) {
       const { data } = await usersLib.getAll({
         size: size || 10,
         source: '*',
+        include: 'memberships.institution',
       });
       usersData = data;
     } catch (error) {
@@ -110,15 +111,16 @@ exports.handler = async function handler(argv) {
 
   if (correspondent === 'tech') {
     logger.verbose('Filter by tech correspondent');
-    usersData = usersData.filter((user) => user?.roles?.includes('tech_contact'));
+    usersData = usersData.filter((user) => user?.memberships?.find((membership) => membership.roles.includes('contact:tech')));
   }
   if (correspondent === 'doc') {
     logger.verbose('Filter by doc correspondent');
-    usersData = usersData.filter((user) => user?.roles?.includes('doc_contact'));
+    usersData = usersData.filter((user) => user?.memberships?.find((membership) => membership.roles.includes('contact:doc')));
   }
   if (correspondent === 'all') {
     logger.verbose('Filter by correspondent');
-    usersData = usersData.filter((user) => user?.roles?.includes('tech_contact') || user?.roles?.includes('doc_contact'));
+    usersData = usersData.filter((user) => user?.memberships?.find((membership) => membership.roles.includes('contact:tech'))
+    || user?.memberships?.find((membership) => membership.roles.includes('contact:doc')));
   }
 
   if (createdForm) {

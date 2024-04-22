@@ -259,6 +259,16 @@
 				"technicalProvider": "Technical provider"
 			}
 		},
+		"getUnflushed": {
+			"description": "Find SUSHI credentials that have been deleted but still has harvested data in Elasticsearch",
+			"invalidAggregationResult": "Got invalid response from the aggregation query",
+			"invalidSushiResponse": "Got invalid response from the API while querying for a list of SUSHI credentials",
+			"options": {
+				"index": "The index name where unflushed data should be searched (accepts wildcards)",
+				"aggregationTimeout": "Timeout of the aggregation query that is used to find all matches of (X_Sushi_ID + _index)",
+				"ndjson": "Print result(s) in ndjson"
+			}
+		},
 		"export": {
 			"description": "Export sushi credentials",
 			"options": {
@@ -278,7 +288,7 @@
 			"comment": "comment",
 			"params": "params",
 			"package": "package",
-			"insitutionId": "insitutionId",
+			"institutionId": "institutionId",
 			"updatedAt": "updatedAt",
 			"createdAt": "createdAt"
 		},
@@ -1100,5 +1110,19 @@
 			"askConfirmation": "Do you wish to delete the harvesting of {{id}} into {{instance}}",
 			"success": "✔️ Harvest session [{{id}}] has been deleted"
 		}
+	},
+	"export": {
+		"description": "Export users, sushis endpoints and institutions from ezMESURE",
+		"options": {
+			"out": "Directory where to output files (Default: current datetime)",
+			"bulkSize": "Number of items that should be exported at once"
+		},
+
+		"institutionSort": "  Sorting institutions...",
+
+		"going": "i Exporting {{type}}...",
+		"file": "  Opening new file for {{type}}...",
+		"ok": "✔️ {{count}} {{type}} exported to \"{{out}}\"",
+		"dataOk": "✔️ Data exported to \"{{out}}\""
 	}
 }

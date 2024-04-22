@@ -6,6 +6,8 @@ const fsp = require('node:fs/promises');
 
 const cliProgress = require('cli-progress');
 const chalk = require('chalk');
+const { format } = require('date-fns');
+
 const elastic = require('../../../lib/app/elastic');
 
 exports.command = 'export';
@@ -16,7 +18,7 @@ exports.builder = function builder(yargs) {
       alias: 'out',
       describe: i18n.t('migrate.export.options.out'),
       type: 'string',
-      default: new Date().toISOString(),
+      default: format(new Date(), 'yyyy-MM-dd'),
     })
     .option('b', {
       alias: 'bulk-size',
@@ -321,7 +323,7 @@ exports.handler = async function handler(argv) {
       dataFolder,
     });
 
-    console.log(chalk.green(`✔️ Data exported to "${chalk.underline(dataFolder)}"`));
+    console.log(chalk.green(i18n.t('migrate.export.dataOk', { out: chalk.underline(dataFolder) })));
   } catch (error) {
     const now = new Date();
     console.log(chalk.grey(i18n.t('migrate.export.file', { type: 'error logs' })));
