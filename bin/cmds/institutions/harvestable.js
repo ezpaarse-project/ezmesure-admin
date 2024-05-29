@@ -29,6 +29,11 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('institutions.harvestable.options.allowNotReady'),
     default: false,
   })
+  .option('allow-harvested', {
+    type: 'boolean',
+    describe: i18n.t('institutions.harvestable.options.allowHarvested'),
+    default: false,
+  })
   .option('j', {
     alias: 'json',
     describe: i18n.t('institutions.get.options.json'),
@@ -81,6 +86,7 @@ exports.handler = async function handler(argv) {
   const {
     allowFaulty,
     allowNotReady,
+    allowHarvested,
     json,
     ndjson,
     verbose,
@@ -161,7 +167,7 @@ exports.handler = async function handler(argv) {
       continue;
     }
 
-    if (isValid(lastHarvestDate) && isAfter(lastHarvestDate, readySince)) {
+    if (!allowHarvested && isValid(lastHarvestDate) && isAfter(lastHarvestDate, readySince)) {
       skip(i18n.t('institutions.harvestable.institutionIsHarvested', { name: institution.name }));
       continue;
     }

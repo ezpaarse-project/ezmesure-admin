@@ -667,7 +667,8 @@
 		"harvestable": {
 			"description": "Get harvestable institutions",
 			"options": {
-				"allowNotReady": "Allow not ready institutions"
+				"allowNotReady": "Allow not ready institutions",
+				"allowHarvested": "Allow already harvested institutions"
 			},
 			"name": "Name",
 			"contacts": "Doc Contact(s)",
