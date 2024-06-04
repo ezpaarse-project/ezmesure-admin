@@ -11,6 +11,8 @@ const { format } = require('date-fns');
 const usersLib = require('../../lib/users');
 const sushiEndpointsLib = require('../../lib/sushiEndpoints');
 const institutionsLib = require('../../lib/institutions');
+const repositoriesLib = require('../../lib/repositories');
+const spacesLib = require('../../lib/spaces');
 
 exports.command = 'export';
 exports.desc = i18n.t('export.description');
@@ -63,6 +65,24 @@ const exportData = async (opts) => {
   console.groupEnd();
 };
 
+const sortParentsInstitutions = (data, institution) => {
+  if (!institution.parentInstitutionId) {
+    return;
+  }
+
+  const index = data.findIndex((i) => i.id === institution.id);
+  const parentIndex = data.findIndex((i) => i.id === institution.parentInstitutionId);
+  if (parentIndex < 0) {
+    throw new Error(`Parent institution of ${institution.id} not found`);
+  }
+  if (index > parentIndex) {
+    return;
+  }
+
+  data.splice(index, 1);
+  data.splice(parentIndex, 0, institution);
+};
+
 exports.handler = async function handler(argv) {
   const { out } = argv;
 
@@ -73,45 +93,41 @@ exports.handler = async function handler(argv) {
     await exportData({
       type: 'users',
       outFile: path.join(dataFolder, 'users.jsonl'),
-      fetch: () => usersLib.getAll({ size: -1, source: '*' }),
+      fetch: () => usersLib.getAll({ source: '*' }),
       filter: (item) => item.username !== 'ezmesure-admin',
     });
 
     await exportData({
       type: 'sushis',
       outFile: path.join(dataFolder, 'sushis.jsonl'),
-      fetch: () => sushiEndpointsLib.getAll({ size: -1 }),
+      fetch: () => sushiEndpointsLib.getAll(),
     });
 
     await exportData({
       type: 'institutions',
       outFile: path.join(dataFolder, 'institutions.jsonl'),
       fetch: async () => {
-        const { data, ...resp } = await institutionsLib.getAll({ size: -1, include: ['sushiCredentials', 'spaces', 'repositories', 'memberships'] });
+        const { data, ...resp } = await institutionsLib.getAll({ include: ['sushiCredentials', 'memberships'] });
 
         console.log(chalk.gray(i18n.t('export.institutionSort')));
         // ensuring that parent institutions are always before their children
         // working with a copy of the data to avoid mistakes while iterating over it
-        [...data].forEach((institution) => {
-          if (!institution.parentInstitutionId) {
-            return;
-          }
-
-          const index = data.findIndex((i) => i.id === institution.id);
-          const parentIndex = data.findIndex((i) => i.id === institution.parentInstitutionId);
-          if (parentIndex < 0) {
-            throw new Error(`Parent institution of ${institution.id} not found`);
-          }
-          if (index > parentIndex) {
-            return;
-          }
-
-          data.splice(index, 1);
-          data.splice(parentIndex, 0, institution);
-        });
+        [...data].forEach((institution) => sortParentsInstitutions(data, institution));
 
         return { data, ...resp };
       },
+    });
+
+    await exportData({
+      type: 'repositories',
+      outFile: path.join(dataFolder, 'repositories.jsonl'),
+      fetch: () => repositoriesLib.getAll({ include: ['institutions', 'permissions'] }),
+    });
+
+    await exportData({
+      type: 'spaces',
+      outFile: path.join(dataFolder, 'spaces.jsonl'),
+      fetch: () => spacesLib.getAll({ include: ['permissions'] }),
     });
 
     console.log(chalk.green(i18n.t('export.dataOk', { out: chalk.underline(dataFolder) })));
