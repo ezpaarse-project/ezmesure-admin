@@ -10,10 +10,13 @@ const cliProgress = require('cli-progress');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 
+const { exists } = require('fs-extra');
 const users = require('../../lib/users');
 const ezmesure = require('../../lib/app/ezmesure');
-const institutions = require('../../lib/institutions');
-const sushiEndpoint = require('../../lib/sushiEndpoints');
+const institutionsLib = require('../../lib/institutions');
+const sushiEndpointsLib = require('../../lib/sushiEndpoints');
+const repositoriesLib = require('../../lib/repositories');
+const spacesLib = require('../../lib/spaces');
 
 exports.command = 'import <exported path>';
 exports.desc = i18n.t('import.description');
@@ -149,11 +152,16 @@ async function importJSONL(opts) {
  * @param {number} opts.overwrite Should overwrite
  */
 async function importUsers(opts) {
+  const filePath = path.resolve(opts.inFolder, 'users.jsonl');
+  if (!await exists(filePath)) {
+    return;
+  }
+
   console.log(chalk.blue(i18n.t('import.users.going')));
   console.group();
 
   const counters = await importJSONL({
-    filePath: path.resolve(opts.inFolder, 'users.jsonl'),
+    filePath,
     bulkSize: opts.bulkSize,
     logPath: path.join(opts.outFolder, 'user.log'),
     importer: (chunks) => users.import(chunks, { params: { overwrite: opts.overwrite } }),
@@ -183,14 +191,19 @@ async function importUsers(opts) {
  * @param {number} opts.overwrite Should overwrite
  */
 async function importInstitutions(opts) {
+  const filePath = path.resolve(opts.inFolder, 'institutions.jsonl');
+  if (!await exists(filePath)) {
+    return;
+  }
+
   console.log(chalk.blue(i18n.t('import.institutions.going')));
   console.group();
 
   const counters = await importJSONL({
-    filePath: path.resolve(opts.inFolder, 'institutions.jsonl'),
+    filePath,
     bulkSize: opts.bulkSize,
     logPath: path.join(opts.outFolder, 'institutions.log'),
-    importer: (chunks) => institutions.import(chunks, { params: { overwrite: opts.overwrite } }),
+    importer: (chunks) => institutionsLib.import(chunks, { params: { overwrite: opts.overwrite } }),
   });
 
   console.log(
@@ -217,19 +230,111 @@ async function importInstitutions(opts) {
  * @param {number} opts.overwrite Should overwrite
  */
 async function importSushiEndpoints(opts) {
+  const filePath = path.resolve(opts.inFolder, 'sushis.jsonl');
+  if (!await exists(filePath)) {
+    return;
+  }
+
   console.log(chalk.blue(i18n.t('import.sushi.going')));
   console.group();
 
   const counters = await importJSONL({
-    filePath: path.resolve(opts.inFolder, 'sushis.jsonl'),
+    filePath,
     bulkSize: opts.bulkSize,
     logPath: path.join(opts.outFolder, 'sushis.log'),
-    importer: (chunks) => sushiEndpoint.import(chunks, { params: { overwrite: opts.overwrite } }),
+    importer: (chunks) => sushiEndpointsLib.import(
+      chunks,
+      { params: { overwrite: opts.overwrite } },
+    ),
   });
 
   console.log(
     chalk.green(i18n.t(
       'import.sushi.ok',
+      {
+        total: `${counters.total}`,
+        created: `${counters.created}`,
+        conflicts: chalk.yellow(counters.conflicts),
+        errors: chalk.red(counters.errors),
+      },
+    )),
+  );
+  console.groupEnd();
+}
+
+/**
+ * Import repositories into ezMESURE Reloaded
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.inFolder The in folder
+ * @param {string} opts.outFolder The out folder
+ * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
+ */
+async function importRepositories(opts) {
+  const filePath = path.resolve(opts.inFolder, 'repositories.jsonl');
+  if (!await exists(filePath)) {
+    return;
+  }
+
+  console.log(chalk.blue(i18n.t('import.repositories.going')));
+  console.group();
+
+  const counters = await importJSONL({
+    filePath,
+    bulkSize: opts.bulkSize,
+    logPath: path.join(opts.outFolder, 'repositories.log'),
+    importer: (chunks) => repositoriesLib.import(
+      chunks,
+      { params: { overwrite: opts.overwrite } },
+    ),
+  });
+
+  console.log(
+    chalk.green(i18n.t(
+      'import.repositories.ok',
+      {
+        total: `${counters.total}`,
+        created: `${counters.created}`,
+        conflicts: chalk.yellow(counters.conflicts),
+        errors: chalk.red(counters.errors),
+      },
+    )),
+  );
+  console.groupEnd();
+}
+
+/**
+ * Import endpoints into ezMESURE Reloaded
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.inFolder The in folder
+ * @param {string} opts.outFolder The out folder
+ * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
+ */
+async function importSpaces(opts) {
+  const filePath = path.resolve(opts.inFolder, 'spaces.jsonl');
+  if (!await exists(filePath)) {
+    return;
+  }
+
+  console.log(chalk.blue(i18n.t('import.spaces.going')));
+  console.group();
+
+  const counters = await importJSONL({
+    filePath,
+    bulkSize: opts.bulkSize,
+    logPath: path.join(opts.outFolder, 'spaces.log'),
+    importer: (chunks) => spacesLib.import(
+      chunks,
+      { params: { overwrite: opts.overwrite } },
+    ),
+  });
+
+  console.log(
+    chalk.green(i18n.t(
+      'import.spaces.ok',
       {
         total: `${counters.total}`,
         created: `${counters.created}`,
@@ -301,13 +406,29 @@ exports.handler = async function handler(argv) {
       bulkSize,
       overwrite,
     });
+
     await importSushiEndpoints({
       inFolder: exportedpath,
       outFolder,
       bulkSize,
       overwrite,
     });
+
     await importInstitutions({
+      inFolder: exportedpath,
+      outFolder,
+      bulkSize,
+      overwrite,
+    });
+
+    await importRepositories({
+      inFolder: exportedpath,
+      outFolder,
+      bulkSize,
+      overwrite,
+    });
+
+    await importSpaces({
       inFolder: exportedpath,
       outFolder,
       bulkSize,

@@ -1013,6 +1013,14 @@
 			"going": "i Importing sushi endpoints...",
 			"ok": "✔️ {{total}} endpoints imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
 		},
+		"repositories": {
+			"going": "i Importing repositories...",
+			"ok": "✔️ {{total}} repositories imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
+		"spaces": {
+			"going": "i Importing spaces...",
+			"ok": "✔️ {{total}} spaces imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
 		"noInDir": "No directory specified",
 		"chunks": "  Using chunks of: {{chunkSize}}",
 		"unknownError": "Unknown error from API",
