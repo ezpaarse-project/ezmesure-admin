@@ -668,7 +668,8 @@
 			"description": "Get harvestable institutions",
 			"options": {
 				"allowNotReady": "Allow not ready institutions",
-				"allowHarvested": "Allow already harvested institutions"
+				"allowHarvested": "Allow already harvested institutions",
+				"short": "Print result(s) in json, with common format (may change in the future)"
 			},
 			"name": "Name",
 			"contacts": "Doc Contact(s)",

@@ -34,17 +34,22 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('institutions.harvestable.options.allowHarvested'),
     default: false,
   })
+  .option('json-short', {
+    describe: i18n.t('institutions.harvestable.options.short'),
+    type: 'boolean',
+    conflicts: ['n', 'j'],
+  })
   .option('j', {
     alias: 'json',
     describe: i18n.t('institutions.get.options.json'),
     type: 'boolean',
-    conflicts: ['n'],
+    conflicts: ['n', 'json-short'],
   })
   .option('n', {
     alias: 'ndjson',
     describe: i18n.t('institutions.get.options.ndjson'),
     type: 'boolean',
-    conflicts: ['j'],
+    conflicts: ['j', 'json-short'],
   });
 
 const log = (message, color) => {
@@ -87,6 +92,7 @@ exports.handler = async function handler(argv) {
     allowFaulty,
     allowNotReady,
     allowHarvested,
+    short,
     json,
     ndjson,
     verbose,
@@ -195,6 +201,18 @@ exports.handler = async function handler(argv) {
 
   progress.stop();
   log(`\n${i18n.t('institutions.harvestable.nbInstitutionsReady', { count: institutionsReady.length })}`, 'green');
+
+  if (short) {
+    const shortInstitutions = institutionsReady.map((i) => ({
+      id: i.institution.id,
+      readySince: i.readySince,
+      lastHarvest: i.lastHarvest,
+      contacts: i.contacts.map((c) => c.user.email),
+      counts: i.counts,
+    }));
+    process.stdout.write(`${JSON.stringify(shortInstitutions, null, 2)}\n`);
+    return;
+  }
 
   if (json) {
     process.stdout.write(`${JSON.stringify(institutionsReady, null, 2)}\n`);
