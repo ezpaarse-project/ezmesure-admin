@@ -205,6 +205,7 @@ exports.handler = async function handler(argv) {
   if (short) {
     const shortInstitutions = institutionsReady.map((i) => ({
       id: i.institution.id,
+      name: i.institution.name,
       readySince: i.readySince,
       lastHarvest: i.lastHarvest,
       contacts: i.contacts.map((c) => c.user.email),
