@@ -135,7 +135,11 @@ exports.handler = async function handler(argv) {
     let sushiCredentials;
     try {
       // eslint-disable-next-line no-await-in-loop
-      sushiCredentials = (await sushiLib.getAll({ institutionId: institution.id, include: ['harvests'] })).data;
+      sushiCredentials = (await sushiLib.getAll({
+        institutionId: institution.id,
+        active: true,
+        include: ['harvests', 'endpoint'],
+      })).data;
     } catch (error) {
       console.error(formatApiError(error));
       process.exit(1);
@@ -152,8 +156,13 @@ exports.handler = async function handler(argv) {
       failed: 0,
       unauthorized: 0,
       untested: 0,
+      total: 0,
     };
-    for (const { connection, harvests } of sushiCredentials) {
+    for (const { connection, harvests, endpoint } of sushiCredentials) {
+      if (!endpoint.active) {
+        continue;
+      }
+
       const status = connection?.status ?? 'untested';
       counts[status] = (counts[status] ?? 0) + 1;
 
@@ -165,10 +174,11 @@ exports.handler = async function handler(argv) {
         lastHarvest?.harvestedAt ? parseISO(lastHarvest.harvestedAt) : -Infinity,
         lastHarvestDate,
       );
+      counts.total += 1;
     }
 
     const validCredentialsCount = (counts.success ?? 0) + (counts.failed ?? 0);
-    if (!allowFaulty && validCredentialsCount < sushiCredentials.length) {
+    if (!allowFaulty && validCredentialsCount < counts.total) {
       skip(i18n.t('institutions.harvestable.institutionHasFaultyCredentials', { name: institution.name }));
       continue;
     }
@@ -178,9 +188,12 @@ exports.handler = async function handler(argv) {
       continue;
     }
 
-    let memberships;
+    let contacts;
     try {
-      memberships = (await institutionsLib.getMembers(institution.id, { include: ['user'] })).data;
+      contacts = (await institutionsLib.getMembers(institution.id, {
+        roles: ['contact:doc'],
+        include: ['user'],
+      })).data;
     } catch (error) {
       console.error(formatApiError(error));
       process.exit(1);
@@ -191,7 +204,7 @@ exports.handler = async function handler(argv) {
       sushiCredentials,
       readySince: isValid(readySince) ? format(readySince, 'yyyy-MM-dd') : undefined,
       lastHarvest: isValid(lastHarvestDate) ? format(lastHarvestDate, 'yyyy-MM-dd') : undefined,
-      contacts: memberships.filter((m) => m.roles.includes('contact:doc')),
+      contacts,
       counts,
       validCredentialsCount,
     });
