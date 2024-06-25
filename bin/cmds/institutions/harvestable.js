@@ -92,7 +92,6 @@ exports.handler = async function handler(argv) {
     allowFaulty,
     allowNotReady,
     allowHarvested,
-    short,
     json,
     ndjson,
     verbose,
@@ -213,9 +212,8 @@ exports.handler = async function handler(argv) {
   }
 
   progress.stop();
-  log(`\n${i18n.t('institutions.harvestable.nbInstitutionsReady', { count: institutionsReady.length })}`, 'green');
 
-  if (short) {
+  if (argv['json-short']) {
     const shortInstitutions = institutionsReady.map((i) => ({
       id: i.institution.id,
       name: i.institution.name,
