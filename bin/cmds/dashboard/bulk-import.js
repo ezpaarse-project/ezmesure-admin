@@ -36,6 +36,12 @@ exports.builder = function builder(yargs) {
       type: 'boolean',
       describe: i18n.t('dashboard.bulkImport.options.overwrite'),
     })
+    .option('p', {
+      alias: 'id-prefix',
+      type: 'string',
+      default: 'generic:',
+      describe: i18n.t('dashboard.bulkImport.options.idPrefix'),
+    })
     .option('f', {
       alias: 'files',
       type: 'array',
@@ -104,6 +110,7 @@ async function importDashboards(opts = {}) {
   const {
     verbose,
     overwrite,
+    idPrefix,
   } = argv;
 
   let imported = 0;
@@ -202,7 +209,12 @@ async function importDashboards(opts = {}) {
   }
 
   await Promise.all(dashboards.map(async (dashboard) => {
-    const dashboardTitle = dashboard?.objects?.find?.((obj) => obj?.type === 'dashboard')?.attributes?.title;
+    const dashboardObject = dashboard?.objects?.find?.((obj) => obj?.type === 'dashboard');
+    const dashboardTitle = dashboardObject?.attributes?.title;
+
+    if (idPrefix && dashboardObject?.id && !dashboardObject.id.startsWith(idPrefix)) {
+      dashboardObject.id = `${idPrefix}${dashboardObject.id}`;
+    }
 
     if (verbose) {
       console.log(`* Import dashboard [${dashboardTitle}] into space [${space?.id}] with index-pattern [${indexPatternTitle}] from ${config.ezmesure.baseUrl}`);

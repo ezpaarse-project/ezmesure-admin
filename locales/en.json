@@ -847,7 +847,8 @@
 				"ignoreConflicts": "Ignore object conflicts",
 				"onConflict": "Behavior when an import contains conflicts",
 				"overwrite": "Overwrite conflicts",
-				"files": "Files path. If not provided, will fetch dashboards from the remote reference repository."
+				"files": "Files path. If not provided, will fetch dashboards from the remote reference repository.",
+				"idPrefix": "A prefix to be added to dashboard IDs (if not already present)"
 			},
 			"selectDashboards": "Select dashboards to import",
 			"selectSpaceType": "Select space type, or enter a custom space suffix",
