@@ -866,6 +866,30 @@
 			"nbMissingSpaces": "{{count}} spaces were not found",
 			"nbErrors": "{{count}} errors"
 		},
+		"bulkDelete": {
+			"description": "Delete dashboard(s) from a list of spaces",
+			"options": {
+				"spaces":"Space names, case sensitive. If not provided, will delete in all institution spaces with a given suffix.",
+				"ignoreMissingSpaces": "Ignore missing spaces",
+				"files": "Files path. If not provided, will fetch dashboards from the remote reference repository.",
+				"dashboardIds": "A list of dashboard IDs to be deleted",
+				"idPrefix": "A prefix to be added to dashboard IDs (if not already present)"
+			},
+			"selectDashboards": "Select dashboards to delete",
+			"selectSpaceType": "Select space type, or enter a custom space suffix",
+			"selectIndexPattern": "Select index pattern",
+			"selectTemplateDir": "Select template directory",
+			"noDashboardsSelected": "No dashboard(s) selected",
+			"space": "Space: {{name}} (id: {{id}})",
+			"spaceNotFound": "Space not found",
+			"ezpaarseSpace": "ezPAARSE space",
+			"ezcounterSpace": "ezCOUNTER space",
+			"noFiles": "No files specified",
+			"nbDeleted": "{{count}} dashboards have been deleted",
+			"nbAffectedSpaces": "{{count}} spaces have been affected",
+			"nbMissingSpaces": "{{count}} spaces were not found",
+			"nbErrors": "{{count}} errors"
+		},
 		"copy": {
 			"description": "Copy a dashboard from one space to another",
 			"options": {
