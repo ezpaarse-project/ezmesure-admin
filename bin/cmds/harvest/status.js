@@ -40,17 +40,10 @@ exports.builder = (yargs) => yargs
     implies: 'watch',
     group: 'Watch :',
   })
-  .option('j', {
-    alias: 'json',
-    describe: i18n.t('harvest.prepare.options.json'),
-    type: 'boolean',
-    conflicts: ['n'],
-  })
-  .option('n', {
-    alias: 'ndjson',
-    describe: i18n.t('harvest.status.options.ndjson'),
-    type: 'boolean',
-    conflicts: ['j'],
+  .option('format', {
+    type: 'string',
+    choices: ['json', 'ndjson'],
+    describe: i18n.t('harvest.status.options.format'),
   });
 
 const DEF_WATCH_DELAY = 5000;
