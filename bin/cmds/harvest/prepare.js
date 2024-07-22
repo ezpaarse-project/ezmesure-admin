@@ -3,7 +3,6 @@ const { i18n } = global;
 const chalk = require('chalk');
 
 const harvestLib = require('../../../lib/harvest');
-const institutionsLib = require('../../../lib/institutions');
 const { config } = require('../../../lib/app/config');
 const { formatApiError } = require('../../../lib/utils');
 
@@ -60,12 +59,6 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('harvest.prepare.options.endpointId'),
     group: 'Session parameters :',
   })
-  .option('all', {
-    alias: 'a',
-    type: 'boolean',
-    describe: i18n.t('harvest.prepare.options.all'),
-    group: 'Session parameters :',
-  })
   .option('allow-faulty', {
     type: 'boolean',
     describe: i18n.t('harvest.prepare.options.allowFaulty'),
@@ -81,56 +74,31 @@ exports.builder = (yargs) => yargs
     group: 'Session parameters :',
     type: 'boolean',
   })
+  .option('download-unsupported', {
+    describe: i18n.t('harvest.prepare.options.downloadUnsupported'),
+    group: 'Session parameters :',
+    type: 'boolean',
+  })
   .option('timeout', {
     describe: i18n.t('harvest.prepare.options.timeout'),
     group: 'Session parameters :',
     type: 'number',
   })
-  .option('j', {
-    alias: 'json',
-    describe: i18n.t('harvest.prepare.options.json'),
-    type: 'boolean',
+  .option('format', {
+    type: 'string',
+    choices: ['json'],
+    describe: i18n.t('harvest.prepare.options.format'),
   });
 
-exports.handler = async function handler(argv) {
-  const {
-    all,
-    verbose,
-    harvestId,
-    $0: scriptName,
-  } = argv;
-
-  const options = {
-    from: argv.from,
-    to: argv.to,
-    reportTypes: argv.reportTypes,
-    sushiIds: argv.sushiIds,
-    institutionIds: argv.institutionIds,
-    endpointIds: argv.endpointIds,
-    forceDownload: argv.cache === false,
-    allowFaulty: argv.allowFaulty,
-    timeout: argv.timeout,
-    ignoreValidation: argv.ignoreValidation,
-  };
-
-  // Fetching all sushi ids at the time
-  if (all) {
-    options.sushiIds = [];
-    options.endpointIds = [];
-
-    if (verbose) {
-      console.log(
-        chalk.gray(`Fetching institutions from ${config.ezmesure.baseUrl}`),
-      );
-    }
-
-    try {
-      const { data } = await institutionsLib.getAll();
-      options.institutionIds = data.map(({ id }) => id);
-    } catch (error) {
-      console.error(formatApiError(error));
-      process.exit(1);
-    }
+async function prepareSession(options) {
+  if (Array.isArray(options.institutions)) {
+    options.institutionIds = options.institutions.map(({ id }) => id);
+  }
+  if (Array.isArray(options.endpoints)) {
+    options.endpointIds = options.endpoints.map(({ id }) => id);
+  }
+  if (Array.isArray(options.sushis)) {
+    options.sushiIds = options.sushis.map(({ id }) => id);
   }
 
   if (!Array.isArray(options.institutionIds)) { options.institutionIds = []; }
@@ -144,10 +112,9 @@ exports.handler = async function handler(argv) {
     + options.sushiIds.length
   ) > 0;
 
-  if (!hasFilters && !all) {
+  if (!hasFilters) {
     console.error(chalk.red(i18n.t('harvest.prepare.noFilter')));
-    console.error(chalk.blue(i18n.t('harvest.prepare.pleaseSetAllFlag')));
-    process.exit(1);
+    return undefined;
   }
 
   let item;
@@ -166,18 +133,15 @@ exports.handler = async function handler(argv) {
       allowFaulty: options.allowFaulty,
       timeout: options.timeout,
       ignoreValidation: options.ignoreValidation,
+      downloadUnsupported: options.downloadUnsupported,
     };
 
     // Log more info if needed
-    if (verbose) {
-      if (harvestId) {
-        console.log(
-          chalk.grey(`Upserting harvest session "${harvestId}" from ${config.ezmesure.baseUrl} with :`),
-        );
+    if (options.verbose) {
+      if (options.harvestId) {
+        console.log(chalk.grey(`Upserting harvest session "${options.harvestId}" from ${config.ezmesure.baseUrl} with :`));
       } else {
-        console.log(
-          chalk.grey(`Creating new harvest session from ${config.ezmesure.baseUrl} with :`),
-        );
+        console.log(chalk.grey(`Creating new harvest session from ${config.ezmesure.baseUrl} with :`));
       }
       console.group();
       console.log(chalk.grey(`- ${options.sushiIds.length} sushi ids`));
@@ -186,26 +150,90 @@ exports.handler = async function handler(argv) {
       console.groupEnd();
     }
 
-    if (harvestId) {
-      ({ data: item } = await harvestLib.upsert(harvestId, body));
+    if (options.harvestId) {
+      ({ data: item } = await harvestLib.upsert(options.harvestId, body));
     } else {
       ({ data: item } = await harvestLib.create(body));
     }
   } catch (error) {
     console.error(formatApiError(error));
-    process.exit(1);
+    return undefined;
   }
 
-  if (argv.json) {
-    console.log(JSON.stringify(item, null, 2));
-    process.exit(0);
+  return item;
+}
+
+function readAllStdin() {
+  return new Promise((resolve) => {
+    let data = '';
+    process.stdin.on('data', (chunk) => {
+      data += chunk;
+    });
+    process.stdin.on('end', () => {
+      resolve(data);
+    });
+  });
+}
+
+exports.handler = async function handler(argv) {
+  const {
+    verbose,
+    harvestId,
+    format: outputFormat,
+    $0: scriptName,
+  } = argv;
+
+  // Make args override provided options
+  const overrides = {
+    from: argv.from,
+    to: argv.to,
+    reportTypes: argv.reportTypes,
+    sushiIds: argv.sushiIds,
+    institutionIds: argv.institutionIds,
+    endpointIds: argv.endpointIds,
+    forceDownload: argv.cache === false,
+    allowFaulty: argv.allowFaulty,
+    timeout: argv.timeout,
+    ignoreValidation: argv.ignoreValidation,
+    downloadUnsupported: argv.downloadUnsupported,
+  };
+
+  let sessionParams = [{ harvestId }];
+  // Parse stdin if needed
+  if (!process.stdin.isTTY) {
+    try {
+      const data = JSON.parse(await readAllStdin());
+      sessionParams = Array.isArray(data) ? data : [data];
+    } catch (error) {
+      console.error(`Couldn't read from stdin: ${error}`);
+      process.exit(0);
+    }
   }
 
-  console.log(chalk.green(i18n.t('harvest.prepare.success', { id: item.id })));
-  console.log(chalk.blue(i18n.t('harvest.prepare.runStatusCommand')));
-  console.log(chalk.blue(`\t${scriptName} harvest status ${item.id}`));
-  console.log(chalk.blue(i18n.t('harvest.prepare.runCredentialsCommand')));
-  console.log(chalk.blue(`\t${scriptName} harvest status ${item.id} --credentials`));
-  console.log(chalk.blue(i18n.t('harvest.prepare.runStartCommand')));
-  console.log(chalk.blue(`\t${scriptName} harvest start ${item.id}`));
+  for (const params of sessionParams) {
+    const session = await prepareSession({
+      ...params,
+      ...overrides,
+      verbose,
+    });
+
+    if (!session) {
+      // eslint-disable-next-line no-continue
+      continue;
+    }
+
+    if (outputFormat === 'json') {
+      console.log(JSON.stringify(session, null, 2));
+      // eslint-disable-next-line no-continue
+      continue;
+    }
+
+    console.log(chalk.green(i18n.t('harvest.prepare.success', { id: session.id })));
+    console.log(chalk.blue(i18n.t('harvest.prepare.runStatusCommand')));
+    console.log(chalk.blue(`\t${scriptName} harvest status ${session.id}`));
+    console.log(chalk.blue(i18n.t('harvest.prepare.runCredentialsCommand')));
+    console.log(chalk.blue(`\t${scriptName} harvest status ${session.id} --credentials`));
+    console.log(chalk.blue(i18n.t('harvest.prepare.runStartCommand')));
+    console.log(chalk.blue(`\t${scriptName} harvest start ${session.id}`));
+  }
 };
