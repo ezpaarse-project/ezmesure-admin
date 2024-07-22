@@ -385,6 +385,30 @@
 			"sushiParams": "Parameters: {{params}}"
 		}
 	},
+	"endpoints": {
+		"harvestable": {
+			"description": "Get harvestable endpoints",
+			"options": {
+				"allowInactive": "Allow inactive endpoints",
+				"allowFaulty": "Allow faulty or untested SUSHI credentials",
+				"allowError": "Allow errored SUSHI credentials"
+			},
+			"testingPeriod": "Testing from {{from}} to {{to}}...",
+			"endpointNoCredentials": "{{endpoint}} doesn't have any credentials",
+			"endpointNoUsableCredentials": "{{endpoint}} doesn't have any usable credentials",
+			"endpointTestError": "Error when testing {{endpoint)} with {{credsName}} credentials: {{error}}",
+			"endpointAllExceptions": "{{endpoint}} is not ready to be harvested, all {{tries}} credentials failed: {{exception}}",
+			"endpointExceptionMessage": "[{{Severity}}] {{Message}}",
+			"endpointNoResponse": "{{endpoint}} is not ready to be harvested after {{tries}} tries (out of {{total}})",
+			"endpointReady": "{{endpoint}} is ready to be harvested after {{tries}} tries (out of {{total}})",
+			"status": {
+				"ready": "ready",
+				"notReady":"Not ready",
+				"unknown": "Unknown",
+				"total": "Total"
+			}
+		}
+	},
 	"spaces":	{
 		"spaceCheckbox": "Space(s) (Use arrow keys or begin typing to search, press <space> to select, press <enter> to submit)",
 		"spaceSelect": "Space (Use arrow keys, press <enter> to submit)",
