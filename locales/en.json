@@ -667,9 +667,9 @@
 		"harvestable": {
 			"description": "Get harvestable institutions",
 			"options": {
+				"format": "Change format of output:\n- json: Print result(s) in json\n- ndjson: Print result(s) in ndjson\n- harvest-options: Print result(s) in json, already formatted to be used with other `harvest prepare`",
 				"allowNotReady": "Allow not ready institutions",
-				"allowHarvested": "Allow already harvested institutions",
-				"short": "Print result(s) in json, with common format (may change in the future)"
+				"allowHarvested": "Allow already harvested institutions"
 			},
 			"name": "Name",
 			"contacts": "Doc Contact(s)",
@@ -1060,8 +1060,7 @@
 		"prepare": {
 			"description": "Prepare a new or existing harvest session",
 			"options": {
-				"all": "Harvest all SUSHI items",
-				"json": "Print result(s) in json",
+				"format": "Change format of output:\n- json: Print result(s) in json",
 				"harvestId": "A specific ID to assign to the harvest session. If already exists, it will update session.",
 				"sushiId": "One or more SUSHI IDs. Harvest SUSHI items that have the given identifiers.",
 				"institutionId": "One or more institution IDs. Harvest SUSHI items that belong to the given institutions.",
@@ -1077,7 +1076,6 @@
 			"success": "✔️ Harvest session [{{id}}] is ready to be harvested",
 			"invalidDate": "x Invalid date",
 			"noFilter": "x No filter specified.",
-			"pleaseSetAllFlag": "i Please explicitly set --all flag to harvest all SUSHI items",
 			"runStartCommand": "i Run the following command in order to start the created session:",
 			"runStatusCommand": "i Run the following command in order to get more info about the session:",
 			"runCredentialsCommand": "i Run the following command in order to get more credentials that will be harvested:"
@@ -1085,7 +1083,7 @@
 		"status": {
 			"description": "Get info about an harvest sessions",
 			"options": {
-				"ndjson": "Print result(s) in ndjson",
+				"format": "Change format of output:\n- json: Print result(s) in json\n- ndjson: Print result(s) in ndjson",
 				"harvestId": "Specific ID of the harvest session",
 				"credentials": "Show credentials that will be harvested when starting, not the one provided. Not usable with jobs or watch",
 				"jobs": "Show jobs of the harvest session. Not usable with credentials",
