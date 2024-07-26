@@ -122,7 +122,7 @@ const printOrWatch = async (fnc, argv) => {
 };
 
 const printHarvestStatus = async (sessionStatus, argv) => {
-  const { harvestId, json, verbose } = argv;
+  const { harvestId, output: outputFormat, verbose } = argv;
 
   let printedLines = 0;
   if (verbose) {
@@ -145,7 +145,7 @@ const printHarvestStatus = async (sessionStatus, argv) => {
     process.exit(1);
   }
 
-  if (json) {
+  if (outputFormat === 'json') {
     console.log(JSON.stringify({ session, sessionStatus }, null, 2));
     printedLines += 1;
     return printedLines;
@@ -206,9 +206,7 @@ const printHarvestStatus = async (sessionStatus, argv) => {
 };
 
 const printCredentials = async (argv) => {
-  const {
-    harvestId, json, ndjson, verbose,
-  } = argv;
+  const { harvestId, format: outputFormat, verbose } = argv;
 
   let printedLines = 0;
 
@@ -227,13 +225,13 @@ const printCredentials = async (argv) => {
     process.exit(1);
   }
 
-  if (json) {
+  if (outputFormat === 'json') {
     console.log(JSON.stringify(credentials, null, 2));
     printedLines += 1;
     return printedLines;
   }
 
-  if (ndjson) {
+  if (outputFormat === 'ndjson') {
     credentials.forEach((c) => console.log(JSON.stringify(c)));
     printedLines += credentials.length;
     return printedLines;
@@ -283,8 +281,7 @@ const printCredentials = async (argv) => {
 const printJobs = async (session, argv) => {
   const {
     harvestId,
-    json,
-    ndjson,
+    format: outputFormat,
     verbose,
   } = argv;
 
@@ -305,13 +302,13 @@ const printJobs = async (session, argv) => {
     process.exit(1);
   }
 
-  if (json) {
+  if (outputFormat === 'json') {
     console.log(JSON.stringify(jobs, null, 2));
     printedLines += 1;
     return printedLines;
   }
 
-  if (ndjson) {
+  if (outputFormat === 'ndjson') {
     jobs.forEach((j) => console.log(JSON.stringify(j)));
     printedLines += jobs.length;
     return printedLines;

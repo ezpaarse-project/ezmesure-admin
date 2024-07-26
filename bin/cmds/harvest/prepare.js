@@ -175,9 +175,16 @@ function readAllStdin() {
   });
 }
 
+function mergeParams(params, overrides) {
+  const merged = { ...params };
+  Object.keys(overrides)
+    .filter((key) => overrides[key] != null)
+    .forEach((key) => { merged[key] = overrides[key]; });
+  return merged;
+}
+
 exports.handler = async function handler(argv) {
   const {
-    verbose,
     harvestId,
     format: outputFormat,
     $0: scriptName,
@@ -191,11 +198,12 @@ exports.handler = async function handler(argv) {
     sushiIds: argv.sushiIds,
     institutionIds: argv.institutionIds,
     endpointIds: argv.endpointIds,
-    forceDownload: argv.cache === false,
+    forceDownload: argv.cache != null ? argv.cache === false : undefined,
     allowFaulty: argv.allowFaulty,
     timeout: argv.timeout,
     ignoreValidation: argv.ignoreValidation,
     downloadUnsupported: argv.downloadUnsupported,
+    verbose: argv.verbose,
   };
 
   let sessionParams = [{ harvestId }];
@@ -211,11 +219,7 @@ exports.handler = async function handler(argv) {
   }
 
   for (const params of sessionParams) {
-    const session = await prepareSession({
-      ...params,
-      ...overrides,
-      verbose,
-    });
+    const session = await prepareSession(mergeParams(params, overrides));
 
     if (!session) {
       // eslint-disable-next-line no-continue
