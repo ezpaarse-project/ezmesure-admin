@@ -4,9 +4,13 @@ const { i18n } = global;
 const chalk = require('chalk');
 const { MultiBar, Presets } = require('cli-progress');
 const { table } = require('table');
+const { default: slugify } = require('slugify');
 const {
   format,
   parseISO,
+  subMonths,
+  startOfQuarter,
+  endOfQuarter,
   isValid,
   isAfter,
 } = require('date-fns');
@@ -34,22 +38,10 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('institutions.harvestable.options.allowHarvested'),
     default: false,
   })
-  .option('json-short', {
-    describe: i18n.t('institutions.harvestable.options.short'),
-    type: 'boolean',
-    conflicts: ['n', 'j'],
-  })
-  .option('j', {
-    alias: 'json',
-    describe: i18n.t('institutions.get.options.json'),
-    type: 'boolean',
-    conflicts: ['n', 'json-short'],
-  })
-  .option('n', {
-    alias: 'ndjson',
-    describe: i18n.t('institutions.get.options.ndjson'),
-    type: 'boolean',
-    conflicts: ['j', 'json-short'],
+  .option('format', {
+    type: 'string',
+    choices: ['json', 'ndjson', 'harvest-options'],
+    describe: i18n.t('institutions.harvestable.options.format'),
   });
 
 const log = (message, color) => {
@@ -92,8 +84,7 @@ exports.handler = async function handler(argv) {
     allowFaulty,
     allowNotReady,
     allowHarvested,
-    json,
-    ndjson,
+    format: outputFormat,
     verbose,
   } = argv;
 
@@ -119,16 +110,19 @@ exports.handler = async function handler(argv) {
   const now = new Date();
   const institutionsReady = [];
   for (const institution of institutions) {
+    if (verbose) {
+      progress.log(`Checking ${institution.name}...`, 'grey');
+    }
     const { sushiReadySince } = institution;
 
     const readySince = sushiReadySince && parseISO(sushiReadySince);
     if (!allowNotReady && (!isValid(readySince) || isAfter(readySince, now))) {
-      skip(i18n.t('institutions.harvestable.institutionIsNotReady', { name: institution.name }));
+      skip(i18n.t('institutions.harvestable.institutionIsNotReady', { name: chalk.stderr.bold(institution.name) }));
       continue;
     }
 
     if (verbose) {
-      progress.log(`Fetching sushi credentials of ${institution.name}...`, 'grey');
+      progress.log(`Fetching sushi credentials of ${chalk.stderr.bold(institution.name)}...`, 'grey');
     }
 
     let sushiCredentials;
@@ -145,7 +139,7 @@ exports.handler = async function handler(argv) {
     }
 
     if (sushiCredentials.length <= 0) {
-      skip(i18n.t('institutions.harvestable.institutionHasNoCredentials', { name: institution.name }));
+      skip(i18n.t('institutions.harvestable.institutionHasNoCredentials', { name: chalk.stderr.bold(institution.name) }));
       continue;
     }
 
@@ -178,12 +172,12 @@ exports.handler = async function handler(argv) {
 
     const validCredentialsCount = (counts.success ?? 0) + (counts.failed ?? 0);
     if (!allowFaulty && validCredentialsCount < counts.total) {
-      skip(i18n.t('institutions.harvestable.institutionHasFaultyCredentials', { name: institution.name }));
+      skip(i18n.t('institutions.harvestable.institutionHasFaultyCredentials', { name: chalk.stderr.bold(institution.name) }));
       continue;
     }
 
     if (!allowHarvested && isValid(lastHarvestDate) && isAfter(lastHarvestDate, readySince)) {
-      skip(i18n.t('institutions.harvestable.institutionIsHarvested', { name: institution.name }));
+      skip(i18n.t('institutions.harvestable.institutionIsHarvested', { name: chalk.stderr.bold(institution.name) }));
       continue;
     }
 
@@ -207,31 +201,37 @@ exports.handler = async function handler(argv) {
       counts,
       validCredentialsCount,
     });
-    progress.log(i18n.t('institutions.harvestable.institutionIsReady', { name: institution.name }), 'green');
+    progress.log(i18n.t('institutions.harvestable.institutionIsReady', { name: chalk.stderr.bold(institution.name) }), 'green');
     progress.bar?.increment();
   }
 
   progress.stop();
 
-  if (argv['json-short']) {
-    const shortInstitutions = institutionsReady.map((i) => ({
-      id: i.institution.id,
-      name: i.institution.name,
-      readySince: i.readySince,
-      lastHarvest: i.lastHarvest,
-      contacts: i.contacts.map((c) => c.user.email),
-      counts: i.counts,
+  if (outputFormat === 'harvest-options') {
+    const threeMonthAgo = subMonths(now, 3);
+    const harvestSessions = institutionsReady.map((i) => ({
+      hid: `${format(now, 'yyyy-MM-dd')}_${slugify(i.institution.name.toLowerCase())}_${format(now, 'yyyy')}`,
+      from: format(startOfQuarter(threeMonthAgo), 'yyyy-MM'),
+      to: format(endOfQuarter(threeMonthAgo), 'yyyy-MM'),
+      institutions: [{
+        id: i.institution.id,
+        name: i.institution.name,
+        contacts: i.contacts.map((c) => c.user.email),
+        readySince: i.readySince,
+        lastHarvest: i.lastHarvest,
+        counts: i.counts,
+      }],
     }));
-    process.stdout.write(`${JSON.stringify(shortInstitutions, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify(harvestSessions, null, 2)}\n`);
     return;
   }
 
-  if (json) {
+  if (outputFormat === 'json') {
     process.stdout.write(`${JSON.stringify(institutionsReady, null, 2)}\n`);
     return;
   }
 
-  if (ndjson) {
+  if (outputFormat === 'ndjson') {
     institutionsReady.forEach((r) => process.stdout.write(`${JSON.stringify(r)}\n`));
     return;
   }

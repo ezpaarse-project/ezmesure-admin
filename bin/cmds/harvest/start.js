@@ -25,28 +25,21 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('harvest.start.options.yes'),
     type: 'boolean',
   })
-  .option('j', {
-    alias: 'json',
-    describe: i18n.t('sushi.prepare.harvest.options.json'),
-    type: 'boolean',
-    conflicts: ['n'],
-  })
-  .option('n', {
-    alias: 'ndjson',
-    describe: i18n.t('harvest.prepare.options.ndjson'),
-    type: 'boolean',
-    conflicts: ['j'],
+  .option('format', {
+    type: 'string',
+    choices: ['json', 'ndjson'],
+    describe: i18n.t('harvest.status.options.format'),
   });
 
 const printJobs = (jobs, argv) => {
-  const { json, ndjson } = argv;
+  const { format } = argv;
 
-  if (json) {
+  if (format === 'json') {
     console.log(JSON.stringify(jobs, null, 2));
     return;
   }
 
-  if (ndjson) {
+  if (format === 'ndjson') {
     jobs.forEach((j) => console.log(JSON.stringify(j)));
     return;
   }
