@@ -210,7 +210,7 @@ exports.handler = async function handler(argv) {
   if (outputFormat === 'harvest-options') {
     const threeMonthAgo = subMonths(now, 3);
     const harvestSessions = institutionsReady.map((i) => ({
-      hid: `${format(now, 'yyyy-MM-dd')}_${slugify(i.institution.name.toLowerCase())}_${format(now, 'yyyy')}`,
+      harvestId: `${format(now, 'yyyy-MM-dd')}_${slugify(i.institution.name.toLowerCase())}_${format(now, 'yyyy')}`,
       from: format(startOfQuarter(threeMonthAgo), 'yyyy-MM'),
       to: format(endOfQuarter(threeMonthAgo), 'yyyy-MM'),
       institutions: [{

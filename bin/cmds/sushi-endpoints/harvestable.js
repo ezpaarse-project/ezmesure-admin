@@ -273,7 +273,7 @@ exports.handler = async function handler(argv) {
   if (outputFormat === 'harvest-options') {
     const now = new Date();
     const harvestSessions = [...endpointsByStatus.ready, ...endpointsByStatus.unknown].map((e) => ({
-      hid: `${format(now, 'yyyy-MM-dd')}_${slugify(e.vendor.toLowerCase())}_${format(now, 'yyyy')}`,
+      harvestId: `${format(now, 'yyyy-MM-dd')}_${slugify(e.vendor.toLowerCase())}_${format(now, 'yyyy')}`,
       from: period.start,
       to: period.end,
       endpoints: [{
