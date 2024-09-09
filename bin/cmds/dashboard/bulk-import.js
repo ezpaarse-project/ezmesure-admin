@@ -332,13 +332,13 @@ exports.handler = async function handler(argv) {
 
     const dirs = await getRemoteTemplates();
 
-    dashboardFiles = await itMode.autocomplete({
+    dashboardFiles = await itMode.selectMultiple({
       message: i18n.t('dashboard.bulkImport.selectTemplateDir'),
       choices: dirs.map((dir) => ({ name: dir.path, value: dir.files })),
     });
   }
 
-  dashboardFiles = await selectDashboards(dashboardFiles);
+  dashboardFiles = await selectDashboards(dashboardFiles.flat());
 
   if (dashboardFiles.length === 0) {
     console.log(i18n.t('dashboard.bulkImport.noDashboardsSelected'));
