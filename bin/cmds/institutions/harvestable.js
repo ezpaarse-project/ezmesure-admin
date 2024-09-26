@@ -13,6 +13,7 @@ const {
   endOfQuarter,
   isValid,
   isAfter,
+  isSameDay,
 } = require('date-fns');
 
 const institutionsLib = require('../../../lib/institutions');
@@ -26,17 +27,20 @@ exports.builder = (yargs) => yargs
   .option('allow-faulty', {
     type: 'boolean',
     describe: i18n.t('harvest.prepare.options.allowFaulty'),
-    default: false,
   })
   .option('allow-not-ready', {
     type: 'boolean',
     describe: i18n.t('institutions.harvestable.options.allowNotReady'),
-    default: false,
   })
   .option('allow-harvested', {
     type: 'boolean',
     describe: i18n.t('institutions.harvestable.options.allowHarvested'),
-    default: false,
+  })
+  .option('ignore-harvest', {
+    type: 'string',
+    array: true,
+    describe: i18n.t('institutions.harvestable.options.ignoreHarvestDate'),
+    conflicts: ['allow-harvested'],
   })
   .option('format', {
     type: 'string',
@@ -81,10 +85,11 @@ const initProgress = (opts) => {
 
 exports.handler = async function handler(argv) {
   const {
-    allowFaulty,
-    allowNotReady,
-    allowHarvested,
+    allowFaulty = false,
+    allowNotReady = false,
+    allowHarvested = false,
     format: outputFormat,
+    ignoreHarvest: ignoredHarvestDates = [],
     verbose,
   } = argv;
 
@@ -159,9 +164,16 @@ exports.handler = async function handler(argv) {
       const status = connection?.status ?? 'untested';
       counts[status] = (counts[status] ?? 0) + 1;
 
-      const [lastHarvest] = harvests.sort(
+      let lastHarvest;
+      const sortedHarvest = harvests.sort(
         (a, b) => parseISO(b.harvestedAt) - parseISO(a.harvestedAt),
       );
+      for (const harvest of sortedHarvest) {
+        if (!ignoredHarvestDates.some((date) => isSameDay(date, harvest.harvestedAt))) {
+          lastHarvest = harvest;
+          break;
+        }
+      }
 
       lastHarvestDate = Math.max(
         lastHarvest?.harvestedAt ? parseISO(lastHarvest.harvestedAt) : -Infinity,

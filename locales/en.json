@@ -693,7 +693,8 @@
 			"options": {
 				"format": "Change format of output:\n- json: Print result(s) in json\n- ndjson: Print result(s) in ndjson\n- harvest-options: Print result(s) in json, already formatted to be used with other `harvest prepare`",
 				"allowNotReady": "Allow not ready institutions",
-				"allowHarvested": "Allow already harvested institutions"
+				"allowHarvested": "Allow already harvested institutions",
+				"ignoreHarvestDate": "Dates to ignore when checking if institution is already harvested"
 			},
 			"name": "Name",
 			"contacts": "Doc Contact(s)",
