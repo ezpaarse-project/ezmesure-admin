@@ -1085,7 +1085,7 @@
 		"prepare": {
 			"description": "Prepare a new or existing harvest session",
 			"options": {
-				"format": "Change format of output:\n- json: Print result(s) in json",
+				"format": "Change format of output:\n- json: Print result(s) in json\n- ndjson: Print result(s) in ndjson",
 				"harvestId": "A specific ID to assign to the harvest session. If already exists, it will update session.",
 				"sushiId": "One or more SUSHI IDs. Harvest SUSHI items that have the given identifiers.",
 				"institutionId": "One or more institution IDs. Harvest SUSHI items that belong to the given institutions.",
@@ -1149,6 +1149,7 @@
 		"start": {
 			"description": "Start harvesting of a harvest session",
 			"options": {
+				"format": "Change format of output:\n- ndjson: Print result(s) in ndjson",
 				"yes": "Automatic yes to prompts; assume \"yes\" as answer to all prompts and run non-interactively.",
 				"restartAll": "Restart all jobs of the harvest session, including success ones"
 			},

@@ -86,7 +86,7 @@ exports.builder = (yargs) => yargs
   })
   .option('format', {
     type: 'string',
-    choices: ['json'],
+    choices: ['json', 'ndjson'],
     describe: i18n.t('harvest.prepare.options.format'),
   });
 
@@ -206,7 +206,11 @@ exports.handler = async function handler(argv) {
     verbose: argv.verbose,
   };
 
-  let sessionParams = [{ harvestId }];
+  let sessionParams = [];
+  if (harvestId) {
+    sessionParams = [{ harvestId }];
+  }
+
   // Parse stdin if needed
   if (!process.stdin.isTTY) {
     try {
@@ -218,6 +222,7 @@ exports.handler = async function handler(argv) {
     }
   }
 
+  const results = [];
   for (const params of sessionParams) {
     const session = await prepareSession(mergeParams(params, overrides));
 
@@ -227,7 +232,13 @@ exports.handler = async function handler(argv) {
     }
 
     if (outputFormat === 'json') {
-      console.log(JSON.stringify(session, null, 2));
+      results.push(session);
+      // eslint-disable-next-line no-continue
+      continue;
+    }
+
+    if (outputFormat === 'ndjson') {
+      console.log(JSON.stringify(session));
       // eslint-disable-next-line no-continue
       continue;
     }
@@ -239,5 +250,9 @@ exports.handler = async function handler(argv) {
     console.log(chalk.blue(`\t${scriptName} harvest status ${session.id} --credentials`));
     console.log(chalk.blue(i18n.t('harvest.prepare.runStartCommand')));
     console.log(chalk.blue(`\t${scriptName} harvest start ${session.id}`));
+  }
+
+  if (outputFormat === 'json') {
+    console.log(JSON.stringify(results, null, 2));
   }
 };

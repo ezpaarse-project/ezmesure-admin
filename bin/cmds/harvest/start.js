@@ -8,7 +8,7 @@ const harvestLib = require('../../../lib/harvest');
 const { config } = require('../../../lib/app/config');
 const { formatApiError } = require('../../../lib/utils');
 
-exports.command = 'start <harvestId>';
+exports.command = 'start [harvestId]';
 exports.desc = i18n.t('harvest.start.description');
 exports.builder = (yargs) => yargs
   .positional('harvestId', {
@@ -27,17 +27,12 @@ exports.builder = (yargs) => yargs
   })
   .option('format', {
     type: 'string',
-    choices: ['json', 'ndjson'],
+    choices: ['ndjson'],
     describe: i18n.t('harvest.status.options.format'),
   });
 
 const printJobs = (jobs, argv) => {
   const { format } = argv;
-
-  if (format === 'json') {
-    console.log(JSON.stringify(jobs, null, 2));
-    return;
-  }
 
   if (format === 'ndjson') {
     jobs.forEach((j) => console.log(JSON.stringify(j)));
@@ -84,6 +79,18 @@ const printJobs = (jobs, argv) => {
   );
 };
 
+function readAllStdin() {
+  return new Promise((resolve) => {
+    let data = '';
+    process.stdin.on('data', (chunk) => {
+      data += chunk;
+    });
+    process.stdin.on('end', () => {
+      resolve(data);
+    });
+  });
+}
+
 exports.handler = async function handler(argv) {
   const {
     harvestId,
@@ -93,44 +100,65 @@ exports.handler = async function handler(argv) {
     $0: scriptName,
   } = argv;
 
-  const confirm = await inquirer.prompt(
-    {
-      type: 'confirm',
-      name: 'value',
-      message: i18n.t(
-        'harvest.start.askConfirmation',
+  let sessions = [];
+  if (harvestId) {
+    sessions = [{ harvestId }];
+  }
+
+  // Parse stdin if needed
+  if (!process.stdin.isTTY) {
+    try {
+      const data = JSON.parse(await readAllStdin());
+      sessions = Array.isArray(data) ? data : [data];
+    } catch (error) {
+      console.error(`Couldn't read from stdin: ${error}`);
+      process.exit(0);
+    }
+  }
+
+  for (const params of sessions) {
+    const hid = params.harvestId || params.id;
+    if (process.stdin.isTTY) {
+      const confirm = await inquirer.prompt(
         {
-          id: chalk.underline(harvestId),
-          instance: chalk.underline(config.ezmesure.baseUrl),
+          type: 'confirm',
+          name: 'value',
+          message: i18n.t(
+            'harvest.start.askConfirmation',
+            {
+              id: chalk.underline(hid),
+              instance: chalk.underline(config.ezmesure.baseUrl),
+            },
+          ),
+          default: true,
         },
-      ),
-      default: true,
-    },
-    { value: yes },
-  );
-  if (!confirm.value) {
-    process.exit(0);
+        { value: yes },
+      );
+      if (!confirm.value) {
+        process.exit(0);
+      }
+    }
+
+    if (verbose) {
+      console.log(`Start harvest session ${hid} from ${config.ezmesure.baseUrl}`);
+    }
+
+    let jobs;
+    try {
+      jobs = (await harvestLib.start(hid, { restartAll })).data;
+    } catch (error) {
+      console.error(formatApiError(error));
+      process.exit(1);
+    }
+
+    printJobs(jobs, argv);
+
+    console.log(chalk.green(i18n.t('harvest.start.success', { id: hid, jobs: jobs.length })));
+    console.log(chalk.blue(i18n.t('harvest.start.runStatusCommand')));
+    console.log(chalk.blue(`\t${scriptName} harvest status ${hid}`));
+    console.log(chalk.blue(i18n.t('harvest.start.runJobsCommand')));
+    console.log(chalk.blue(`\t${scriptName} harvest status ${hid} --jobs`));
+    console.log(chalk.blue(i18n.t('harvest.start.runWatchCommand')));
+    console.log(chalk.blue(`\t${scriptName} harvest status ${hid} --watch`));
   }
-
-  if (verbose) {
-    console.log(`Start harvest session ${harvestId} from ${config.ezmesure.baseUrl}`);
-  }
-
-  let jobs;
-  try {
-    jobs = (await harvestLib.start(harvestId, { restartAll })).data;
-  } catch (error) {
-    console.error(formatApiError(error));
-    process.exit(1);
-  }
-
-  printJobs(jobs, argv);
-
-  console.log(chalk.green(i18n.t('harvest.start.success', { id: harvestId, jobs: jobs.length })));
-  console.log(chalk.blue(i18n.t('harvest.start.runStatusCommand')));
-  console.log(chalk.blue(`\t${scriptName} harvest status ${harvestId}`));
-  console.log(chalk.blue(i18n.t('harvest.start.runJobsCommand')));
-  console.log(chalk.blue(`\t${scriptName} harvest status ${harvestId} --jobs`));
-  console.log(chalk.blue(i18n.t('harvest.start.runWatchCommand')));
-  console.log(chalk.blue(`\t${scriptName} harvest status ${harvestId} --watch`));
 };
