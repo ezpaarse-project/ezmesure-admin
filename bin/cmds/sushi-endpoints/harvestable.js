@@ -5,7 +5,7 @@ const { setTimeout } = require('node:timers/promises');
 
 const chalk = require('chalk');
 const { MultiBar, Presets } = require('cli-progress');
-const { format, subMonths } = require('date-fns');
+const { format, subMonths, formatDate } = require('date-fns');
 const { table } = require('table');
 const { default: slugify } = require('slugify');
 
@@ -318,12 +318,16 @@ exports.handler = async function handler(argv) {
   process.stdout.write(
     table([
       [
+        chalk.bold(i18n.t('endpoints.harvestable.executionDate')),
+        chalk.bold(i18n.t('endpoints.harvestable.executionPeriod')),
         chalk.bold(i18n.t('endpoints.harvestable.status.ready')),
         chalk.bold(i18n.t('endpoints.harvestable.status.notReady')),
         chalk.bold(i18n.t('endpoints.harvestable.status.unknown')),
         chalk.bold(i18n.t('endpoints.harvestable.status.total')),
       ],
       [
+        `${formatDate(new Date(), 'P')}`,
+        `${period.start} ~ ${period.end}`,
         chalk.green(`✓ ${formatCell('ready')}`),
         chalk.red(`x ${formatCell('notReady')}`),
         chalk.yellow(`? ${formatCell('unknown')}`),

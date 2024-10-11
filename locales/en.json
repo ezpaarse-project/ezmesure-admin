@@ -401,6 +401,8 @@
 			"endpointExceptionMessage": "[{{Severity}}] {{Message}}",
 			"endpointNoResponse": "{{endpoint}} is not ready to be harvested after {{tries}} tries (out of {{total}})",
 			"endpointReady": "{{endpoint}} is ready to be harvested after {{tries}} tries (out of {{total}})",
+			"executionDate": "Execution Date",
+			"executionPeriod": "Period tested",
 			"status": {
 				"ready": "ready",
 				"notReady":"Not ready",
