@@ -215,7 +215,7 @@ exports.handler = async function handler(argv) {
           credsName,
           endpoint: chalk.stderr.bold(endpoint.vendor),
           error: formatApiError(error),
-        })}}`, 'orange');
+        })}}`, 'yellow');
       }
 
       if (!connection) {
