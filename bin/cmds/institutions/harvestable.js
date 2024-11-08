@@ -181,7 +181,8 @@ exports.handler = async function handler(argv) {
       counts.total += 1;
     }
 
-    const validCredentialsCount = (counts.success ?? 0) + (counts.failed ?? 0);
+    const validCredentialsCount = counts.success ?? 0;
+
     if (!allowFaulty && validCredentialsCount < counts.total) {
       skip(i18n.t('institutions.harvestable.institutionHasFaultyCredentials', { name: chalk.stderr.bold(institution.name) }));
       continue;
