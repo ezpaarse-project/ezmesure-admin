@@ -271,6 +271,7 @@ exports.handler = async function handler(argv) {
         chalk.bold(i18n.t('institutions.harvestable.readySince')),
         chalk.bold(i18n.t('institutions.harvestable.lastHarvest')),
         chalk.bold(i18n.t('institutions.harvestable.credentials')),
+        chalk.bold(i18n.t('institutions.harvestable.harvested')),
       ],
       ...institutionsReady.map((r) => {
         let credStatus = '';
@@ -291,6 +292,7 @@ exports.handler = async function handler(argv) {
           r.readySince || chalk.red(i18n.t('institutions.harvestable.notReady')),
           r.lastHarvest || chalk.red(i18n.t('institutions.harvestable.neverHarvested')),
           credStatus,
+          `${r.harvestedCredentialsCount} / ${r.sushiCredentials.length}`,
         ];
       }),
     ]),
