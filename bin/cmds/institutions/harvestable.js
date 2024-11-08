@@ -143,6 +143,8 @@ exports.handler = async function handler(argv) {
       process.exit(1);
     }
 
+    sushiCredentials = sushiCredentials.filter((cred) => cred?.endpoint?.active);
+
     if (sushiCredentials.length <= 0) {
       skip(i18n.t('institutions.harvestable.institutionHasNoCredentials', { name: chalk.stderr.bold(institution.name) }));
       continue;
@@ -156,11 +158,8 @@ exports.handler = async function handler(argv) {
       untested: 0,
       total: 0,
     };
-    for (const { connection, harvests, endpoint } of sushiCredentials) {
-      if (!endpoint.active) {
-        continue;
-      }
 
+    for (const { connection, harvests } of sushiCredentials) {
       const status = connection?.status ?? 'untested';
       counts[status] = (counts[status] ?? 0) + 1;
 
