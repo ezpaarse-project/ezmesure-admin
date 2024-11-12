@@ -270,6 +270,43 @@ exports.handler = async function handler(argv) {
 
   progress.stop();
 
+  const numberFormat = new Intl.NumberFormat('en-US', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  const formatCell = (type) => {
+    const value = endpointsByStatus[type].length;
+    const percentage = (value / (endpoints.length || 1));
+    if (percentage > 0.1) {
+      return `${value} (${numberFormat.format(percentage * 100)}%)`;
+    }
+    return `${value}`;
+  };
+
+  process.stderr.write(
+    table([
+      [
+        chalk.bold(i18n.t('endpoints.harvestable.executionDate')),
+        chalk.bold(i18n.t('endpoints.harvestable.executionPeriod')),
+        chalk.bold(i18n.t('endpoints.harvestable.status.ready')),
+        chalk.bold(i18n.t('endpoints.harvestable.status.notReady')),
+        chalk.bold(i18n.t('endpoints.harvestable.status.unknown')),
+        chalk.bold(i18n.t('endpoints.harvestable.status.total')),
+      ],
+      [
+        `${formatDate(new Date(), 'P')}`,
+        `${period.start} ~ ${period.end}`,
+        chalk.green(`✓ ${formatCell('ready')}`),
+        chalk.red(`x ${formatCell('notReady')}`),
+        chalk.yellow(`? ${formatCell('unknown')}`),
+        endpoints.length,
+      ],
+    ]),
+  );
+  process.stderr.write('\n');
+
   if (outputFormat === 'harvest-options') {
     const now = new Date();
     const harvestSessions = [...endpointsByStatus.ready, ...endpointsByStatus.unknown].map((e) => ({
@@ -297,43 +334,5 @@ exports.handler = async function handler(argv) {
       ),
     ).flat();
     endpointList.forEach((r) => process.stdout.write(`${JSON.stringify(r)}\n`));
-    return;
   }
-
-  const numberFormat = new Intl.NumberFormat('en-US', {
-    style: 'decimal',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
-  const formatCell = (type) => {
-    const value = endpointsByStatus[type].length;
-    const percentage = (value / (endpoints.length || 1));
-    if (percentage > 0.1) {
-      return `${value} (${numberFormat.format(percentage * 100)}%)`;
-    }
-    return `${value}`;
-  };
-
-  process.stdout.write(
-    table([
-      [
-        chalk.bold(i18n.t('endpoints.harvestable.executionDate')),
-        chalk.bold(i18n.t('endpoints.harvestable.executionPeriod')),
-        chalk.bold(i18n.t('endpoints.harvestable.status.ready')),
-        chalk.bold(i18n.t('endpoints.harvestable.status.notReady')),
-        chalk.bold(i18n.t('endpoints.harvestable.status.unknown')),
-        chalk.bold(i18n.t('endpoints.harvestable.status.total')),
-      ],
-      [
-        `${formatDate(new Date(), 'P')}`,
-        `${period.start} ~ ${period.end}`,
-        chalk.green(`✓ ${formatCell('ready')}`),
-        chalk.red(`x ${formatCell('notReady')}`),
-        chalk.yellow(`? ${formatCell('unknown')}`),
-        endpoints.length,
-      ],
-    ]),
-  );
-  process.stdout.write('\n');
 };
