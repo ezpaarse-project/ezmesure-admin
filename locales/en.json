@@ -696,7 +696,8 @@
 				"format": "Change format of output:\n- json: Print result(s) in json\n- ndjson: Print result(s) in ndjson\n- harvest-options: Print result(s) in json, already formatted to be used with other `harvest prepare`",
 				"allowNotReady": "Allow not ready institutions",
 				"allowHarvested": "Allow already harvested institutions",
-				"ignoreHarvestDate": "Dates to ignore when checking if institution is already harvested"
+				"ignoreHarvestDate": "Dates to ignore when checking if institution is already harvested",
+				"required": "Number of unharvested endpoints required to consider the institution harvestable\n- one: at least one endpoint must be unharvested\n- all: all endpoints must be unharvested"
 			},
 			"name": "Name",
 			"contacts": "Doc Contact(s)",
@@ -705,6 +706,7 @@
 			"lastHarvest": "Last harvest",
 			"neverHarvested": "Never harvested",
 			"credentials": "Credentials",
+			"harvested": "Harvested",
 			"nbInstitutionsReady": "{{count}} institutions ready",
 			"institutionIsReady": "{{name}} is ready to be harvested",
 			"institutionIsNotReady": "{{name}} is not ready yet",
