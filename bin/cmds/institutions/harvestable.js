@@ -46,6 +46,12 @@ exports.builder = (yargs) => yargs
     type: 'string',
     choices: ['json', 'ndjson', 'harvest-options'],
     describe: i18n.t('institutions.harvestable.options.format'),
+  })
+  .option('required', {
+    type: 'string',
+    choices: ['one', 'all'],
+    default: 'one',
+    describe: i18n.t('institutions.harvestable.options.required'),
   });
 
 const log = (message, color) => {
@@ -92,6 +98,8 @@ exports.handler = async function handler(argv) {
     ignoreHarvest: ignoredHarvestDates = [],
     verbose,
   } = argv;
+
+  const allEndpointsMustBeUnharvested = argv.required === 'all';
 
   if (verbose) {
     log(`Fetching institutions from ${config.ezmesure.baseUrl}\n`, 'grey');
@@ -143,12 +151,16 @@ exports.handler = async function handler(argv) {
       process.exit(1);
     }
 
+    sushiCredentials = sushiCredentials.filter((cred) => cred?.endpoint?.active);
+
     if (sushiCredentials.length <= 0) {
       skip(i18n.t('institutions.harvestable.institutionHasNoCredentials', { name: chalk.stderr.bold(institution.name) }));
       continue;
     }
 
-    let lastHarvestDate = -Infinity;
+    let lastHarvestDate;
+    let harvestedCredentialsCount = 0;
+
     const counts = {
       success: 0,
       failed: 0,
@@ -156,39 +168,41 @@ exports.handler = async function handler(argv) {
       untested: 0,
       total: 0,
     };
-    for (const { connection, harvests, endpoint } of sushiCredentials) {
-      if (!endpoint.active) {
-        continue;
-      }
 
+    for (const { connection, harvests } of sushiCredentials) {
       const status = connection?.status ?? 'untested';
       counts[status] = (counts[status] ?? 0) + 1;
 
-      let lastHarvest;
-      const sortedHarvest = harvests.sort(
-        (a, b) => parseISO(b.harvestedAt) - parseISO(a.harvestedAt),
-      );
-      for (const harvest of sortedHarvest) {
-        if (!ignoredHarvestDates.some((date) => isSameDay(date, harvest.harvestedAt))) {
-          lastHarvest = harvest;
-          break;
-        }
-      }
+      const sortByDateDesc = (a, b) => parseISO(b.harvestedAt) - parseISO(a.harvestedAt);
 
-      lastHarvestDate = Math.max(
-        lastHarvest?.harvestedAt ? parseISO(lastHarvest.harvestedAt) : -Infinity,
-        lastHarvestDate,
+      const isNotIgnoredHarvestDay = (harvest) => !ignoredHarvestDates.some(
+        (date) => isSameDay(parseISO(date), parseISO(harvest.harvestedAt)),
       );
+
+      const lastHarvest = harvests.sort(sortByDateDesc).find(isNotIgnoredHarvestDay);
+      const harvestedAt = parseISO(lastHarvest?.harvestedAt);
+      const harvested = isValid(harvestedAt) && isAfter(harvestedAt, readySince);
+
+      if (harvested) { harvestedCredentialsCount += 1; }
       counts.total += 1;
+
+      if (isValid(harvestedAt)) {
+        lastHarvestDate = lastHarvestDate ? Math.max(harvestedAt, lastHarvestDate) : harvestedAt;
+      }
     }
 
-    const validCredentialsCount = (counts.success ?? 0) + (counts.failed ?? 0);
+    const validCredentialsCount = counts.success ?? 0;
+
     if (!allowFaulty && validCredentialsCount < counts.total) {
       skip(i18n.t('institutions.harvestable.institutionHasFaultyCredentials', { name: chalk.stderr.bold(institution.name) }));
       continue;
     }
 
-    if (!allowHarvested && isValid(lastHarvestDate) && isAfter(lastHarvestDate, readySince)) {
+    const harvested = allEndpointsMustBeUnharvested
+      ? harvestedCredentialsCount > 0
+      : harvestedCredentialsCount === counts.total;
+
+    if (harvested && !allowHarvested) {
       skip(i18n.t('institutions.harvestable.institutionIsHarvested', { name: chalk.stderr.bold(institution.name) }));
       continue;
     }
@@ -211,6 +225,7 @@ exports.handler = async function handler(argv) {
       lastHarvest: isValid(lastHarvestDate) ? format(lastHarvestDate, 'yyyy-MM-dd') : undefined,
       contacts,
       counts,
+      harvestedCredentialsCount,
       validCredentialsCount,
     });
     progress.log(i18n.t('institutions.harvestable.institutionIsReady', { name: chalk.stderr.bold(institution.name) }), 'green');
@@ -256,6 +271,7 @@ exports.handler = async function handler(argv) {
         chalk.bold(i18n.t('institutions.harvestable.readySince')),
         chalk.bold(i18n.t('institutions.harvestable.lastHarvest')),
         chalk.bold(i18n.t('institutions.harvestable.credentials')),
+        chalk.bold(i18n.t('institutions.harvestable.harvested')),
       ],
       ...institutionsReady.map((r) => {
         let credStatus = '';
@@ -276,6 +292,7 @@ exports.handler = async function handler(argv) {
           r.readySince || chalk.red(i18n.t('institutions.harvestable.notReady')),
           r.lastHarvest || chalk.red(i18n.t('institutions.harvestable.neverHarvested')),
           credStatus,
+          `${r.harvestedCredentialsCount} / ${r.sushiCredentials.length}`,
         ];
       }),
     ]),
