@@ -173,7 +173,6 @@ const printHarvestStatus = async (sessionStatus, argv) => {
   if (sessionStatus.isActive) {
     chip = chalk.green(chip);
     state = chalk.green(i18n.t('harvest.status.states.active'));
-    date = parseISO(session.startedAt);
   }
 
   console.log(i18n.t('harvest.status.header', {

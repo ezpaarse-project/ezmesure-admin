@@ -180,7 +180,7 @@ exports.handler = async function handler(argv) {
       );
 
       const lastHarvest = harvests.sort(sortByDateDesc).find(isNotIgnoredHarvestDay);
-      const harvestedAt = parseISO(lastHarvest?.harvestedAt);
+      const harvestedAt = lastHarvest?.harvestedAt ? parseISO(lastHarvest?.harvestedAt) : undefined;
       const harvested = isValid(harvestedAt) && isAfter(harvestedAt, readySince);
 
       if (harvested) { harvestedCredentialsCount += 1; }
