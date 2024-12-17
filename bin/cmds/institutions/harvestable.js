@@ -14,6 +14,8 @@ const {
   isValid,
   isAfter,
   isSameDay,
+  endOfDay,
+  parse,
 } = require('date-fns');
 
 const institutionsLib = require('../../../lib/institutions');
@@ -24,6 +26,10 @@ const { formatApiError } = require('../../../lib/utils');
 exports.command = 'harvestable';
 exports.desc = i18n.t('institutions.harvestable.description');
 exports.builder = (yargs) => yargs
+  .option('unharvested-after', {
+    type: 'string',
+    describe: i18n.t('institutions.harvestable.options.unharvestedAfter'),
+  })
   .option('allow-faulty', {
     type: 'boolean',
     describe: i18n.t('harvest.prepare.options.allowFaulty'),
@@ -91,6 +97,7 @@ const initProgress = (opts) => {
 
 exports.handler = async function handler(argv) {
   const {
+    unharvestedAfter,
     allowFaulty = false,
     allowNotReady = false,
     allowHarvested = false,
@@ -98,6 +105,11 @@ exports.handler = async function handler(argv) {
     ignoreHarvest: ignoredHarvestDates = [],
     verbose,
   } = argv;
+
+  let harvestedMonth;
+  if (unharvestedAfter) {
+    harvestedMonth = endOfDay(parse(unharvestedAfter, 'yyyy-MM', new Date()));
+  }
 
   const allEndpointsMustBeUnharvested = argv.required === 'all';
 
@@ -181,8 +193,13 @@ exports.handler = async function handler(argv) {
 
       const lastHarvest = harvests.sort(sortByDateDesc).find(isNotIgnoredHarvestDay);
       const harvestedAt = lastHarvest?.harvestedAt ? parseISO(lastHarvest?.harvestedAt) : undefined;
-      const harvested = isValid(harvestedAt) && isAfter(harvestedAt, readySince);
+      const harvestedSinceReady = isValid(harvestedAt) && isAfter(harvestedAt, readySince);
+      let harvestedForDate = true;
+      if (harvestedMonth && harvestedForDate) {
+        harvestedForDate = isValid(harvestedAt) && isAfter(harvestedAt, harvestedMonth);
+      }
 
+      const harvested = harvestedSinceReady && harvestedForDate;
       if (harvested) { harvestedCredentialsCount += 1; }
       counts.total += 1;
 

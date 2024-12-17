@@ -697,6 +697,7 @@
 				"allowNotReady": "Allow not ready institutions",
 				"allowHarvested": "Allow already harvested institutions",
 				"ignoreHarvestDate": "Dates to ignore when checking if institution is already harvested",
+				"unharvestedAfter": "Allow institutions harvested after ready date, but still not harvested for given month",
 				"required": "Number of unharvested endpoints required to consider the institution harvestable\n- one: at least one endpoint must be unharvested\n- all: all endpoints must be unharvested"
 			},
 			"name": "Name",
