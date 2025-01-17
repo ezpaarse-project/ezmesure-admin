@@ -2,7 +2,6 @@
 const { i18n } = global;
 
 const chalk = require('chalk');
-const { MultiBar, Presets } = require('cli-progress');
 const { table } = require('table');
 const { default: slugify } = require('slugify');
 const {
@@ -18,6 +17,7 @@ const {
   parse,
 } = require('date-fns');
 
+const { initProgress, logAlongProgress } = require('../../../lib/progress');
 const institutionsLib = require('../../../lib/institutions');
 const sushiLib = require('../../../lib/sushi');
 const { config } = require('../../../lib/app/config');
@@ -60,41 +60,6 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('institutions.harvestable.options.required'),
   });
 
-const log = (message, color) => {
-  const msg = color ? chalk.stderr[color](message) : message;
-  process.stderr.write(`${msg}\n`);
-};
-
-const initProgress = (opts) => {
-  if (!process.stderr.isTTY) {
-    return {
-      bar: null,
-      stop: () => {},
-      log,
-    };
-  }
-
-  const multiBar = new MultiBar(
-    {
-      format: chalk.stderr.grey('    {bar} {percentage}% | ETA: {eta_formatted} | {value}/{total}'),
-      hideCursor: true,
-      forceRedraw: true,
-      ...(opts?.bar ?? {}),
-      stream: process.stderr,
-    },
-    Presets.shades_classic,
-  );
-  const bar = multiBar.create(opts?.total ?? 0, opts?.startValue ?? 0);
-  return {
-    bar,
-    stop: () => multiBar.stop(),
-    log: (message, color) => {
-      const msg = color ? chalk.stderr[color](message) : message;
-      multiBar.log(`${msg}\n`);
-    },
-  };
-};
-
 exports.handler = async function handler(argv) {
   const {
     unharvestedAfter,
@@ -114,7 +79,7 @@ exports.handler = async function handler(argv) {
   const allEndpointsMustBeUnharvested = argv.required === 'all';
 
   if (verbose) {
-    log(`Fetching institutions from ${config.ezmesure.baseUrl}\n`, 'grey');
+    logAlongProgress(`Fetching institutions from ${config.ezmesure.baseUrl}\n`, 'grey');
   }
 
   let institutions;

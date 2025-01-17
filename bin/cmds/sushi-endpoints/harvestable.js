@@ -4,11 +4,11 @@ const { i18n } = global;
 const { setTimeout } = require('node:timers/promises');
 
 const chalk = require('chalk');
-const { MultiBar, Presets } = require('cli-progress');
-const { format, subMonths, formatDate } = require('date-fns');
+const { format, subMonths } = require('date-fns');
 const { table } = require('table');
 const { default: slugify } = require('slugify');
 
+const { initProgress, logAlongProgress } = require('../../../lib/progress');
 const sushiLib = require('../../../lib/sushi');
 const sushiEndpointsLib = require('../../../lib/sushiEndpoints');
 const { config } = require('../../../lib/app/config');
@@ -22,6 +22,7 @@ const BLOCKING_SUSHI_CODES = new Set([
   3031, // usageNotReadyForRequestedDates
   3032, // usageNotAvailable
 ]);
+exports.BLOCKING_SUSHI_CODES = BLOCKING_SUSHI_CODES;
 
 exports.command = 'harvestable';
 exports.desc = i18n.t('endpoints.harvestable.description');
@@ -55,41 +56,6 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('institutions.harvestable.options.format'),
   });
 
-function log(message, color) {
-  const msg = color ? chalk.stderr[color](message) : message;
-  process.stderr.write(`${msg}\n`);
-}
-
-function initProgress(opts) {
-  if (!process.stderr.isTTY) {
-    return {
-      bar: null,
-      stop: () => {},
-      log,
-    };
-  }
-
-  const multiBar = new MultiBar(
-    {
-      format: chalk.stderr.grey('    {bar} {percentage}% | ETA: {eta_formatted} | {value}/{total}'),
-      hideCursor: true,
-      forceRedraw: true,
-      ...(opts?.bar ?? {}),
-      stream: process.stderr,
-    },
-    Presets.shades_classic,
-  );
-  const bar = multiBar.create(opts?.total ?? 0, opts?.startValue ?? 0);
-  return {
-    bar,
-    stop: () => multiBar.stop(),
-    log: (message, color) => {
-      const msg = color ? chalk.stderr[color](message) : message;
-      multiBar.log(`${msg}\n`);
-    },
-  };
-}
-
 exports.handler = async function handler(argv) {
   const {
     from,
@@ -110,7 +76,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (verbose) {
-    log(`Fetching endpoints from ${config.ezmesure.baseUrl}\n`, 'grey');
+    logAlongProgress(`Fetching endpoints from ${config.ezmesure.baseUrl}\n`, 'grey');
   }
 
   // Get all endpoints with their credentials and their institution
@@ -120,7 +86,7 @@ exports.handler = async function handler(argv) {
     endpoints = (await sushiEndpointsLib.getAll({
       include: ['credentials.institution'],
       sort: 'vendor',
-      active: !allowInactive,
+      active: !allowInactive ? true : undefined,
     })).data;
   } catch (error) {
     console.error(formatApiError(error));
@@ -296,7 +262,7 @@ exports.handler = async function handler(argv) {
         chalk.bold(i18n.t('endpoints.harvestable.status.total')),
       ],
       [
-        `${formatDate(new Date(), 'P')}`,
+        `${format(new Date(), 'P')}`,
         `${period.start} ~ ${period.end}`,
         chalk.green(`✓ ${formatCell('ready')}`),
         chalk.red(`x ${formatCell('notReady')}`),

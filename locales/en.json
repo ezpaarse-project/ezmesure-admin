@@ -383,6 +383,23 @@
 			"rememberChoice": "Use this endpoint for all credentials with this vendor name ?",
 			"sushiUrl": "URL: {{url}}",
 			"sushiParams": "Parameters: {{params}}"
+		},
+		"testAll": {
+			"description": "Test all SUSHI credentials",
+			"options": {
+				"dryRun": "Run tests without updating connection status",
+				"includeInactive": "Should include inactive credentials",
+				"format": "Change format of output:\n- json: Print unauthorized/error credential(s) in json"
+			},
+			"error": "Error when testing {{credsName}} credentials: {{error}}",
+			"noResult": "No response for {{credsName}}",
+			"result": "Test with {{credsName}} is {{status}}, was {{oldStatus}}",
+			"status": {
+				"success": "Success",
+				"unauthorized":"Unauthorized",
+				"failed": "Failed",
+				"total": "Total"
+			}
 		}
 	},
 	"endpoints": {
@@ -404,7 +421,7 @@
 			"executionDate": "Execution Date",
 			"executionPeriod": "Period tested",
 			"status": {
-				"ready": "ready",
+				"ready": "Ready",
 				"notReady":"Not ready",
 				"unknown": "Unknown",
 				"total": "Total"
