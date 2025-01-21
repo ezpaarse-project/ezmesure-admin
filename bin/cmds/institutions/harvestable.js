@@ -173,7 +173,9 @@ exports.handler = async function handler(argv) {
       }
     }
 
-    const validCredentialsCount = counts.success ?? 0;
+    // Failed credentials will not be harvested, but still counted as valid credentials when
+    // checking if institution is harvestable
+    const validCredentialsCount = (counts.success ?? 0) + (counts.failed ?? 0);
 
     if (!allowFaulty && validCredentialsCount < counts.total) {
       skip(i18n.t('institutions.harvestable.institutionHasFaultyCredentials', { name: chalk.stderr.bold(institution.name) }));
