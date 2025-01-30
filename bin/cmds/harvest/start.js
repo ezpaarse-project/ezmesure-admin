@@ -6,7 +6,7 @@ const { table } = require('table');
 
 const harvestLib = require('../../../lib/harvest');
 const { config } = require('../../../lib/app/config');
-const { formatApiError } = require('../../../lib/utils');
+const { formatApiError, readAllStdinAsJson } = require('../../../lib/utils');
 
 exports.command = 'start [harvestId]';
 exports.desc = i18n.t('harvest.start.description');
@@ -79,18 +79,6 @@ const printJobs = (jobs, argv) => {
   );
 };
 
-function readAllStdin() {
-  return new Promise((resolve) => {
-    let data = '';
-    process.stdin.on('data', (chunk) => {
-      data += chunk;
-    });
-    process.stdin.on('end', () => {
-      resolve(data);
-    });
-  });
-}
-
 exports.handler = async function handler(argv) {
   const {
     harvestId,
@@ -105,15 +93,9 @@ exports.handler = async function handler(argv) {
     sessions = [{ harvestId }];
   }
 
-  // Parse stdin if needed
-  if (!process.stdin.isTTY) {
-    try {
-      const data = JSON.parse(await readAllStdin());
-      sessions = Array.isArray(data) ? data : [data];
-    } catch (error) {
-      console.error(`Couldn't read from stdin: ${error}`);
-      process.exit(0);
-    }
+  const stdinSessions = await readAllStdinAsJson();
+  if (stdinSessions) {
+    sessions = Array.isArray(stdinSessions) ? stdinSessions : [stdinSessions];
   }
 
   for (const params of sessions) {

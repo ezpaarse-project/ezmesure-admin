@@ -4,7 +4,7 @@ const chalk = require('chalk');
 
 const harvestLib = require('../../../lib/harvest');
 const { config } = require('../../../lib/app/config');
-const { formatApiError } = require('../../../lib/utils');
+const { formatApiError, readAllStdinAsJson } = require('../../../lib/utils');
 
 exports.command = 'prepare';
 exports.desc = i18n.t('harvest.prepare.description');
@@ -163,18 +163,6 @@ async function prepareSession(options) {
   return item;
 }
 
-function readAllStdin() {
-  return new Promise((resolve) => {
-    let data = '';
-    process.stdin.on('data', (chunk) => {
-      data += chunk;
-    });
-    process.stdin.on('end', () => {
-      resolve(data);
-    });
-  });
-}
-
 function mergeParams(params, overrides) {
   const merged = { ...params };
   Object.keys(overrides)
@@ -212,14 +200,9 @@ exports.handler = async function handler(argv) {
   }
 
   // Parse stdin if needed
-  if (!process.stdin.isTTY) {
-    try {
-      const data = JSON.parse(await readAllStdin());
-      sessionParams = Array.isArray(data) ? data : [data];
-    } catch (error) {
-      console.error(`Couldn't read from stdin: ${error}`);
-      process.exit(0);
-    }
+  const stdinSessions = await readAllStdinAsJson();
+  if (stdinSessions) {
+    sessionParams = Array.isArray(stdinSessions) ? stdinSessions : [stdinSessions];
   }
 
   const results = [];
