@@ -77,105 +77,6 @@ const formatStatusCount = (count, total) => `${formatValue(count)} (${formatPerc
 const formatErrorCount = (code, count, total) => `${code.padEnd(30, ' ')} ${formatValue(count)} (${formatPercentage(count, total)})`;
 
 /**
- * Print general informations about jobs
- *
- * @param {object[]} jobs List of jobs
- */
-function printGeneralInformations(jobs) {
-  let minTime = Number.MAX_SAFE_INTEGER;
-  let maxTime = Number.MIN_SAFE_INTEGER;
-  for (const job of jobs) {
-    if (job.updatedAt) {
-      const jobTime = parseISO(job.updatedAt).getTime();
-      minTime = Math.min(minTime, jobTime);
-      maxTime = Math.max(maxTime, jobTime);
-    }
-  }
-
-  const hasMinTime = minTime !== Number.MAX_SAFE_INTEGER;
-  const hasMaxTime = maxTime !== Number.MIN_SAFE_INTEGER;
-
-  console.group();
-  console.log([
-    hasMinTime && `${chalk.underline('Started:')} ${formatDate(minTime, 'dd/MM/yyyy HH:mm:ss')}`,
-    hasMaxTime && `${chalk.underline('Ended:')} ${formatDate(maxTime, 'dd/MM/yyyy HH:mm:ss')}`,
-    hasMinTime && hasMaxTime && `${chalk.underline('Duration:')} ${formatDistance(maxTime, minTime)}`,
-  ].filter((e) => !!e).join(' | '));
-  console.groupEnd();
-}
-
-/**
- * Print statuses count
- *
- * @param {object[]} jobs List of jobs
- */
-function printStatusesCount(jobs) {
-  const statuses = {
-    success: 0,
-    running: 0,
-    pending: 0,
-    error: 0,
-  };
-
-  // Group jobs by status
-  for (const job of jobs) {
-    let status;
-    switch (job.status) {
-      case 'finished':
-        status = 'success';
-        break;
-      case 'running':
-      case 'delayed':
-        status = 'running';
-        break;
-      case 'waiting':
-        status = 'pending';
-        break;
-      default:
-        status = 'error';
-        break;
-    }
-
-    const count = statuses[status] || 0;
-    statuses[status] = count + 1;
-  }
-
-  // Print counts
-  console.group();
-  if (statuses.success) { console.log(chalk.green(`✓ ${formatStatusCount(statuses.success, jobs.length)}`)); }
-  if (statuses.error) { console.log(chalk.red(`x ${formatStatusCount(statuses.error, jobs.length)}`)); }
-  if (statuses.running) { console.log(chalk.blue(`▶ ${formatStatusCount(statuses.running, jobs.length)}`)); }
-  if (statuses.pending) { console.log(chalk.grey(`. ${formatStatusCount(statuses.pending, jobs.length)}`)); }
-  console.groupEnd();
-}
-
-/**
- * Print errors count
- *
- * @param {object[]} jobs List of jobs
- */
-function printErrors(jobs) {
-  const errors = new Map();
-
-  // Count errors
-  for (const job of jobs) {
-    // eslint-disable-next-line no-continue
-    if (!isJobError(job)) { continue; }
-
-    const code = job.errorCode || 'unknown';
-    const count = errors.get(code) || 0;
-    errors.set(code, count + 1);
-  }
-
-  // Print counts
-  console.group();
-  for (const [code, count] of Array.from(errors.entries()).sort(([, a], [, b]) => b - a)) {
-    console.log(formatErrorCount(code, count, jobs.length));
-  }
-  console.groupEnd();
-}
-
-/**
  * Group jobs by endpoint
  *
  * @param {object[]} jobs
@@ -264,6 +165,140 @@ function groupJobsByError(jobs) {
   }
 
   return errors;
+}
+
+/**
+ * Print general informations about jobs
+ *
+ * @param {object[]} jobs List of jobs
+ */
+function printGeneralInformations(jobs) {
+  let minTime = Number.MAX_SAFE_INTEGER;
+  let maxTime = Number.MIN_SAFE_INTEGER;
+  let jobCountWithRunningTime = 0;
+  let avgRunningTime = 0;
+  for (const job of jobs) {
+    if (job.updatedAt) {
+      const jobTime = parseISO(job.updatedAt).getTime();
+      minTime = Math.min(minTime, jobTime);
+      maxTime = Math.max(maxTime, jobTime);
+    }
+    if (job.runningTime) {
+      avgRunningTime += job.runningTime;
+      jobCountWithRunningTime += 1;
+    }
+  }
+
+  if (jobCountWithRunningTime > 0) {
+    avgRunningTime /= jobCountWithRunningTime;
+  }
+
+  const hasMinTime = minTime !== Number.MAX_SAFE_INTEGER;
+  const hasMaxTime = maxTime !== Number.MIN_SAFE_INTEGER;
+
+  console.group();
+  console.log([
+    hasMinTime && `${chalk.underline('Started:')} ${formatDate(minTime, 'dd/MM/yyyy HH:mm:ss')}`,
+    hasMaxTime && `${chalk.underline('Ended:')} ${formatDate(maxTime, 'dd/MM/yyyy HH:mm:ss')}`,
+    hasMinTime && hasMaxTime && `${chalk.underline('Duration:')} ${formatDistance(maxTime, minTime)}`,
+  ].filter((e) => !!e).join(' | '));
+  if (jobCountWithRunningTime > 0) {
+    console.log(`${chalk.underline('Average job running:')} ${avgRunningTime.toFixed(0)}ms`);
+  }
+  console.groupEnd();
+}
+
+/**
+ * Print statuses count
+ *
+ * @param {object[]} jobs List of jobs
+ */
+function printStatusesCount(jobs) {
+  const statuses = {
+    success: 0,
+    running: 0,
+    pending: 0,
+    error: 0,
+  };
+
+  // Group jobs by status
+  for (const job of jobs) {
+    let status;
+    switch (job.status) {
+      case 'finished':
+        status = 'success';
+        break;
+      case 'running':
+      case 'delayed':
+        status = 'running';
+        break;
+      case 'waiting':
+        status = 'pending';
+        break;
+      default:
+        status = 'error';
+        break;
+    }
+
+    const count = statuses[status] || 0;
+    statuses[status] = count + 1;
+  }
+
+  // Print counts
+  console.group();
+  if (statuses.success) { console.log(chalk.green(`✓ ${formatStatusCount(statuses.success, jobs.length)}`)); }
+  if (statuses.error) { console.log(chalk.red(`x ${formatStatusCount(statuses.error, jobs.length)}`)); }
+  if (statuses.running) { console.log(chalk.blue(`▶ ${formatStatusCount(statuses.running, jobs.length)}`)); }
+  if (statuses.pending) { console.log(chalk.grey(`. ${formatStatusCount(statuses.pending, jobs.length)}`)); }
+  console.groupEnd();
+}
+
+/**
+ * Print errors count
+ *
+ * @param {object[]} jobs List of jobs
+ */
+function printErrors(jobs) {
+  const errors = new Map();
+
+  // Count errors
+  for (const job of jobs) {
+    // eslint-disable-next-line no-continue
+    if (!isJobError(job)) { continue; }
+
+    const code = job.errorCode || 'unknown';
+    const count = errors.get(code) || 0;
+    errors.set(code, count + 1);
+  }
+
+  // Print counts
+  console.group();
+  for (const [code, count] of Array.from(errors.entries()).sort(([, a], [, b]) => b - a)) {
+    console.log(formatErrorCount(code, count, jobs.length));
+  }
+  console.groupEnd();
+}
+
+function printEndpointErrors(jobs) {
+  const endpoints = groupJobsByEndpoint(jobs);
+
+  console.group();
+  for (const [, endpoint] of endpoints) {
+    const successJobs = endpoint.jobs.filter((job) => job.status === 'finished');
+    const errors = new Set(successJobs.flatMap(
+      (job) => job.logs
+        .filter((l) => l.level === 'error')
+        .map((l) => l.message),
+    ));
+
+    if (errors.size > 0) {
+      console.log(chalk.underline(endpoint.vendor));
+      console.group();
+      console.log(Array.from(errors).join(chalk.grey(' | ')));
+      console.groupEnd();
+    }
+  }
+  console.groupEnd();
 }
 
 /**
@@ -523,6 +558,9 @@ exports.handler = async function handler(argv) {
   console.log('-----');
   console.log(chalk.bold('Endpoints with unsupported reports:'));
   await printUnsupportedReports(jobs);
+
+  console.log(chalk.bold('Endpoints with errors in logs (but finished):'));
+  printEndpointErrors(jobs);
 
   console.log(chalk.bold('Reports with invalid JSON:'));
   printProblematicReports(jobs, 'invalid_json');
