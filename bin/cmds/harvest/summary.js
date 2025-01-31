@@ -16,11 +16,13 @@ exports.builder = (yargs) => yargs
     type: 'string',
   }).option('output-details', {
     describe: i18n.t('harvest.summary.options.outputDetails'),
-    alias: 'od',
     type: 'string',
+  }).option('format-details', {
+    describe: i18n.t('harvest.summary.options.formatDetails'),
+    type: 'string',
+    choices: ['json', 'text'],
   }).option('output-reharvest', {
     describe: i18n.t('harvest.summary.options.outputReharvest'),
-    alias: 'or',
     type: 'string',
   });
 
@@ -259,26 +261,22 @@ function printStatusesCount(jobs) {
  * @param {object[]} jobs List of jobs
  */
 function printErrors(jobs) {
-  const errors = new Map();
-
-  // Count errors
-  for (const job of jobs) {
-    // eslint-disable-next-line no-continue
-    if (!isJobError(job)) { continue; }
-
-    const code = job.errorCode || 'unknown';
-    const count = errors.get(code) || 0;
-    errors.set(code, count + 1);
-  }
+  const errors = groupJobsByError(jobs);
+  const entries = Array.from(errors.entries()).sort(([, a], [, b]) => b.length - a.length);
 
   // Print counts
   console.group();
-  for (const [code, count] of Array.from(errors.entries()).sort(([, a], [, b]) => b - a)) {
-    console.log(formatErrorCount(code, count, jobs.length));
+  for (const [code, jobsOfError] of entries) {
+    console.log(formatErrorCount(code || 'unknown', jobsOfError.length, jobs.length));
   }
   console.groupEnd();
 }
 
+/**
+ * Print errors found in finished jobs for each endpoint
+ *
+ * @param {object[]} jobs List of jobs
+ */
 function printEndpointErrors(jobs) {
   const endpoints = groupJobsByEndpoint(jobs);
 
@@ -314,13 +312,11 @@ async function printUnsupportedReports(jobs) {
     const unsupportedReports = new Set();
 
     for (const [report, jobsOfReport] of reports) {
-      // If endpoint specify report as unsupported for everyone
       if (jobsOfReport.every((job) => job.errorCode === 'sushi:3000')) {
+        // If endpoint specify report as unsupported for everyone
         unsupportedReports.add(report);
-      }
-
-      // If endpoint says there's no data, for everyone
-      if (jobsOfReport.length > 1 && jobsOfReport.every((job) => job.errorCode === 'sushi:3030')) {
+      } else if (jobsOfReport.length > 1 && jobsOfReport.every((job) => job.errorCode === 'sushi:3030')) {
+        // If endpoint says there's no data, for everyone
         const { 'x-total-count': totalCount } = (await tasksLib.getAll({
           endpointId: endpoint.id,
           reportType: report,
@@ -345,7 +341,7 @@ async function printUnsupportedReports(jobs) {
 /**
  * Print endpoints with problematic reports, i.e. reports with invalid JSON
  *
- * @param {object[]} jobs
+ * @param {object[]} jobs List of jobs
  * @param {string} errorCode The error code to look for
  */
 function printProblematicReports(jobs, errorCode) {
@@ -383,13 +379,19 @@ function printProblematicReports(jobs, errorCode) {
       console.log(`* Reports: ${Array.from(new Set(invalidReports.sort())).join(chalk.grey(', '))}`);
       console.log(`* Errors: ${Array.from(new Set(errors)).join(chalk.grey(' | '))}`);
       console.group();
-      credStr.map((str) => console.log(str));
+      credStr.forEach((str) => console.log(str));
       console.groupEnd();
     }
   }
   console.groupEnd();
 }
 
+/**
+ * Write into a file harvest sessions to try to get back missing data
+ *
+ * @param {object[]} jobs List of jobs
+ * @param {string} path Path to output file
+ */
 function writeHarvestableCredentials(jobs, path) {
   const credentials = groupJobsByCredential(jobs);
 
@@ -454,6 +456,13 @@ function writeHarvestableCredentials(jobs, path) {
   stream.close();
 }
 
+/**
+ * Write into a file harvest sessions to try to get back missing data
+ *
+ * @param {object[]} jobs List of jobs
+ * @param {string} path Path to output file
+ * @param {string} format Format to output file
+ */
 function writeDetails(jobs, path, format) {
   const endpoints = groupJobsByEndpoint(jobs);
   const endpointsWithErrors = [];
@@ -512,6 +521,7 @@ exports.handler = async function handler(argv) {
     verbose,
     outputReharvest,
     outputDetails,
+    formatDetails,
   } = argv;
 
   let sessions = [];
@@ -525,23 +535,19 @@ exports.handler = async function handler(argv) {
   }
 
   // Get jobs of every session provided
-  const jobs = [];
-  for (const params of sessions) {
-    try {
-      const hid = params.harvestId || params.id;
-      if (verbose) {
-        process.stderr.write(`${chalk.stderr.grey(`Getting jobs of ${hid}...`)}\n`);
-      }
-
-      const tasks = (await tasksLib.getAll({
-        sessionId: hid,
-        include: ['credentials.endpoint', 'credentials.institution', 'logs'],
-      })).data;
-      jobs.push(...tasks);
-    } catch (error) {
-      console.error(chalk.red(formatApiError(error)));
-      process.exit(1);
+  let jobs = [];
+  try {
+    if (verbose) {
+      process.stderr.write(`${chalk.stderr.grey('Getting jobs of sessions...')}\n`);
     }
+
+    jobs = (await tasksLib.getAll({
+      sessionId: sessions.map((params) => params.harvestId || params.id),
+      include: ['credentials.endpoint', 'credentials.institution', 'logs'],
+    })).data;
+  } catch (error) {
+    console.error(chalk.red(formatApiError(error)));
+    process.exit(1);
   }
 
   console.log();
@@ -575,7 +581,7 @@ exports.handler = async function handler(argv) {
   }
 
   if (outputDetails) {
-    writeDetails(jobs, outputDetails);
+    writeDetails(jobs, outputDetails, formatDetails);
     console.log();
     console.log(chalk.bgBlue(`Wrote details in ${resolve(outputDetails)}`));
   }
