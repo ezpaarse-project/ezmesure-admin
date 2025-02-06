@@ -13,7 +13,6 @@ const {
   isValid,
   isAfter,
   isSameDay,
-  endOfDay,
   parse,
 } = require('date-fns');
 
@@ -60,6 +59,9 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('institutions.harvestable.options.required'),
   });
 
+const sortByDateDesc = (a, b) => parseISO(b.harvestedAt) - parseISO(a.harvestedAt);
+const sortByPeriodDesc = (a, b) => b.period.localeCompare(a.period);
+
 exports.handler = async function handler(argv) {
   const {
     unharvestedAfter,
@@ -73,8 +75,17 @@ exports.handler = async function handler(argv) {
 
   let harvestedMonth;
   if (unharvestedAfter) {
-    harvestedMonth = endOfDay(parse(unharvestedAfter, 'yyyy-MM', new Date()));
+    const parsedPeriod = parse(unharvestedAfter, 'yyyy-MM', new Date());
+    if (!isValid(parsedPeriod)) {
+      console.error(i18n.t('institutions.harvestable.invalidPeriod', { period: unharvestedAfter }));
+      process.exit(1);
+    }
+    harvestedMonth = unharvestedAfter;
   }
+
+  const isNotIgnoredHarvestDay = (harvest) => !ignoredHarvestDates.some(
+    (date) => isSameDay(parseISO(date), parseISO(harvest.harvestedAt)),
+  );
 
   const allEndpointsMustBeUnharvested = argv.required === 'all';
 
@@ -84,7 +95,7 @@ exports.handler = async function handler(argv) {
 
   let institutions;
   try {
-    institutions = (await institutionsLib.getAll()).data;
+    institutions = (await institutionsLib.getAll({})).data;
   } catch (error) {
     console.error(formatApiError(error));
     process.exit(1);
@@ -120,21 +131,24 @@ exports.handler = async function handler(argv) {
       // eslint-disable-next-line no-await-in-loop
       sushiCredentials = (await sushiLib.getAll({
         institutionId: institution.id,
-        active: true,
         include: ['harvests', 'endpoint'],
       })).data;
     } catch (error) {
+      progress.stop();
       console.error(formatApiError(error));
       process.exit(1);
     }
 
-    sushiCredentials = sushiCredentials.filter((cred) => cred?.endpoint?.active);
+    sushiCredentials = sushiCredentials.filter(
+      (cred) => cred.active && (cred.endpoint?.active ?? true),
+    );
 
     if (sushiCredentials.length <= 0) {
       skip(i18n.t('institutions.harvestable.institutionHasNoCredentials', { name: chalk.stderr.bold(institution.name) }));
       continue;
     }
 
+    let lastPeriod;
     let lastHarvestDate;
     let harvestedCredentialsCount = 0;
 
@@ -143,30 +157,40 @@ exports.handler = async function handler(argv) {
       failed: 0,
       unauthorized: 0,
       untested: 0,
-      total: 0,
+      total: sushiCredentials.length,
     };
 
     for (const { connection, harvests } of sushiCredentials) {
       const status = connection?.status ?? 'untested';
       counts[status] = (counts[status] ?? 0) + 1;
+      // Failed credentials will not be harvested,
+      // so we ignore them but still count them as harvested
+      if (status === 'failed') {
+        if (!allEndpointsMustBeUnharvested) {
+          harvestedCredentialsCount += 1;
+        }
+        continue;
+      }
 
-      const sortByDateDesc = (a, b) => parseISO(b.harvestedAt) - parseISO(a.harvestedAt);
+      // Check if the specified month isn't harvested
+      let harvestedForDate;
+      if (harvestedMonth) {
+        const lastPeriodHarvest = harvests.sort(sortByPeriodDesc).find(isNotIgnoredHarvestDay);
+        const period = lastPeriodHarvest?.period ?? '';
+        harvestedForDate = period >= harvestedMonth;
+        lastPeriod = period >= (lastPeriod ?? '') ? period : lastPeriod;
+      }
 
-      const isNotIgnoredHarvestDay = (harvest) => !ignoredHarvestDates.some(
-        (date) => isSameDay(parseISO(date), parseISO(harvest.harvestedAt)),
-      );
-
+      // Check if the institution is ready after last harvest
       const lastHarvest = harvests.sort(sortByDateDesc).find(isNotIgnoredHarvestDay);
       const harvestedAt = lastHarvest?.harvestedAt ? parseISO(lastHarvest?.harvestedAt) : undefined;
       const harvestedSinceReady = isValid(harvestedAt) && isAfter(harvestedAt, readySince);
-      let harvestedForDate = true;
-      if (harvestedMonth && harvestedForDate) {
-        harvestedForDate = isValid(harvestedAt) && isAfter(harvestedAt, harvestedMonth);
-      }
 
+      // We want to harvest if the institution is ready after last harvest
+      // or if the specified month isn't harvested
+      // or if both are true
       const harvested = harvestedSinceReady && harvestedForDate;
       if (harvested) { harvestedCredentialsCount += 1; }
-      counts.total += 1;
 
       if (isValid(harvestedAt)) {
         lastHarvestDate = lastHarvestDate ? Math.max(harvestedAt, lastHarvestDate) : harvestedAt;
@@ -198,6 +222,7 @@ exports.handler = async function handler(argv) {
         include: ['user'],
       })).data;
     } catch (error) {
+      progress.stop();
       console.error(formatApiError(error));
       process.exit(1);
     }
@@ -207,6 +232,7 @@ exports.handler = async function handler(argv) {
       sushiCredentials,
       readySince: isValid(readySince) ? format(readySince, 'yyyy-MM-dd') : undefined,
       lastHarvest: isValid(lastHarvestDate) ? format(lastHarvestDate, 'yyyy-MM-dd') : undefined,
+      lastPeriod,
       contacts,
       counts,
       harvestedCredentialsCount,
@@ -230,6 +256,7 @@ exports.handler = async function handler(argv) {
         contacts: i.contacts.map((c) => c.user.email),
         readySince: i.readySince,
         lastHarvest: i.lastHarvest,
+        lastPeriod: i.lastPeriod,
         counts: i.counts,
       }],
     }));
