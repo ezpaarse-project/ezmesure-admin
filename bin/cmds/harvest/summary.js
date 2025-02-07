@@ -21,6 +21,7 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('harvest.summary.options.formatDetails'),
     type: 'string',
     choices: ['json', 'text'],
+    default: 'text',
   }).option('output-reharvest', {
     describe: i18n.t('harvest.summary.options.outputReharvest'),
     type: 'string',
@@ -300,11 +301,43 @@ function printEndpointErrors(jobs) {
 }
 
 /**
+ * Print endpoints that broke while being harvested
+ *
+ * @param {object[]} jobs List of jobs
+ */
+function printBrokenEndpoints(jobs) {
+  const BROKEN_ENDPOINT_ERRORS = new Set(['sushi:1000', 'sushi:1010', 'sushi:1020']);
+  const endpoints = groupJobsByEndpoint(jobs);
+
+  console.group();
+  for (const [, endpoint] of endpoints) {
+    const errorJobs = endpoint.jobs.filter(
+      (job) => isJobError(job) && BROKEN_ENDPOINT_ERRORS.has(job.errorCode),
+    );
+    const errors = new Set(errorJobs.flatMap(
+      (job) => job.logs
+        .filter((l) => l.level === 'error')
+        .map((l) => l.message),
+    ));
+
+    if (errors.size > 0) {
+      console.log(chalk.underline(endpoint.vendor));
+      console.group();
+      console.log(Array.from(errors).join(chalk.grey(' | ')));
+      console.groupEnd();
+    }
+  }
+  console.groupEnd();
+}
+
+/**
  * Print endpoints with unsupported reports
  *
  * @param {object[]} jobs List of jobs
  */
 async function printUnsupportedReports(jobs) {
+  const UNSUPPORTED_REPORT_ERRORS = new Set(['sushi:3030', 'sushi:3031', 'sushi:3032']);
+
   console.group();
   const endpoints = groupJobsByEndpoint(jobs);
   for (const [, endpoint] of endpoints) {
@@ -315,7 +348,10 @@ async function printUnsupportedReports(jobs) {
       if (jobsOfReport.every((job) => job.errorCode === 'sushi:3000')) {
         // If endpoint specify report as unsupported for everyone
         unsupportedReports.add(report);
-      } else if (jobsOfReport.length > 1 && jobsOfReport.every((job) => job.errorCode === 'sushi:3030')) {
+      } else if (
+        jobsOfReport.length > 1
+        && jobsOfReport.every((job) => UNSUPPORTED_REPORT_ERRORS.has(job.errorCode))
+      ) {
         // If endpoint says there's no data, for everyone
         const { 'x-total-count': totalCount } = (await tasksLib.getAll({
           endpointId: endpoint.id,
@@ -564,6 +600,9 @@ exports.handler = async function handler(argv) {
   console.log('-----');
   console.log(chalk.bold('Endpoints with unsupported reports:'));
   await printUnsupportedReports(jobs);
+
+  console.log(chalk.bold('Endpoints that broke completely:'));
+  printBrokenEndpoints(jobs);
 
   console.log(chalk.bold('Endpoints with errors in logs (but finished):'));
   printEndpointErrors(jobs);
