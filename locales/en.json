@@ -1071,7 +1071,13 @@
 			"out": "The directory where to output files (Default: inputfolder + '_imported')",
 			"bulkSize": "Number of items that should be imported at once",
 			"insecure": "Skip TLS certificates verification",
-			"yes": "Automatic yes to prompts; assume \"yes\" as answer to all prompts and run non-interactively."
+			"yes": "Automatic yes to prompts; assume \"yes\" as answer to all prompts and run non-interactively.",
+			"users": "Should export users",
+			"sushis": "Should export sushis credentials",
+			"institutions": "Should export institutions",
+			"repositories": "Should export repositories",
+			"repositoryAliases": "Should export repository aliases",
+			"spaces": "Should export spaces"
 		},
 
 		"institutions": {
@@ -1089,6 +1095,10 @@
 		"repositories": {
 			"going": "i Importing repositories...",
 			"ok": "✔️ {{total}} repositories imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
+		"repositoryAliases": {
+			"going": "i Importing repository aliases...",
+			"ok": "✔️ {{total}} aliases imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
 		},
 		"spaces": {
 			"going": "i Importing spaces...",

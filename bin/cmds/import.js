@@ -16,6 +16,7 @@ const ezmesure = require('../../lib/app/ezmesure');
 const institutionsLib = require('../../lib/institutions');
 const sushiEndpointsLib = require('../../lib/sushiEndpoints');
 const repositoriesLib = require('../../lib/repositories');
+const repositoryAliasesLib = require('../../lib/repository-aliases');
 const spacesLib = require('../../lib/spaces');
 
 exports.command = 'import <exported path>';
@@ -305,6 +306,48 @@ async function importRepositories(opts) {
 }
 
 /**
+ * Import repository aliases into ezMESURE Reloaded
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.inFolder The in folder
+ * @param {string} opts.outFolder The out folder
+ * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
+ */
+async function importRepositoryAliases(opts) {
+  const filePath = path.resolve(opts.inFolder, 'repository-aliases.jsonl');
+  if (!await exists(filePath)) {
+    return;
+  }
+
+  console.log(chalk.blue(i18n.t('import.repositoryAliases.going')));
+  console.group();
+
+  const counters = await importJSONL({
+    filePath,
+    bulkSize: opts.bulkSize,
+    logPath: path.join(opts.outFolder, 'repository-aliases.log'),
+    importer: (chunks) => repositoryAliasesLib.import(
+      chunks,
+      { params: { overwrite: opts.overwrite } },
+    ),
+  });
+
+  console.log(
+    chalk.green(i18n.t(
+      'import.repositoryAliases.ok',
+      {
+        total: `${counters.total}`,
+        created: `${counters.created}`,
+        conflicts: chalk.yellow(counters.conflicts),
+        errors: chalk.red(counters.errors),
+      },
+    )),
+  );
+  console.groupEnd();
+}
+
+/**
  * Import endpoints into ezMESURE Reloaded
  *
  * @param {Object} opts Various options
@@ -422,6 +465,13 @@ exports.handler = async function handler(argv) {
     });
 
     await importRepositories({
+      inFolder: exportedpath,
+      outFolder,
+      bulkSize,
+      overwrite,
+    });
+
+    await importRepositoryAliases({
       inFolder: exportedpath,
       outFolder,
       bulkSize,

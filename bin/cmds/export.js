@@ -12,6 +12,7 @@ const usersLib = require('../../lib/users');
 const sushiEndpointsLib = require('../../lib/sushiEndpoints');
 const institutionsLib = require('../../lib/institutions');
 const repositoriesLib = require('../../lib/repositories');
+const repositoryAliasesLib = require('../../lib/repository-aliases');
 const spacesLib = require('../../lib/spaces');
 
 exports.command = 'export';
@@ -22,6 +23,36 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('export.options.out'),
     type: 'string',
     default: format(new Date(), 'yyyy-MM-dd'),
+  })
+  .option('users', {
+    describe: i18n.t('export.options.users'),
+    type: 'boolean',
+    default: true,
+  })
+  .option('sushis', {
+    describe: i18n.t('export.options.sushis'),
+    type: 'boolean',
+    default: true,
+  })
+  .option('institutions', {
+    describe: i18n.t('export.options.institutions'),
+    type: 'boolean',
+    default: true,
+  })
+  .option('repositories', {
+    describe: i18n.t('export.options.repositories'),
+    type: 'boolean',
+    default: true,
+  })
+  .option('repository-aliases', {
+    describe: i18n.t('export.options.repositoryAliases'),
+    type: 'boolean',
+    default: true,
+  })
+  .option('spaces', {
+    describe: i18n.t('export.options.spaces'),
+    type: 'boolean',
+    default: true,
   });
 
 const exportData = async (opts) => {
@@ -84,51 +115,77 @@ const sortParentsInstitutions = (data, institution) => {
 };
 
 exports.handler = async function handler(argv) {
-  const { out } = argv;
+  const {
+    out,
+    users,
+    sushis,
+    institutions,
+    repositories,
+    repositoryAliases,
+    spaces,
+  } = argv;
 
   const dataFolder = path.resolve(out);
   await fsp.mkdir(dataFolder, { recursive: true });
 
   try {
-    await exportData({
-      type: 'users',
-      outFile: path.join(dataFolder, 'users.jsonl'),
-      fetch: () => usersLib.getAll({ source: '*' }),
-      filter: (item) => item.username !== 'ezmesure-admin',
-    });
+    if (users) {
+      await exportData({
+        type: 'users',
+        outFile: path.join(dataFolder, 'users.jsonl'),
+        fetch: () => usersLib.getAll({ source: '*' }),
+        filter: (item) => item.username !== 'ezmesure-admin',
+      });
+    }
 
-    await exportData({
-      type: 'sushis',
-      outFile: path.join(dataFolder, 'sushis.jsonl'),
-      fetch: () => sushiEndpointsLib.getAll(),
-    });
+    if (sushis) {
+      await exportData({
+        type: 'sushis',
+        outFile: path.join(dataFolder, 'sushis.jsonl'),
+        fetch: () => sushiEndpointsLib.getAll(),
+      });
+    }
 
-    await exportData({
-      type: 'institutions',
-      outFile: path.join(dataFolder, 'institutions.jsonl'),
-      fetch: async () => {
-        const { data, ...resp } = await institutionsLib.getAll({ include: ['sushiCredentials', 'memberships'] });
+    if (institutions) {
+      await exportData({
+        type: 'institutions',
+        outFile: path.join(dataFolder, 'institutions.jsonl'),
+        fetch: async () => {
+          const { data, ...resp } = await institutionsLib.getAll({ include: ['sushiCredentials', 'memberships'] });
 
-        console.log(chalk.gray(i18n.t('export.institutionSort')));
-        // ensuring that parent institutions are always before their children
-        // working with a copy of the data to avoid mistakes while iterating over it
-        [...data].forEach((institution) => sortParentsInstitutions(data, institution));
+          console.log(chalk.gray(i18n.t('export.institutionSort')));
+          // ensuring that parent institutions are always before their children
+          // working with a copy of the data to avoid mistakes while iterating over it
+          [...data].forEach((institution) => sortParentsInstitutions(data, institution));
 
-        return { data, ...resp };
-      },
-    });
+          return { data, ...resp };
+        },
+      });
+    }
 
-    await exportData({
-      type: 'repositories',
-      outFile: path.join(dataFolder, 'repositories.jsonl'),
-      fetch: () => repositoriesLib.getAll({ include: ['institutions', 'permissions'] }),
-    });
+    if (repositories) {
+      await exportData({
+        type: 'repositories',
+        outFile: path.join(dataFolder, 'repositories.jsonl'),
+        fetch: () => repositoriesLib.getAll({ include: ['institutions', 'permissions'] }),
+      });
+    }
 
-    await exportData({
-      type: 'spaces',
-      outFile: path.join(dataFolder, 'spaces.jsonl'),
-      fetch: () => spacesLib.getAll({ include: ['permissions'] }),
-    });
+    if (repositoryAliases) {
+      await exportData({
+        type: 'repository-aliases',
+        outFile: path.join(dataFolder, 'repository-aliases.jsonl'),
+        fetch: () => repositoryAliasesLib.getAll({ include: ['institutions', 'permissions'] }),
+      });
+    }
+
+    if (spaces) {
+      await exportData({
+        type: 'spaces',
+        outFile: path.join(dataFolder, 'spaces.jsonl'),
+        fetch: () => spacesLib.getAll({ include: ['permissions'] }),
+      });
+    }
 
     console.log(chalk.green(i18n.t('export.dataOk', { out: chalk.underline(dataFolder) })));
   } catch (error) {
