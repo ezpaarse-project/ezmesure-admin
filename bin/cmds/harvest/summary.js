@@ -8,7 +8,7 @@ const { parseISO, format: formatDate, formatDistance } = require('date-fns');
 const { formatApiError, readAllStdinAsJson } = require('../../../lib/utils');
 const tasksLib = require('../../../lib/tasks');
 
-exports.command = 'summary [harvestId]';
+exports.command = 'summary [harvestIds..]';
 exports.desc = i18n.t('harvest.summary.description');
 exports.builder = (yargs) => yargs
   .positional('harvestId', {
@@ -176,11 +176,13 @@ function groupJobsByError(jobs) {
  * @param {object[]} jobs List of jobs
  */
 function printGeneralInformations(jobs) {
+  const sessions = new Set();
   let minTime = Number.MAX_SAFE_INTEGER;
   let maxTime = Number.MIN_SAFE_INTEGER;
   let jobCountWithRunningTime = 0;
   let avgRunningTime = 0;
   for (const job of jobs) {
+    sessions.add(job.sessionId);
     if (job.updatedAt) {
       const jobTime = parseISO(job.updatedAt).getTime();
       minTime = Math.min(minTime, jobTime);
@@ -200,6 +202,7 @@ function printGeneralInformations(jobs) {
   const hasMaxTime = maxTime !== Number.MIN_SAFE_INTEGER;
 
   console.group();
+  console.log(`${chalk.underline('Number of sessions:')} ${sessions.size}`);
   console.log([
     hasMinTime && `${chalk.underline('Started:')} ${formatDate(minTime, 'dd/MM/yyyy HH:mm:ss')}`,
     hasMaxTime && `${chalk.underline('Ended:')} ${formatDate(maxTime, 'dd/MM/yyyy HH:mm:ss')}`,
@@ -553,7 +556,7 @@ function writeDetails(jobs, path, format) {
 
 exports.handler = async function handler(argv) {
   const {
-    harvestId,
+    harvestIds,
     verbose,
     outputReharvest,
     outputDetails,
@@ -561,8 +564,8 @@ exports.handler = async function handler(argv) {
   } = argv;
 
   let sessions = [];
-  if (harvestId) {
-    sessions = [{ harvestId }];
+  if (harvestIds) {
+    sessions = harvestIds.map((harvestId) => ({ harvestId }));
   }
 
   const stdinSessions = await readAllStdinAsJson();
@@ -588,7 +591,7 @@ exports.handler = async function handler(argv) {
 
   console.log();
 
-  console.log(chalk.bold('About session(s):'));
+  console.log(chalk.bold(`About session${sessions.length === 1 ? '' : 's'}:`));
   printGeneralInformations(jobs);
 
   console.log(chalk.bold('Status:'));

@@ -228,11 +228,11 @@ exports.handler = async function handler(argv) {
 
     console.log(chalk.green(i18n.t('harvest.prepare.success', { id: session.id })));
     console.log(chalk.blue(i18n.t('harvest.prepare.runStatusCommand')));
-    console.log(chalk.blue(`\t${scriptName} harvest status ${session.id}`));
+    console.log(chalk.blue(`\t${scriptName} harvest status "${session.id}"`));
     console.log(chalk.blue(i18n.t('harvest.prepare.runCredentialsCommand')));
-    console.log(chalk.blue(`\t${scriptName} harvest status ${session.id} --credentials`));
+    console.log(chalk.blue(`\t${scriptName} harvest status "${session.id}" --credentials`));
     console.log(chalk.blue(i18n.t('harvest.prepare.runStartCommand')));
-    console.log(chalk.blue(`\t${scriptName} harvest start ${session.id}`));
+    console.log(chalk.blue(`\t${scriptName} harvest start "${session.id}"`));
   }
 
   if (outputFormat === 'json') {
