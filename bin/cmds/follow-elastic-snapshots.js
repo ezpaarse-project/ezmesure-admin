@@ -2,7 +2,7 @@ const { i18n } = global;
 
 const { MultiBar, Presets } = require('cli-progress');
 const chalk = require('chalk');
-const { formatDistanceToNow, formatDistance, isValid } = require('date-fns');
+const { formatDistanceToNow, formatDistance } = require('date-fns');
 
 const { setTimeout } = require('node:timers/promises');
 
@@ -30,8 +30,7 @@ const fetchSnapshot = async (repositoryId, snapshotId) => {
   const elapsed = formatDistanceToNow(snapshot.stats.start_time_in_millis);
   const speed = Math.round(value / (snapshot.stats.time_in_millis / 1000));
 
-  const rem = ((snapshot.stats.total.size_in_bytes - value) / speed);
-  const remaining = isValid(rem) && rem >= 60 ? formatDistance(0, rem) : '-';
+  const remaining = formatDistance(0, ((total - value) / speed) * 1000);
 
   return {
     value,
