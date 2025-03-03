@@ -1077,6 +1077,7 @@
 			"institutions": "Should export institutions",
 			"repositories": "Should export repositories",
 			"repositoryAliases": "Should export repository aliases",
+			"elasticRoles": "Should export elastic roles",
 			"spaces": "Should export spaces"
 		},
 
@@ -1103,6 +1104,10 @@
 		"spaces": {
 			"going": "i Importing spaces...",
 			"ok": "✔️ {{total}} spaces imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
+		"elasticRoles": {
+			"going": "i Importing elastic roles...",
+			"ok": "✔️ {{total}} elastic roles imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
 		},
 		"noInDir": "No directory specified",
 		"chunks": "  Using chunks of: {{chunkSize}}",

@@ -11,6 +11,7 @@ const { format } = require('date-fns');
 const usersLib = require('../../lib/users');
 const sushiEndpointsLib = require('../../lib/sushiEndpoints');
 const institutionsLib = require('../../lib/institutions');
+const elasticRolesLib = require('../../lib/elastic-roles');
 const repositoriesLib = require('../../lib/repositories');
 const repositoryAliasesLib = require('../../lib/repository-aliases');
 const spacesLib = require('../../lib/spaces');
@@ -36,6 +37,11 @@ exports.builder = (yargs) => yargs
   })
   .option('institutions', {
     describe: i18n.t('export.options.institutions'),
+    type: 'boolean',
+    default: true,
+  })
+  .option('elastic-roles', {
+    describe: i18n.t('export.options.elasticRoles'),
     type: 'boolean',
     default: true,
   })
@@ -122,6 +128,7 @@ exports.handler = async function handler(argv) {
     institutions,
     repositories,
     repositoryAliases,
+    elasticRoles,
     spaces,
   } = argv;
 
@@ -176,6 +183,14 @@ exports.handler = async function handler(argv) {
         type: 'repository-aliases',
         outFile: path.join(dataFolder, 'repository-aliases.jsonl'),
         fetch: () => repositoryAliasesLib.getAll({ include: ['institutions', 'permissions'] }),
+      });
+    }
+
+    if (elasticRoles) {
+      await exportData({
+        type: 'repository-aliases',
+        outFile: path.join(dataFolder, 'elastic-roles.jsonl'),
+        fetch: () => elasticRolesLib.getAll({ include: ['institutions', 'users', 'spacePermissions', 'repositoryPermissions', 'repositoryAliasPermissions'] }),
       });
     }
 
