@@ -1180,6 +1180,7 @@
 			"jobId": "Job ID",
 			"credentialsId": "Credentials ID",
 			"index": "Index",
+			"period": "Period",
 			"jobStatus": "Status",
 			"errorCode": "Error code"
 		},
@@ -1188,7 +1189,9 @@
 			"options": {
 				"format": "Change format of output:\n- ndjson: Print result(s) in ndjson",
 				"yes": "Automatic yes to prompts; assume \"yes\" as answer to all prompts and run non-interactively.",
-				"restartAll": "Restart all jobs of the harvest session, including success ones"
+				"restartAll": "Restart all jobs of the harvest session, including success ones",
+				"forceRefreshSupported": "Force refresh of supported reports",
+				"dryRun": "Simulate start of session, will update endpoints but not start any jobs"
 			},
 			"askConfirmation": "Do you wish to start the harvesting of {{id}} into {{instance}}",
 			"success": "✔️ Harvest session [{{id}}] has started with [{{jobs}}] jobs",

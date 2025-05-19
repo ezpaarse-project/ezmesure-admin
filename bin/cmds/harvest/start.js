@@ -19,6 +19,19 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('harvest.start.options.restartAll'),
     type: 'boolean',
     group: 'Start parameters :',
+    default: undefined,
+  })
+  .option('force-refresh-supported', {
+    describe: i18n.t('harvest.start.options.forceRefreshSupported'),
+    type: 'boolean',
+    group: 'Start parameters :',
+    default: undefined,
+  })
+  .option('dry-run', {
+    describe: i18n.t('harvest.start.options.dryRun'),
+    type: 'boolean',
+    group: 'Start parameters :',
+    default: undefined,
   })
   .option('y', {
     alias: 'yes',
@@ -46,6 +59,7 @@ const printJobs = (jobs, argv) => {
         chalk.bold(i18n.t('harvest.status.credentialsId')),
         chalk.bold(i18n.t('harvest.status.reportTypes')),
         chalk.bold(i18n.t('harvest.status.index')),
+        chalk.bold(i18n.t('harvest.status.period')),
         chalk.bold(i18n.t('harvest.status.jobStatus')),
       ],
       ...jobs.map((j) => {
@@ -72,6 +86,7 @@ const printJobs = (jobs, argv) => {
           j.credentialsId,
           j.reportType,
           j.index,
+          `${j.beginDate} ~ ${j.endDate}`,
           status,
         ];
       }),
@@ -83,6 +98,8 @@ exports.handler = async function handler(argv) {
   const {
     harvestId,
     restartAll,
+    forceRefreshSupported,
+    dryRun,
     verbose,
     yes,
     $0: scriptName,
@@ -127,7 +144,7 @@ exports.handler = async function handler(argv) {
 
     let jobs;
     try {
-      jobs = (await harvestLib.start(hid, { restartAll })).data;
+      jobs = (await harvestLib.start(hid, { restartAll, forceRefreshSupported, dryRun })).data;
     } catch (error) {
       console.error(formatApiError(error));
       process.exit(1);
