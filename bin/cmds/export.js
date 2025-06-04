@@ -10,6 +10,7 @@ const { format } = require('date-fns');
 
 const usersLib = require('../../lib/users');
 const sushiEndpointsLib = require('../../lib/sushiEndpoints');
+const customFieldsLib = require('../../lib/custom-fields');
 const institutionsLib = require('../../lib/institutions');
 const elasticRolesLib = require('../../lib/elastic-roles');
 const repositoriesLib = require('../../lib/repositories');
@@ -32,6 +33,11 @@ exports.builder = (yargs) => yargs
   })
   .option('sushis', {
     describe: i18n.t('export.options.sushis'),
+    type: 'boolean',
+    default: true,
+  })
+  .option('custom-fields', {
+    describe: i18n.t('export.options.customFields'),
     type: 'boolean',
     default: true,
   })
@@ -125,6 +131,7 @@ exports.handler = async function handler(argv) {
     out,
     users,
     sushis,
+    customFields,
     institutions,
     repositories,
     repositoryAliases,
@@ -153,12 +160,20 @@ exports.handler = async function handler(argv) {
       });
     }
 
+    if (customFields) {
+      await exportData({
+        type: 'custom-fields',
+        outFile: path.join(dataFolder, 'custom-fields.jsonl'),
+        fetch: () => customFieldsLib.getAll(),
+      });
+    }
+
     if (institutions) {
       await exportData({
         type: 'institutions',
         outFile: path.join(dataFolder, 'institutions.jsonl'),
         fetch: async () => {
-          const { data, ...resp } = await institutionsLib.getAll({ include: ['sushiCredentials', 'memberships'] });
+          const { data, ...resp } = await institutionsLib.getAll({ include: ['sushiCredentials', 'memberships', 'customProps.field'] });
 
           console.log(chalk.gray(i18n.t('export.institutionSort')));
           // ensuring that parent institutions are always before their children

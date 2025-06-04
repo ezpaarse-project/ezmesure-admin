@@ -151,6 +151,9 @@ exports.handler = async function handler(argv) {
     }
 
     printJobs(jobs, argv);
+    if (argv.format === 'ndjson') {
+      return;
+    }
 
     console.log(chalk.green(i18n.t('harvest.start.success', { id: hid, jobs: jobs.length })));
     console.log(chalk.blue(i18n.t('harvest.start.runStatusCommand')));

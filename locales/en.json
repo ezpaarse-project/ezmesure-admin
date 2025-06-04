@@ -1085,6 +1085,10 @@
 			"going": "i Importing institutions...",
 			"ok": "✔️ {{total}} institutions imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
 		},
+		"customFields": {
+			"going": "i Importing custom fields...",
+			"ok": "✔️ {{total}} custom fields imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
 		"users": {
 			"going": "i Importing users...",
 			"ok": "✔️ {{total}} users imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"

@@ -13,6 +13,7 @@ const inquirer = require('inquirer');
 const { exists } = require('fs-extra');
 const users = require('../../lib/users');
 const ezmesure = require('../../lib/app/ezmesure');
+const customFieldsLib = require('../../lib/custom-fields');
 const institutionsLib = require('../../lib/institutions');
 const elasticRolesLib = require('../../lib/elastic-roles');
 const sushiEndpointsLib = require('../../lib/sushiEndpoints');
@@ -172,6 +173,48 @@ async function importUsers(opts) {
   console.log(
     chalk.green(i18n.t(
       'import.users.ok',
+      {
+        total: `${counters.total}`,
+        created: `${counters.created}`,
+        conflicts: chalk.yellow(counters.conflicts),
+        errors: chalk.red(counters.errors),
+      },
+    )),
+  );
+  console.groupEnd();
+}
+
+/**
+ * Import custom fields into ezMESURE Reloaded
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.inFolder The in folder
+ * @param {string} opts.outFolder The out folder
+ * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
+ */
+async function importCustomFields(opts) {
+  const filePath = path.resolve(opts.inFolder, 'custom-fields.jsonl');
+  if (!await exists(filePath)) {
+    return;
+  }
+
+  console.log(chalk.blue(i18n.t('import.customFields.going')));
+  console.group();
+
+  const counters = await importJSONL({
+    filePath,
+    bulkSize: opts.bulkSize,
+    logPath: path.join(opts.outFolder, 'custom-fields.log'),
+    importer: (chunks) => customFieldsLib.import(
+      chunks,
+      { params: { overwrite: opts.overwrite } },
+    ),
+  });
+
+  console.log(
+    chalk.green(i18n.t(
+      'import.customFields.ok',
       {
         total: `${counters.total}`,
         created: `${counters.created}`,
@@ -349,7 +392,7 @@ async function importRepositoryAliases(opts) {
 }
 
 /**
- * Import repository aliases into ezMESURE Reloaded
+ * Import elastic roles into ezMESURE Reloaded
  *
  * @param {Object} opts Various options
  * @param {string} opts.inFolder The in folder
@@ -494,6 +537,13 @@ exports.handler = async function handler(argv) {
     });
 
     await importSushiEndpoints({
+      inFolder: exportedpath,
+      outFolder,
+      bulkSize,
+      overwrite,
+    });
+
+    await importCustomFields({
       inFolder: exportedpath,
       outFolder,
       bulkSize,
