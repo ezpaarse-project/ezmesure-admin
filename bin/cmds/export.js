@@ -203,7 +203,7 @@ exports.handler = async function handler(argv) {
 
     if (elasticRoles) {
       await exportData({
-        type: 'repository-aliases',
+        type: 'elastic-roles',
         outFile: path.join(dataFolder, 'elastic-roles.jsonl'),
         fetch: () => elasticRolesLib.getAll({ include: ['institutions', 'users', 'spacePermissions', 'repositoryPermissions', 'repositoryAliasPermissions'] }),
       });
