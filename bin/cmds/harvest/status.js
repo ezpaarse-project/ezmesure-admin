@@ -315,9 +315,9 @@ const printJobs = async (session, argv) => {
 
   const t = table([
     [
-      chalk.bold(i18n.t('harvest.status.jobId')),
       chalk.bold(i18n.t('harvest.status.credentialsId')),
       chalk.bold(i18n.t('harvest.status.reportTypes')),
+      chalk.bold(i18n.t('harvest.status.counterVersion')),
       chalk.bold(i18n.t('harvest.status.index')),
       chalk.bold(i18n.t('harvest.status.runningTime')),
       chalk.bold(i18n.t('harvest.status.jobStatus')),
@@ -345,9 +345,9 @@ const printJobs = async (session, argv) => {
       }
 
       return [
-        j.id,
         j.credentialsId,
         j.reportType,
+        j.counterVersion,
         j.index,
         j.runningTime,
         status,

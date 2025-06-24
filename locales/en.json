@@ -1159,6 +1159,7 @@
 			"notFound": "Harvest session {{harvestId}} not found",
 			"header": "{{chip}} {{harvestId}} - {{beginDate}} to {{endDate}}",
 			"reportTypes": "Report Types",
+			"counterVersion": "COUNTER Version",
 			"timeout": "Timeout",
 			"allowFaulty": "Allow Faulty",
 			"downloadUnsupported": "Download Unsupported",

@@ -62,6 +62,7 @@ exports.builder = (yargs) => yargs
   .option('allow-faulty', {
     type: 'boolean',
     describe: i18n.t('harvest.prepare.options.allowFaulty'),
+    default: false,
     group: 'Session parameters :',
   })
   .option('ignore-validation', {
@@ -72,12 +73,25 @@ exports.builder = (yargs) => yargs
   .option('no-cache', {
     describe: i18n.t('harvest.prepare.options.noCache'),
     group: 'Session parameters :',
+    default: true,
     type: 'boolean',
   })
   .option('download-unsupported', {
     describe: i18n.t('harvest.prepare.options.downloadUnsupported'),
     group: 'Session parameters :',
+    default: false,
     type: 'boolean',
+  })
+  .option('end-mail', {
+    describe: i18n.t('harvest.prepare.options.endMail'),
+    group: 'Session parameters :',
+    default: true,
+    type: 'boolean',
+  })
+  .option('counter-versions', {
+    describe: i18n.t('harvest.prepare.options.counterVersions'),
+    group: 'Session parameters :',
+    type: 'array',
   })
   .option('timeout', {
     describe: i18n.t('harvest.prepare.options.timeout'),
@@ -134,6 +148,8 @@ async function prepareSession(options) {
       timeout: options.timeout,
       ignoreValidation: options.ignoreValidation,
       downloadUnsupported: options.downloadUnsupported,
+      sendEndMail: options.sendEndMail,
+      allowedCounterVersions: options.allowedCounterVersions,
     };
 
     // Log more info if needed
@@ -186,12 +202,14 @@ exports.handler = async function handler(argv) {
     sushiIds: argv.sushiIds,
     institutionIds: argv.institutionIds,
     endpointIds: argv.endpointIds,
-    forceDownload: argv.cache != null ? argv.cache === false : undefined,
+    forceDownload: !argv.cache,
     allowFaulty: argv.allowFaulty,
     timeout: argv.timeout,
     ignoreValidation: argv.ignoreValidation,
     downloadUnsupported: argv.downloadUnsupported,
     verbose: argv.verbose,
+    sendEndMail: argv.endMail,
+    allowedCounterVersions: argv.counterVersions?.map((v) => `${v}`),
   };
 
   let sessionParams = [];

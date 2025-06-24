@@ -55,9 +55,9 @@ const printJobs = (jobs, argv) => {
   console.log(
     table([
       [
-        chalk.bold(i18n.t('harvest.status.jobId')),
         chalk.bold(i18n.t('harvest.status.credentialsId')),
         chalk.bold(i18n.t('harvest.status.reportTypes')),
+        chalk.bold(i18n.t('harvest.status.counterVersion')),
         chalk.bold(i18n.t('harvest.status.index')),
         chalk.bold(i18n.t('harvest.status.period')),
         chalk.bold(i18n.t('harvest.status.jobStatus')),
@@ -82,9 +82,9 @@ const printJobs = (jobs, argv) => {
         }
 
         return [
-          j.id,
           j.credentialsId,
           j.reportType,
+          j.counterVersion,
           j.index,
           `${j.beginDate} ~ ${j.endDate}`,
           status,
