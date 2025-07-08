@@ -53,6 +53,7 @@ const DEF_ALLOW_FAULTY = false;
 const DEF_DOWNLOAD_UNSUPPORTED = false;
 const DEF_FORCE_DOWNLOAD = false;
 const DEF_IGNORE_VALIDATION = null;
+const DEF_END_MAIL = true;
 
 const out = process.stdout;
 const moveCursor = (dx, dy) => new Promise((resolve) => out.moveCursor(dx, dy, resolve));
@@ -155,6 +156,7 @@ const printHarvestStatus = async (sessionStatus, argv) => {
     beginDate,
     endDate,
     reportTypes,
+    endMail = DEF_END_MAIL,
     timeout = DEF_TIMEOUT,
     allowFaulty = DEF_ALLOW_FAULTY,
     downloadUnsupported = DEF_DOWNLOAD_UNSUPPORTED,
@@ -195,6 +197,7 @@ const printHarvestStatus = async (sessionStatus, argv) => {
     downloadUnsupported: { value: downloadUnsupported, def: DEF_DOWNLOAD_UNSUPPORTED },
     forceDownload: { value: forceDownload, def: DEF_FORCE_DOWNLOAD },
     ignoreValidation: { value: ignoreValidation, def: DEF_IGNORE_VALIDATION },
+    endMail: { value: endMail, def: DEF_END_MAIL },
     credentials: i18n.t('harvest.status.credentialsText', { harvestable: chalk.underline(harvestable), all: chalk.underline(all) }),
     state: i18n.t('harvest.status.stateText', { state, date: chalk.underline(format(date, 'yyyy-MM-dd HH:mm:ss')) }),
     runningTime: sessionStatus.runningTime && formatDuration(sessionStatus.runningTime),
@@ -347,7 +350,7 @@ const printJobs = async (session, argv) => {
       return [
         j.credentialsId,
         j.reportType,
-        j.counterVersion,
+        j.counterVersion || '5',
         j.index,
         j.runningTime,
         status,

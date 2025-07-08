@@ -202,7 +202,7 @@ exports.handler = async function handler(argv) {
     sushiIds: argv.sushiIds,
     institutionIds: argv.institutionIds,
     endpointIds: argv.endpointIds,
-    forceDownload: !argv.cache,
+    forceDownload: argv.cache != null ? argv.cache === false : undefined,
     allowFaulty: argv.allowFaulty,
     timeout: argv.timeout,
     ignoreValidation: argv.ignoreValidation,

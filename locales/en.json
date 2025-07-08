@@ -1167,6 +1167,7 @@
 			"ignoreValidation": "Ignore Validation",
 			"jobs": "Jobs",
 			"credentials": "Credentials",
+			"endMail": "Send End Mail",
 			"credentialsText": "{{harvestable}} harvestable out of {{all}}",
 			"state": "Active",
 			"stateText": "{{state}} since {{date}}",

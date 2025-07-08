@@ -84,7 +84,7 @@ const printJobs = (jobs, argv) => {
         return [
           j.credentialsId,
           j.reportType,
-          j.counterVersion,
+          j.counterVersion || '5',
           j.index,
           `${j.beginDate} ~ ${j.endDate}`,
           status,
