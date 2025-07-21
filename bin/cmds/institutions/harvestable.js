@@ -132,6 +132,7 @@ exports.handler = async function handler(argv) {
       sushiCredentials = (await sushiLib.getAll({
         institutionId: institution.id,
         include: ['harvests', 'endpoint'],
+        archived: false,
       })).data;
     } catch (error) {
       progress.stop();
