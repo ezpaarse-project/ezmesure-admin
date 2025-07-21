@@ -61,6 +61,11 @@ exports.builder = (yargs) => yargs
     type: 'boolean',
     default: true,
   })
+  .option('repository-alias-templates', {
+    describe: i18n.t('export.options.repositoryAliasTemplates'),
+    type: 'boolean',
+    default: true,
+  })
   .option('spaces', {
     describe: i18n.t('export.options.spaces'),
     type: 'boolean',
@@ -135,6 +140,7 @@ exports.handler = async function handler(argv) {
     institutions,
     repositories,
     repositoryAliases,
+    repositoryAliasesTemplates,
     elasticRoles,
     spaces,
   } = argv;
@@ -190,6 +196,14 @@ exports.handler = async function handler(argv) {
         type: 'repositories',
         outFile: path.join(dataFolder, 'repositories.jsonl'),
         fetch: () => repositoriesLib.getAll({ include: ['institutions', 'permissions'] }),
+      });
+    }
+
+    if (repositoryAliasesTemplates) {
+      await exportData({
+        type: 'repository-alias-templates',
+        outFile: path.join(dataFolder, 'repository-alias-templates.jsonl'),
+        fetch: () => repositoryAliasesLib.getAllTemplates(),
       });
     }
 
