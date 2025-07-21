@@ -358,6 +358,48 @@ async function importRepositories(opts) {
  * @param {number} opts.bulkSize The size of chunks
  * @param {number} opts.overwrite Should overwrite
  */
+async function importRepositoryAliasTemplates(opts) {
+  const filePath = path.resolve(opts.inFolder, 'repository-alias-templates.jsonl');
+  if (!await exists(filePath)) {
+    return;
+  }
+
+  console.log(chalk.blue(i18n.t('import.repositoryAliasTemplates.going')));
+  console.group();
+
+  const counters = await importJSONL({
+    filePath,
+    bulkSize: opts.bulkSize,
+    logPath: path.join(opts.outFolder, 'repository-alias-templates.log'),
+    importer: (chunks) => repositoryAliasesLib.importTemplates(
+      chunks,
+      { params: { overwrite: opts.overwrite } },
+    ),
+  });
+
+  console.log(
+    chalk.green(i18n.t(
+      'import.repositoryAliasTemplates.ok',
+      {
+        total: `${counters.total}`,
+        created: `${counters.created}`,
+        conflicts: chalk.yellow(counters.conflicts),
+        errors: chalk.red(counters.errors),
+      },
+    )),
+  );
+  console.groupEnd();
+}
+
+/**
+ * Import repository aliases into ezMESURE Reloaded
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.inFolder The in folder
+ * @param {string} opts.outFolder The out folder
+ * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
+ */
 async function importRepositoryAliases(opts) {
   const filePath = path.resolve(opts.inFolder, 'repository-aliases.jsonl');
   if (!await exists(filePath)) {
@@ -528,62 +570,31 @@ exports.handler = async function handler(argv) {
     ezmesure.defaults.httpsAgent = new https.Agent({ rejectUnauthorized: false });
   }
 
+  const params = {
+    inFolder: exportedpath,
+    outFolder,
+    bulkSize,
+    overwrite,
+  };
+
   try {
-    await importUsers({
-      inFolder: exportedpath,
-      outFolder,
-      bulkSize,
-      overwrite,
-    });
+    await importUsers(params);
 
-    await importSushiEndpoints({
-      inFolder: exportedpath,
-      outFolder,
-      bulkSize,
-      overwrite,
-    });
+    await importSushiEndpoints(params);
 
-    await importCustomFields({
-      inFolder: exportedpath,
-      outFolder,
-      bulkSize,
-      overwrite,
-    });
+    await importCustomFields(params);
 
-    await importInstitutions({
-      inFolder: exportedpath,
-      outFolder,
-      bulkSize,
-      overwrite,
-    });
+    await importInstitutions(params);
 
-    await importRepositories({
-      inFolder: exportedpath,
-      outFolder,
-      bulkSize,
-      overwrite,
-    });
+    await importRepositories(params);
 
-    await importRepositoryAliases({
-      inFolder: exportedpath,
-      outFolder,
-      bulkSize,
-      overwrite,
-    });
+    await importRepositoryAliasTemplates(params);
 
-    await importSpaces({
-      inFolder: exportedpath,
-      outFolder,
-      bulkSize,
-      overwrite,
-    });
+    await importRepositoryAliases(params);
 
-    await importElasticRoles({
-      inFolder: exportedpath,
-      outFolder,
-      bulkSize,
-      overwrite,
-    });
+    await importSpaces(params);
+
+    await importElasticRoles(params);
 
     console.log(chalk.green(i18n.t('import.ok', { out: chalk.underline(outFolder) })));
   } catch (error) {

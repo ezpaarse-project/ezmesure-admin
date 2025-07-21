@@ -1101,6 +1101,10 @@
 			"going": "i Importing repositories...",
 			"ok": "✔️ {{total}} repositories imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
 		},
+		"repositoryAliasTemplates": {
+			"going": "i Importing repository alias templates...",
+			"ok": "✔️ {{total}} templates imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
 		"repositoryAliases": {
 			"going": "i Importing repository aliases...",
 			"ok": "✔️ {{total}} aliases imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
