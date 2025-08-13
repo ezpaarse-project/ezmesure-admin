@@ -1,5 +1,7 @@
 const { i18n } = global;
 
+const { setTimeout } = require('node:timers/promises');
+
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 
@@ -19,6 +21,20 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('harvest.start.options.yes'),
     type: 'boolean',
   });
+
+async function waitForComplete(session, verbose, interval = 500) {
+  const { data: start } = await harvestLib.getStartStatus(session.id);
+  if (verbose) {
+    console.log(chalk.grey(`  Session is ${chalk.bold(start.status)}`));
+  }
+
+  if (start.status !== 'stopping' || start.error) {
+    return start;
+  }
+
+  await setTimeout(interval);
+  return waitForComplete(session, verbose, interval);
+}
 
 exports.handler = async function handler(argv) {
   const {
@@ -63,11 +79,22 @@ exports.handler = async function handler(argv) {
       console.log(`Stopping harvest session ${hid} from ${config.ezmesure.baseUrl}`);
     }
 
+    let start;
     try {
       await harvestLib.stop(hid);
+
+      console.log(chalk.blue(i18n.t('harvest.stop.started')));
+
+      start = await waitForComplete({ id: hid }, verbose);
     } catch (error) {
       console.error(formatApiError(error));
       process.exit(1);
+    }
+
+    if (start.error) {
+      console.log(chalk.red(i18n.t('harvest.stop.error')));
+      console.log(start.error);
+      return;
     }
 
     console.log(chalk.green(i18n.t('harvest.stop.success', { id: hid })));

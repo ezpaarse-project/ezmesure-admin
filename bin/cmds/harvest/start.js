@@ -1,5 +1,7 @@
 const { i18n } = global;
 
+const { setTimeout } = require('node:timers/promises');
+
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 const { table } = require('table');
@@ -94,6 +96,20 @@ const printJobs = (jobs, argv) => {
   );
 };
 
+async function waitForComplete(session, verbose, interval = 500) {
+  const { data: start } = await harvestLib.getStartStatus(session.id);
+  if (verbose) {
+    console.log(chalk.grey(`  Session is ${chalk.bold(start.status)} (${start.jobs?.length} created)`));
+  }
+
+  if (start.status !== 'starting' || start.error) {
+    return start;
+  }
+
+  await setTimeout(interval);
+  return waitForComplete(session, verbose, interval);
+}
+
 exports.handler = async function handler(argv) {
   const {
     harvestId,
@@ -142,20 +158,34 @@ exports.handler = async function handler(argv) {
       console.log(`Start harvest session ${hid} from ${config.ezmesure.baseUrl}`);
     }
 
-    let jobs;
+    let start;
     try {
-      jobs = (await harvestLib.start(hid, { restartAll, forceRefreshSupported, dryRun })).data;
+      const { data: session } = await harvestLib.start(hid, {
+        restartAll,
+        forceRefreshSupported,
+        dryRun,
+      });
+
+      console.log(chalk.blue(i18n.t('harvest.start.started')));
+
+      start = await waitForComplete(session, verbose);
     } catch (error) {
       console.error(formatApiError(error));
       process.exit(1);
     }
 
-    printJobs(jobs, argv);
+    if (start.error) {
+      console.log(chalk.red(i18n.t('harvest.start.error')));
+      console.log(start.error);
+      return;
+    }
+
+    printJobs(start.jobs, argv);
     if (argv.format === 'ndjson') {
       return;
     }
 
-    console.log(chalk.green(i18n.t('harvest.start.success', { id: hid, jobs: jobs.length })));
+    console.log(chalk.green(i18n.t('harvest.start.success', { id: hid, jobs: start.jobs.length })));
     console.log(chalk.blue(i18n.t('harvest.start.runStatusCommand')));
     console.log(chalk.blue(`\t${scriptName} harvest status "${hid}"`));
     console.log(chalk.blue(i18n.t('harvest.start.runJobsCommand')));

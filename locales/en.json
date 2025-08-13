@@ -1176,7 +1176,7 @@
 			"state": "Active",
 			"stateText": "{{state}} since {{date}}",
 			"states": {
-				"prepared": "prepared",
+				"inactive": "inactive",
 				"active": "active",
 				"ended": "ended"
 			},
@@ -1192,6 +1192,8 @@
 			"index": "Index",
 			"period": "Period",
 			"jobStatus": "Status",
+			"status": "Status",
+			"allowedCounterVersions": "COUNTER versions",
 			"errorCode": "Error code"
 		},
 		"start": {
@@ -1203,6 +1205,8 @@
 				"forceRefreshSupported": "Force refresh of supported reports",
 				"dryRun": "Simulate start of session, will update endpoints but not start any jobs"
 			},
+			"started": "i Session is currently starting",
+			"error": "! Something happened while starting session :",
 			"askConfirmation": "Do you wish to start the harvesting of {{id}} into {{instance}}",
 			"success": "✔️ Harvest session [{{id}}] has started with [{{jobs}}] jobs",
 			"runStatusCommand": "i Run the following command in order to get more info about the session:",
@@ -1210,6 +1214,8 @@
 			"runWatchCommand": "i Run the following command in order to watch for the status of the session:"
 		},
 		"stop": {
+  		"started": "i Session is currently stopping",
+  		"error": "! Something happened while stopping session :",
 			"description": "Stop a running harvest session",
 			"askConfirmation": "Do you wish to stop the harvesting of {{id}} into {{instance}}",
 			"success": "✔️ Harvest session [{{id}}] has been stopped"

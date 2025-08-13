@@ -167,7 +167,7 @@ const printHarvestStatus = async (sessionStatus, argv) => {
   } = session;
 
   let chip = '●';
-  let state = chalk.yellow(i18n.t('harvest.status.states.prepared'));
+  let state = chalk.yellow(i18n.t('harvest.status.states.inactive'));
   let date = parseISO(session.updatedAt);
   if (session.startedAt) {
     chip = chalk.blue(chip);
@@ -187,7 +187,7 @@ const printHarvestStatus = async (sessionStatus, argv) => {
   }));
   printedLines += 1;
 
-  const jobStatuses = [...Object.entries(sessionStatus._count.jobStatuses)]
+  const jobStatuses = Object.entries(sessionStatus._count.jobStatuses)
     .map(([value, header]) => ({ header, value }));
 
   const { harvestable, all } = sessionStatus._count.credentials;
@@ -200,8 +200,9 @@ const printHarvestStatus = async (sessionStatus, argv) => {
     forceDownload: { value: forceDownload, def: DEF_FORCE_DOWNLOAD },
     ignoreValidation: { value: ignoreValidation, def: DEF_IGNORE_VALIDATION },
     endMail: { value: endMail, def: DEF_END_MAIL },
-    allowedCounterVersions: { value: allowedCounterVersions, def: DEF_COUNTER_VERSIONS },
+    allowedCounterVersions: { value: allowedCounterVersions.join(', '), def: DEF_COUNTER_VERSIONS.join(', ') },
     credentials: i18n.t('harvest.status.credentialsText', { harvestable: chalk.underline(harvestable), all: chalk.underline(all) }),
+    status: session.status,
     state: i18n.t('harvest.status.stateText', { state, date: chalk.underline(format(date, 'yyyy-MM-dd HH:mm:ss')) }),
     runningTime: sessionStatus.runningTime && formatDuration(sessionStatus.runningTime),
     jobs: { value: session._count.jobs, items: jobStatuses },
