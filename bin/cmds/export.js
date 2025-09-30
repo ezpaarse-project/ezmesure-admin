@@ -140,7 +140,7 @@ exports.handler = async function handler(argv) {
     institutions,
     repositories,
     repositoryAliases,
-    repositoryAliasesTemplates,
+    repositoryAliasTemplates,
     elasticRoles,
     spaces,
   } = argv;
@@ -199,7 +199,7 @@ exports.handler = async function handler(argv) {
       });
     }
 
-    if (repositoryAliasesTemplates) {
+    if (repositoryAliasTemplates) {
       await exportData({
         type: 'repository-alias-templates',
         outFile: path.join(dataFolder, 'repository-alias-templates.jsonl'),
