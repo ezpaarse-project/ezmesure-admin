@@ -9,6 +9,7 @@ const chalk = require('chalk');
 const { format } = require('date-fns');
 
 const usersLib = require('../../lib/users');
+const rolesLib = require('../../lib/roles');
 const sushiEndpointsLib = require('../../lib/sushiEndpoints');
 const customFieldsLib = require('../../lib/custom-fields');
 const institutionsLib = require('../../lib/institutions');
@@ -25,6 +26,11 @@ exports.builder = (yargs) => yargs
     describe: i18n.t('export.options.out'),
     type: 'string',
     default: format(new Date(), 'yyyy-MM-dd'),
+  })
+  .option('roles', {
+    describe: i18n.t('export.options.roles'),
+    type: 'boolean',
+    default: true,
   })
   .option('users', {
     describe: i18n.t('export.options.users'),
@@ -134,6 +140,7 @@ const sortParentsInstitutions = (data, institution) => {
 exports.handler = async function handler(argv) {
   const {
     out,
+    roles,
     users,
     sushis,
     customFields,
@@ -149,6 +156,14 @@ exports.handler = async function handler(argv) {
   await fsp.mkdir(dataFolder, { recursive: true });
 
   try {
+    if (roles) {
+      await exportData({
+        type: 'roles',
+        outFile: path.join(dataFolder, 'roles.jsonl'),
+        fetch: () => rolesLib.getAll(),
+      });
+    }
+
     if (users) {
       await exportData({
         type: 'users',

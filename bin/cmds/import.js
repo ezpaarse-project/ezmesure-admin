@@ -9,10 +9,11 @@ const readline = require('node:readline');
 const cliProgress = require('cli-progress');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
-
 const { exists } = require('fs-extra');
-const users = require('../../lib/users');
+
 const ezmesure = require('../../lib/app/ezmesure');
+const usersLib = require('../../lib/users');
+const rolesLib = require('../../lib/roles');
 const customFieldsLib = require('../../lib/custom-fields');
 const institutionsLib = require('../../lib/institutions');
 const elasticRolesLib = require('../../lib/elastic-roles');
@@ -146,6 +147,45 @@ async function importJSONL(opts) {
 }
 
 /**
+ * Import roles into ezMESURE Reloaded
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.inFolder The in folder
+ * @param {string} opts.outFolder The out folder
+ * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
+ */
+async function importRoles(opts) {
+  const filePath = path.resolve(opts.inFolder, 'roles.jsonl');
+  if (!await exists(filePath)) {
+    return;
+  }
+
+  console.log(chalk.blue(i18n.t('import.roles.going')));
+  console.group();
+
+  const counters = await importJSONL({
+    filePath,
+    bulkSize: opts.bulkSize,
+    logPath: path.join(opts.outFolder, 'role.log'),
+    importer: (chunks) => rolesLib.import(chunks, { params: { overwrite: opts.overwrite } }),
+  });
+
+  console.log(
+    chalk.green(i18n.t(
+      'import.roles .ok',
+      {
+        total: `${counters.total}`,
+        created: `${counters.created}`,
+        conflicts: chalk.yellow(counters.conflicts),
+        errors: chalk.red(counters.errors),
+      },
+    )),
+  );
+  console.groupEnd();
+}
+
+/**
  * Import users into ezMESURE Reloaded
  *
  * @param {Object} opts Various options
@@ -167,7 +207,7 @@ async function importUsers(opts) {
     filePath,
     bulkSize: opts.bulkSize,
     logPath: path.join(opts.outFolder, 'user.log'),
-    importer: (chunks) => users.import(chunks, { params: { overwrite: opts.overwrite } }),
+    importer: (chunks) => usersLib.import(chunks, { params: { overwrite: opts.overwrite } }),
   });
 
   console.log(
@@ -578,6 +618,8 @@ exports.handler = async function handler(argv) {
   };
 
   try {
+    await importRoles(params);
+
     await importUsers(params);
 
     await importSushiEndpoints(params);

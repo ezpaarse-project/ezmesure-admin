@@ -1072,6 +1072,7 @@
 			"bulkSize": "Number of items that should be imported at once",
 			"insecure": "Skip TLS certificates verification",
 			"yes": "Automatic yes to prompts; assume \"yes\" as answer to all prompts and run non-interactively.",
+			"roles": "Should export roles",
 			"users": "Should export users",
 			"sushis": "Should export sushis credentials",
 			"institutions": "Should export institutions",
@@ -1088,6 +1089,10 @@
 		"customFields": {
 			"going": "i Importing custom fields...",
 			"ok": "✔️ {{total}} custom fields imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
+		"roles": {
+			"going": "i Importing roles...",
+			"ok": "✔️ {{total}} roles imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
 		},
 		"users": {
 			"going": "i Importing users...",
