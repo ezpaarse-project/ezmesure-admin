@@ -173,7 +173,7 @@ async function importRoles(opts) {
 
   console.log(
     chalk.green(i18n.t(
-      'import.roles .ok',
+      'import.roles.ok',
       {
         total: `${counters.total}`,
         created: `${counters.created}`,
