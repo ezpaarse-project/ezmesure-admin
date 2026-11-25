@@ -75,6 +75,14 @@ exports.builder = function builder(yargs) {
 };
 
 /**
+ * @typedef {Object} ImportOptions
+ * @property {string} inFolder - The in folder
+ * @property {string} outFolder - The out folder
+ * @property {number} bulkSize - The size of chunks
+ * @property {number} overwrite - Should overwrite
+ */
+
+/**
  * Read JSONL file line by line, parse content and returns it
  *
  * @param {string} filePath The path to the JSONL file
@@ -170,11 +178,7 @@ async function importJSONL(opts) {
 /**
  * Import roles into ezMESURE Reloaded
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importRoles(opts) {
   const filePath = path.resolve(opts.inFolder, 'roles.jsonl');
@@ -209,11 +213,7 @@ async function importRoles(opts) {
 /**
  * Import users into ezMESURE Reloaded
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importUsers(opts) {
   const filePath = path.resolve(opts.inFolder, 'users.jsonl');
@@ -248,11 +248,7 @@ async function importUsers(opts) {
 /**
  * Import custom fields into ezMESURE Reloaded
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importCustomFields(opts) {
   const filePath = path.resolve(opts.inFolder, 'custom-fields.jsonl');
@@ -290,11 +286,7 @@ async function importCustomFields(opts) {
 /**
  * Import institutions into ezMESURE Reloaded
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importInstitutions(opts) {
   const filePath = path.resolve(opts.inFolder, 'institutions.jsonl');
@@ -329,11 +321,7 @@ async function importInstitutions(opts) {
 /**
  * Import endpoints into ezMESURE Reloaded
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importSushiEndpoints(opts) {
   const filePath = path.resolve(opts.inFolder, 'sushis.jsonl');
@@ -371,11 +359,7 @@ async function importSushiEndpoints(opts) {
 /**
  * Import repositories into ezMESURE Reloaded
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importRepositories(opts) {
   const filePath = path.resolve(opts.inFolder, 'repositories.jsonl');
@@ -413,11 +397,7 @@ async function importRepositories(opts) {
 /**
  * Import repository aliases into ezMESURE Reloaded
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importRepositoryAliasTemplates(opts) {
   const filePath = path.resolve(opts.inFolder, 'repository-alias-templates.jsonl');
@@ -455,11 +435,7 @@ async function importRepositoryAliasTemplates(opts) {
 /**
  * Import repository aliases into ezMESURE Reloaded
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importRepositoryAliases(opts) {
   const filePath = path.resolve(opts.inFolder, 'repository-aliases.jsonl');
@@ -497,11 +473,7 @@ async function importRepositoryAliases(opts) {
 /**
  * Import elastic roles into ezMESURE Reloaded
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importElasticRoles(opts) {
   const filePath = path.resolve(opts.inFolder, 'elastic-roles.jsonl');
@@ -539,11 +511,7 @@ async function importElasticRoles(opts) {
 /**
  * Import endpoints into ezMESURE Reloaded
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importSpaces(opts) {
   const filePath = path.resolve(opts.inFolder, 'spaces.jsonl');
@@ -581,11 +549,7 @@ async function importSpaces(opts) {
 /**
  * Import dashboard collections into ezMESURE
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importDashboardCollections(opts) {
   const filePath = path.resolve(opts.inFolder, 'dashboard-collections.jsonl');
@@ -623,11 +587,7 @@ async function importDashboardCollections(opts) {
 /**
  * Import dashboard templates into ezMESURE
  *
- * @param {Object} opts Various options
- * @param {string} opts.inFolder The in folder
- * @param {string} opts.outFolder The out folder
- * @param {number} opts.bulkSize The size of chunks
- * @param {number} opts.overwrite Should overwrite
+ * @param {ImportOptions} opts
  */
 async function importDashboardTemplates(opts) {
   const filePath = path.resolve(opts.inFolder, 'dashboard-templates.jsonl');
@@ -716,6 +676,7 @@ exports.handler = async function handler(argv) {
     ezmesure.defaults.httpsAgent = new https.Agent({ rejectUnauthorized: false });
   }
 
+  /** @type {ImportOptions} */
   const params = {
     inFolder: exportedpath,
     outFolder,
