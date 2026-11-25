@@ -17,6 +17,8 @@ const elasticRolesLib = require('../../lib/elastic-roles');
 const repositoriesLib = require('../../lib/repositories');
 const repositoryAliasesLib = require('../../lib/repository-aliases');
 const spacesLib = require('../../lib/spaces');
+const dashboardCollectionsLib = require('../../lib/dashboard-collections');
+const dashboardTemplatesLib = require('../../lib/dashboard-templates');
 
 exports.command = 'export';
 exports.desc = i18n.t('export.description');
@@ -74,6 +76,16 @@ exports.builder = (yargs) => yargs
   })
   .option('spaces', {
     describe: i18n.t('export.options.spaces'),
+    type: 'boolean',
+    default: true,
+  })
+  .option('dashboard-templates', {
+    describe: i18n.t('export.options.dashboardTemplates'),
+    type: 'boolean',
+    default: true,
+  })
+  .option('dashboard-collections', {
+    describe: i18n.t('export.options.dashboardCollections'),
     type: 'boolean',
     default: true,
   });
@@ -150,6 +162,8 @@ exports.handler = async function handler(argv) {
     repositoryAliasTemplates,
     elasticRoles,
     spaces,
+    dashboardTemplates,
+    dashboardCollections,
   } = argv;
 
   const dataFolder = path.resolve(out);
@@ -238,11 +252,27 @@ exports.handler = async function handler(argv) {
       });
     }
 
+    if (dashboardCollections) {
+      await exportData({
+        type: 'dashboard-collections',
+        outFile: path.join(dataFolder, 'dashboard-collections.jsonl'),
+        fetch: () => dashboardCollectionsLib.getAll(),
+      });
+    }
+
+    if (dashboardTemplates) {
+      await exportData({
+        type: 'dashboard-templates',
+        outFile: path.join(dataFolder, 'dashboard-templates.jsonl'),
+        fetch: () => dashboardTemplatesLib.getAll(),
+      });
+    }
+
     if (spaces) {
       await exportData({
         type: 'spaces',
         outFile: path.join(dataFolder, 'spaces.jsonl'),
-        fetch: () => spacesLib.getAll({ include: ['permissions'] }),
+        fetch: () => spacesLib.getAll({ include: ['permissions', 'dashboardCollections'] }),
       });
     }
 

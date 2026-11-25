@@ -21,6 +21,8 @@ const sushiEndpointsLib = require('../../lib/sushiEndpoints');
 const repositoriesLib = require('../../lib/repositories');
 const repositoryAliasesLib = require('../../lib/repository-aliases');
 const spacesLib = require('../../lib/spaces');
+const dashboardCollectionsLib = require('../../lib/dashboard-collections');
+const dashboardTemplatesLib = require('../../lib/dashboard-templates');
 
 exports.command = 'import <exported path>';
 exports.desc = i18n.t('import.description');
@@ -66,6 +68,8 @@ exports.builder = function builder(yargs) {
         'repository-aliases',
         'spaces',
         'elastic-roles',
+        'dashboard-collections',
+        'dashboard-templates',
       ],
     });
 };
@@ -574,6 +578,90 @@ async function importSpaces(opts) {
   console.groupEnd();
 }
 
+/**
+ * Import dashboard collections into ezMESURE
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.inFolder The in folder
+ * @param {string} opts.outFolder The out folder
+ * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
+ */
+async function importDashboardCollections(opts) {
+  const filePath = path.resolve(opts.inFolder, 'dashboard-collections.jsonl');
+  if (!await exists(filePath)) {
+    return;
+  }
+
+  console.log(chalk.blue(i18n.t('import.dashboardCollections.going')));
+  console.group();
+
+  const counters = await importJSONL({
+    filePath,
+    bulkSize: opts.bulkSize,
+    logPath: path.join(opts.outFolder, 'dashboard-collections.log'),
+    importer: (chunks) => dashboardCollectionsLib.import(
+      chunks,
+      { params: { overwrite: opts.overwrite } },
+    ),
+  });
+
+  console.log(
+    chalk.green(i18n.t(
+      'import.dashboardCollections.ok',
+      {
+        total: `${counters.total}`,
+        created: `${counters.created}`,
+        conflicts: chalk.yellow(counters.conflicts),
+        errors: chalk.red(counters.errors),
+      },
+    )),
+  );
+  console.groupEnd();
+}
+
+/**
+ * Import dashboard templates into ezMESURE
+ *
+ * @param {Object} opts Various options
+ * @param {string} opts.inFolder The in folder
+ * @param {string} opts.outFolder The out folder
+ * @param {number} opts.bulkSize The size of chunks
+ * @param {number} opts.overwrite Should overwrite
+ */
+async function importDashboardTemplates(opts) {
+  const filePath = path.resolve(opts.inFolder, 'dashboard-templates.jsonl');
+  if (!await exists(filePath)) {
+    return;
+  }
+
+  console.log(chalk.blue(i18n.t('import.dashboardTemplates.going')));
+  console.group();
+
+  const counters = await importJSONL({
+    filePath,
+    bulkSize: opts.bulkSize,
+    logPath: path.join(opts.outFolder, 'dashboard-templates.log'),
+    importer: (chunks) => dashboardTemplatesLib.import(
+      chunks,
+      { params: { overwrite: opts.overwrite } },
+    ),
+  });
+
+  console.log(
+    chalk.green(i18n.t(
+      'import.dashboardTemplates.ok',
+      {
+        total: `${counters.total}`,
+        created: `${counters.created}`,
+        conflicts: chalk.yellow(counters.conflicts),
+        errors: chalk.red(counters.errors),
+      },
+    )),
+  );
+  console.groupEnd();
+}
+
 exports.handler = async function handler(argv) {
   const {
     exportedpath,
@@ -644,6 +732,8 @@ exports.handler = async function handler(argv) {
     { name: 'repositories', execute: importRepositories },
     { name: 'repository-alias-templates', execute: importRepositoryAliasTemplates },
     { name: 'repository-aliases', execute: importRepositoryAliases },
+    { name: 'dashboard-collections', execute: importDashboardCollections },
+    { name: 'dashboard-templates', execute: importDashboardTemplates },
     { name: 'spaces', execute: importSpaces },
     { name: 'elastic-roles', execute: importElasticRoles },
   ];

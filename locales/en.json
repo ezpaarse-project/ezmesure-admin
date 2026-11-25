@@ -1228,7 +1228,19 @@
 		"description": "Export users, sushis endpoints and institutions from ezMESURE",
 		"options": {
 			"out": "Directory where to output files (Default: current datetime)",
-			"bulkSize": "Number of items that should be exported at once"
+			"bulkSize": "Number of items that should be exported at once",
+			"roles": "Export roles",
+			"users": "Export users",
+			"sushis": "Export COUNTER credentials",
+			"customFields": "Export custom fields",
+			"institutions": "Export institutions",
+			"elasticRoles": "Export elastic roles",
+			"repositories": "Export repositories",
+			"repositoryAliases": "Export repository aliases",
+			"repositoryAliasTemplates": "Export repository alias templates",
+			"spaces": "Export spaces",
+			"dashboardTemplates": "Export dashboard templates",
+			"dashboardCollections": "Export dashboard collections"
 		},
 
 		"institutionSort": "  Sorting institutions...",
