@@ -50,6 +50,23 @@ exports.builder = function builder(yargs) {
       alias: 'overwrite',
       describe: i18n.t('transfer.options.overwrite'),
       type: 'boolean',
+    })
+    .option('only', {
+      describe: i18n.t('import.options.only'),
+      type: 'array',
+      coerce: (array) => array.flatMap((v) => v.split(',')),
+      choices: [
+        'roles',
+        'users',
+        'sushi-endpoints',
+        'custom-fields',
+        'institutions',
+        'repositories',
+        'repository-alias-templates',
+        'repository-aliases',
+        'spaces',
+        'elastic-roles',
+      ],
     });
 };
 
@@ -565,6 +582,7 @@ exports.handler = async function handler(argv) {
     out,
     yes,
     overwrite,
+    only,
   } = argv;
 
   if (!fs.existsSync(exportedpath)) {
@@ -617,26 +635,25 @@ exports.handler = async function handler(argv) {
     overwrite,
   };
 
+  const steps = [
+    { name: 'roles', execute: importRoles },
+    { name: 'users', execute: importUsers },
+    { name: 'sushi-endpoints', execute: importSushiEndpoints },
+    { name: 'custom-fields', execute: importCustomFields },
+    { name: 'institutions', execute: importInstitutions },
+    { name: 'repositories', execute: importRepositories },
+    { name: 'repository-alias-templates', execute: importRepositoryAliasTemplates },
+    { name: 'repository-aliases', execute: importRepositoryAliases },
+    { name: 'spaces', execute: importSpaces },
+    { name: 'elastic-roles', execute: importElasticRoles },
+  ];
+
   try {
-    await importRoles(params);
-
-    await importUsers(params);
-
-    await importSushiEndpoints(params);
-
-    await importCustomFields(params);
-
-    await importInstitutions(params);
-
-    await importRepositories(params);
-
-    await importRepositoryAliasTemplates(params);
-
-    await importRepositoryAliases(params);
-
-    await importSpaces(params);
-
-    await importElasticRoles(params);
+    for (const step of steps) {
+      if (!Array.isArray(only) || only.includes(step.name)) {
+        await step.execute(params);
+      }
+    }
 
     console.log(chalk.green(i18n.t('import.ok', { out: chalk.underline(outFolder) })));
   } catch (error) {

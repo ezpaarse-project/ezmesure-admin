@@ -1072,14 +1072,7 @@
 			"bulkSize": "Number of items that should be imported at once",
 			"insecure": "Skip TLS certificates verification",
 			"yes": "Automatic yes to prompts; assume \"yes\" as answer to all prompts and run non-interactively.",
-			"roles": "Should export roles",
-			"users": "Should export users",
-			"sushis": "Should export sushis credentials",
-			"institutions": "Should export institutions",
-			"repositories": "Should export repositories",
-			"repositoryAliases": "Should export repository aliases",
-			"elasticRoles": "Should export elastic roles",
-			"spaces": "Should export spaces"
+			"only": "Only import the given ressources"
 		},
 
 		"institutions": {
