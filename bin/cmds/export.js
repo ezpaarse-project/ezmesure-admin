@@ -208,7 +208,7 @@ exports.handler = async function handler(argv) {
         type: 'institutions',
         outFile: path.join(dataFolder, 'institutions.jsonl'),
         fetch: async () => {
-          const { data, ...resp } = await institutionsLib.getAll({ include: ['sushiCredentials', 'memberships', 'customProps.field'] });
+          const { data, ...resp } = await institutionsLib.getAll({ include: ['sushiCredentials', 'memberships.roles', 'customProps.field'] });
 
           console.log(chalk.gray(i18n.t('export.institutionSort')));
           // ensuring that parent institutions are always before their children
