@@ -1115,6 +1115,14 @@
 			"going": "i Importing elastic roles...",
 			"ok": "✔️ {{total}} elastic roles imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
 		},
+		"dashboardCollections": {
+			"going": "i Importing dashboard collections...",
+			"ok": "✔️ {{total}} dashboard collections imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
+		"dashboardTemplates": {
+			"going": "i Importing dashboard templates...",
+			"ok": "✔️ {{total}} dashboard templates imported ({{created}} created, {{conflicts}} conflicts, {{errors}} errors)"
+		},
 		"noInDir": "No directory specified",
 		"chunks": "  Using chunks of: {{chunkSize}}",
 		"unknownError": "Unknown error from API",
